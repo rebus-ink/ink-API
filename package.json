@@ -1,0 +1,82 @@
+{
+  "name": "hobb-api",
+  "version": "0.0.1",
+  "description": "Hobb API Server for Rebus Reader",
+  "main": "index.js",
+  "engines": {
+    "node": "^8.0.0"
+  },
+  "scripts": {
+    "test": "tap --cov tests/*.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RebusFoundation/reader-api.git"
+  },
+  "author": "Rebus Foundation",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/RebusFoundation/reader-api/issues"
+  },
+  "homepage": "https://github.com/RebusFoundation/reader-api#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^7.1.2",
+    "@commitlint/config-conventional": "^7.1.2",
+    "csurf": "^1.9.0",
+    "documentation": "^8.1.2",
+    "flow-bin": "^0.80.0",
+    "flow-coverage-report": "^0.6.0",
+    "husky": "^1.0.0-rc.14",
+    "lint-staged": "^7.2.2",
+    "nodemon": "^1.18.4",
+    "onchange": "^4.1.0",
+    "prettier-standard": "^8.0.1",
+    "proxyquire": "^2.1.0",
+    "sinon": "^6.3.3",
+    "standard": "^11.0.1",
+    "tap": "^12.0.1"
+  },
+  "dependencies": {
+    "accesscontrol": "^2.2.1",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-session": "^2.0.0-beta.3",
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "knex": "^0.15.2",
+    "morgan": "^1.9.1",
+    "objection": "^1.2.6",
+    "objection-db-errors": "^1.0.0",
+    "objection-guid": "^3.0.2",
+    "passport": "^0.4.0",
+    "passport-auth0": "^1.0.0",
+    "pg": "^7.4.3",
+    "sanitize-html": "^1.19.0",
+    "short-uuid": "^3.0.0"
+  },
+  "standard": {
+    "ignore": [
+      "node_modules/**",
+      "flow-typed/**"
+    ]
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "test/*"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "flow check && lint-staged",
+      "commitmsg": "commitlint -E GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "**/*.{js,md}": [
+        "prettier-standard",
+        "git add"
+      ]
+    }
+  }
+}
