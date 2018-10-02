@@ -78,7 +78,7 @@ if (process.env.NODE_ENV !== 'development') {
 app.get('/', function (req, res, next) {
   return res.format({
     'text/html': function () {
-      res.render('Running!')
+      res.send('Running!')
     },
     'application/json': function () {
       return res.send({ running: true })
