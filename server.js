@@ -19,7 +19,7 @@ if (
   app.use(
     basicAuth({
       challenge: true,
-      users: { admin: 'plasticfantasticsecret' }
+      users: { admin: process.env.DEV_PASSWORD }
     })
   )
 }
@@ -58,7 +58,7 @@ app.use(compression())
 if (process.env.NODE_ENV !== 'development') {
   app.use(function (req, res, next) {
     if (req.protocol !== 'https') {
-      res.redirect(process.env.HTML_DOMAIN + req.path)
+      res.redirect(process.env.DOMAIN + req.path)
     } else {
       next()
     }
