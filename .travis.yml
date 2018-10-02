@@ -12,9 +12,9 @@ before_install:
 - psql -c 'create database travis_ci_test;' -U postgres
 deploy:
   provider: gae
-  keyfile: "google-keyfile.json"
-  project: "thematic-cider-139815"
-  config: "app-development.yaml"
+  keyfile: google-keyfile.json
+  project: thematic-cider-139815
+  config: app-development.yaml
   skip_cleanup: true
-  on: 
-    branch: "master"
+  on:
+    branch: master
