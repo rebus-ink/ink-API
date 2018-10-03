@@ -86,7 +86,7 @@ app.get('/', function (req, res, next) {
   })
 })
 
-app.use('/user', require('./routes/user'))
+app.use('/', require('./routes/user'))
 
 module.exports = {
   // Export app for reuse in other express apps/servers
