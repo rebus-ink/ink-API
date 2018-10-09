@@ -87,6 +87,9 @@ app.get('/', function (req, res, next) {
 })
 
 app.use('/', require('./routes/user'))
+app.use('/', require('./routes/outbox'))
+app.use('/', require('./routes/user-streams'))
+app.use('/', require('./routes/user-library'))
 
 module.exports = {
   // Export app for reuse in other express apps/servers
