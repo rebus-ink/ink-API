@@ -34,10 +34,20 @@ const main = async () => {
 
   await tap.type(body, 'object')
 
-  await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
+  await tap.ok(body['@context'])
   await tap.equal(body.id, 'https://reader-api.test/foo/library')
   await tap.equal(body.type, 'Collection')
   await tap.ok(Array.isArray(body.items))
+  await tap.ok(body.items.length > 0)
+
+  for (let i = 0; i < body.items.length; i++) {
+    let item = body.items[i]
+    await tap.type(item, 'object')
+    await tap.match(item.id, /^https:\/\/reader-api.test\/foo\/publication/)
+    await tap.equal(item.type, 'reader:Publication')
+    await tap.ok(item.name)
+    await tap.ok(item.attributedTo)
+  }
 }
 
 main()
