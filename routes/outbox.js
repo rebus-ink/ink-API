@@ -26,7 +26,6 @@ router
     const nickname = req.params.nickname
     const host = req.headers.host
 
-    console.dir(req.body)
     const type = JSON.parse(req.body).type
 
     res.setHeader(
