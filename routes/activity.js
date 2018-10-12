@@ -1,0 +1,42 @@
+const express = require('express')
+const router = express.Router()
+
+router.get('/:nickname/activity/:actid', function (req, res, next) {
+  const nickname = req.params.nickname
+  const actid = req.params.actid
+  const host = req.headers.host
+
+  res.setHeader(
+    'Content-Type',
+    'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  )
+
+  res.end(
+    JSON.stringify({
+      '@context': [
+        'https://www.w3.org/ns/activitystreams',
+        { reader: 'https://rebus.foundation/ns/reader' }
+      ],
+      summaryMap: {
+        en: `${nickname} created 'Publication 1'`
+      },
+      type: 'Create',
+      id: `https://${host}/${nickname}/activity/${actid}`,
+      actor: {
+        id: `https://${host}/${nickname}/`,
+        type: 'Person',
+        summaryMap: {
+          en: `User with nickname ${nickname}`
+        }
+      },
+      object: {
+        type: 'reader:Publication',
+        id: `https://${host}/${nickname}/publication/1`,
+        name: `Publication 1`,
+        totalItems: 4
+      }
+    })
+  )
+})
+
+module.exports = router
