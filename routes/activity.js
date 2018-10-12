@@ -11,8 +11,10 @@ router.get('/:nickname/activity/:actid', function (req, res, next) {
     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
   )
 
-  res.end(
-    JSON.stringify({
+  let act = null
+
+  if (actid.match(/create/)) {
+    act = {
       '@context': [
         'https://www.w3.org/ns/activitystreams',
         { reader: 'https://rebus.foundation/ns/reader' }
@@ -35,8 +37,34 @@ router.get('/:nickname/activity/:actid', function (req, res, next) {
         name: `Publication 1`,
         totalItems: 4
       }
-    })
-  )
+    }
+  } else {
+    act = {
+      '@context': [
+        'https://www.w3.org/ns/activitystreams',
+        { reader: 'https://rebus.foundation/ns/reader' }
+      ],
+      summaryMap: {
+        en: `${nickname} `
+      },
+      type: 'Read',
+      id: `https://${host}/${nickname}/activity/${actid}`,
+      actor: {
+        id: `https://${host}/${nickname}/`,
+        type: 'Person',
+        summaryMap: {
+          en: `User with nickname ${nickname}`
+        }
+      },
+      object: {
+        type: 'Document',
+        id: `https://${host}/${nickname}/publication/1/document/1`,
+        name: `Publication 1 Document 1`
+      }
+    }
+  }
+
+  res.end(JSON.stringify(act))
 })
 
 module.exports = router

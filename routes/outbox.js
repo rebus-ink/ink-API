@@ -26,7 +26,13 @@ router
     const nickname = req.params.nickname
     const host = req.headers.host
 
-    res.setHeader('Location', `https://${host}/${nickname}/activity/42`)
+    console.dir(req.body)
+    const type = JSON.parse(req.body).type
+
+    res.setHeader(
+      'Location',
+      `https://${host}/${nickname}/activity/${type.toLowerCase()}42`
+    )
     res.sendStatus(201)
     res.end()
   })
