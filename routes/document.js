@@ -32,7 +32,7 @@ router.get('/:nickname/publication/:pubid/document/:docid', function (
         '<p>Duis non rhoncus turpis, eget lobortis ex. Nullam velit nibh, imperdiet non augue ac, ultrices fermentum ante. Suspendisse eu nisi et tellus aliquam feugiat tristique vitae risus. Sed sit amet facilisis mi. Pellentesque mattis molestie posuere. Quisque commodo, lorem eget ullamcorper iaculis, mauris dui tincidunt ante, at vehicula quam sapien sed risus. Pellentesque sit amet ex sem. Ut quis efficitur lectus. Phasellus arcu augue, pretium vel gravida vel, venenatis quis dolor. Vestibulum sapien sem, mollis nec sapien auctor, sagittis vehicula ante.</p>' +
         '<p>Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Suspendisse ullamcorper arcu nec odio rutrum, a placerat odio ullamcorper. Aliquam accumsan eros eget malesuada faucibus. Curabitur pharetra in nisi tristique blandit. Ut consequat cursus dui eget volutpat. Quisque purus diam, consectetur nec aliquam vitae, sodales non massa. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>' +
         '</body>' +
-        '</html'
+        '</html>'
     })
   )
 })
