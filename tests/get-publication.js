@@ -35,7 +35,15 @@ const main = async () => {
 
   await tap.type(body, 'object')
 
-  await tap.ok(body['@context'])
+  await tap.ok(Array.isArray(body['@context']))
+  await tap.equal(body['@context'].length, 2)
+  await tap.equal(body['@context'][0], 'https://www.w3.org/ns/activitystreams')
+  await tap.type(body['@context'][1], 'object')
+  await tap.equal(
+    body['@context'][1].reader,
+    'https://rebus.foundation/ns/reader'
+  )
+
   await tap.equal(body.id, 'https://reader-api.test/foo/publication/1')
   await tap.equal(body.type, 'reader:Publication')
   await tap.ok(body.name)
