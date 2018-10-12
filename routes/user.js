@@ -18,8 +18,6 @@ router.get('/:nickname', function (req, res, next) {
       id: `https://${host}/${nickname}`,
       inbox: `https://${host}/${nickname}/inbox`,
       outbox: `https://${host}/${nickname}/activity`,
-      followers: `https://${host}/${nickname}/followers`,
-      following: `https://${host}/${nickname}/following`,
       liked: `https://${host}/${nickname}/liked`,
       streams: `https://${host}/${nickname}/streams`
     })
