@@ -52,7 +52,7 @@
     "objection-db-errors": "^1.0.0",
     "objection-guid": "^3.0.2",
     "passport": "^0.4.0",
-    "passport-auth0": "^1.0.0",
+    "passport-jwt": "^4.0.0",
     "pg": "^7.4.3",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0"
