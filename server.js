@@ -86,8 +86,12 @@ app.get('/', function (req, res, next) {
   })
 })
 
-app.use('/', require('./routes/user'))
+app.use('/', require('./routes/activity'))
+app.use('/', require('./routes/document'))
+app.use('/', require('./routes/inbox'))
 app.use('/', require('./routes/outbox'))
+app.use('/', require('./routes/publication'))
+app.use('/', require('./routes/user'))
 app.use('/', require('./routes/user-streams'))
 app.use('/', require('./routes/user-library'))
 
