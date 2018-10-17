@@ -9,8 +9,8 @@ const main = async () => {
   let app
   await tap.test('App exists', async () => {
     app = require('../server').app
+    await tap.type(app, 'function')
   })
-  await tap.type(app, 'function')
 
   const res = await request(app)
     .get('/foo')
