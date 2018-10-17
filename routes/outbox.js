@@ -26,7 +26,17 @@ router
     const nickname = req.params.nickname
     const host = req.headers.host
 
-    const type = JSON.parse(req.body).type
+    if (!req.is('application/ld+json')) {
+      return next(new Error('Body must be JSON-LD'))
+    }
+
+    const body = req.body
+
+    if (typeof body !== 'object') {
+      return next(new Error('Body must be a JSON object'))
+    }
+
+    const type = body.type
 
     res.setHeader(
       'Location',
