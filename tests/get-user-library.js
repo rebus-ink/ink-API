@@ -1,36 +1,30 @@
 // test route to GET a user
 
 const tap = require('tap')
-const mocks = require('node-mocks-http')
+const request = require('supertest')
+// XXX: here to keep the app from bouncing to https
+
+process.env.NODE_ENV = 'development'
 
 const main = async () => {
-  let router
-  await tap.test('User router exists', async () => {
-    router = require('../routes/user-library')
+  let app
+  await tap.test('App exists', async () => {
+    app = require('../server').app
   })
-  await tap.type(router, 'function')
+  await tap.type(app, 'function')
 
-  const req = mocks.createRequest({
-    method: 'GET',
-    url: '/foo/library',
-    params: {
-      nickname: 'foo'
-    },
-    headers: {
-      Host: 'reader-api.test'
-    }
-  })
+  const res = await request(app)
+    .get('/foo/library')
+    .set('Host', 'reader-api.test')
 
-  const res = mocks.createResponse({ req: req })
-
-  router(req, res)
+  await tap.equal(res.statusCode, 200)
 
   await tap.equal(
-    res.getHeader('Content-Type'),
+    res.get('Content-Type'),
     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
   )
 
-  const body = JSON.parse(res._getData())
+  const body = res.body
 
   await tap.type(body, 'object')
 
