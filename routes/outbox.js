@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const passport = require('passport')
 
 router
   .route('/:nickname/activity')
@@ -22,9 +23,18 @@ router
       })
     )
   })
-  .post(function (req, res, next) {
+  .post(passport.authenticate('jwt', { session: false }), function (
+    req,
+    res,
+    next
+  ) {
     const nickname = req.params.nickname
     const host = req.headers.host
+
+    if (req.user !== nickname) {
+      res.status(403).send(`Access to user ${nickname} disallowed`)
+      return
+    }
 
     if (!req.is('application/ld+json')) {
       return next(new Error('Body must be JSON-LD'))
