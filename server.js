@@ -51,7 +51,15 @@ app.use(
 app.enable('strict routing')
 app.set('trust proxy', true)
 app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(
+  express.json({
+    type: [
+      'application/json',
+      'application/activity+json',
+      'application/ld+json'
+    ]
+  })
+)
 app.use(compression())
 
 // Only require https if we aren't in dev.
