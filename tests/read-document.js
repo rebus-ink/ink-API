@@ -1,76 +1,55 @@
 // test route to POST a user outbox
 
 const tap = require('tap')
-const mocks = require('node-mocks-http')
+const request = require('supertest')
 const { URL } = require('url')
 
+process.env.NODE_ENV = 'development'
+
 const main = async () => {
-  let router
-  await tap.test('We can post a Create Publication activity', async () => {
-    router = require('../routes/outbox')
+  let app
+  await tap.test('App exists', async () => {
+    app = require('../server').app
   })
-  await tap.type(router, 'function')
+  await tap.type(app, 'function')
 
-  const req = mocks.createRequest({
-    method: 'POST',
-    url: '/foo/activity',
-    params: {
-      nickname: 'foo'
-    },
-    headers: {
-      Host: 'reader-api.test',
-      'Content-Type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    },
-    body: JSON.stringify({
-      '@context': 'https://www.w3.org/ns/activitystreams',
-      type: 'Read',
-      object: {
-        id: 'https://reader-api.test/foo/publication/1/document/1',
-        type: 'Document',
-        name: `Publication 1 Chapter 1`
-      }
-    })
-  })
+  const res = await request(app)
+    .post('/foo/activity')
+    .set('Host', 'reader-api.test')
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Read',
+        object: {
+          id: 'https://reader-api.test/foo/publication/1/document/1',
+          type: 'Document',
+          name: `Publication 1 Chapter 1`
+        }
+      })
+    )
 
-  const res = mocks.createResponse({ req: req })
-
-  router(req, res)
-
-  const activity = res.getHeader('Location')
+  const activity = res.get('Location')
 
   await tap.match(activity, /https:\/\/reader-api.test\/foo\/activity\/(.*)$/)
   await tap.equal(res.statusCode, 201)
 
-  let arouter = require('../routes/activity')
-
   const activityURL = new URL(activity)
-  const [, actid] = activity.match(
-    /https:\/\/reader-api.test\/foo\/activity\/(.*)$/
-  )
 
-  const areq = mocks.createRequest({
-    method: 'GET',
-    url: activityURL.pathname,
-    params: {
-      nickname: 'foo',
-      actid: actid
-    },
-    headers: {
-      Host: 'reader-api.test'
-    }
-  })
+  const ares = await request(app)
+    .get(activityURL.pathname)
+    .set('Host', 'reader-api.test')
 
-  const ares = mocks.createResponse({ req: areq })
-
-  arouter(areq, ares)
+  await tap.equal(ares.statusCode, 200)
 
   await tap.equal(
-    ares.getHeader('Content-Type'),
+    ares.get('Content-Type'),
     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
   )
 
-  const body = JSON.parse(ares._getData())
+  const body = ares.body
 
   await tap.type(body, 'object')
 
