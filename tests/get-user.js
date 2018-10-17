@@ -2,6 +2,7 @@
 
 const tap = require('tap')
 const request = require('supertest')
+const jwt = require('jsonwebtoken')
 
 process.env.NODE_ENV = 'development'
 
@@ -13,9 +14,22 @@ const main = async () => {
   })
 
   await tap.test('GET /<userid>', async () => {
+    await tap.type(process.env.ISSUER, 'string')
+
+    const options = {
+      subject: 'foo',
+      expiresIn: '24h',
+      issuer: process.env.ISSUER
+    }
+
+    await tap.type(process.env.SECRETORKEY, 'string')
+
+    const token = jwt.sign({}, process.env.SECRETORKEY, options)
+
     const res = await request(app)
       .get('/foo')
       .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
 
     await tap.equal(
       res.get('Content-Type'),
