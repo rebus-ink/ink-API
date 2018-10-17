@@ -9,13 +9,10 @@ process.env.NODE_ENV = 'development'
 const main = async () => {
   let app
 
-  await tap.test(
-    ('Environment variables are set',
-    async () => {
-      await tap.type(process.env.ISSUER, 'string')
-      await tap.type(process.env.SECRETORKEY, 'string')
-    })
-  )
+  await tap.test('Environment variables are set', async () => {
+    await tap.type(process.env.ISSUER, 'string')
+    await tap.type(process.env.SECRETORKEY, 'string')
+  })
 
   await tap.test('App exists', async () => {
     app = require('../server').app
