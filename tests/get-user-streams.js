@@ -1,39 +1,31 @@
-// test route to GET a user
+// test route to GET a user's streams
 
 const tap = require('tap')
-const mocks = require('node-mocks-http')
+const request = require('supertest')
+
+process.env.NODE_ENV = 'development'
 
 const main = async () => {
-  let router
-  await tap.test('User router exists', async () => {
-    router = require('../routes/user-streams')
+  let app
+  await tap.test('App exists', async () => {
+    app = require('../server').app
   })
-  await tap.type(router, 'function')
+  await tap.type(app, 'function')
 
-  const req = mocks.createRequest({
-    method: 'GET',
-    url: '/foo/streams',
-    params: {
-      nickname: 'foo'
-    },
-    headers: {
-      Host: 'reader-api.test'
-    }
-  })
+  const res = await request(app)
+    .get('/foo/streams')
+    .set('Host', 'reader-api.test')
 
-  const res = mocks.createResponse({ req: req })
-
-  router(req, res)
+  await tap.equal(res.statusCode, 200)
 
   await tap.equal(
-    res.getHeader('Content-Type'),
+    res.get('Content-Type'),
     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
   )
 
-  const body = JSON.parse(res._getData())
+  const body = res.body
 
   await tap.type(body, 'object')
-
   await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
   await tap.equal(body.id, 'https://reader-api.test/foo/streams')
   await tap.equal(body.type, 'Collection')
