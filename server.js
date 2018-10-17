@@ -6,10 +6,26 @@ const compression = require('compression')
 // const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
 // const cookieSession = require('cookie-session')
 const basicAuth = require('express-basic-auth')
-// const passport = require('passport')
+const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const morgan = require('morgan')
+const { Strategy, ExtractJwt } = require('passport-jwt')
+
+const setupPassport = () => {
+  var opts = {}
+  opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
+  opts.secretOrKey = process.env.SECRETORKEY
+  opts.issuer = process.env.ISSUER
+  opts.audience = process.env.AUDIENCE
+  passport.use(
+    new Strategy(opts, (jwt, callback) => {
+      callback(null, jwt.sub)
+    })
+  )
+}
+
+setupPassport()
 
 // Public staging and dev servers are locked down with a simple basic auth password
 if (
@@ -61,6 +77,7 @@ app.use(
   })
 )
 app.use(compression())
+app.use(passport.initialize())
 
 // Only require https if we aren't in dev.
 if (process.env.NODE_ENV !== 'development') {

@@ -8,9 +8,43 @@ process.env.NODE_ENV = 'development'
 
 const main = async () => {
   let app
+
+  await tap.test(
+    ('Environment variables are set',
+    async () => {
+      await tap.type(process.env.ISSUER, 'string')
+      await tap.type(process.env.SECRETORKEY, 'string')
+    })
+  )
+
   await tap.test('App exists', async () => {
     app = require('../server').app
     await tap.type(app, 'function')
+  })
+
+  await tap.test('GET /<userid> with no authentication', async () => {
+    const res = await request(app)
+      .get('/foo')
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test("GET /<userid> with other user's authentication", async () => {
+    const options = {
+      subject: 'bar',
+      expiresIn: '24h',
+      issuer: process.env.ISSUER
+    }
+
+    const token = jwt.sign({}, process.env.SECRETORKEY, options)
+
+    const res = await request(app)
+      .get('/foo')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 403)
   })
 
   await tap.test('GET /<userid>', async () => {
