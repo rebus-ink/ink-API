@@ -29,39 +29,6 @@ const main = async () => {
     await tap.type(app, 'function')
   })
 
-  await tap.test('POST /<userid>/activity with no authc', async () => {
-    const res = await request(app)
-      .post('/foo/activity')
-      .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(JSON.stringify(readdoc))
-
-    await tap.equal(res.statusCode, 401)
-  })
-
-  await tap.test('POST /<userid>/activity with incorrect authc', async () => {
-    const options = {
-      subject: 'bar',
-      expiresIn: '24h',
-      issuer: process.env.ISSUER
-    }
-
-    const token = jwt.sign({}, process.env.SECRETORKEY, options)
-
-    const res = await request(app)
-      .post('/foo/activity')
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(JSON.stringify(readdoc))
-
-    await tap.equal(res.statusCode, 403)
-  })
-
   await tap.test('POST /<userid>/activity with correct authc', async () => {
     const options = {
       subject: 'foo',
