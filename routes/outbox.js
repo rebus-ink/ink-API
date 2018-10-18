@@ -4,9 +4,18 @@ const passport = require('passport')
 
 router
   .route('/:nickname/activity')
-  .get(function (req, res, next) {
+  .get(passport.authenticate('jwt', { session: false }), function (
+    req,
+    res,
+    next
+  ) {
     const nickname = req.params.nickname
     const host = req.headers.host
+
+    if (req.user !== nickname) {
+      res.status(403).send(`Access to outbox for ${nickname} disallowed`)
+      return
+    }
 
     res.setHeader(
       'Content-Type',
