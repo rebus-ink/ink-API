@@ -53,8 +53,7 @@ representation for a user. The `{userID}` should match the `sub` field in the JW
 #### GET /{userID}/activity
 
 Retrieve the [outbox](https://www.w3.org/TR/activitypub/#outbox) for the user.
-This is a collection of all activities performed by the user. See the
-`Activity types` section below for supported activity types.
+This is a collection of all activities performed by the user.
 
 #### POST /{userID}/activity
 
@@ -63,6 +62,8 @@ Create a new activity for the user, per the
 mechanism in ActivityPub.
 
 The new activity's location is returned as the `Location` header.
+
+ See the (Activity types)[#activity-types] section below for supported activity types.
 
 #### GET /{userID}/activity/{activityID}
 
