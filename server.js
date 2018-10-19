@@ -117,8 +117,8 @@ app.use('/', require('./routes/inbox'))
 app.use('/', require('./routes/outbox'))
 app.use('/', require('./routes/publication'))
 app.use('/', require('./routes/user'))
-app.use('/', require('./routes/user-streams'))
 app.use('/', require('./routes/user-library'))
+app.use('/', require('./routes/user-streams'))
 
 module.exports = {
   // Export app for reuse in other express apps/servers
