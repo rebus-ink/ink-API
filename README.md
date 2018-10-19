@@ -63,7 +63,7 @@ mechanism in ActivityPub.
 
 The new activity's location is returned as the `Location` header.
 
- See the (Activity types)[#activity-types] section below for supported activity types.
+ See the [Activity types](#activity-types) section below for supported activity types.
 
 #### GET /{userID}/activity/{activityID}
 
