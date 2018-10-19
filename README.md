@@ -27,7 +27,7 @@ Authorization: Bearer <token>
 
 Typically only the owner of a resource can access a resource.
 
-#### Errors
+#### Errors 
 
 Requests without a JWT token will fail with a 401 status code.
 
@@ -111,16 +111,16 @@ object type `Document`.
 
 The server uses environment variables for configuration.
 
-* `AUDIENCE`: The expected audience for [JWT](https://jwt.io) tokens.
-* `DEPLOY_STAGE`: Deployment stage. One of `production`, `staging`, or `development`.
-* `DEV_PASSWORD`: A basic auth password used when in development or staging.
+- `AUDIENCE`: The expected audience for [JWT](https://jwt.io) tokens.
+- `DEPLOY_STAGE`: Deployment stage. One of `production`, `staging`, or `development`.
+- `DEV_PASSWORD`: A basic auth password used when in development or staging.
   Username is `admin`.
-* `DOMAIN`: Domain name of the server. If the server is hit with HTTP, redirects
+- `DOMAIN`: Domain name of the server. If the server is hit with HTTP, redirects
   to https: plus this domain.
-* `ISSUER`: Expected issuer for JWT tokens.
-* `NODE_ENV`: Environment variable used by [express](https://expressjs.com/).
+- `ISSUER`: Expected issuer for JWT tokens.
+- `NODE_ENV`: Environment variable used by [express](https://expressjs.com/).
   Can be `production` or `development`.
-* `SECRETORKEY`: Expected shared secret for [JWT](https://jwt.io) tokens.
+- `SECRETORKEY`: Expected shared secret for [JWT](https://jwt.io) tokens.
 
 ## Contributing
 
