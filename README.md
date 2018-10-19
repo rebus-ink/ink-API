@@ -27,7 +27,7 @@ Authorization: Bearer <token>
 
 Typically only the owner of a resource can access a resource.
 
-#### Errors 
+#### Errors
 
 Requests without a JWT token will fail with a 401 status code.
 
@@ -42,18 +42,21 @@ All objects are represented as [Activity Streams 2.0](https://www.w3.org/TR/acti
 
 ### Routes
 
-#### GET /<user id>
+Routes for the API are shown here in [URI Template](https://tools.ietf.org/html/rfc6570)
+format, with the supported HTTP method.
+
+#### GET /{userID}
 
 Retrieve the [actor](https://www.w3.org/TR/activitypub/#actor-objects)
-representation for a user. The `<user id>` should match the `sub` field in the JWT token.
+representation for a user. The `{userID}` should match the `sub` field in the JWT token.
 
-#### GET /<user id>/activity
+#### GET /{userID}/activity
 
 Retrieve the [outbox](https://www.w3.org/TR/activitypub/#outbox) for the user.
 This is a collection of all activities performed by the user. See the
 `Activity types` section below for supported activity types.
 
-#### POST /<user id>/activity
+#### POST /{userID}/activity
 
 Create a new activity for the user, per the
 [client to server interactions](https://www.w3.org/TR/activitypub/#client-to-server-interactions)
@@ -61,32 +64,32 @@ mechanism in ActivityPub.
 
 The new activity's location is returned as the `Location` header.
 
-#### GET /<user id>/activity/<activity id>
+#### GET /{userID}/activity/{activityID}
 
 Retrieve an [activity](https://www.w3.org/TR/activitystreams-core/#activities)
 representation for a user.
 
-#### GET /<user id>/inbox
+#### GET /{userID}/inbox
 
 Get the user's activity [inbox](https://www.w3.org/TR/activitypub/#inbox).
 Because we don't support following or receiving messages, it should be identical
 to the outbox.
 
-#### GET /<user id>/library
+#### GET /{userID}/library
 
 A collection of all publications the user has uploaded.
 
-#### GET /<user id>/publication/<publication id>
+#### GET /{userID}/publication/{publicationID}
 
 A representation of a publication as a collection of [Document](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-document)
 objects. Documents are included by reference.
 
-#### GET /<user id>/publication/<publication id>/document/<document id>
+#### GET /{userID}/publication/{publicationID}/document/{documentID}
 
 A representation of a [Document](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-document)
 in a publication.
 
-#### GET /<user id>/streams
+#### GET /{userID}/streams
 
 A collection of collections that belong to the user. Currently includes one collection, the library.
 
@@ -111,16 +114,16 @@ object type `Document`.
 
 The server uses environment variables for configuration.
 
-- `AUDIENCE`: The expected audience for [JWT](https://jwt.io) tokens.
-- `DEPLOY_STAGE`: Deployment stage. One of `production`, `staging`, or `development`.
-- `DEV_PASSWORD`: A basic auth password used when in development or staging.
+* `AUDIENCE`: The expected audience for [JWT](https://jwt.io) tokens.
+* `DEPLOY_STAGE`: Deployment stage. One of `production`, `staging`, or `development`.
+* `DEV_PASSWORD`: A basic auth password used when in development or staging.
   Username is `admin`.
-- `DOMAIN`: Domain name of the server. If the server is hit with HTTP, redirects
+* `DOMAIN`: Domain name of the server. If the server is hit with HTTP, redirects
   to https: plus this domain.
-- `ISSUER`: Expected issuer for JWT tokens.
-- `NODE_ENV`: Environment variable used by [express](https://expressjs.com/).
+* `ISSUER`: Expected issuer for JWT tokens.
+* `NODE_ENV`: Environment variable used by [express](https://expressjs.com/).
   Can be `production` or `development`.
-- `SECRETORKEY`: Expected shared secret for [JWT](https://jwt.io) tokens.
+* `SECRETORKEY`: Expected shared secret for [JWT](https://jwt.io) tokens.
 
 ## Contributing
 
