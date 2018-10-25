@@ -1,6 +1,10 @@
 language: node_js
 node_js:
 - node
+env:
+  - ISSUER=REBUS_READER
+  - AUDIENCE=REBUS_API
+  - SECRETORKEY=this_is_a_testing_secret
 # From travis-ci.com: "The default user for accessing the local PostgreSQL server is postgres with a blank password."
 # The database name (created below) is: "travis_ci_test"
 services:
