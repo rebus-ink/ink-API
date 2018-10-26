@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router
   .route('/:nickname/activity')
@@ -10,7 +11,6 @@ router
     next
   ) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to outbox for ${nickname} disallowed`)
@@ -27,7 +27,7 @@ router
         '@context': 'https://www.w3.org/ns/activitystreams',
         name: `Activities by ${nickname}`,
         type: 'OrderedCollection',
-        id: `https://${host}/${nickname}/activity`,
+        id: getId(`/${nickname}/activity`),
         orderedItems: []
       })
     )
@@ -38,7 +38,6 @@ router
     next
   ) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to user ${nickname} disallowed`)
@@ -59,7 +58,7 @@ router
 
     res.setHeader(
       'Location',
-      `https://${host}/${nickname}/activity/${type.toLowerCase()}42`
+      getId(`/${nickname}/activity/${type.toLowerCase()}42`)
     )
     res.sendStatus(201)
     res.end()

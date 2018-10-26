@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname/publication/:pubid/document/:docid',
@@ -9,7 +10,6 @@ router.get(
     const nickname = req.params.nickname
     const pubid = req.params.pubid
     const docid = req.params.docid
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to document ${docid} disallowed`)
@@ -25,7 +25,7 @@ router.get(
       JSON.stringify({
         '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Document',
-        id: `https://${host}/${nickname}/publication/${pubid}/document/${docid}`,
+        id: getId(`/${nickname}/publication/${pubid}/document/${docid}`),
         name: `Publication ${pubid} Document ${docid}`,
         content:
           '<!DOCTYPE html>' +

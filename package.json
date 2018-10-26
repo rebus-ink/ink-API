@@ -7,7 +7,7 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test tap --cov tests/*.js",
+    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap --cov tests/*.js",
     "start": "node index.js"
   },
   "repository": {

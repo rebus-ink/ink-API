@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname/streams',
   passport.authenticate('jwt', { session: false }),
   function (req, res, next) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).end(`Access to streams for ${nickname} disallowed`)
@@ -24,12 +24,12 @@ router.get(
         '@context': 'https://www.w3.org/ns/activitystreams',
         name: `${nickname} streams`,
         type: 'Collection',
-        id: `https://${host}/${nickname}/streams`,
+        id: getId(`/${nickname}/streams`),
         totalItems: 1,
         items: [
           {
             type: 'Collection',
-            id: `https://${host}/${nickname}/library`,
+            id: getId(`/${nickname}/library`),
             name: `${nickname}'s library`
           }
         ]

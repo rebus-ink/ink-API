@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname/library',
   passport.authenticate('jwt', { session: false }),
   function (req, res, next) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to library for ${nickname} disallowed`)
@@ -27,12 +27,12 @@ router.get(
         ],
         name: `${nickname} library`,
         type: 'Collection',
-        id: `https://${host}/${nickname}/library`,
+        id: getId(`/${nickname}/library`),
         totalItems: 6,
         items: [
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/1`,
+            id: getId(`/${nickname}/publication/1`),
             name: 'Publication 1',
             attributedTo: {
               type: 'Person',
@@ -41,7 +41,7 @@ router.get(
           },
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/2`,
+            id: getId(`/${nickname}/publication/2`),
             name: 'Publication 2',
             attributedTo: {
               type: 'Person',
@@ -50,7 +50,7 @@ router.get(
           },
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/3`,
+            id: getId(`/${nickname}/publication/3`),
             name: 'Publication 3',
             attributedTo: {
               type: 'Person',
@@ -59,7 +59,7 @@ router.get(
           },
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/4`,
+            id: getId(`/${nickname}/publication/4`),
             name: 'Publication 4',
             attributedTo: {
               type: 'Person',
@@ -68,7 +68,7 @@ router.get(
           },
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/5`,
+            id: getId(`/${nickname}/publication/5`),
             name: 'Publication 5',
             attributedTo: {
               type: 'Person',
@@ -77,7 +77,7 @@ router.get(
           },
           {
             type: 'reader:Publication',
-            id: `https://${host}/${nickname}/publication/6`,
+            id: getId(`/${nickname}/publication/6`),
             name: 'Publication 6',
             attributedTo: {
               type: 'Person',

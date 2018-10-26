@@ -62,3 +62,4 @@ typings/
 google-keyfile.json
 app-development.yaml
 secrets.tar
+app-staging.yaml

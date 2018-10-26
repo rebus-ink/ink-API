@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname',
   passport.authenticate('jwt', { session: false }),
   function (req, res, next) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to user ${nickname} disallowed`)
@@ -27,11 +27,11 @@ router.get(
         ],
         name: nickname,
         type: 'Person',
-        id: `https://${host}/${nickname}`,
-        inbox: `https://${host}/${nickname}/inbox`,
-        outbox: `https://${host}/${nickname}/activity`,
+        id: getId(`/${nickname}`),
+        inbox: getId(`/${nickname}/inbox`),
+        outbox: getId(`/${nickname}/activity`),
         streams: {
-          id: `https://${host}/${nickname}/streams`,
+          id: getId(`/${nickname}/streams`),
           type: 'Collection',
           summaryMap: {
             en: `Collections for user ${nickname}`
@@ -42,7 +42,7 @@ router.get(
               summaryMap: {
                 en: `Library for user ${nickname}`
               },
-              id: `https://${host}/${nickname}/library`,
+              id: getId(`/${nickname}/library`),
               type: 'Collection',
               totalItems: 6
             }

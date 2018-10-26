@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname/publication/:pubid',
@@ -8,7 +9,6 @@ router.get(
   function (req, res, next) {
     const nickname = req.params.nickname
     const pubid = req.params.pubid
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to document ${pubid} disallowed`)
@@ -27,7 +27,7 @@ router.get(
           { reader: 'https://rebus.foundation/ns/reader' }
         ],
         type: 'reader:Publication',
-        id: `https://${host}/${nickname}/publication/${pubid}`,
+        id: getId(`/${nickname}/publication/${pubid}`),
         name: `Publication ${pubid}`,
         attributedTo: {
           type: 'Person',
@@ -37,22 +37,22 @@ router.get(
         orderedItems: [
           {
             type: 'Document',
-            id: `https://${host}/${nickname}/publication/${pubid}/document/1`,
+            id: getId(`/${nickname}/publication/${pubid}/document/1`),
             name: 'Chapter 1'
           },
           {
             type: 'Document',
-            id: `https://${host}/${nickname}/publication/${pubid}/document/2`,
+            id: getId(`/${nickname}/publication/${pubid}/document/2`),
             name: 'Chapter 2'
           },
           {
             type: 'Document',
-            id: `https://${host}/${nickname}/publication/${pubid}/document/3`,
+            id: getId(`/${nickname}/publication/${pubid}/document/3`),
             name: 'Chapter 3'
           },
           {
             type: 'Document',
-            id: `https://${host}/${nickname}/publication/${pubid}/document/4`,
+            id: getId(`/${nickname}/publication/${pubid}/document/4`),
             name: 'Chapter 4'
           }
         ]

@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router.get(
   '/:nickname/activity/:actid',
@@ -8,7 +9,6 @@ router.get(
   function (req, res, next) {
     const nickname = req.params.nickname
     const actid = req.params.actid
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to activity ${actid} disallowed`)
@@ -32,9 +32,9 @@ router.get(
           en: `${nickname} created 'Publication 1'`
         },
         type: 'Create',
-        id: `https://${host}/${nickname}/activity/${actid}`,
+        id: getId(`/${nickname}/activity/${actid}`),
         actor: {
-          id: `https://${host}/${nickname}/`,
+          id: getId(`/${nickname}/`),
           type: 'Person',
           summaryMap: {
             en: `User with nickname ${nickname}`
@@ -42,7 +42,7 @@ router.get(
         },
         object: {
           type: 'reader:Publication',
-          id: `https://${host}/${nickname}/publication/1`,
+          id: getId(`/${nickname}/publication/1`),
           name: `Publication 1`,
           totalItems: 4
         }
@@ -57,9 +57,9 @@ router.get(
           en: `${nickname} `
         },
         type: 'Read',
-        id: `https://${host}/${nickname}/activity/${actid}`,
+        id: getId(`/${nickname}/activity/${actid}`),
         actor: {
-          id: `https://${host}/${nickname}/`,
+          id: getId(`/${nickname}/`),
           type: 'Person',
           summaryMap: {
             en: `User with nickname ${nickname}`
@@ -67,7 +67,7 @@ router.get(
         },
         object: {
           type: 'Document',
-          id: `https://${host}/${nickname}/publication/1/document/1`,
+          id: getId(`/${nickname}/publication/1/document/1`),
           name: `Publication 1 Document 1`
         }
       }

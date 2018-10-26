@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 router
   .route('/:nickname/inbox')
@@ -10,7 +11,6 @@ router
     next
   ) {
     const nickname = req.params.nickname
-    const host = req.headers.host
 
     if (req.user !== nickname) {
       res.status(403).send(`Access to inbox for ${nickname} disallowed`)
@@ -27,7 +27,7 @@ router
         '@context': 'https://www.w3.org/ns/activitystreams',
         name: `Inbox for ${nickname}`,
         type: 'OrderedCollection',
-        id: `https://${host}/${nickname}/inbox`,
+        id: getId(`/${nickname}/inbox`),
         totalItems: 0,
         orderedItems: []
       })
