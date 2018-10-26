@@ -3,6 +3,7 @@
 const tap = require('tap')
 const request = require('supertest')
 const jwt = require('jsonwebtoken')
+const URL = require('url').URL
 
 process.env.NODE_ENV = 'development'
 
