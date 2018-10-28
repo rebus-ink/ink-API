@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap --cov tests/*.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js"
   },
   "repository": {
     "type": "git",

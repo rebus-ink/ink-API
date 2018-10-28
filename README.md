@@ -4,6 +4,12 @@ Hobb API Server: backend for the Rebus Reader system
 
 [![Build Status](https://travis-ci.com/RebusFoundation/reader-api.svg?token=gL3WLUGSnpsqdtB2nHUM&branch=master)](https://travis-ci.com/RebusFoundation/reader-api)
 
+## Starting the Server
+
+To start the regular server: `npm start`
+
+To start the dev-server (which uses `nodemon` to automatically restart): `npm run dev-server`
+
 ## Interface
 
 ### Authorization
@@ -63,7 +69,7 @@ mechanism in ActivityPub.
 
 The new activity's location is returned as the `Location` header.
 
- See the [Activity types](#activity-types) section below for supported activity types.
+See the [Activity types](#activity-types) section below for supported activity types.
 
 #### GET /{userID}/activity/{activityID}
 
