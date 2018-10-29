@@ -7,7 +7,7 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap --cov tests/*.js",
+    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/*.js",
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js"
   },
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "accesscontrol": "^2.2.1",
+    "arrify": "^1.0.1",
     "compression": "^1.7.3",
     "connect-ensure-login": "^0.1.1",
     "cookie-session": "^2.0.0-beta.3",

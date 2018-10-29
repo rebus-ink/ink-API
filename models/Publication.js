@@ -52,7 +52,7 @@ class Publication extends BaseModel {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
         join: {
-          from: 'Publication.ownerId',
+          from: 'Publication.readerId',
           to: 'Reader.id'
         }
       },

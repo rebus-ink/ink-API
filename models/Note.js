@@ -5,7 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
- * @property {Document} document - returns the document, if any, that this note is on.
+ * @property {Document} inReplyTo - returns the document, if any, that this note is on.
  * @property {Publication} context - Returns the note's parent `Publication`.
  * @property {Activity[]} outbox - Returns the activities on this note. **Question** how should a note reference its activities?
  * @property {Tag[]} tag - Returns the note's `Tag` objects (i.e. links, hashtags, stacks and categories).
@@ -65,7 +65,7 @@ class Note extends BaseModel {
           to: 'Activity.noteId'
         }
       },
-      document: {
+      inReplyTo: {
         relation: Model.BelongsToOneRelation,
         modelClass: Document,
         join: {

@@ -4,7 +4,7 @@ const { Model } = require('objection')
  * @property {User} user - Returns the user (with auth info) associated with this reader.
  * @property {Document[]} documents - Returns the documents owned buy this Reader.
  * @property {Publication[]} publications - Returns the publications owned buy this Reader.
- * @property {Note[]} notes - Returns the notes owned by this Reader.
+ * @property {Note[]} replies - Returns the notes owned by this Reader.
  * @property {Activity[]} outbox - Returns the activities by this Reader.
  * @property {Attribution[]} attributions - Returns the creators/contributors in this Reader's library. How do we surface this in the Activity Streams JSON?
  * @property {Tag[]} tag - Returns the tags in this Reader's library.
@@ -63,7 +63,7 @@ class Reader extends BaseModel {
           to: 'Activity.readerId'
         }
       },
-      notes: {
+      replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
         join: {

@@ -11,7 +11,7 @@ const { BaseModel } = require('./BaseModel.js')
  *
  * Because of how messy contributor and creator metadata tends to be, these are structured to be specific to the publication (and possibly document) they are found in. To find all publications by an author you need to query for all Attribution objects with the 'name' criteria you have in mind and use eager queries to get the publications and documents that are attributed to them.console. (To speed this up in the future we'll have to add an index for the JSON in Postgresql. [Example from the Objection documentation site.](https://vincit.github.io/objection.js/#indexing-postgresql-jsonb-columns))
  *
- * You should then further group those results based on whichever additional metadata you have such as ORCID and other specific IDs, which would be found as a secondary Link object in the `url` property of the original Activity Streams JSON object using one of the `author`, `DCTERMS.creator`, or `DCTERMS.contributor` rel values.
+ * You should then further group those results based on whichever additional metadata you have such as ORCID and other specific IDs, which would be found as a secondary Link object in the `url` property of the original Activity Streams JSON object using the `canonical` rel value.
  *
  * That url is surfaced in the model as `canonicalId` which should be an ORCID, if available.
  *

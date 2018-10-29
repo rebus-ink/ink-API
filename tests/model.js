@@ -29,12 +29,26 @@ tap.test('Models', async test => {
   })
 
   test.test('Reader model', async test => {
-    let result
+    let result, publication, docs, notes
     await objection
       .transaction(Reader.knex(), async trx => {
         result = await Reader.query()
           .transacting(trx)
           .insertAndFetch({ userId: 'auth0|fakeid' })
+        publication = await Publication.query()
+          .transacting(trx)
+          .insertGraph({
+            bto: result.url,
+            name: 'Bingo! The Publication',
+            replies: [
+              { type: 'Note', content: 'This should be HTML', bto: result.url }
+            ],
+            attachment: [
+              { type: 'Document', name: 'Test Document', bto: result.url }
+            ]
+          })
+        docs = await Document.query().transacting(trx)
+        notes = await Document.query().transacting(trx)
         return trx.rollback()
       })
       .catch(() => {})
@@ -42,6 +56,15 @@ tap.test('Models', async test => {
     test.ok(reader.published)
     test.ok(reader.updated)
     test.ok(reader.id.includes('reader-'))
+    test.equals(publication.json.name, 'Bingo! The Publication')
+    test.notOk(publication.json.bto)
+    test.ok(publication.url.includes('publication-'))
+    test.ok(docs[0])
+    test.ok(docs[0].id)
+    test.ok(docs[0].url.includes('document-'))
+    test.ok(notes[0])
+    test.ok(notes[0].id)
+    test.ok(notes[0].url.includes('reader-'))
     test.end()
   })
 

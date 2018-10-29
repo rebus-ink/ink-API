@@ -8,6 +8,9 @@ const guid = require('objection-guid')({
 const short = require('short-uuid')
 const translator = short()
 const { getId } = require('../utils/get-id.js')
+const arrify = require('arrify')
+const lodash = require('lodash')
+const URL = require('url').URL
 
 /**
  * @property {string} url - the current object's url
@@ -21,15 +24,19 @@ class BaseModel extends guid(DbErrors(Model)) {
   static get jsonAttributes () {
     return ['json', 'properties']
   }
+
   static get virtualAttributes () {
     return ['url']
   }
+
   get url () {
     return getId(`/${this.path}-${this.shortId}`)
   }
+
   get shortId () {
     return translator.fromUUID(this.id)
   }
+
   $beforeInsert (context /*: any */) {
     const parent = super.$beforeInsert(context)
     const doc = this
@@ -37,6 +44,7 @@ class BaseModel extends guid(DbErrors(Model)) {
       doc.published = new Date().toISOString()
     })
   }
+
   $beforeUpdate (queryOptions /*: any */, context /*: any */) {
     const parent = super.$beforeUpdate(queryOptions, context)
     const doc = this
@@ -44,6 +52,56 @@ class BaseModel extends guid(DbErrors(Model)) {
       doc.updated = new Date().toISOString()
     })
   }
+
+  $parseJson (json /*: any */, opt /*: any */) {
+    json = super.$parseJson(json, opt)
+    // Need to discover id, readerId, canonicalId
+    const id = getUUID(json.id)
+    let readerId
+    if (json.bto) {
+      readerId = getUUID(json.bto)
+    } else {
+      readerId = getUUID(json.actor)
+    }
+    const canonicalId = getCanonical(json.url)
+    const {
+      userId,
+      attachment,
+      outbox,
+      tag,
+      replies,
+      attributedTo,
+      inReplyTo,
+      context
+    } = json
+    // Should get the inReplyTo document id, much like context
+    if (json.object) {
+    }
+    const publicationId = getUUID(context)
+    const documentId = getUUID(inReplyTo)
+    const activityRelation = objectToId(json.object)
+    delete json.bto
+    return stripUndefined(
+      Object.assign(
+        {
+          id,
+          readerId,
+          canonicalId,
+          userId,
+          json,
+          attachment,
+          outbox,
+          tag,
+          replies,
+          attributedTo,
+          publicationId,
+          documentId
+        },
+        activityRelation
+      )
+    )
+  }
+
   $formatJson (json /*: any */) {
     const original = super.$formatJson(json)
     json = original.json || {}
@@ -53,24 +111,57 @@ class BaseModel extends guid(DbErrors(Model)) {
       updated,
       attachment,
       context = {},
-      attributedTo: attributions = []
+      attributedTo = []
     } = original
     json.context = context.id
-    const attributedTo = attributions.filter(
-      attribution => !attribution.isContributor
-    )
-    const contributionsBy = attributions.filter(
-      attribution => attribution.isContributor
-    )
     return Object.assign(json, {
       id,
       published,
       updated,
       attachment,
-      attributedTo,
-      'reader:contributionsBy': contributionsBy
+      attributedTo
     })
   }
+}
+
+function getUUID (prop /*: string */) {
+  try {
+    const id = getIdURL(prop)
+    const pathname = new URL(id).pathname
+    const shortId = pathname.split('-')[1]
+    return translator.toUUID(shortId)
+  } catch (err) {}
+}
+
+function getCanonical (urls = []) {
+  urls = arrify(urls)
+  const link = urls.filter(item => item.rel === 'canonical')
+  return lodash.get(link, '0.href')
+}
+
+function stripUndefined (json) {
+  return lodash.omitBy(json, lodash.isUndefined)
+}
+
+function getIdURL (idOrObject /*: any */) {
+  if (lodash.isObject(idOrObject)) {
+    return idOrObject.id
+  } else {
+    return idOrObject
+  }
+}
+
+function objectToId (obj) {
+  const id = getUUID(obj)
+  const url = getIdURL(obj)
+  let type
+  try {
+    const pathname = new URL(url).pathname
+    type = pathname.split('-')[0]
+  } catch (err) {
+    return undefined
+  }
+  return { [type + 'Id']: id }
 }
 
 module.exports = {
