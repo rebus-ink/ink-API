@@ -47,9 +47,29 @@ class BaseModel extends guid(DbErrors(Model)) {
   $formatJson (json /*: any */) {
     const original = super.$formatJson(json)
     json = original.json || {}
-    const { url: id, published, updated, attachment, context = {} } = original
+    const {
+      url: id,
+      published,
+      updated,
+      attachment,
+      context = {},
+      attributedTo: attributions = []
+    } = original
     json.context = context.id
-    return Object.assign(json, { id, published, updated, attachment })
+    const attributedTo = attributions.filter(
+      attribution => !attribution.isContributor
+    )
+    const contributionsBy = attributions.filter(
+      attribution => attribution.isContributor
+    )
+    return Object.assign(json, {
+      id,
+      published,
+      updated,
+      attachment,
+      attributedTo,
+      'reader:contributionsBy': contributionsBy
+    })
   }
 }
 

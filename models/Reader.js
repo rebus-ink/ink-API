@@ -6,6 +6,7 @@ const { Model } = require('objection')
  * @property {Publication[]} publications - Returns the publications owned buy this Reader.
  * @property {Note[]} notes - Returns the notes owned by this Reader.
  * @property {Activity[]} outbox - Returns the activities by this Reader.
+ * @property {Attribution[]} attributions - Returns the creators/contributors in this Reader's library. How do we surface this in the Activity Streams JSON?
  *
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
@@ -43,6 +44,7 @@ class Reader extends BaseModel {
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
+    const { Attribution } = require('./Attribution.js')
     return {
       publications: {
         relation: Model.HasManyRelation,
@@ -74,6 +76,14 @@ class Reader extends BaseModel {
         join: {
           from: 'Reader.id',
           to: 'Document.readerId'
+        }
+      },
+      attributions: {
+        relation: Model.HasManyRelation,
+        modelClass: Attribution,
+        join: {
+          from: 'Reader.id',
+          to: 'Attribution.readerId'
         }
       }
     }

@@ -10,6 +10,7 @@ const { Reader } = require('./Reader.js')
  * @property {Publication} context - Returns the document's parent `Publication`.
  * @property {Note[]} replies - Returns the notes associated with this document.
  * @property {Activity[]} outbox - Returns the activities on this document. **Question** how should a document reference its activities?
+ * @property {Attribution[]} attributedTo - returns the `Attribution` objects (can be many) attributed with contributing to or creating this document.
  *
  * This model covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
  */
@@ -49,6 +50,7 @@ class Document extends BaseModel {
   static get relationMappings () {
     const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
+    const { Attribution } = require('./Attribution.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -64,6 +66,14 @@ class Document extends BaseModel {
         join: {
           from: 'Document.id',
           to: 'Activity.documentId'
+        }
+      },
+      attributedTo: {
+        relation: Model.HasManyRelation,
+        modelClass: Attribution,
+        join: {
+          from: 'Document.id',
+          to: 'Attribution.documentId'
         }
       },
       replies: {

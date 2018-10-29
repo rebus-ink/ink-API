@@ -25,9 +25,6 @@ When saved the model should have a reference to the resources it acted on to mak
 ### Models
 
 * Tag: needed to implement Stacks, Mentions, HashTags and other references in an Activity Stream `tag` property.
-* Attribution: needed to implement creator and contributor attributions in the `attributedTo` and `contributionsBy` properties.
-
-Both should be _very_ similar schemas.
 
 ### Validation
 
