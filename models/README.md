@@ -10,4 +10,8 @@ The model's `url` property is it's activity stream id.
 
 ## Document
 
-Document models have a `type` property which should be that document's _media type_.
+Document and Note models have a `type` property which should be that document's _media type_.
+
+## Note
+
+Currently the DB schema allows for notes that are attached to just a Document with no referenced Publication. This may or may not be a problem depending on where we go.

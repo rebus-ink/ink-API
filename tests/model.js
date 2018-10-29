@@ -13,6 +13,7 @@ Model.knex(knex)
 const { Reader } = require('../models/Reader')
 const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
+const { Note } = require('../models/Note')
 const tap = require('tap')
 
 tap.test('Models', async test => {
@@ -68,6 +69,12 @@ tap.test('Models', async test => {
     test.ok(Document.jsonSchema)
     test.ok(Document.tableName)
     test.ok(Document.relationMappings)
+    test.end()
+  })
+  test.test('Note Model - static properties', test => {
+    test.ok(Note.jsonSchema)
+    test.ok(Note.tableName)
+    test.ok(Note.relationMappings)
     test.end()
   })
 })

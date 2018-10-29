@@ -47,16 +47,9 @@ class BaseModel extends guid(DbErrors(Model)) {
   $formatJson (json /*: any */) {
     const original = super.$formatJson(json)
     json = original.json || {}
-    json.id = original.url
-    json.published = original.published
-    json.updated = original.updated
-    if (original.attachment) {
-      json.attachment = original.attachment
-    }
-    if (this.publication) {
-      json.context = this.publication.url
-    }
-    return json
+    const { url: id, published, updated, attachment, context = {} } = original
+    json.context = context.id
+    return Object.assign(json, { id, published, updated, attachment })
   }
 }
 

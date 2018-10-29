@@ -7,7 +7,8 @@ const { Reader } = require('./Reader.js')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
- * @property {Publication} publication - Returns the document's parent `Publication`.
+ * @property {Publication} context - Returns the document's parent `Publication`.
+ * @property {Note[]} replies - Returns the notes associated with this document.
  *
  * This type covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
  */
@@ -51,6 +52,7 @@ class Document extends BaseModel {
     }
   }
   static get relationMappings () {
+    const { Note } = require('./Note.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -60,7 +62,15 @@ class Document extends BaseModel {
           to: 'Reader.id'
         }
       },
-      publication: {
+      replies: {
+        relation: Model.HasManyRelation,
+        modelClass: Note,
+        join: {
+          from: 'Document.id',
+          to: 'Note.documentId'
+        }
+      },
+      context: {
         relation: Model.BelongsToOneRelation,
         modelClass: Publication,
         join: {
