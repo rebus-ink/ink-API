@@ -14,14 +14,6 @@ class Reader extends BaseModel {
   get path () {
     return 'reader'
   }
-  $formatJson (json) {
-    const reader = super.$formatJson(json)
-    json = reader.json || {}
-    json.id = reader.url
-    json.published = reader.published
-    json.updated = reader.updated
-    return json
-  }
   static get jsonSchema () {
     return {
       type: 'object',
