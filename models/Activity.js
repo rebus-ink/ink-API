@@ -32,7 +32,6 @@ class Activity extends BaseModel {
     return {
       type: 'object',
       properties: {
-        url: { type: 'string', format: 'url' },
         id: { type: 'string', format: 'uuid', maxLength: 255 },
         readerId: { type: 'string', format: 'uuid', maxLength: 255 },
         json: {

@@ -16,6 +16,7 @@ const { Document } = require('../models/Document')
 const { Note } = require('../models/Note')
 const { Activity } = require('../models/Activity')
 const { Attribution } = require('../models/Attribution')
+const { Tag } = require('../models/Tag')
 const tap = require('tap')
 
 tap.test('Models', async test => {
@@ -89,6 +90,12 @@ tap.test('Models', async test => {
     test.ok(Attribution.jsonSchema)
     test.ok(Attribution.tableName)
     test.ok(Attribution.relationMappings)
+    test.end()
+  })
+  test.test('Tag Model - static properties', test => {
+    test.ok(Tag.jsonSchema)
+    test.ok(Tag.tableName)
+    test.ok(Tag.relationMappings)
     test.end()
   })
 })

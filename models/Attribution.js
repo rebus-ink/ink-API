@@ -6,7 +6,6 @@ const { BaseModel } = require('./BaseModel.js')
 /**
  * @property {Document} document - returns the document, if any, that this Person has contributed to.
  * @property {Publication} publication - returns the publication, if any, that this Person has contributed to.
- * @property {canonicalId} string - returns the canonical url id for the attribution.
  *
  * This type models all of the creators and contributors that a publication can have.
  *
@@ -31,9 +30,9 @@ class Attribution extends BaseModel {
       properties: {
         id: { type: 'string', format: 'uuid', maxLength: 255 },
         readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        canonicalId: { type: 'string', format: 'url' },
+        canonicalId: { type: ['string', 'null'], format: 'url' },
         isContributor: { type: 'boolean' },
-        role: { type: 'string' },
+        role: { type: ['string', 'null'] },
         json: {
           type: 'object',
           properties: {

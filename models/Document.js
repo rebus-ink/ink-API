@@ -11,6 +11,7 @@ const { Reader } = require('./Reader.js')
  * @property {Note[]} replies - Returns the notes associated with this document.
  * @property {Activity[]} outbox - Returns the activities on this document. **Question** how should a document reference its activities?
  * @property {Attribution[]} attributedTo - returns the `Attribution` objects (can be many) attributed with contributing to or creating this document.
+ * @property {Tag[]} tag - Returns the document's `Tag` objects (i.e. links, hashtags, stacks and categories).
  *
  * This model covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
  */
@@ -27,12 +28,6 @@ class Document extends BaseModel {
       properties: {
         id: { type: 'string', format: 'uuid', maxLength: 255 },
         readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        source: {
-          type: 'object',
-          properties: {
-            type: 'string'
-          }
-        },
         json: {
           type: 'object',
           properties: {
@@ -51,6 +46,7 @@ class Document extends BaseModel {
     const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')
+    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -90,6 +86,14 @@ class Document extends BaseModel {
         join: {
           from: 'Document.publicationId',
           to: 'Publication.id'
+        }
+      },
+      tag: {
+        relation: Model.HasManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Document.id',
+          to: 'Tag.documentId'
         }
       }
     }
