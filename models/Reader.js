@@ -4,7 +4,8 @@ const { Model } = require('objection')
  * @property {User} user - Returns the user (with auth info) associated with this reader.
  * @property {Document[]} documents - Returns the documents owned buy this Reader.
  * @property {Publication[]} publications - Returns the publications owned buy this Reader.
- * @property {Note[]} notes - Returns the notes owned buy this Reader.
+ * @property {Note[]} notes - Returns the notes owned by this Reader.
+ * @property {Activity[]} outbox - Returns the activities by this Reader.
  *
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
@@ -41,6 +42,7 @@ class Reader extends BaseModel {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
+    const { Activity } = require('./Activity.js')
     return {
       publications: {
         relation: Model.HasManyRelation,
@@ -48,6 +50,14 @@ class Reader extends BaseModel {
         join: {
           from: 'Reader.id',
           to: 'Publication.readerId'
+        }
+      },
+      outbox: {
+        relation: Model.HasManyRelation,
+        modelClass: Activity,
+        join: {
+          from: 'Reader.id',
+          to: 'Activity.readerId'
         }
       },
       notes: {

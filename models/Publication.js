@@ -7,6 +7,7 @@ const { BaseModel } = require('./BaseModel.js')
  * @property {Reader} reader - Returns the reader that owns this publication.
  * @property {Document[]} attachment - Returns the documents attached to this publication.
  * @property {Note[]} replies - Returns the notes associated with this publication.
+ * @property {Activity[]} outbox - Returns the activities on this publication. **Question** how should a publication reference its activities?
  *
  * This class represents an individual publication and holds references to the documents it contains, its creators/contributors, the notes on both the documents and publication itself, the reader who owns it, and the tags used to group it (and its contents) with other publications.
  */
@@ -41,6 +42,7 @@ class Publication extends BaseModel {
     const { Reader } = require('./Reader')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
+    const { Activity } = require('./Activity.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -48,6 +50,14 @@ class Publication extends BaseModel {
         join: {
           from: 'Publication.ownerId',
           to: 'Reader.id'
+        }
+      },
+      outbox: {
+        relation: Model.HasManyRelation,
+        modelClass: Activity,
+        join: {
+          from: 'Publication.id',
+          to: 'Activity.publicationId'
         }
       },
       replies: {

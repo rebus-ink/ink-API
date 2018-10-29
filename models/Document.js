@@ -9,8 +9,9 @@ const { Reader } = require('./Reader.js')
  * @property {Reader} reader - Returns the reader that owns this document.
  * @property {Publication} context - Returns the document's parent `Publication`.
  * @property {Note[]} replies - Returns the notes associated with this document.
+ * @property {Activity[]} outbox - Returns the activities on this document. **Question** how should a document reference its activities?
  *
- * This type covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
+ * This model covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
  */
 class Document extends BaseModel {
   static get tableName () {
@@ -53,6 +54,7 @@ class Document extends BaseModel {
   }
   static get relationMappings () {
     const { Note } = require('./Note.js')
+    const { Activity } = require('./Activity.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -60,6 +62,14 @@ class Document extends BaseModel {
         join: {
           from: 'Document.readerId',
           to: 'Reader.id'
+        }
+      },
+      outbox: {
+        relation: Model.HasManyRelation,
+        modelClass: Activity,
+        join: {
+          from: 'Document.id',
+          to: 'Activity.documentId'
         }
       },
       replies: {

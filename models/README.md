@@ -15,3 +15,20 @@ Document and Note models have a `type` property which should be that document's 
 ## Note
 
 Currently the DB schema allows for notes that are attached to just a Document with no referenced Publication. This may or may not be a problem depending on where we go.
+
+## Activity
+
+When saved the model should have a reference to the resources it acted on to make it easy to track activities (like reading) on a per-publication or per-document basis
+
+## TODO
+
+### Models
+
+* Tag: needed to implement Stacks, Mentions, HashTags and other references in an Activity Stream `tag` property.
+* Attribution: needed to implement creator and contributor attributions in the `attributedTo` and `contributionsBy` properties.
+
+Both should be _very_ similar schemas.
+
+### Validation
+
+Objection supports the full JSON-schema specification for validating incoming data. So in theory we could have fairly detailed validation that covers a lot of the activity streams specification if we want to.

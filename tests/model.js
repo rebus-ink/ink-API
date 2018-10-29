@@ -14,6 +14,7 @@ const { Reader } = require('../models/Reader')
 const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
 const { Note } = require('../models/Note')
+const { Activity } = require('../models/Activity')
 const tap = require('tap')
 
 tap.test('Models', async test => {
@@ -75,6 +76,12 @@ tap.test('Models', async test => {
     test.ok(Note.jsonSchema)
     test.ok(Note.tableName)
     test.ok(Note.relationMappings)
+    test.end()
+  })
+  test.test('Activity Model - static properties', test => {
+    test.ok(Activity.jsonSchema)
+    test.ok(Activity.tableName)
+    test.ok(Activity.relationMappings)
     test.end()
   })
 })
