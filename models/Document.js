@@ -35,13 +35,7 @@ class Document extends BaseModel {
         json: {
           type: 'object',
           properties: {
-            content: { type: 'string' },
-            mediaType: { type: 'string', maxLength: 255 },
-            icon: { type: 'string', format: 'url' },
-            image: { type: 'string', format: 'url' },
-            preview: { type: 'string', format: 'url' },
-            context: { type: 'string', format: 'url' },
-            summary: { type: 'string' }
+            type: { type: 'string' }
           },
           additionalProperties: true
         },
