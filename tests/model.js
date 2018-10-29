@@ -12,6 +12,7 @@ const Model = objection.Model
 Model.knex(knex)
 const { Reader } = require('../models/Reader')
 const { Publication } = require('../models/Publication')
+const { Document } = require('../models/Document')
 const tap = require('tap')
 
 tap.test('Models', async test => {
@@ -57,11 +58,16 @@ tap.test('Models', async test => {
     test.equals(updated.json.summary, 'Anonymous')
     test.end()
   })
-  test.test('Publication Mode - static properties', test => {
+  test.test('Publication Model - static properties', test => {
     test.ok(Publication.jsonSchema)
     test.ok(Publication.tableName)
     test.ok(Publication.relationMappings)
-    test.ok(Publication.path)
+    test.end()
+  })
+  test.test('Document Model - static properties', test => {
+    test.ok(Document.jsonSchema)
+    test.ok(Document.tableName)
+    test.ok(Document.relationMappings)
     test.end()
   })
 })
