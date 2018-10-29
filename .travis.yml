@@ -7,6 +7,8 @@ env:
   - SECRETORKEY=this_is_a_testing_secret
 # From travis-ci.com: "The default user for accessing the local PostgreSQL server is postgres with a blank password."
 # The database name (created below) is: "travis_ci_test"
+addons:
+  postgresql: "9.4"
 services:
 - postgresql
 before_install:
