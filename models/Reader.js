@@ -1,4 +1,5 @@
 const { BaseModel } = require('./BaseModel.js')
+const { Model } = require('objection')
 
 class Reader extends BaseModel {
   static get tableName () {
@@ -28,14 +29,26 @@ class Reader extends BaseModel {
         json: {
           type: 'object',
           properties: {
-            content: { type: 'string' },
-            summary: { type: 'string' }
+            type: { const: 'Person' }
           },
           additionalProperties: true
         }
       },
       required: ['userId'],
       additionalProperties: true
+    }
+  }
+  static get relationMappings () {
+    const { Publication } = require('./Publication.js')
+    return {
+      publications: {
+        relation: Model.HasManyRelation,
+        modelClass: Publication,
+        join: {
+          from: 'Reader.id',
+          to: 'Publication.readerId'
+        }
+      }
     }
   }
 }

@@ -11,13 +11,15 @@ const objection = require('objection')
 const Model = objection.Model
 Model.knex(knex)
 const { Reader } = require('../models/Reader')
+const { Publication } = require('../models/Publication')
 const tap = require('tap')
 
-tap.test('Reader', async test => {
+tap.test('Models', async test => {
   await knex.migrate.latest()
 
   test.test('Reader jsonSchema', test => {
     test.ok(Reader.jsonSchema)
+    test.ok(Reader.relationMappings)
     test.end()
   })
 
@@ -53,6 +55,13 @@ tap.test('Reader', async test => {
       })
       .catch(() => {})
     test.equals(updated.json.summary, 'Anonymous')
+    test.end()
+  })
+  test.test('Publication Mode - static properties', test => {
+    test.ok(Publication.jsonSchema)
+    test.ok(Publication.tableName)
+    test.ok(Publication.relationMappings)
+    test.ok(Publication.path)
     test.end()
   })
 })
