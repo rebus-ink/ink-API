@@ -62,6 +62,7 @@ class BaseModel extends guid(DbErrors(Model)) {
       readerId = getUUID(json.bto)
     } else {
       readerId = getUUID(json.actor)
+      json.bto = json.actor
     }
     const canonicalId = getCanonical(json.url)
     const { userId, inReplyTo, context } = json
