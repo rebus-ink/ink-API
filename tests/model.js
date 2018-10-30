@@ -40,12 +40,8 @@ tap.test('Models', async test => {
           .insertGraph({
             bto: result.url,
             name: 'Bingo! The Publication',
-            replies: [
-              { type: 'Note', content: 'This should be HTML', bto: result.url }
-            ],
-            attachment: [
-              { type: 'Document', name: 'Test Document', bto: result.url }
-            ]
+            replies: [{ type: 'Note', content: 'This should be HTML' }],
+            attachment: [{ type: 'Document', name: 'Test Document' }]
           })
         docs = await Document.query().transacting(trx)
         notes = await Document.query().transacting(trx)

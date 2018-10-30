@@ -64,22 +64,14 @@ class BaseModel extends guid(DbErrors(Model)) {
       readerId = getUUID(json.actor)
     }
     const canonicalId = getCanonical(json.url)
-    const {
-      userId,
-      attachment,
-      outbox,
-      tag,
-      replies,
-      attributedTo,
-      inReplyTo,
-      context
-    } = json
+    const { userId, inReplyTo, context } = json
     // Should get the inReplyTo document id, much like context
-    if (json.object) {
-    }
     const publicationId = getUUID(context)
     const documentId = getUUID(inReplyTo)
     const activityRelation = objectToId(json.object)
+    const { attachment, outbox, tag, replies, attributedTo } = addReaderToGraph(
+      json
+    )
     delete json.bto
     return stripUndefined(
       Object.assign(
@@ -162,6 +154,21 @@ function objectToId (obj) {
     return undefined
   }
   return { [type + 'Id']: id }
+}
+
+function addReaderToGraph (json) {
+  const bto = json.bto
+  const props = ['attachment', 'outbox', 'tag', 'replies', 'attributedTo']
+  const result = {}
+  props.forEach(prop => {
+    if (json[prop]) {
+      result[prop] = json[prop].map(item => {
+        item.bto = bto
+        return item
+      })
+    }
+  })
+  return result
 }
 
 module.exports = {
