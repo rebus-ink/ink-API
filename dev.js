@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const URL = require('url').URL
 
 app.use(morgan('dev'))
 const prefix = new URL(process.env.DOMAIN).pathname
