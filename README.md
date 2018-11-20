@@ -131,6 +131,13 @@ The server uses environment variables for configuration.
 * `NODE_ENV`: Environment variable used by [express](https://expressjs.com/).
   Can be `production` or `development`.
 * `SECRETORKEY`: Expected shared secret for [JWT](https://jwt.io) tokens.
+* `POSTGRE_INSTANCE`: the db server. Set it to 'localhost' for a local dev. If this
+  variable is not set, the models will be stored in a SQLite database.
+* `POSTGRE_DB`: the name of the database.
+* `POSTGRE_USER`: the user name to use for the connection
+* `POSTGRE_PASSWORD`: the password
+* `SQLITE_DB`: filename of the SQLite database to store data if `POSTGRE_INSTANCE` is
+  not set. Defaults to "./dev.sqlite3".
 
 ## Contributing
 
