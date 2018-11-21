@@ -34,14 +34,11 @@ router.post(
     })
 
     stream.on('finish', () => {
-      url = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+      let url = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
 
       // we might want to remove the makePublic
       blob.makePublic().then(() => {
-        res.setHeader(
-          'Content-Type',
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        res.setHeader('Content-Type', 'application/json;')
         res.end(JSON.stringify({ url }))
       })
     })
