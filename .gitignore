@@ -64,3 +64,6 @@ app-development.yaml
 secrets.tar
 app-staging.yaml
 dev.sqlite3
+
+#google cloud credentials
+cloud-config.json

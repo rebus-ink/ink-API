@@ -104,6 +104,7 @@ app.use('/', require('./routes/publication'))
 app.use('/', require('./routes/user'))
 app.use('/', require('./routes/user-library'))
 app.use('/', require('./routes/user-streams'))
+app.use('/', require('./routes/file-upload'))
 
 app.initialized = false
 
