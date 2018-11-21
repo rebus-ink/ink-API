@@ -12,7 +12,6 @@ before_install:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_28143c166499_key -iv $encrypted_28143c166499_iv
   -in secrets.tar.enc -out secrets.tar -d || true'
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && tar xvf secrets.tar || true'
-- tar xvf secrets.tar
 - psql -c 'create database travis_ci_test;' -U postgres
 deploy:
   - provider: gae
