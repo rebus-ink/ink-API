@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
+const passport = require('passport')
+const { getId } = require('../utils/get-id.js')
 
 const storage = new Storage()
 
