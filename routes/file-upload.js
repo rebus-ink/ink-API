@@ -3,9 +3,7 @@ const router = express.Router()
 const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
 
-const storage = new Storage({
-  projectId: process.env.CLOUD_STORAGE_ID
-})
+const storage = new Storage()
 
 const m = multer({ storage: multer.memoryStorage() })
 
