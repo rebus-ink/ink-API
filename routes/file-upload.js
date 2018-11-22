@@ -9,7 +9,7 @@ const m = multer({ storage: multer.memoryStorage() })
 
 router.post(
   '/file-upload',
-  // passport.authenticate('jwt', { session: false }),
+  passport.authenticate('jwt', { session: false }),
   m.single('file'),
   async function (req, res, next) {
     // currently putting all the files in a single bucket
