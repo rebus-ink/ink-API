@@ -10,6 +10,22 @@ const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 
+const setupKnex = async () => {
+  let config
+  /* istanbul ignore next */
+  if (process.env.POSTGRE_INSTANCE) {
+    config = require('./knexfile.js')['postgresql']
+  } else {
+    config = require('./knexfile.js')['development']
+  }
+  app.knex = require('knex')(config)
+  await app.knex.migrate.latest()
+  const objection = require('objection')
+  const Model = objection.Model
+  Model.knex(app.knex)
+  return null
+}
+
 const setupPassport = () => {
   var opts = {}
   opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken()
@@ -75,6 +91,10 @@ app.get('/', function (req, res, next) {
   })
 })
 
+// FIXME: this needs to be first because it also matches the :userID production
+
+app.use('/', require('./routes/whoami'))
+
 app.use('/', require('./routes/activity'))
 app.use('/', require('./routes/document'))
 app.use('/', require('./routes/inbox'))
@@ -84,11 +104,32 @@ app.use('/', require('./routes/user'))
 app.use('/', require('./routes/user-library'))
 app.use('/', require('./routes/user-streams'))
 
+app.initialized = false
+
+app.initialize = async () => {
+  if (!app.initialized) {
+    await setupKnex()
+    app.initialized = true
+  }
+  return app.initialized
+}
+
+app.terminate = async () => {
+  if (!app.initialized) {
+    throw new Error('App not initialized; cannot terminate')
+  }
+  app.initialized = false
+  return app.knex.destroy()
+}
+
+app.start = port => {
+  app.listen(port, () => console.log('Listening'))
+}
+
 module.exports = {
   // Export app for reuse in other express apps/servers
   app,
-  // The actual server start code
   start (port) {
-    app.listen(port, () => console.log('Listening'))
+    app.start(port)
   }
 }
