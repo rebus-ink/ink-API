@@ -3,7 +3,7 @@
 const tap = require('tap')
 const request = require('supertest')
 const jwt = require('jsonwebtoken')
-const debug = require('debug')('hobb:test:get-whoami')
+const debug = require('debug')('hobb:test:mainline-api')
 const urlparse = require('url').parse
 
 process.env.NODE_ENV = 'development'
@@ -365,12 +365,13 @@ const main = async () => {
 
     const body = res.body
 
+    debug(body)
+
     await tap.type(body, 'object')
     await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
     await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/streams/)
     await tap.equal(body.type, 'Collection')
-    await tap.ok(Array.isArray(body.items))
-    await tap.ok(body.items.length > 0)
+    await tap.ok(Array.isArray(body.items) && body.items.length > 0)
 
     const [library] = body.items.filter(item =>
       item.id.match(/https:\/\/reader-api.test\/reader-(.*)\/library/)
@@ -383,6 +384,48 @@ const main = async () => {
       /https:\/\/reader-api.test\/reader-(.*)\/library/
     )
     await tap.equal(library.type, 'Collection')
+  })
+
+  await tap.test('GET inbox with no authentication', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.inbox).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('GET inbox as other user', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.inbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('GET inbox', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.inbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/inbox/)
+    await tap.equal(body.type, 'OrderedCollection')
+    await tap.ok(Array.isArray(body.orderedItems))
+    await tap.equal(body.totalItems, 0)
+    await tap.equal(body.orderedItems.length, 0)
   })
 
   await tap.test('App terminates correctly', async () => {
