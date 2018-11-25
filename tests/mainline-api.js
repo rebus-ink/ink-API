@@ -4,12 +4,15 @@ const tap = require('tap')
 const request = require('supertest')
 const jwt = require('jsonwebtoken')
 const debug = require('debug')('hobb:test:get-whoami')
+const urlparse = require('url').parse
 
 process.env.NODE_ENV = 'development'
 
 const main = async () => {
   let app
   let token
+  let other
+  let reader
 
   await tap.test('Environment variables are set', async () => {
     await tap.type(process.env.ISSUER, 'string')
@@ -59,6 +62,23 @@ const main = async () => {
 
     token = jwt.sign({}, process.env.SECRETORKEY, options)
     tap.ok(token)
+  })
+
+  await tap.test('Create JWT token for other user', async () => {
+    await tap.type(process.env.ISSUER, 'string')
+
+    // This should be unique
+
+    const options = {
+      subject: `other${Date.now()}`,
+      expiresIn: '24h',
+      issuer: process.env.ISSUER
+    }
+
+    await tap.type(process.env.SECRETORKEY, 'string')
+
+    other = jwt.sign({}, process.env.SECRETORKEY, options)
+    tap.ok(other)
   })
 
   await tap.test('GET /whoami before posting to /readers', async () => {
@@ -161,7 +181,8 @@ const main = async () => {
 
     debug('Getting body')
     const body = res.body
-
+    // Stash for use in later tests
+    reader = body
     debug('Testing context')
     await tap.ok(Array.isArray(body['@context']))
     await tap.equal(body['@context'].length, 2)
@@ -216,6 +237,38 @@ const main = async () => {
     debug('Done with properties')
 
     return true
+  })
+
+  await tap.test('Get reader with no auth', async () => {
+    debug(`Requesting with no auth: ${reader.id}`)
+
+    const res = await request(app)
+      .get(urlparse(reader.id).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test("Get reader with other user's auth", async () => {
+    debug(`Requesting with other user's auth: ${reader.id}`)
+
+    const res = await request(app)
+      .get(urlparse(reader.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('Get reader', async () => {
+    debug(`Requesting with other user's auth: ${reader.id}`)
+
+    const res = await request(app)
+      .get(urlparse(reader.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
   })
 
   await tap.test('App terminates correctly', async () => {

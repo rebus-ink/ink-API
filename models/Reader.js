@@ -1,5 +1,9 @@
+const assert = require('assert')
 const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
+const NoSuchReaderError = require('../errors/no-such-reader')
+const short = require('short-uuid')
+const translator = short()
 /**
  * @property {User} user - Returns the user (with auth info) associated with this reader.
  * @property {Document[]} documents - Returns the documents owned buy this Reader.
@@ -12,6 +16,40 @@ const { Model } = require('objection')
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
 class Reader extends BaseModel {
+  static async byUserId (userId, namespace = 'auth0') {
+    const readers = await Reader.query(Reader.knex()).where(
+      'userId',
+      '=',
+      `${namespace}|${userId}`
+    )
+
+    if (readers.length === 0) {
+      throw new NoSuchReaderError({ userId })
+    } else if (readers.length > 1) {
+      throw new Error(`Too many readers for user ${userId}`)
+    } else {
+      assert(readers.length === 1)
+      return readers[0]
+    }
+  }
+
+  static async byShortId (shortId) {
+    const readers = await Reader.query(Reader.knex()).where(
+      'id',
+      '=',
+      translator.toUUID(shortId)
+    )
+
+    if (readers.length === 0) {
+      throw new NoSuchReaderError({ shortId })
+    } else if (readers.length > 1) {
+      throw new Error(`Too many readers for id ${shortId}`)
+    } else {
+      assert(readers.length === 1)
+      return readers[0]
+    }
+  }
+
   static get tableName () {
     return 'Reader'
   }
@@ -96,6 +134,40 @@ class Reader extends BaseModel {
         }
       }
     }
+  }
+
+  $formatJson (json) {
+    const original = super.$formatJson(json)
+    json = original.json || {}
+    Object.assign(json, {
+      type: 'Person',
+      summaryMap: {
+        en: `User with id ${this.id}`
+      },
+      id: this.url,
+      inbox: `${this.url}/inbox`,
+      outbox: `${this.url}/activity`,
+      streams: {
+        id: `${this.url}/streams`,
+        type: 'Collection',
+        summaryMap: {
+          en: `Collections for user with id ${this.id}`
+        },
+        totalItems: 1,
+        items: [
+          {
+            summaryMap: {
+              en: `Library for user with id ${this.id}`
+            },
+            id: `${this.url}/library`,
+            type: 'Collection'
+          }
+        ]
+      },
+      published: this.published,
+      updated: this.updated
+    })
+    return json
   }
 }
 
