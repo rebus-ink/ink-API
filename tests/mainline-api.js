@@ -269,6 +269,68 @@ const main = async () => {
       .set('Authorization', `Bearer ${token}`)
 
     await tap.equal(res.statusCode, 200)
+
+    debug('Testing that it is done')
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    debug('Getting body')
+    const body = res.body
+
+    debug('Testing context')
+    await tap.ok(Array.isArray(body['@context']))
+    await tap.equal(body['@context'].length, 2)
+    await tap.equal(
+      body['@context'][0],
+      'https://www.w3.org/ns/activitystreams'
+    )
+    await tap.type(body['@context'][1], 'object')
+    await tap.equal(
+      body['@context'][1].reader,
+      'https://rebus.foundation/ns/reader'
+    )
+
+    debug('Testing properties')
+    debug(body)
+
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)/)
+    await tap.equal(body.type, 'Person')
+    await tap.match(
+      body.outbox,
+      /https:\/\/reader-api.test\/reader-(.*)\/activity/
+    )
+    await tap.equal(typeof body.followers, 'undefined')
+    await tap.equal(typeof body.following, 'undefined')
+    await tap.equal(typeof body.liked, 'undefined')
+
+    debug('Testing streams')
+    await tap.type(body.streams, 'object')
+    await tap.match(
+      body.streams.id,
+      /https:\/\/reader-api.test\/reader-(.*)\/streams/
+    )
+    await tap.equal(body.streams.type, 'Collection')
+    await tap.type(body.streams.summaryMap, 'object')
+    await tap.type(body.streams.summaryMap.en, 'string')
+
+    await tap.equal(body.streams.totalItems, 1)
+    await tap.ok(Array.isArray(body.streams.items))
+    await tap.equal(body.streams.items.length, 1)
+
+    debug('Testing library')
+    const library = body.streams.items[0]
+
+    await tap.type(library, 'object')
+    await tap.match(
+      library.id,
+      /https:\/\/reader-api.test\/reader-(.*)\/library/
+    )
+    await tap.equal(library.type, 'Collection')
+    await tap.type(library.summaryMap, 'object')
+    await tap.type(library.summaryMap.en, 'string')
+    debug('Done with properties')
   })
 
   await tap.test('App terminates correctly', async () => {
