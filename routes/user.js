@@ -14,7 +14,9 @@ router.get(
         debug(reader)
         debug(req.user)
         if (`auth0|${req.user}` !== reader.userId) {
-          res.status(403).send(`Access to reader ${req.params.id} disallowed`)
+          res
+            .status(403)
+            .send(`Access to reader ${req.params.shortId} disallowed`)
         } else {
           res.setHeader(
             'Content-Type',
