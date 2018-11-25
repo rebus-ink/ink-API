@@ -110,7 +110,30 @@ const main = async () => {
       )
       .set('Authorization', `Bearer ${token}`)
 
-    await tap.equal(res.statusCode, 200)
+    await tap.equal(res.statusCode, 201)
+    await tap.match(
+      res.get('Location'),
+      /https:\/\/reader-api.test\/reader-(.*)$/
+    )
+  })
+
+  await tap.test('POST /readers again', async () => {
+    const res = await request(app)
+      .post('/readers')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': 'https://www.w3.org/ns/activitystreams',
+          type: 'Person',
+          name: 'J. Random Reader'
+        })
+      )
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 400)
   })
 
   await tap.test('GET /whoami after posting to /readers', async () => {

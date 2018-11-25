@@ -94,6 +94,7 @@ app.get('/', function (req, res, next) {
 // FIXME: this needs to be first because it also matches the :userID production
 
 app.use('/', require('./routes/whoami'))
+app.use('/', require('./routes/readers'))
 
 app.use('/', require('./routes/activity'))
 app.use('/', require('./routes/document'))
