@@ -428,6 +428,46 @@ const main = async () => {
     await tap.equal(body.orderedItems.length, 0)
   })
 
+  await tap.test('GET outbox with no authentication', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('GET outbox as other user', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('GET outbox', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/activity/)
+    await tap.equal(body.type, 'OrderedCollection')
+    await tap.ok(Array.isArray(body.orderedItems))
+  })
+
   await tap.test('App terminates correctly', async () => {
     debug('Terminating app')
     tap.ok(app.initialized)

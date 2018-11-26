@@ -1,42 +1,50 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { Reader } = require('../models/Reader')
+const NoSuchReaderError = require('../errors/no-such-reader')
+const debug = require('debug')('hobb:routes:user-streams')
 const { getId } = require('../utils/get-id.js')
 
+const jwtAuth = passport.authenticate('jwt', { session: false })
+
 router
-  .route('/:nickname/activity')
-  .get(passport.authenticate('jwt', { session: false }), function (
-    req,
-    res,
-    next
-  ) {
-    const nickname = req.params.nickname
-
-    if (req.user !== nickname) {
-      res.status(403).send(`Access to outbox for ${nickname} disallowed`)
-      return
-    }
-
-    res.setHeader(
-      'Content-Type',
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-    res.end(
-      JSON.stringify({
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        name: `Activities by ${nickname}`,
-        type: 'OrderedCollection',
-        id: getId(`/${nickname}/activity`),
-        orderedItems: []
+  .route('/reader-:shortId/activity')
+  .get(jwtAuth, function (req, res, next) {
+    const shortId = req.params.shortId
+    Reader.byShortId(shortId)
+      .then(reader => {
+        debug(reader)
+        debug(req.user)
+        if (`auth0|${req.user}` !== reader.userId) {
+          res.status(403).send(`Access to reader ${shortId} disallowed`)
+        } else {
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          res.end(
+            JSON.stringify({
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              summary: {
+                en: `Outbox for user with id ${shortId}`
+              },
+              type: 'OrderedCollection',
+              id: getId(`/reader-${shortId}/activity`),
+              orderedItems: []
+            })
+          )
+        }
       })
-    )
+      .catch(err => {
+        if (err instanceof NoSuchReaderError) {
+          res.status(404).send(err.message)
+        } else {
+          next(err)
+        }
+      })
   })
-  .post(passport.authenticate('jwt', { session: false }), function (
-    req,
-    res,
-    next
-  ) {
+  .post(jwtAuth, function (req, res, next) {
     const nickname = req.params.nickname
 
     if (req.user !== nickname) {
@@ -63,5 +71,7 @@ router
     res.sendStatus(201)
     res.end()
   })
+
+module.exports = router
 
 module.exports = router
