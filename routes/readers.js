@@ -58,10 +58,8 @@ const insertNewReader = (userId, person) => {
           reject(new ReaderExistsError(userId))
         } else {
           debug('Creating new reader')
-          const props = {
-            userId: `auth0|${userId}`,
-            json: _.pick(person, personAttrs)
-          }
+          let props = _.pick(person, personAttrs)
+          props.userId = `auth0|${userId}`
           debug('Inserting reader')
           Reader.query(Reader.knex())
             .insertAndFetch(props)
