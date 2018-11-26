@@ -165,7 +165,6 @@ tap.test('Models', async test => {
       })
       .catch(() => {})
     const activity = JSON.parse(JSON.stringify(inserted))
-    console.log(activity)
     test.type(activity.id, 'string')
     test.equal(activity.type, 'Create')
     test.type(activity.actor, 'object')
