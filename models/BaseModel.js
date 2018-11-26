@@ -11,6 +11,8 @@ const { getId } = require('../utils/get-id.js')
 const arrify = require('arrify')
 const lodash = require('lodash')
 const URL = require('url').URL
+const debug = require('debug')('hobb:model:base-model')
+const _ = require('lodash')
 
 /**
  * @property {string} url - the current object's url
@@ -60,7 +62,14 @@ class BaseModel extends guid(DbErrors(Model)) {
   }
 
   summarize () {
-    const type = (this.json.type || 'object').toLowerCase()
+    let type
+    if (_.isString(this.type)) {
+      type = this.type.toLowerCase()
+    } else if (_.isString(this.json.type)) {
+      type = this.json.type.toLowerCase()
+    } else {
+      type = 'object'
+    }
     return `${type} with id ${this.id}`
   }
 
@@ -182,6 +191,7 @@ function addReaderToGraph (json) {
   const result = {}
   props.forEach(prop => {
     if (json[prop]) {
+      debug(prop)
       result[prop] = json[prop].map(item => {
         item.bto = bto
         return item
