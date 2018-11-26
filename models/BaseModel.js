@@ -42,7 +42,26 @@ class BaseModel extends guid(DbErrors(Model)) {
     const doc = this
     return Promise.resolve(parent).then(function () {
       doc.published = new Date().toISOString()
+      if (!doc.hasName()) {
+        doc.json.summaryMap = {
+          en: doc.summarize()
+        }
+      }
     })
+  }
+
+  hasName () {
+    return (
+      this.json.name ||
+      this.json.nameMap ||
+      this.json.summary ||
+      this.json.summaryMap
+    )
+  }
+
+  summarize () {
+    const type = (this.json.type || 'object').toLowerCase()
+    return `${type} with id ${this.id}`
   }
 
   $beforeUpdate (queryOptions /*: any */, context /*: any */) {
