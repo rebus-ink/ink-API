@@ -30,6 +30,7 @@ class Document extends BaseModel {
       properties: {
         id: { type: 'string', format: 'uuid', maxLength: 255 },
         readerId: { type: 'string', format: 'uuid', maxLength: 255 },
+        publicationId: { type: 'string', format: 'uuid', maxLength: 255 },
         json: {
           type: 'object',
           properties: {
