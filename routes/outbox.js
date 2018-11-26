@@ -3,7 +3,6 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const NoSuchReaderError = require('../errors/no-such-reader')
-const debug = require('debug')('hobb:routes:user-streams')
 const { getId } = require('../utils/get-id.js')
 
 const jwtAuth = passport.authenticate('jwt', { session: false })
@@ -14,8 +13,6 @@ router
     const shortId = req.params.shortId
     Reader.byShortId(shortId, ['outbox'])
       .then(reader => {
-        debug(reader)
-        debug(req.user)
         if (`auth0|${req.user}` !== reader.userId) {
           res.status(403).send(`Access to reader ${shortId} disallowed`)
         } else {
