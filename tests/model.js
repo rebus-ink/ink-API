@@ -99,12 +99,84 @@ tap.test('Models', async test => {
     test.ok(Note.relationMappings)
     test.end()
   })
-  test.test('Activity Model - static properties', test => {
-    test.ok(Activity.jsonSchema)
-    test.ok(Activity.tableName)
-    test.ok(Activity.relationMappings)
+  test.test('Activity Model - static properties', async test => {
+    test.equal(Activity.tableName, 'Activity')
+    test.type(Activity.jsonSchema, 'object')
+    test.type(Activity.jsonSchema.properties, 'object')
+    test.type(Activity.jsonSchema.properties.type, 'object')
+    test.type(Activity.jsonSchema.properties.readerId, 'object')
+    test.type(Activity.jsonSchema.properties.publicationId, 'object')
+    test.type(Activity.jsonSchema.properties.documentId, 'object')
+    test.type(Activity.jsonSchema.properties.noteId, 'object')
+    test.type(Activity.relationMappings, 'object')
+    test.type(Activity.relationMappings.reader, 'object')
+    test.type(Activity.relationMappings.document, 'object')
+    test.type(Activity.relationMappings.publication, 'object')
+    test.type(Activity.relationMappings.note, 'object')
+    const metadata = await Activity.fetchTableMetadata()
+    test.type(metadata, 'object')
+    test.ok(Array.isArray(metadata.columns))
+    test.equal(Activity.propertyNameToColumnName('type'), 'type')
+    test.equal(Activity.propertyNameToColumnName('readerId'), 'readerId')
+    test.equal(
+      Activity.propertyNameToColumnName('publicationId'),
+      'publicationId'
+    )
+    test.equal(Activity.propertyNameToColumnName('documentId'), 'documentId')
+    test.equal(Activity.propertyNameToColumnName('noteId'), 'noteId')
     test.end()
   })
+
+  test.test('Activity model - create publication', async test => {
+    let result, publication, inserted
+    await objection
+      .transaction(Reader.knex(), async trx => {
+        result = await Reader.query()
+          .transacting(trx)
+          .insertAndFetch({ userId: 'auth0|fakeid2' })
+        publication = await Publication.query()
+          .transacting(trx)
+          .insertGraph({
+            bto: result.url,
+            name: 'Another Publication',
+            attachment: [
+              {
+                type: 'Document',
+                name: 'Test Document',
+                content: 'Document content'
+              }
+            ]
+          })
+        inserted = await Activity.query()
+          .transacting(trx)
+          .insertGraphAndFetch({
+            type: 'Create',
+            actor: {
+              type: 'Person',
+              id: result.url
+            },
+            object: {
+              type: 'reader:Publication',
+              id: publication.url
+            }
+          })
+          .eager('[reader, publication]')
+        return trx.rollback()
+      })
+      .catch(() => {})
+    const activity = JSON.parse(JSON.stringify(inserted))
+    console.log(activity)
+    test.type(activity.id, 'string')
+    test.equal(activity.type, 'Create')
+    test.type(activity.actor, 'object')
+    test.type(activity.actor.id, 'string')
+    test.equal(activity.actor.type, 'Person')
+    test.type(activity.object, 'object')
+    test.type(activity.object.id, 'string')
+    test.equal(activity.object.type, 'reader:Publication')
+    test.end()
+  })
+
   test.test('Attribution Model - static properties', test => {
     test.ok(Attribution.jsonSchema)
     test.ok(Attribution.tableName)

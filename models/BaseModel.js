@@ -178,7 +178,7 @@ function objectToId (obj) {
   let type
   try {
     const pathname = new URL(url).pathname
-    type = pathname.split('-')[0]
+    type = pathname.split('-')[0].slice(1)
   } catch (err) {
     return undefined
   }
