@@ -1,79 +1,39 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { getId } = require('../utils/get-id.js')
+const { Activity } = require('../models/Activity')
+const debug = require('debug')('hobb:routes:activity')
 
 router.get(
-  '/:nickname/activity/:actid',
+  '/activity-:shortId',
   passport.authenticate('jwt', { session: false }),
   function (req, res, next) {
-    const nickname = req.params.nickname
-    const actid = req.params.actid
-
-    if (req.user !== nickname) {
-      res.status(403).send(`Access to activity ${actid} disallowed`)
-      return
-    }
-
-    res.setHeader(
-      'Content-Type',
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-    let act = null
-
-    if (actid.match(/create/)) {
-      act = {
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        summaryMap: {
-          en: `${nickname} created 'Publication 1'`
-        },
-        type: 'Create',
-        id: getId(`/${nickname}/activity/${actid}`),
-        actor: {
-          id: getId(`/${nickname}/`),
-          type: 'Person',
-          summaryMap: {
-            en: `User with nickname ${nickname}`
-          }
-        },
-        object: {
-          type: 'reader:Publication',
-          id: getId(`/${nickname}/publication/1`),
-          name: `Publication 1`,
-          totalItems: 4
+    const shortId = req.params.shortId
+    Activity.byShortId(shortId)
+      .then(activity => {
+        if (!activity) {
+          res.status(404).send(`No activity with ID ${shortId}`)
+        } else if (`auth0|${req.user}` !== activity.reader.userId) {
+          res.status(403).send(`Access to activity ${shortId} disallowed`)
+        } else {
+          debug(activity)
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          res.end(
+            JSON.stringify(
+              Object.assign(activity.toJSON(), {
+                '@context': [
+                  'https://www.w3.org/ns/activitystreams',
+                  { reader: 'https://rebus.foundation/ns/reader' }
+                ]
+              })
+            )
+          )
         }
-      }
-    } else {
-      act = {
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        summaryMap: {
-          en: `${nickname} `
-        },
-        type: 'Read',
-        id: getId(`/${nickname}/activity/${actid}`),
-        actor: {
-          id: getId(`/${nickname}/`),
-          type: 'Person',
-          summaryMap: {
-            en: `User with nickname ${nickname}`
-          }
-        },
-        object: {
-          type: 'Document',
-          id: getId(`/${nickname}/publication/1/document/1`),
-          name: `Publication 1 Document 1`
-        }
-      }
-    }
-
-    res.end(JSON.stringify(act))
+      })
+      .catch(next)
   }
 )
 

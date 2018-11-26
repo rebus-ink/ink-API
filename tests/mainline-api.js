@@ -434,46 +434,6 @@ const main = async () => {
     await tap.equal(body.orderedItems.length, 0)
   })
 
-  await tap.test('GET outbox with no authentication', async () => {
-    const res = await request(app)
-      .get(urlparse(reader.outbox).path)
-      .set('Host', 'reader-api.test')
-
-    await tap.equal(res.statusCode, 401)
-  })
-
-  await tap.test('GET outbox as other user', async () => {
-    const res = await request(app)
-      .get(urlparse(reader.outbox).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${other}`)
-
-    await tap.equal(res.statusCode, 403)
-  })
-
-  await tap.test('GET outbox', async () => {
-    const res = await request(app)
-      .get(urlparse(reader.outbox).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-
-    await tap.equal(res.statusCode, 200)
-
-    await tap.equal(
-      res.get('Content-Type'),
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-    const body = res.body
-
-    await tap.type(body, 'object')
-
-    await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
-    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/activity/)
-    await tap.equal(body.type, 'OrderedCollection')
-    await tap.ok(Array.isArray(body.orderedItems))
-  })
-
   await tap.test('GET library with no authentication', async () => {
     const res = await request(app)
       .get(urlparse(library.id).path)
@@ -514,6 +474,181 @@ const main = async () => {
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 0)
     await tap.equal(body.totalItems, 0)
+  })
+
+  await tap.test('GET outbox with no authentication', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('GET outbox as other user', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('GET outbox', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/activity/)
+    await tap.equal(body.type, 'OrderedCollection')
+    await tap.ok(Array.isArray(body.orderedItems))
+  })
+
+  // a neutral activity that will be saved but not applied
+
+  const neutral = {
+    '@context': 'https://www.w3.org/ns/activitystreams',
+    type: 'Arrive',
+    location: {
+      id: 'https://places.test/rebus-foundation-office',
+      type: 'Place',
+      nameMap: {
+        en: 'Rebus Foundation Office'
+      }
+    }
+  }
+
+  await tap.test('Create activity with no authc', async () => {
+    const res = await request(app)
+      .post(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(neutral))
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('Create activity with incorrect authc', async () => {
+    const res = await request(app)
+      .post(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(neutral))
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  let loc
+
+  await tap.test('Create activity with correct authc', async () => {
+    const res = await request(app)
+      .post(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(neutral))
+
+    await tap.equal(res.statusCode, 201)
+
+    loc = res.get('Location')
+
+    debug(`New activity location: ${loc}`)
+
+    await tap.match(loc, /https:\/\/reader-api.test\/activity-(.*)$/)
+  })
+
+  await tap.test('Get activity with no authc', async () => {
+    const res = await request(app)
+      .get(urlparse(loc).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('Get activity with incorrect authc', async () => {
+    const res = await request(app)
+      .get(urlparse(loc).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('Get activity with correct authc', async () => {
+    const res = await request(app)
+      .get(urlparse(loc).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    debug(body)
+
+    await tap.type(body, 'object')
+
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+
+    await tap.equal(body.id, loc)
+    await tap.equal(body.type, 'Arrive')
+    await tap.type(body.summaryMap, 'object')
+    // await tap.type(body.summaryMap.en, 'string')
+    await tap.type(body.actor, 'object')
+    // await tap.type(body.actor.id, 'string')
+    // await tap.type(body.actor.summaryMap, 'object')
+    // await tap.type(body.actor.summaryMap.en, 'string')
+    await tap.type(body.location, 'object')
+    // await tap.type(body.location.id, 'string')
+    // await tap.type(body.location.name, 'string')
+  })
+
+  await tap.test('Check that new activity was added to outbox', async () => {
+    const res = await request(app)
+      .get(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.equal(body['@context'], 'https://www.w3.org/ns/activitystreams')
+    await tap.ok(Array.isArray(body.orderedItems))
+    await tap.ok(body.totalItems > 0)
+
+    const [found] = body.orderedItems.filter(item => {
+      return item.id === loc
+    })
+
+    await tap.ok(found)
   })
 
   await tap.test('App terminates correctly', async () => {

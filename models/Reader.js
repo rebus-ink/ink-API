@@ -4,6 +4,8 @@ const { Model } = require('objection')
 const NoSuchReaderError = require('../errors/no-such-reader')
 const short = require('short-uuid')
 const translator = short()
+const _ = require('lodash')
+
 /**
  * @property {User} user - Returns the user (with auth info) associated with this reader.
  * @property {Document[]} documents - Returns the documents owned buy this Reader.
@@ -171,6 +173,16 @@ class Reader extends BaseModel {
       updated: this.updated
     })
     return json
+  }
+
+  asRef () {
+    return Object.assign(
+      _.pick(this.json, ['name', 'nameMap', 'summary', 'summaryMap']),
+      {
+        id: this.url,
+        type: 'Person'
+      }
+    )
   }
 }
 

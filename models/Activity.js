@@ -1,4 +1,3 @@
-// @flow
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
@@ -87,7 +86,9 @@ class Activity extends BaseModel {
 
   summarize () {
     const type = (this.json.type || 'object').toLowerCase()
-    const actor = this.reader ? this.reader.json.name : 'someone'
+    const actor = this.reader
+      ? this.reader.json.name || this.reader.json.nameMap.en
+      : 'someone'
     let summary = `${actor} ${type}d`
     if (this.json.location) {
       const place =
@@ -103,6 +104,16 @@ class Activity extends BaseModel {
     return Activity.query()
       .findById(translator.toUUID(shortId))
       .eager('reader')
+  }
+
+  $formatJson (json /*: any */) {
+    json = super.$formatJson(json)
+    return Object.assign(
+      {
+        actor: this.reader ? this.reader.asRef() : null
+      },
+      json
+    )
   }
 }
 
