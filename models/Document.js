@@ -4,6 +4,8 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const { Publication } = require('./Publication.js')
 const { Reader } = require('./Reader.js')
+const short = require('short-uuid')
+const translator = short()
 
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
@@ -97,6 +99,12 @@ class Document extends BaseModel {
         }
       }
     }
+  }
+
+  static async byShortId (shortId /*: string */) {
+    return Document.query()
+      .findById(translator.toUUID(shortId))
+      .eager('reader')
   }
 }
 module.exports = { Document }
