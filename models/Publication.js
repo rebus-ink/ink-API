@@ -1,7 +1,8 @@
-// @flow
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
+const short = require('short-uuid')
+const translator = short()
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -110,6 +111,25 @@ class Publication extends BaseModel {
         name: author ? author.name : null
       }
     }
+  }
+
+  static async byShortId (shortId /*: string */) {
+    return Publication.query()
+      .findById(translator.toUUID(shortId))
+      .eager('[reader, attachment]')
+  }
+
+  $formatJson (json /*: any */) {
+    json = super.$formatJson(json)
+    return Object.assign(
+      {
+        orderedItems: this.attachment
+          ? this.attachment.map(doc => doc.asRef())
+          : null,
+        totalItems: this.attachment ? this.attachment.length : 0
+      },
+      json
+    )
   }
 }
 
