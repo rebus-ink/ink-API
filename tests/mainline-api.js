@@ -653,6 +653,202 @@ const main = async () => {
     await tap.ok(found)
   })
 
+  // For creating a publication
+
+  const createpub = {
+    '@context': [
+      'https://www.w3.org/ns/activitystreams',
+      { reader: 'https://rebus.foundation/ns/reader' }
+    ],
+    type: 'Create',
+    object: {
+      type: 'reader:Publication',
+      name: `Publication A`,
+      attributedTo: [
+        {
+          type: 'Person',
+          name: 'Sample Author'
+        }
+      ],
+      totalItems: 2,
+      orderedItems: [
+        {
+          type: 'Document',
+          name: 'Chapter 1',
+          content: 'Sample document content 1'
+        },
+        {
+          type: 'Document',
+          name: 'Chapter 2',
+          content: 'Sample document content 2'
+        }
+      ]
+    }
+  }
+
+  let createloc
+
+  await tap.test('Create publication', async () => {
+    const res = await request(app)
+      .post(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(createpub))
+
+    await tap.equal(res.statusCode, 201)
+
+    createloc = res.get('Location')
+
+    debug(`New activity location: ${createloc}`)
+
+    await tap.match(createloc, /https:\/\/reader-api.test\/activity-(.*)$/)
+  })
+
+  let publication
+
+  await tap.test('Get activity with created publication', async () => {
+    const res = await request(app)
+      .get(urlparse(createloc).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    debug(body)
+
+    await tap.type(body, 'object')
+
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+
+    await tap.equal(body.id, createloc)
+    // await tap.equal(body.type, 'Create')
+    await tap.type(body.summaryMap, 'object')
+    // await tap.type(body.summaryMap.en, 'string')
+    await tap.type(body.actor, 'object')
+    await tap.equal(body.actor.id, reader.id)
+    await tap.type(body.object, 'object')
+    await tap.type(body.object.id, 'string')
+    await tap.equal(body.object.type, 'reader:Publication')
+
+    publication = body.object.id
+  })
+
+  let document
+
+  await tap.test('Get created publication', async () => {
+    const res = await request(app)
+      .get(urlparse(publication).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    debug(body)
+
+    await tap.type(body, 'object')
+
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+
+    await tap.equal(body.id, publication)
+    await tap.equal(body.type, 'reader:Publication')
+    await tap.type(body.name, 'string')
+    await tap.type(body)
+
+    document = body.orderedItems[0].id
+  })
+
+  await tap.test('Get created document', async () => {
+    const res = await request(app)
+      .get(urlparse(document).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+
+    await tap.equal(body.id, document)
+    await tap.equal(body.type, 'document')
+    await tap.type(body.name, 'string')
+    await tap.type(body.object, 'object')
+    await tap.type(body.object.id, 'string')
+    await tap.equal(body.object.type, 'reader:Publication')
+
+    document = body.object.id
+  })
+
+  const readdoc = {
+    type: 'Read',
+    object: {
+      id: document,
+      type: 'Document'
+    }
+  }
+
+  let readloc
+
+  await tap.test('Read document', async () => {
+    const res = await request(app)
+      .post(urlparse(reader.outbox).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(readdoc))
+
+    await tap.equal(res.statusCode, 201)
+
+    readloc = res.get('Location')
+
+    debug(`New activity location: ${readloc}`)
+
+    await tap.match(readloc, /https:\/\/reader-api.test\/activity-(.*)$/)
+  })
+
+  await tap.test('Get read activity', async () => {
+    const res = await request(app)
+      .get(urlparse(readloc).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    debug(body)
+
+    await tap.type(body, 'object')
+
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+
+    await tap.equal(body.id, readloc)
+    await tap.equal(body.type, 'Read')
+    await tap.type(body.summaryMap, 'object')
+    await tap.type(body.summaryMap.en, 'string')
+    await tap.type(body.actor, 'object')
+    await tap.equal(body.actor.id, reader.id)
+    await tap.type(body.object, 'object')
+    await tap.type(body.object.id, 'string')
+    await tap.equal(body.document.id, document)
+    await tap.equal(body.object.type, 'Document')
+  })
+
   await tap.test('App terminates correctly', async () => {
     debug('Terminating app')
     tap.ok(app.initialized)

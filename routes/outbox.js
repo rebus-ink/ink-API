@@ -2,10 +2,12 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
+const { Activity } = require('../models/Activity')
 const NoSuchReaderError = require('../errors/no-such-reader')
 const { getId } = require('../utils/get-id.js')
-
+const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
+const _ = require('lodash')
 
 router
   .route('/reader-:shortId/activity')
@@ -59,13 +61,59 @@ router
             return next(new Error('Body must be a JSON object'))
           }
 
-          reader
-            .$relatedQuery('outbox')
-            .insert(body)
-            .then(activity => {
-              res.setHeader('Location', activity.url)
-              res.sendStatus(201)
-              res.end()
+          let pr
+          if (body.type === 'Create') {
+            switch (body.object.type) {
+              case 'reader:Publication':
+                const related = {
+                  bto: reader.url,
+                  attachment: body.object.orderedItems
+                }
+                const graph = Object.assign(
+                  related,
+                  _.omit(body.object, ['orderedItems', 'totalItems'])
+                )
+                debug(graph)
+                pr = reader.$relatedQuery('publications').insertGraph(graph)
+                break
+              case 'Document':
+                pr = reader.$relatedQuery('documents').insert(body.object)
+                break
+              case 'Note':
+                pr = reader.$relatedQuery('replies').insert(body.object)
+                break
+              default:
+                pr = Promise.resolve(null)
+            }
+          } else {
+            pr = Promise.resolve(null)
+          }
+          pr
+            .then(result => {
+              debug(result)
+              let props = Object.assign(body, {
+                actor: {
+                  type: 'Person',
+                  id: reader.url
+                }
+              })
+              if (result) {
+                props = Object.assign(props, {
+                  object: {
+                    type: result.json.type,
+                    id: result.url
+                  }
+                })
+              }
+              debug(props)
+              Activity.query()
+                .insert(props)
+                .then(activity => {
+                  res.status(201)
+                  res.set('Location', activity.url)
+                  res.end()
+                })
+                .catch(next)
             })
             .catch(next)
         }
@@ -78,7 +126,5 @@ router
         }
       })
   })
-
-module.exports = router
 
 module.exports = router

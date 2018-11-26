@@ -1,12 +1,10 @@
 'use strict'
+const assert = require('assert')
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const { Publication } = require('./Publication.js')
-const { Reader } = require('./Reader.js')
-const { Document } = require('./Document.js')
-const { Note } = require('./Note.js')
 const short = require('short-uuid')
 const translator = short()
+const _ = require('lodash')
 
 /**
  *
@@ -34,7 +32,11 @@ class Activity extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string', format: 'uuid', maxLength: 255 },
+        type: { type: 'string', maxLength: 255 },
         readerId: { type: 'string', format: 'uuid', maxLength: 255 },
+        publicationId: { type: 'string', format: 'uuid', maxLength: 255 },
+        documentId: { type: 'string', format: 'uuid', maxLength: 255 },
+        noteId: { type: 'string', format: 'uuid', maxLength: 255 },
         json: {
           type: 'object',
           additionalProperties: true,
@@ -48,6 +50,18 @@ class Activity extends BaseModel {
     }
   }
   static get relationMappings () {
+    const { Publication } = require('./Publication.js')
+    const { Reader } = require('./Reader.js')
+    const { Document } = require('./Document.js')
+    const { Note } = require('./Note.js')
+
+    assert.ok(Model)
+    assert.ok(Model.BelongsToOneRelation)
+    assert.ok(Reader)
+    assert.ok(Document)
+    assert.ok(Note)
+    assert.ok(Publication)
+
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -85,11 +99,11 @@ class Activity extends BaseModel {
   }
 
   summarize () {
-    const type = (this.json.type || 'object').toLowerCase()
+    const past = this.pastTense
     const actor = this.reader
       ? this.reader.json.name || this.reader.json.nameMap.en
       : 'someone'
-    let summary = `${actor} ${type}d`
+    let summary = `${actor} ${past}`
     if (this.json.location) {
       const place =
         this.json.location.name || this.json.location.nameMap
@@ -100,20 +114,43 @@ class Activity extends BaseModel {
     return summary
   }
 
+  get pastTense () {
+    let type
+    if (_.isString(this.type)) {
+      type = this.type
+    } else if (_.isString(this.json.type)) {
+      type = this.json.type
+    } else {
+      type = 'Activity'
+    }
+    switch (type) {
+      case 'Activity':
+        return 'acted'
+      case 'Flag':
+        return 'flagged'
+      case 'Leave':
+        return 'left'
+      case 'Read':
+        return 'read'
+      case 'TentativeReject':
+        return 'tentatively rejected'
+      case 'TentativeAccept':
+        return 'tentatively accepted'
+      case 'Undo':
+        return 'undid'
+      default:
+        if (type.charAt(type.length - 1) === 'e') {
+          return `${type.toLowerCase()}d`
+        } else {
+          return `${type.toLowerCase()}ed`
+        }
+    }
+  }
+
   static async byShortId (shortId /*: string */) {
     return Activity.query()
       .findById(translator.toUUID(shortId))
-      .eager('reader')
-  }
-
-  $formatJson (json /*: any */) {
-    json = super.$formatJson(json)
-    return Object.assign(
-      {
-        actor: this.reader ? this.reader.asRef() : null
-      },
-      json
-    )
+      .eager('[reader, publication, document, note]')
   }
 }
 

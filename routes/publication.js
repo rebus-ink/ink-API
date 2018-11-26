@@ -1,63 +1,39 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { getId } = require('../utils/get-id.js')
+const { Publication } = require('../models/Publication')
+const debug = require('debug')('hobb:routes:publication')
 
 router.get(
-  '/:nickname/publication/:pubid',
+  '/publication-:shortId',
   passport.authenticate('jwt', { session: false }),
   function (req, res, next) {
-    const nickname = req.params.nickname
-    const pubid = req.params.pubid
-
-    if (req.user !== nickname) {
-      res.status(403).send(`Access to document ${pubid} disallowed`)
-      return
-    }
-
-    res.setHeader(
-      'Content-Type',
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-    res.end(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'reader:Publication',
-        id: getId(`/${nickname}/publication/${pubid}`),
-        name: `Publication ${pubid}`,
-        attributedTo: {
-          type: 'Person',
-          name: 'Sample Author'
-        },
-        totalItems: 4,
-        orderedItems: [
-          {
-            type: 'Document',
-            id: getId(`/${nickname}/publication/${pubid}/document/1`),
-            name: 'Chapter 1'
-          },
-          {
-            type: 'Document',
-            id: getId(`/${nickname}/publication/${pubid}/document/2`),
-            name: 'Chapter 2'
-          },
-          {
-            type: 'Document',
-            id: getId(`/${nickname}/publication/${pubid}/document/3`),
-            name: 'Chapter 3'
-          },
-          {
-            type: 'Document',
-            id: getId(`/${nickname}/publication/${pubid}/document/4`),
-            name: 'Chapter 4'
-          }
-        ]
+    const shortId = req.params.shortId
+    Publication.byShortId(shortId)
+      .then(publication => {
+        if (!publication) {
+          res.status(404).send(`No publication with ID ${shortId}`)
+        } else if (`auth0|${req.user}` !== publication.reader.userId) {
+          res.status(403).send(`Access to publication ${shortId} disallowed`)
+        } else {
+          debug(publication)
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          res.end(
+            JSON.stringify(
+              Object.assign(publication.toJSON(), {
+                '@context': [
+                  'https://www.w3.org/ns/activitystreams',
+                  { reader: 'https://rebus.foundation/ns/reader' }
+                ]
+              })
+            )
+          )
+        }
       })
-    )
+      .catch(next)
   }
 )
 

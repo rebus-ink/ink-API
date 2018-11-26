@@ -102,6 +102,14 @@ class Document extends BaseModel {
     }
   }
 
+  asRef () {
+    return {
+      id: this.url,
+      type: 'Document',
+      name: this.name
+    }
+  }
+
   static async byShortId (shortId /*: string */) {
     return Document.query()
       .findById(translator.toUUID(shortId))
