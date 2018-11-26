@@ -51,17 +51,27 @@ All objects are represented as [Activity Streams 2.0](https://www.w3.org/TR/acti
 Routes for the API are shown here in [URI Template](https://tools.ietf.org/html/rfc6570)
 format, with the supported HTTP method.
 
-#### GET /{userID}
+#### GET /whoami
 
 Retrieve the [actor](https://www.w3.org/TR/activitypub/#actor-objects)
-representation for a user. The `{userID}` should match the `sub` field in the JWT token.
+representation for a user. The `Location` header will be the canonical URL for the user.
 
-#### GET /{userID}/activity
+#### POST /readers
+
+Create a new reader in the API that will be associated with the current user. Payload must
+be an Activity Streams 2.0 Person type.
+
+#### GET /reader-{readerId}
+
+Retrieve the [actor](https://www.w3.org/TR/activitypub/#actor-objects)
+representation for a user. Unique version of `/whoami`.
+
+#### GET /reader-{readerId}/activity
 
 Retrieve the [outbox](https://www.w3.org/TR/activitypub/#outbox) for the user.
 This is a collection of all activities performed by the user.
 
-#### POST /{userID}/activity
+#### POST /reader-{readerId}/activity
 
 Create a new activity for the user, per the
 [client to server interactions](https://www.w3.org/TR/activitypub/#client-to-server-interactions)
@@ -71,32 +81,32 @@ The new activity's location is returned as the `Location` header.
 
 See the [Activity types](#activity-types) section below for supported activity types.
 
-#### GET /{userID}/activity/{activityID}
+#### GET /activity-{activityId}
 
 Retrieve an [activity](https://www.w3.org/TR/activitystreams-core/#activities)
 representation for a user.
 
-#### GET /{userID}/inbox
+#### GET /reader-{readerId}/inbox
 
 Get the user's activity [inbox](https://www.w3.org/TR/activitypub/#inbox).
 Because we don't support following or receiving messages, it should be identical
 to the outbox.
 
-#### GET /{userID}/library
+#### GET /reader-{readerId}/library
 
 A collection of all publications the user has uploaded.
 
-#### GET /{userID}/publication/{publicationID}
+#### GET /publication-{publicationID}
 
 A representation of a publication as a collection of [Document](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-document)
 objects. Documents are included by reference.
 
-#### GET /{userID}/publication/{publicationID}/document/{documentID}
+#### GET /document-{documentID}
 
 A representation of a [Document](https://www.w3.org/TR/activitystreams-vocabulary/#dfn-document)
 in a publication.
 
-#### GET /{userID}/streams
+#### GET /reader-{readerId}/streams
 
 A collection of collections that belong to the user. Currently includes one collection, the library.
 
