@@ -6,6 +6,8 @@ const { Publication } = require('./Publication.js')
 const { Reader } = require('./Reader.js')
 const { Document } = require('./Document.js')
 const { Note } = require('./Note.js')
+const short = require('short-uuid')
+const translator = short()
 
 /**
  *
@@ -81,6 +83,26 @@ class Activity extends BaseModel {
         }
       }
     }
+  }
+
+  summarize () {
+    const type = (this.json.type || 'object').toLowerCase()
+    const actor = this.reader ? this.reader.json.name : 'someone'
+    let summary = `${actor} ${type}d`
+    if (this.json.location) {
+      const place =
+        this.json.location.name || this.json.location.nameMap
+          ? this.json.location.nameMap.en
+          : 'somewhere'
+      summary = `${summary} at ${place}`
+    }
+    return summary
+  }
+
+  static async byShortId (shortId /*: string */) {
+    return Activity.query()
+      .findById(translator.toUUID(shortId))
+      .eager('reader')
   }
 }
 
