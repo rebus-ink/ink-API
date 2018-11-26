@@ -25,7 +25,7 @@ router.get(
           res.end(
             JSON.stringify({
               '@context': 'https://www.w3.org/ns/activitystreams',
-              summary: {
+              summaryMap: {
                 en: `Streams for user with id ${shortId}`
               },
               type: 'Collection',
@@ -35,7 +35,7 @@ router.get(
                 {
                   type: 'Collection',
                   id: getId(`/reader-${shortId}/library`),
-                  summary: {
+                  summaryMap: {
                     en: `Library for user with id ${shortId}`
                   }
                 }
