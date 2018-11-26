@@ -98,6 +98,19 @@ class Publication extends BaseModel {
       }
     }
   }
+
+  asRef () {
+    const author = this.attributedTo || this.json.attributedTo || null
+    return {
+      type: 'reader:Publication',
+      id: this.url,
+      name: this.name || this.json.name || null,
+      attributedTo: {
+        type: 'Person',
+        name: author ? author.name : null
+      }
+    }
+  }
 }
 
 module.exports = { Publication }

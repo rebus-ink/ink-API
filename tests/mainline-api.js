@@ -1,4 +1,9 @@
-// test route to GET /whoami
+// This module tests the "mainline" API usage; setting up a new user
+// and reading their various endpoints as well as adding actions.
+// The tests are in order and later tests depend on earlier tests, so
+// be careful moving them around!
+// Also note that this test doesn't clean up after itself, and your test
+// database can get kind of large.
 
 const tap = require('tap')
 const request = require('supertest')
@@ -13,6 +18,7 @@ const main = async () => {
   let token
   let other
   let reader
+  let library
 
   await tap.test('Environment variables are set', async () => {
     await tap.type(process.env.ISSUER, 'string')
@@ -224,7 +230,7 @@ const main = async () => {
     await tap.equal(body.streams.items.length, 1)
 
     debug('Testing library')
-    const library = body.streams.items[0]
+    library = body.streams.items[0]
 
     await tap.type(library, 'object')
     await tap.match(
@@ -466,6 +472,48 @@ const main = async () => {
     await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/activity/)
     await tap.equal(body.type, 'OrderedCollection')
     await tap.ok(Array.isArray(body.orderedItems))
+  })
+
+  await tap.test('GET library with no authentication', async () => {
+    const res = await request(app)
+      .get(urlparse(library.id).path)
+      .set('Host', 'reader-api.test')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('GET library as other user', async () => {
+    const res = await request(app)
+      .get(urlparse(library.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${other}`)
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('GET library before adding a publication', async () => {
+    const res = await request(app)
+      .get(urlparse(library.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.ok(body['@context'])
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/library/)
+    await tap.equal(body.type, 'Collection')
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 0)
+    await tap.equal(body.totalItems, 0)
   })
 
   await tap.test('App terminates correctly', async () => {
