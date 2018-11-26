@@ -3,7 +3,6 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const NoSuchReaderError = require('../errors/no-such-reader')
-const debug = require('debug')('hobb:routes:user')
 
 router.get(
   '/reader-:shortId',
@@ -11,8 +10,6 @@ router.get(
   function (req, res, next) {
     Reader.byShortId(req.params.shortId)
       .then(reader => {
-        debug(reader)
-        debug(req.user)
         if (`auth0|${req.user}` !== reader.userId) {
           res
             .status(403)
