@@ -616,7 +616,6 @@ const main = async () => {
     await tap.type(body.summaryMap.en, 'string')
     await tap.type(body.actor, 'object')
     await tap.type(body.actor.id, 'string')
-    await tap.type(body.actor.name, 'string')
     await tap.type(body.actor.type, 'string')
     await tap.type(body.location, 'object')
     await tap.type(body.location.id, 'string')
@@ -761,7 +760,6 @@ const main = async () => {
     await tap.equal(body.id, publication)
     await tap.equal(body.type, 'reader:Publication')
     await tap.type(body.name, 'string')
-    await tap.type(body)
 
     document = body.orderedItems[0].id
   })
@@ -782,13 +780,8 @@ const main = async () => {
     await tap.ok(Array.isArray(body['@context']))
 
     await tap.equal(body.id, document)
-    await tap.equal(body.type, 'document')
+    await tap.equal(body.type, 'Document')
     await tap.type(body.name, 'string')
-    await tap.type(body.object, 'object')
-    await tap.type(body.object.id, 'string')
-    await tap.equal(body.object.type, 'reader:Publication')
-
-    document = body.object.id
   })
 
   const readdoc = {
@@ -845,7 +838,7 @@ const main = async () => {
     await tap.equal(body.actor.id, reader.id)
     await tap.type(body.object, 'object')
     await tap.type(body.object.id, 'string')
-    await tap.equal(body.document.id, document)
+    await tap.equal(body.object.id, document)
     await tap.equal(body.object.type, 'Document')
   })
 
