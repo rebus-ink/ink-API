@@ -12,7 +12,7 @@ router
   .route('/reader-:shortId/activity')
   .get(jwtAuth, function (req, res, next) {
     const shortId = req.params.shortId
-    Reader.byShortId(shortId)
+    Reader.byShortId(shortId, ['outbox'])
       .then(reader => {
         debug(reader)
         debug(req.user)
@@ -26,12 +26,12 @@ router
           res.end(
             JSON.stringify({
               '@context': 'https://www.w3.org/ns/activitystreams',
-              summary: {
+              summaryMap: {
                 en: `Outbox for user with id ${shortId}`
               },
               type: 'OrderedCollection',
               id: getId(`/reader-${shortId}/activity`),
-              orderedItems: []
+              orderedItems: reader.outbox.map(item => item.toJSON())
             })
           )
         }

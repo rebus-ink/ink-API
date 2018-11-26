@@ -33,12 +33,15 @@ class Reader extends BaseModel {
     }
   }
 
-  static async byShortId (shortId) {
-    const readers = await Reader.query(Reader.knex()).where(
-      'id',
-      '=',
-      translator.toUUID(shortId)
-    )
+  static async byShortId (shortId, eager = []) {
+    const id = translator.toUUID(shortId)
+    const qb = Reader.query(Reader.knex()).where('id', '=', id)
+
+    eager.forEach(rel => {
+      qb.eager(rel)
+    })
+
+    const readers = await qb
 
     if (readers.length === 0) {
       throw new NoSuchReaderError({ shortId })
