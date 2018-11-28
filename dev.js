@@ -7,4 +7,5 @@ app.use(morgan('dev'))
 const prefix = new URL(process.env.DOMAIN).pathname
 
 app.use(prefix, require('./server.js').app)
+require('./server.js').app.initialize()
 app.listen(8080, () => console.log('Listening'))
