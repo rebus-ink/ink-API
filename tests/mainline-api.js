@@ -10,6 +10,7 @@ const request = require('supertest')
 const jwt = require('jsonwebtoken')
 const debug = require('debug')('hobb:test:mainline-api')
 const urlparse = require('url').parse
+require('dotenv').config()
 
 process.env.NODE_ENV = 'development'
 
@@ -840,6 +841,32 @@ const main = async () => {
     await tap.type(body.object.id, 'string')
     await tap.equal(body.object.id, document)
     await tap.equal(body.object.type, 'Document')
+  })
+
+  await tap.test('Post to file-upload without including a file', async () => {
+    const res = await request(app)
+      .post('/file-upload')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 400)
+  })
+
+  await tap.test('upload a file', async () => {
+    const res = await request(app)
+      .post('/file-upload')
+      .set('Authorization', `Bearer ${token}`)
+      .field('name', 'file')
+      .attach('file', 'tests/test-image.jpg')
+
+    const body = res.body
+
+    await tap.equal(res.statusCode, 200)
+    await tap.type(body, 'object')
+    await tap.type(body.url, 'string')
+    await tap.equal(
+      body.url,
+      'https://storage.googleapis.com/rebus-default-bucket/test-image.jpg'
+    )
   })
 
   await tap.test('App terminates correctly', async () => {
