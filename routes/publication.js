@@ -26,7 +26,8 @@ router.get(
               Object.assign(publication.toJSON(), {
                 '@context': [
                   'https://www.w3.org/ns/activitystreams',
-                  { reader: 'https://rebus.foundation/ns/reader' }
+                  { reader: 'https://rebus.foundation/ns/reader' },
+                  { schema: 'https://schema.org/' }
                 ]
               })
             )
