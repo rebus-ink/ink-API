@@ -673,13 +673,15 @@ const main = async () => {
       orderedItems: [
         {
           type: 'Document',
-          name: 'Chapter 1',
-          content: 'Sample document content 1'
+          name: 'Chapter 2',
+          content: 'Sample document content 2',
+          position: 1
         },
         {
           type: 'Document',
-          name: 'Chapter 2',
-          content: 'Sample document content 2'
+          name: 'Chapter 1',
+          content: 'Sample document content 1',
+          position: 0
         }
       ]
     }
@@ -782,6 +784,7 @@ const main = async () => {
     await tap.equal(body.id, document)
     await tap.equal(body.type, 'Document')
     await tap.type(body.name, 'string')
+    await tap.equal(body.name, 'Chapter 1')
   })
 
   const readdoc = {
