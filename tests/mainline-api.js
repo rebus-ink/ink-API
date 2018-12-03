@@ -851,23 +851,24 @@ const main = async () => {
     await tap.equal(res.statusCode, 400)
   })
 
-  await tap.test('upload a file', async () => {
-    const res = await request(app)
-      .post('/file-upload')
-      .set('Authorization', `Bearer ${token}`)
-      .field('name', 'file')
-      .attach('file', 'tests/test-image.jpg')
+  // Not a unit test.
+  // await tap.test('upload a file', async () => {
+  //   const res = await request(app)
+  //     .post('/file-upload')
+  //     .set('Authorization', `Bearer ${token}`)
+  //     .field('name', 'file')
+  //     .attach('file', 'tests/test-image.jpg')
 
-    const body = res.body
+  //   const body = res.body
 
-    await tap.equal(res.statusCode, 200)
-    await tap.type(body, 'object')
-    await tap.type(body.url, 'string')
-    await tap.equal(
-      body.url,
-      'https://storage.googleapis.com/rebus-default-bucket/test-image.jpg'
-    )
-  })
+  //   await tap.equal(res.statusCode, 200)
+  //   await tap.type(body, 'object')
+  //   await tap.type(body.url, 'string')
+  //   await tap.equal(
+  //     body.url,
+  //     'https://storage.googleapis.com/rebus-default-bucket/test-image.jpg'
+  //   )
+  // })
 
   await tap.test('App terminates correctly', async () => {
     debug('Terminating app')
