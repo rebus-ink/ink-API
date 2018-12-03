@@ -130,7 +130,6 @@ class Publication extends BaseModel {
         ),
         'json.position'
       )
-      attachment = attachment.map(doc => doc.toRef())
     }
     return Object.assign(
       {
