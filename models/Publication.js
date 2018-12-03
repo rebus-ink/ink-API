@@ -3,6 +3,7 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
+const _ = require('lodash')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -121,12 +122,18 @@ class Publication extends BaseModel {
 
   $formatJson (json /*: any */) {
     json = super.$formatJson(json)
+    let attachment = null
+    if (this.attachment) {
+      attachment = _.sortBy(
+        this.attachment.filter(
+          doc => doc.json.position || doc.json.position === 0
+        ),
+        'json.position'
+      )
+    }
     return Object.assign(
       {
-        orderedItems: this.attachment
-          ? this.attachment.map(doc => doc.asRef())
-          : null,
-        totalItems: this.attachment ? this.attachment.length : 0
+        orderedItems: attachment
       },
       json
     )
