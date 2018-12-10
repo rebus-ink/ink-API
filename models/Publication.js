@@ -131,12 +131,9 @@ class Publication extends BaseModel {
         'json.position'
       )
     }
-    return Object.assign(
-      {
-        orderedItems: attachment
-      },
-      json
-    )
+    return Object.assign(json, {
+      orderedItems: attachment
+    })
   }
 }
 

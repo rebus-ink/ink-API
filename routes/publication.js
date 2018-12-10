@@ -21,9 +21,14 @@ router.get(
             'Content-Type',
             'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
           )
+          const publicationJson = publication.toJSON()
           res.end(
             JSON.stringify(
-              Object.assign(publication.toJSON(), {
+              Object.assign(publicationJson, {
+                orderedItems: publicationJson.orderedItems
+                  ? publicationJson.orderedItems.map(doc => doc.asRef())
+                  : null,
+                attachment: publication.attachment.map(doc => doc.asRef()),
                 '@context': [
                   'https://www.w3.org/ns/activitystreams',
                   { reader: 'https://rebus.foundation/ns/reader' },

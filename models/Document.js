@@ -6,6 +6,7 @@ const { Publication } = require('./Publication.js')
 const { Reader } = require('./Reader.js')
 const short = require('short-uuid')
 const translator = short()
+const _ = require('underscore')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
@@ -103,11 +104,11 @@ class Document extends BaseModel {
   }
 
   asRef () {
-    return {
+    return Object.assign({}, this, {
       id: this.url,
       type: 'Document',
-      name: this.name
-    }
+      json: _.omit(this.json, 'content')
+    })
   }
 
   static async byShortId (shortId /*: string */) {

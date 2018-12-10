@@ -671,7 +671,7 @@ const main = async () => {
         }
       ],
       totalItems: 2,
-      orderedItems: [
+      attachment: [
         {
           type: 'Document',
           name: 'Chapter 2',
@@ -752,7 +752,6 @@ const main = async () => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
-
     debug(body)
 
     await tap.type(body, 'object')
