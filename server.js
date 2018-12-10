@@ -74,7 +74,8 @@ app.use(
       'application/json',
       'application/activity+json',
       'application/ld+json'
-    ]
+    ],
+    limit: '100mb'
   })
 )
 app.use(compression())
