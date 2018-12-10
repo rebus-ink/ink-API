@@ -18,6 +18,6 @@ require('./server.js')
   .app.initialize()
   .catch(error => {
     console.error(error)
-    throw new Error(error)
+    throw error
   })
 app.listen(8080, () => console.log('Listening'))
