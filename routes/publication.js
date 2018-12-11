@@ -25,9 +25,9 @@ router.get(
           res.end(
             JSON.stringify(
               Object.assign(publicationJson, {
-                orderedItems: publicationJson.orderedItems
-                  ? publicationJson.orderedItems.map(doc => doc.asRef())
-                  : null,
+                orderedItems: publicationJson.orderedItems.map(doc =>
+                  doc.asRef()
+                ),
                 attachment: publication.attachment.map(doc => doc.asRef()),
                 '@context': [
                   'https://www.w3.org/ns/activitystreams',

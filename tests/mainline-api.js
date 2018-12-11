@@ -752,6 +752,7 @@ const main = async () => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
+
     debug(body)
 
     await tap.type(body, 'object')
