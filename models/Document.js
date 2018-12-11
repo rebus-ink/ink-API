@@ -6,7 +6,7 @@ const { Publication } = require('./Publication.js')
 const { Reader } = require('./Reader.js')
 const short = require('short-uuid')
 const translator = short()
-const _ = require('underscore')
+const _ = require('lodash')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
