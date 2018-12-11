@@ -743,6 +743,36 @@ const main = async () => {
 
   let document
 
+  await tap.test('Get library with one publication', async () => {
+    const res = await request(app)
+      .get(urlparse(library.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.statusCode, 200)
+
+    await tap.equal(
+      res.get('Content-Type'),
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+
+    await tap.ok(body['@context'])
+    await tap.match(body.id, /https:\/\/reader-api.test\/reader-(.*)\/library/)
+    await tap.equal(body.type, 'Collection')
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 1)
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items[0].type, 'reader:Publication')
+    await tap.type(body.items[0].id, 'string')
+    // publication in the library should not contain any documents
+    await tap.notok(body.items[0].orderedItems)
+    await tap.notok(body.items[0].attachment)
+  })
+
   await tap.test('Get created publication', async () => {
     const res = await request(app)
       .get(urlparse(publication).path)
@@ -754,7 +784,6 @@ const main = async () => {
     const body = res.body
 
     debug(body)
-
     await tap.type(body, 'object')
 
     await tap.type(body['@context'], 'object')
