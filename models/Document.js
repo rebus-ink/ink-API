@@ -107,7 +107,7 @@ class Document extends BaseModel {
     return Object.assign({}, this, {
       id: this.url,
       type: 'Document',
-      json: _.omit(this.json, 'content')
+      json: _.omit(this.json, ['content', 'contentMap'])
     })
   }
 

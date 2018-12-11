@@ -762,6 +762,10 @@ const main = async () => {
     await tap.equal(body.id, publication)
     await tap.equal(body.type, 'reader:Publication')
     await tap.type(body.name, 'string')
+    await tap.equal(body.orderedItems[0].content, undefined)
+    await tap.equal(body.attachment[0].content, undefined)
+    await tap.equal(body.attachment[0].contentMap, undefined)
+    await tap.equal(body.orderedItems[0].contentMap, undefined)
 
     document = body.orderedItems[0].id
   })
