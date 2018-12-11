@@ -104,11 +104,7 @@ class Document extends BaseModel {
   }
 
   asRef () {
-    return Object.assign({}, this, {
-      id: this.url,
-      type: 'Document',
-      json: _.omit(this.json, ['content', 'contentMap'])
-    })
+    return _.omit(this.toJSON(), ['content', 'contentMap'])
   }
 
   static async byShortId (shortId /*: string */) {
