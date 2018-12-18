@@ -86,12 +86,22 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 200)
 
-    // const body = res.body
-    // await tap.type(body, 'object')
-    // await tap.type(body.id, 'string')
-    // await tap.type(body['@context'], 'object')
-    // await tap.ok(Array.isArray(body['@context']))
-    // maybe more properties to test?
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    // should @context be an object or a string?
+    await tap.type(body['@context'], 'string')
+    await tap.equal(body.type, 'Collection')
+    await tap.type(body.totalItems, 'number')
+    await tap.ok(Array.isArray(body.items))
+    // documents should include:
+    await tap.equal(body.items[0].type, 'reader:Publication')
+    await tap.type(body.items[0].id, 'string')
+    await tap.type(body.items[0].name, 'string')
+    await tap.type(body.items[0].attributedTo, 'object')
+    // documents should NOT include:
+    await tap.notOk(body.items[0].attachment)
+    await tap.notOk(body.items[0].orderedItems)
   })
 
   await tap.test(

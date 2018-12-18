@@ -73,6 +73,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
+    await tap.equal(body.type, 'Document')
     await tap.type(body.id, 'string')
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))

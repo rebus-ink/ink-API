@@ -14,6 +14,9 @@ const documentRoute = require('./routes/document')
 const publicationRoute = require('./routes/document')
 const readerLibraryRoute = require('./routes/user-library')
 const userStreamsRoute = require('./routes/user-streams')
+const userRoute = require('./routes/user')
+const whoamiRoute = require('./routes/whoami')
+const inboxRoute = require('./routes/inbox')
 
 const setupKnex = async () => {
   let config
@@ -99,12 +102,9 @@ app.get('/', function (req, res, next) {
 
 // FIXME: this needs to be first because it also matches the :userID production
 
-app.use('/', require('./routes/whoami'))
 app.use('/', require('./routes/readers'))
 
-app.use('/', require('./routes/inbox'))
 app.use('/', require('./routes/outbox'))
-app.use('/', require('./routes/user'))
 app.use('/', require('./routes/file-upload'))
 
 app.initialized = false
@@ -130,6 +130,9 @@ documentRoute(app)
 publicationRoute(app)
 readerLibraryRoute(app)
 userStreamsRoute(app)
+userRoute(app)
+whoamiRoute(app)
+inboxRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

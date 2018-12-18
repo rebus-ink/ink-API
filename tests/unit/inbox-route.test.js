@@ -20,8 +20,6 @@ const setupPassport = () => {
 
 setupPassport()
 
-const app = express()
-
 const reader = Object.assign(new Reader(), {
   id: '0dad66d5-670f-41e1-886a-b2e25b510b2d',
   json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
@@ -29,27 +27,28 @@ const reader = Object.assign(new Reader(), {
   published: '2018-12-18T16:17:49.077Z',
   updated: '2018-12-18 16:17:49'
 })
+const app = express()
 
 const test = async () => {
   const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const readerStreamsRoute = proxyquire('../../routes/user-streams', {
+  const inboxRoute = proxyquire('../../routes/inbox', {
     '../models/Reader.js': ReaderStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
   })
 
-  readerStreamsRoute(app)
+  inboxRoute(app)
   const request = supertest(app)
 
-  await tap.test('Get Reader Streams', async () => {
+  await tap.test('Get Inbox', async () => {
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const res = await request
-      .get('/reader-123/streams')
+      .get('/reader-123/inbox')
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -60,30 +59,38 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-
-    // should it be an object?
     await tap.type(body['@context'], 'string')
-    await tap.equal(body.type, 'Collection')
-    await tap.type(body.summaryMap, 'object')
-    await tap.ok(Array.isArray(body.items))
+    await tap.type(body.type, 'string')
   })
 
-  await tap.test(
-    'Get Reader Streams that belongs to another reader',
-    async () => {
-      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
-      checkReaderStub.returns(false)
+  // TODO: figure out if 404 error should come from the model throwing an error, or returning undefined
+  // await tap.test('Get inbox for user that does not exist', async () => {
+  //   // does Activity return undefined or null?
+  //   ReaderStub.Reader.byShortId = async () => Promise.resolve(undefined)
 
-      const res = await request
-        .get('/reader-123/streams')
-        .set('Host', 'reader-api.test')
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+  //   const res = await request
+  //     .get('/reader-123/inbox')
+  //     .set('Host', 'reader-api.test')
+  //     .type(
+  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //     )
 
-      await tap.equal(res.statusCode, 403)
-    }
-  )
+  //   await tap.equal(res.statusCode, 404)
+  // })
+
+  await tap.test('Get Inbox that belongs to another reader', async () => {
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(false)
+
+    const res = await request
+      .get('/reader-123/inbox')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.statusCode, 403)
+  })
 }
 
 test()

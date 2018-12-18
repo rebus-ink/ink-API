@@ -7,6 +7,7 @@ const passport = require('passport')
 const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Publication } = require('../../models/Publication')
+const { Document } = require('../../models/Document')
 
 const setupPassport = () => {
   var opts = {}
@@ -21,6 +22,50 @@ const setupPassport = () => {
 setupPassport()
 
 const app = express()
+
+const document1 = Object.assign(new Document(), {
+  id: '0f8732a9-83da-4f75-ab74-314538d2ee92',
+  type: 'text/html',
+  json: {
+    type: 'Document',
+    name: 'Chapter 2',
+    content: 'Sample document content 2',
+    position: 1
+  },
+  readerId: '9d2f717f-54b2-4732-a045-e0419c94a1c4',
+  publicationId: '28ca9d84-9afb-4f9e-a437-6f05dc2f5824',
+  published: '2018-12-18T16:11:05.391Z',
+  updated: '2018-12-18 16:11:05'
+})
+
+const document2 = Object.assign(new Document(), {
+  id: 'dd8974e5-0641-46df-be73-7581972ebbf2',
+  type: 'text/html',
+  json: {
+    type: 'Document',
+    name: 'Chapter 1',
+    content: 'Sample document content 1',
+    position: 0
+  },
+  readerId: '9d2f717f-54b2-4732-a045-e0419c94a1c4',
+  publicationId: '28ca9d84-9afb-4f9e-a437-6f05dc2f5824',
+  published: '2018-12-18T16:11:05.391Z',
+  updated: '2018-12-18 16:11:05'
+})
+
+const document3 = Object.assign(new Document(), {
+  id: 'dd8974e5-0641-46df-be73-7581972ebbf2',
+  type: 'text/html',
+  json: {
+    type: 'Document',
+    name: 'Not a Chapter',
+    content: 'Not a chapter: does not have a position'
+  },
+  readerId: '9d2f717f-54b2-4732-a045-e0419c94a1c4',
+  publicationId: '28ca9d84-9afb-4f9e-a437-6f05dc2f5824',
+  published: '2018-12-18T16:11:05.391Z',
+  updated: '2018-12-18 16:11:05'
+})
 
 const publication = new Publication()
 Object.assign(publication, {
@@ -55,7 +100,7 @@ Object.assign(publication, {
     published: '2018-12-18T16:11:05.153Z',
     updated: '2018-12-18 16:11:05'
   },
-  attachment: []
+  attachment: [document1, document2, document3]
 })
 
 const test = async () => {
@@ -86,12 +131,18 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 200)
 
-    // const body = res.body
-    // await tap.type(body, 'object')
-    // await tap.type(body.id, 'string')
-    // await tap.type(body['@context'], 'object')
-    // await tap.ok(Array.isArray(body['@context']))
-    // maybe more properties to test?
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+    await tap.ok(Array.isArray(body.attachment))
+    await tap.ok(Array.isArray(body.orderedItems))
+    // check the order of items
+    await tap.equal(body.attachment[0].name, 'Chapter 2')
+    await tap.equal(body.attachment[2].name, 'Not a Chapter')
+    await tap.equal(body.orderedItems[0].name, 'Chapter 1')
+    await tap.notOk(body.orderedItems[2])
   })
 
   await tap.test('Get Publication that does not exist', async () => {
