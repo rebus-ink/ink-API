@@ -22,7 +22,7 @@ setupPassport()
 
 const app = express()
 
-const document = new Document({
+const document = Object.assign(new Document(), {
   id: 'd66ffff8-06ad-4d72-88a2-4fddfb123a12',
   type: 'text/html',
   json: {
@@ -43,10 +43,6 @@ const document = new Document({
     updated: '2018-12-18 15:54:11'
   }
 })
-
-// don't know why that is necessary, but it has an error if I define it with the
-// rest of the objet above.
-document.id = 'd66ffff8-06ad-4d72-88a2-4fddfb123a12'
 
 const test = async () => {
   const DocumentStub = {}

@@ -11,6 +11,7 @@ const helmet = require('helmet')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const activityRoute = require('./routes/activity')
 const documentRoute = require('./routes/document')
+const publicationRoute = require('./routes/document')
 
 const setupKnex = async () => {
   let config
@@ -101,7 +102,6 @@ app.use('/', require('./routes/readers'))
 
 app.use('/', require('./routes/inbox'))
 app.use('/', require('./routes/outbox'))
-app.use('/', require('./routes/publication'))
 app.use('/', require('./routes/user'))
 app.use('/', require('./routes/user-library'))
 app.use('/', require('./routes/user-streams'))
@@ -127,6 +127,7 @@ app.terminate = async () => {
 
 activityRoute(app)
 documentRoute(app)
+publicationRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

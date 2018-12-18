@@ -22,7 +22,8 @@ setupPassport()
 
 const app = express()
 
-const activity = new Activity({
+const activity = Object.assign(new Activity(), {
+  id: 'dc9794fa-4806-4b56-90b9-6fd444fc1485',
   type: 'Activity',
   json: {
     '@context': [
@@ -82,10 +83,6 @@ const activity = new Activity({
   document: null,
   note: null
 })
-
-// don't know why that is necessary, but it has an error if I define it with the
-// rest of the objet above.
-activity.id = 'dc9794fa-4806-4b56-90b9-6fd444fc1485'
 
 const test = async () => {
   const ActivityStub = {}
