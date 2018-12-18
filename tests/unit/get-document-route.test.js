@@ -22,11 +22,31 @@ setupPassport()
 
 const app = express()
 
-const document = new Document()
+const document = new Document({
+  id: 'd66ffff8-06ad-4d72-88a2-4fddfb123a12',
+  type: 'text/html',
+  json: {
+    type: 'Document',
+    name: 'Chapter 1',
+    content: 'Sample document content 1',
+    position: 0
+  },
+  readerId: '36dee441-3bf0-4e24-9d36-87bf01b27e89',
+  publicationId: '061656bd-f7b3-4cf5-a0d6-1d4ac7c3118d',
+  published: '2018-12-18T15:54:12.106Z',
+  updated: '2018-12-18 15:54:12',
+  reader: {
+    id: '36dee441-3bf0-4e24-9d36-87bf01b27e89',
+    json: { name: 'J. Random Reader', userId: 'auth0|foo1545148451777' },
+    userId: 'auth0|foo1545148451777',
+    published: '2018-12-18T15:54:11.865Z',
+    updated: '2018-12-18 15:54:11'
+  }
+})
 
 // don't know why that is necessary, but it has an error if I define it with the
 // rest of the objet above.
-// activity.id = 'dc9794fa-4806-4b56-90b9-6fd444fc1485'
+document.id = 'd66ffff8-06ad-4d72-88a2-4fddfb123a12'
 
 const test = async () => {
   const DocumentStub = {}
