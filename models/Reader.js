@@ -6,6 +6,38 @@ const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
 
+const personAttrs = [
+  'attachment',
+  'attributedTo',
+  'audience',
+  'content',
+  'context',
+  'contentMap',
+  'name',
+  'nameMap',
+  'endTime',
+  'generator',
+  'icon',
+  'image',
+  'inReplyTo',
+  'location',
+  'preview',
+  'published',
+  'replies',
+  'startTime',
+  'summary',
+  'summaryMap',
+  'tag',
+  'updated',
+  'url',
+  'to',
+  'bto',
+  'cc',
+  'bcc',
+  'mediaType',
+  'duration'
+]
+
 /**
  * @property {User} user - Returns the user (with auth info) associated with this reader.
  * @property {Document[]} documents - Returns the documents owned buy this Reader.
@@ -53,6 +85,28 @@ class Reader extends BaseModel {
       assert(readers.length === 1)
       return readers[0]
     }
+  }
+
+  // IMPORTANT: not tested. Probably doesn't work!!
+  static async checkIfExists (shortId) {
+    const id = translator.toUUID(shortId)
+    const qb = Reader.query(Reader.knex()).where('id', '=', id)
+    eager.forEach(rel => {
+      qb.eager(rel)
+    })
+    const readers = await qb
+    return !(readers.length === 0)
+  }
+
+  // IMPORTANT: not tested. Probably doesn't work!!
+  static async createReader (userId, person) {
+    let props = _.pick(person, personAttrs)
+    props.userId = `auth0|${userId}`
+    debug('Inserting reader')
+    const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
+      props
+    )
+    return createdReader
   }
 
   static get tableName () {
