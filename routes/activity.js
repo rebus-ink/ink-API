@@ -13,7 +13,6 @@ module.exports = function (app) {
     '/activity-:shortId',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      console.log('user', req.user)
       const shortId = req.params.shortId
       Activity.byShortId(shortId)
         .then(activity => {
