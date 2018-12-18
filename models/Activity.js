@@ -148,6 +148,7 @@ class Activity extends BaseModel {
   }
 
   static async byShortId (shortId /*: string */) {
+    console.log('!!!!!!!!!!!!!!!!!this should not log')
     return Activity.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, publication, document, note]')

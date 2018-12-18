@@ -7,7 +7,7 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/*.js",
+    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/unit/*.test.js",
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js"
   },
@@ -34,6 +34,7 @@
     "node-mocks-http": "^1.7.3",
     "nodemon": "^1.18.7",
     "onchange": "^4.1.0",
+    "passport-mock-strategy": "^1.1.1",
     "prettier-standard": "^8.0.1",
     "proxyquire": "^2.1.0",
     "sinon": "^6.3.3",

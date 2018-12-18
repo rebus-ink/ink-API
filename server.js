@@ -9,6 +9,7 @@ const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
+const activityRoute = require('./routes/activity')
 
 const setupKnex = async () => {
   let config
@@ -97,7 +98,6 @@ app.get('/', function (req, res, next) {
 app.use('/', require('./routes/whoami'))
 app.use('/', require('./routes/readers'))
 
-app.use('/', require('./routes/activity'))
 app.use('/', require('./routes/document'))
 app.use('/', require('./routes/inbox'))
 app.use('/', require('./routes/outbox'))
@@ -124,6 +124,8 @@ app.terminate = async () => {
   app.initialized = false
   return app.knex.destroy()
 }
+
+activityRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))
