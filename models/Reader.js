@@ -89,10 +89,10 @@ class Reader extends BaseModel {
 
   // IMPORTANT: not tested. Probably doesn't work!!
   static async checkIfExists (shortId) {
-    const id = translator.toUUID(shortId)
+    const id = translator.toUUID(shortId.toString())
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb
-    return readers.length < 1
+    return readers.length > 0
   }
 
   // IMPORTANT: not tested. Probably doesn't work!!
