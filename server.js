@@ -9,6 +9,16 @@ const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
+const activityRoute = require('./routes/activity')
+const documentRoute = require('./routes/document')
+const publicationRoute = require('./routes/document')
+const readerLibraryRoute = require('./routes/user-library')
+const userStreamsRoute = require('./routes/user-streams')
+const userRoute = require('./routes/user')
+const whoamiRoute = require('./routes/whoami')
+const inboxRoute = require('./routes/inbox')
+const readersRoute = require('./routes/readers')
+const outboxRoute = require('./routes/outbox')
 
 const setupKnex = async () => {
   let config
@@ -94,17 +104,6 @@ app.get('/', function (req, res, next) {
 
 // FIXME: this needs to be first because it also matches the :userID production
 
-app.use('/', require('./routes/whoami'))
-app.use('/', require('./routes/readers'))
-
-app.use('/', require('./routes/activity'))
-app.use('/', require('./routes/document'))
-app.use('/', require('./routes/inbox'))
-app.use('/', require('./routes/outbox'))
-app.use('/', require('./routes/publication'))
-app.use('/', require('./routes/user'))
-app.use('/', require('./routes/user-library'))
-app.use('/', require('./routes/user-streams'))
 app.use('/', require('./routes/file-upload'))
 
 app.initialized = false
@@ -124,6 +123,17 @@ app.terminate = async () => {
   app.initialized = false
   return app.knex.destroy()
 }
+
+activityRoute(app)
+documentRoute(app)
+publicationRoute(app)
+readerLibraryRoute(app)
+userStreamsRoute(app)
+userRoute(app)
+whoamiRoute(app)
+inboxRoute(app)
+readersRoute(app)
+outboxRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

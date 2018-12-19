@@ -2,21 +2,21 @@
 let config
 /* istanbul ignore next */
 if (process.env.POSTGRE_INSTANCE) {
-  config = require('../knexfile.js')['postgresql']
+  config = require('../../knexfile.js')['postgresql']
 } else {
-  config = require('../knexfile.js')['development']
+  config = require('../../knexfile.js')['development']
 }
 const knex = require('knex')(config)
 const objection = require('objection')
 const Model = objection.Model
 Model.knex(knex)
-const { Reader } = require('../models/Reader')
-const { Publication } = require('../models/Publication')
-const { Document } = require('../models/Document')
-const { Note } = require('../models/Note')
-const { Activity } = require('../models/Activity')
-const { Attribution } = require('../models/Attribution')
-const { Tag } = require('../models/Tag')
+const { Reader } = require('../../models/Reader')
+const { Publication } = require('../../models/Publication')
+const { Document } = require('../../models/Document')
+const { Note } = require('../../models/Note')
+const { Activity } = require('../../models/Activity')
+const { Attribution } = require('../../models/Attribution')
+const { Tag } = require('../../models/Tag')
 const tap = require('tap')
 
 tap.test('Models', async test => {
