@@ -17,7 +17,6 @@ const insertNewReader = (userId, person) => {
     debug(`Querying for user with ID ${userId}`)
     Reader.checkIfExists(userId)
       .then(response => {
-        console.log(response)
         if (response) {
           reject(new ReaderExistsError(userId))
         } else {

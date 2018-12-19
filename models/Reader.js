@@ -87,15 +87,13 @@ class Reader extends BaseModel {
     }
   }
 
-  // IMPORTANT: not tested. Probably doesn't work!!
   static async checkIfExists (shortId) {
-    const id = translator.toUUID(shortId.toString())
-    const qb = Reader.query(Reader.knex()).where('id', '=', id)
+    const userId = `auth0|${shortId}`
+    const qb = Reader.query(Reader.knex()).where('userId', '=', userId)
     const readers = await qb
     return readers.length > 0
   }
 
-  // IMPORTANT: not tested. Probably doesn't work!!
   static async createReader (userId, person) {
     let props = _.pick(person, personAttrs)
     props.userId = `auth0|${userId}`
