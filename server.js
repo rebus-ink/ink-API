@@ -18,6 +18,7 @@ const userRoute = require('./routes/user')
 const whoamiRoute = require('./routes/whoami')
 const inboxRoute = require('./routes/inbox')
 const readersRoute = require('./routes/readers')
+const outboxRoute = require('./routes/outbox')
 
 const setupKnex = async () => {
   let config
@@ -103,7 +104,6 @@ app.get('/', function (req, res, next) {
 
 // FIXME: this needs to be first because it also matches the :userID production
 
-app.use('/', require('./routes/outbox'))
 app.use('/', require('./routes/file-upload'))
 
 app.initialized = false
@@ -133,6 +133,7 @@ userRoute(app)
 whoamiRoute(app)
 inboxRoute(app)
 readersRoute(app)
+outboxRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

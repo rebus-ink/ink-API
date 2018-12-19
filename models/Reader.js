@@ -91,18 +91,14 @@ class Reader extends BaseModel {
   static async checkIfExists (shortId) {
     const id = translator.toUUID(shortId)
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
-    eager.forEach(rel => {
-      qb.eager(rel)
-    })
     const readers = await qb
-    return !(readers.length === 0)
+    return readers.length < 1
   }
 
   // IMPORTANT: not tested. Probably doesn't work!!
   static async createReader (userId, person) {
     let props = _.pick(person, personAttrs)
     props.userId = `auth0|${userId}`
-    debug('Inserting reader')
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
       props
     )
