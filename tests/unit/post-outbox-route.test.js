@@ -181,6 +181,8 @@ const test = async () => {
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
     const res = await request
       .post('/reader-123/activity')
       .set('Host', 'reader-api.test')
@@ -190,6 +192,7 @@ const test = async () => {
       )
 
     await tap.equal(res.statusCode, 201)
+    await tap.ok(createActivitySpy.calledOnce)
   })
 
   await tap.test('Create publication', async () => {
@@ -197,6 +200,9 @@ const test = async () => {
     ReaderStub.Reader.addPublication = async () => Promise.resolve(reader)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
+
+    const addPublicationSpy = sinon.spy(ReaderStub.Reader, 'addPublication')
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
 
     const res = await request
       .post('/reader-123/activity')
@@ -207,8 +213,8 @@ const test = async () => {
       .send(JSON.stringify(createPublicationRequest))
 
     await tap.equal(res.statusCode, 201)
-
-    // check that addPublication is called once
+    await tap.ok(addPublicationSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
   })
 
   await tap.test('Create document', async () => {
@@ -216,6 +222,9 @@ const test = async () => {
     ReaderStub.Reader.addDocument = async () => Promise.resolve(reader)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
+
+    const addDocumentSpy = sinon.spy(ReaderStub.Reader, 'addDocument')
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
 
     const res = await request
       .post('/reader-123/activity')
@@ -226,8 +235,8 @@ const test = async () => {
       .send(JSON.stringify(createDocumentRequest))
 
     await tap.equal(res.statusCode, 201)
-
-    // check that addDocument is called once
+    await tap.ok(addDocumentSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
   })
 
   await tap.test('Try to create an activity for the wrong user', async () => {
