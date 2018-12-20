@@ -103,6 +103,26 @@ class Reader extends BaseModel {
     return createdReader
   }
 
+  static async addPublication (reader, publication) {
+    const related = {
+      bto: reader.url,
+      attachment: publication.orderedItems
+    }
+    const graph = Object.assign(
+      related,
+      _.omit(publication, ['orderedItems', 'totalItems'])
+    )
+    return reader.$relatedQuery('publications').insertGraph(graph)
+  }
+
+  static async addDocument (reader, publication) {
+    return reader.$relatedQuery('documents').insert(publication)
+  }
+
+  static async addNote (reader, note) {
+    return reader.$relatedQuery('replies').insert(note)
+  }
+
   static get tableName () {
     return 'Reader'
   }

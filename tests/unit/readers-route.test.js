@@ -21,6 +21,16 @@ const setupPassport = () => {
 setupPassport()
 
 const app = express()
+app.use(
+  express.json({
+    type: [
+      'application/json',
+      'application/activity+json',
+      'application/ld+json'
+    ],
+    limit: '100mb'
+  })
+)
 
 const requestObject = {
   '@context': 'https://www.w3.org/ns/activitystream',
