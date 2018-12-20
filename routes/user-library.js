@@ -13,7 +13,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId, ['publications'])
+      Reader.byShortId(shortId, ['publications.attributedTo'])
         .then(reader => {
           if (!utils.checkReader(req, reader)) {
             res.status(403).send(`Access to reader ${shortId} disallowed`)
