@@ -61,7 +61,7 @@ const test = async () => {
   const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const outboxRoute = proxyquire('../../routes/outbox', {
+  const outboxRoute = proxyquire('../../routes/outbox-get', {
     '../models/Reader.js': ReaderStub,
     './utils.js': {
       checkReader: checkReaderStub

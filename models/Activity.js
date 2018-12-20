@@ -152,6 +152,10 @@ class Activity extends BaseModel {
       .findById(translator.toUUID(shortId))
       .eager('[reader, publication, document, note]')
   }
+
+  static async createActivity (activity) {
+    return Activity.query().insert(activity)
+  }
 }
 
 module.exports = { Activity }

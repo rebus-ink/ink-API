@@ -18,7 +18,8 @@ const userRoute = require('./routes/user')
 const whoamiRoute = require('./routes/whoami')
 const inboxRoute = require('./routes/inbox')
 const readersRoute = require('./routes/readers')
-const outboxRoute = require('./routes/outbox')
+const getOutboxRoute = require('./routes/outbox-get')
+const postOutboxRoute = require('./routes/outbox-post')
 
 const setupKnex = async () => {
   let config
@@ -133,7 +134,8 @@ userRoute(app)
 whoamiRoute(app)
 inboxRoute(app)
 readersRoute(app)
-outboxRoute(app)
+getOutboxRoute(app)
+postOutboxRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))
