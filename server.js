@@ -20,6 +20,7 @@ const inboxRoute = require('./routes/inbox')
 const readersRoute = require('./routes/readers')
 const getOutboxRoute = require('./routes/outbox-get')
 const postOutboxRoute = require('./routes/outbox-post')
+const fileUploadRoute = require('./routes/file-upload')
 
 const setupKnex = async () => {
   let config
@@ -103,10 +104,6 @@ app.get('/', function (req, res, next) {
   })
 })
 
-// FIXME: this needs to be first because it also matches the :userID production
-
-app.use('/', require('./routes/file-upload'))
-
 app.initialized = false
 
 app.initialize = async () => {
@@ -136,6 +133,7 @@ inboxRoute(app)
 readersRoute(app)
 getOutboxRoute(app)
 postOutboxRoute(app)
+fileUploadRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))
