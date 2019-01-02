@@ -21,12 +21,29 @@ const readersRoute = require('./routes/readers')
 const getOutboxRoute = require('./routes/outbox-get')
 const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
+const swaggerJSDoc = require('swagger-jsdoc')
+
+// -- setup up swagger-jsdoc --
+const swaggerDefinition = {
+  info: {
+    title: 'Reader API',
+    version: '1.0.0',
+    description: ''
+  }
+}
+const options = {
+  swaggerDefinition,
+  apis: [path.resolve(__dirname, 'server.js')]
+}
+const swaggerSpec = swaggerJSDoc(options)
 
 const setupKnex = async () => {
   let config
   /* istanbul ignore next */
   if (process.env.POSTGRE_INSTANCE) {
-    config = require('./knexfile.js')['postgresql']
+    config = require('./knexfile.jsnpm install swagger-jsdoc --save')[
+      'postgresql'
+    ]
   } else {
     config = require('./knexfile.js')['development']
   }
@@ -102,6 +119,13 @@ app.get('/', function (req, res, next) {
       return res.send({ running: true })
     }
   })
+})
+
+// -- routes for docs and generated swagger spec --
+
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerSpec)
 })
 
 app.initialized = false
