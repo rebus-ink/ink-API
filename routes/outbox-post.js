@@ -9,8 +9,54 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const _ = require('lodash')
 
 const utils = require('./utils')
-
+/**
+ * @swagger
+ * definition:
+ *   outbox-request:
+ *     properties:
+ *       type:
+ *         type: string
+ *         enum: ['Create']
+ *       object:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *             enum: ['reader:Publication', 'Document', 'Note']
+ *         additionalProperties: true
+ *       '@context':
+ *         type: array
+ *
+ */
 module.exports = function (app) {
+  /**
+   * @swagger
+   * /reader-{shortId}/activity:
+   *   post:
+   *     tags:
+   *       - readers
+   *     description: POST /reader-:shortId/activity
+   *     parameters:
+   *       - in: path
+   *         name: shortId
+   *         schema:
+   *           type: string
+   *         required: true
+   *     security:
+   *       - Bearer: []
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/definitions/outbox-request'
+   *     responses:
+   *       201:
+   *         description: Created
+   *       404:
+   *         description: 'No Reader with ID {shortId}'
+   *       403:
+   *         description: 'Access to reader {shortId} disallowed'
+   */
   app.use('/', router)
   router
     .route('/reader-:shortId/activity')

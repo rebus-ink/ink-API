@@ -27,7 +27,42 @@ const insertNewReader = (userId, person) => {
   })
 }
 
+/**
+ * @swagger
+ * definition:
+ *   readers-request:
+ *     properties:
+ *       type:
+ *         type: string
+ *         enum: ['Person']
+ *       name:
+ *         type: string
+ *       '@context':
+ *         type: array
+ *
+ */
+
 module.exports = function (app) {
+  /**
+   * @swagger
+   * /readers:
+   *   post:
+   *     tags:
+   *       - readers
+   *     description: POST /readers
+   *     security:
+   *       - Bearer: []
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/definitions/readers-request'
+   *     responses:
+   *       201:
+   *         description: Created
+   *       400:
+   *         description: 'Reader already exists'
+   */
   app.use('/', router)
   router.post(
     '/readers',

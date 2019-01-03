@@ -5,7 +5,70 @@ const { Reader } = require('../models/Reader')
 const NoSuchReaderError = require('../errors/no-such-reader')
 const utils = require('./utils')
 
+/**
+ * @swagger
+ * definition:
+ *   reader:
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *       type:
+ *         type: string
+ *         enum: ['Person']
+ *       summaryMap:
+ *         type: object
+ *         properties:
+ *           en:
+ *             type: string
+ *       '@context':
+ *         type: array
+ *       inbox:
+ *         type: string
+ *         format: url
+ *       outbox:
+ *         type: string
+ *         format: url
+ *       streams:
+ *         type: object
+ *       published:
+ *         type: string
+ *         format: date-time
+ *       updated:
+ *         type: string
+ *         format: date-time
+ */
 module.exports = app => {
+  /**
+   * @swagger
+   * /reader-{shortId}:
+   *   get:
+   *     tags:
+   *       - readers
+   *     description: GET /reader-:shortId
+   *     parameters:
+   *       - in: path
+   *         name: shortId
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: the short id of the reader
+   *     security:
+   *       - Bearer: []
+   *     produces:
+   *       - application/json
+   *     responses:
+   *       200:
+   *         description: A reader object
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/reader'
+   *       404:
+   *         description: 'No Reader with ID {shortId}'
+   *       403:
+   *         description: 'Access to reader {shortId} disallowed'
+   */
   app.use('/', router)
   router.get(
     '/reader-:shortId',

@@ -9,10 +9,67 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const _ = require('lodash')
 
 const utils = require('./utils')
+/**
+ * @swagger
+ * definition:
+ *   outbox:
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *       type:
+ *         type: string
+ *         enum: ['OrderedCollection']
+ *       summaryMap:
+ *         type: object
+ *         properties:
+ *           en:
+ *             type: string
+ *       '@context':
+ *         type: array
+ *       totalItems:
+ *         type: integer
+ *       orderedItems:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/activity'
+ *
+ */
 
 module.exports = function (app) {
   app.use('/', router)
   router
+
+    /**
+     * @swagger
+     * /reader-{shortId}/activity:
+     *   get:
+     *     tags:
+     *       - readers
+     *     description: GET /reader-:shortId/activity
+     *     parameters:
+     *       - in: path
+     *         name: shortId
+     *         schema:
+     *           type: string
+     *         required: true
+     *         description: the short id of the reader
+     *     security:
+     *       - Bearer: []
+     *     produces:
+     *       - application/json
+     *     responses:
+     *       200:
+     *         description: An outbox with the activity objects for a reader
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/definitions/outbox'
+     *       404:
+     *         description: 'No Reader with ID {shortId}'
+     *       403:
+     *         description: 'Access to reader {shortId} disallowed'
+     */
     .route('/reader-:shortId/activity')
     .get(jwtAuth, function (req, res, next) {
       const shortId = req.params.shortId
