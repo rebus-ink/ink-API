@@ -51,9 +51,7 @@ const setupKnex = async () => {
   let config
   /* istanbul ignore next */
   if (process.env.POSTGRE_INSTANCE) {
-    config = require('./knexfile.jsnpm install swagger-jsdoc --save')[
-      'postgresql'
-    ]
+    config = require('./knexfile.js')['postgresql']
   } else {
     config = require('./knexfile.js')['development']
   }
