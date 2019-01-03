@@ -98,20 +98,18 @@ const test = async () => {
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
-  // TODO: figure out if 404 error should come from the model throwing an error, or returning undefined
-  // await tap.test('Get inbox for user that does not exist', async () => {
-  //   // does Activity return undefined or null?
-  //   ReaderStub.Reader.byShortId = async () => Promise.resolve(undefined)
+  await tap.test('Get outbox for user that does not exist', async () => {
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(null)
 
-  //   const res = await request
-  //     .get('/reader-123/inbox')
-  //     .set('Host', 'reader-api.test')
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+    const res = await request
+      .get('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-  //   await tap.equal(res.statusCode, 404)
-  // })
+    await tap.equal(res.statusCode, 404)
+  })
 
   await tap.test('Get Outbox that belongs to another reader', async () => {
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)

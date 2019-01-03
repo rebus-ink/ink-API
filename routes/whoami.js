@@ -34,33 +34,33 @@ module.exports = app => {
     function (req, res, next) {
       Reader.byUserId(req.user)
         .then(reader => {
-          debug(`Got reader ${JSON.stringify(reader)}`)
-          res.setHeader(
-            'Content-Type',
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-          )
-          debug(`Setting location to ${reader.url}`)
-          res.setHeader('Location', reader.url)
-          res.end(
-            JSON.stringify(
-              Object.assign(
-                {
-                  '@context': [
-                    'https://www.w3.org/ns/activitystreams',
-                    { reader: 'https://rebus.foundation/ns/reader' }
-                  ]
-                },
-                reader.toJSON()
+          if (!reader) {
+            res.status(404).send(`No reader with ID ${req.user}`)
+          } else {
+            debug(`Got reader ${JSON.stringify(reader)}`)
+            res.setHeader(
+              'Content-Type',
+              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+            )
+            debug(`Setting location to ${reader.url}`)
+            res.setHeader('Location', reader.url)
+            res.end(
+              JSON.stringify(
+                Object.assign(
+                  {
+                    '@context': [
+                      'https://www.w3.org/ns/activitystreams',
+                      { reader: 'https://rebus.foundation/ns/reader' }
+                    ]
+                  },
+                  reader.toJSON()
+                )
               )
             )
-          )
+          }
         })
         .catch(err => {
-          if (err instanceof NoSuchReaderError) {
-            res.status(404).send(err.message)
-          } else {
-            next(err)
-          }
+          next(err)
         })
     }
   )

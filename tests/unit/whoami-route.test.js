@@ -63,6 +63,22 @@ const test = async () => {
     await tap.type(body.outbox, 'string')
     await tap.type(body.streams, 'object')
   })
+
+  await tap.test(
+    'Try to get user profile for user that does not exist',
+    async () => {
+      ReaderStub.Reader.byUserId = async () => Promise.resolve(null)
+
+      const res = await request
+        .get('/whoami')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 404)
+    }
+  )
 }
 
 test()

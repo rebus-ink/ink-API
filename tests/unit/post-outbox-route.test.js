@@ -253,6 +253,24 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 403)
   })
+
+  await tap.test(
+    'Try to create an activity for a user that does not exist',
+    async () => {
+      checkReaderStub.returns(true)
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(null)
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(neutralActivityRequest))
+
+      await tap.equal(res.statusCode, 404)
+    }
+  )
 }
 
 test()
