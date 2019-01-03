@@ -18,6 +18,7 @@ const utils = require('./utils')
  *         type: string
  *       type:
  *         type: string
+ *         enum: ['OrderedCollection']
  *       summaryMap:
  *         type: object
  *         properties:
@@ -26,7 +27,7 @@ const utils = require('./utils')
  *       '@context':
  *         type: array
  *       totalItems:
- *         type: number
+ *         type: integer
  *       orderedItems:
  *         type: array
  *         items:

@@ -17,11 +17,13 @@ const utils = require('./utils')
  *         type: array
  *       type:
  *         type: string
+ *         enum: ['Create']
  *       object:
  *         type: object
  *         properties:
  *           type:
  *             type: string
+ *             enum: ['reader:Publication', 'Document', 'Note']
  *           id:
  *             type: string
  *       actor:
@@ -29,6 +31,7 @@ const utils = require('./utils')
  *         properties:
  *           type:
  *             type: string
+ *             enum: ['Person']
  *           id:
  *             type: string
  *       summaryMap:

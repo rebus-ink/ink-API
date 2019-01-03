@@ -39,7 +39,7 @@ const utils = require('./utils')
  *       '@context':
  *         type: array
  *       totalItems:
- *         type: number
+ *         type: integer
  *       orderedItems:
  *         type: array
  *         items:
