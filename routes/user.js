@@ -77,7 +77,7 @@ module.exports = app => {
       Reader.byShortId(req.params.shortId)
         .then(reader => {
           if (!reader) {
-            res.status(404).send('no such user') // TODO: fix error message
+            res.status(404).send(`No reader with ID ${req.params.shortId}`)
           } else if (!utils.checkReader(req, reader)) {
             res
               .status(403)
@@ -103,11 +103,7 @@ module.exports = app => {
           }
         })
         .catch(err => {
-          if (err instanceof NoSuchReaderError) {
-            res.status(404).send(err.message)
-          } else {
-            next(err)
-          }
+          next(err)
         })
     }
   )

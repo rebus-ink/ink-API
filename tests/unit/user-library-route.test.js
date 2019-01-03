@@ -120,6 +120,23 @@ const test = async () => {
       await tap.equal(res.statusCode, 403)
     }
   )
+
+  await tap.test(
+    'Get Reader Library for a user that does not exist',
+    async () => {
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(null)
+      checkReaderStub.returns(true)
+
+      const res = await request
+        .get('/reader-123/library')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 404)
+    }
+  )
 }
 
 test()

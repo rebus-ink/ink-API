@@ -124,7 +124,7 @@ const test = async () => {
 
   await tap.test('Get Activity that does not exist', async () => {
     // does Activity return undefined or null?
-    ActivityStub.Activity.byShortId = async () => Promise.resolve(undefined)
+    ActivityStub.Activity.byShortId = async () => Promise.resolve(null)
 
     const res = await request
       .get('/activity-123')

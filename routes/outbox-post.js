@@ -64,7 +64,9 @@ module.exports = function (app) {
       const shortId = req.params.shortId
       Reader.byShortId(shortId)
         .then(reader => {
-          if (!utils.checkReader(req, reader)) {
+          if (!reader) {
+            res.status(404).send(`No reader with ID ${shortId}`)
+          } else if (!utils.checkReader(req, reader)) {
             res.status(403).send(`Access to reader ${shortId} disallowed`)
           } else {
             if (!req.is('application/ld+json')) {
@@ -124,11 +126,7 @@ module.exports = function (app) {
           }
         })
         .catch(err => {
-          if (err instanceof NoSuchReaderError) {
-            res.status(404).send(err.message)
-          } else {
-            next(err)
-          }
+          next(err)
         })
     })
 }

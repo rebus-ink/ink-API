@@ -84,7 +84,7 @@ const test = async () => {
   })
 
   await tap.test('Get User profile that does not exist', async () => {
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(undefined)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(null)
     checkReaderStub.returns(true)
 
     const res = await request

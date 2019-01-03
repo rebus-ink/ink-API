@@ -58,7 +58,7 @@ class Reader extends BaseModel {
     )
 
     if (readers.length === 0) {
-      throw new NoSuchReaderError({ userId })
+      return null
     } else if (readers.length > 1) {
       throw new Error(`Too many readers for user ${userId}`)
     } else {
@@ -78,7 +78,7 @@ class Reader extends BaseModel {
     const readers = await qb
 
     if (readers.length === 0) {
-      throw new NoSuchReaderError({ shortId })
+      return null
     } else if (readers.length > 1) {
       throw new Error(`Too many readers for id ${shortId}`)
     } else {
