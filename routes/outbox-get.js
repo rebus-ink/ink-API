@@ -16,6 +16,7 @@ const utils = require('./utils')
  *     properties:
  *       id:
  *         type: string
+ *         format: url
  *       type:
  *         type: string
  *         enum: ['OrderedCollection']

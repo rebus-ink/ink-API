@@ -13,6 +13,7 @@ const utils = require('./utils')
  *     properties:
  *       id:
  *         type: string
+ *         format: url
  *       '@context':
  *         type: array
  *       type:
@@ -26,6 +27,7 @@ const utils = require('./utils')
  *             enum: ['reader:Publication', 'Document', 'Note']
  *           id:
  *             type: string
+ *             format: url
  *       actor:
  *         type: object
  *         properties:
@@ -34,6 +36,7 @@ const utils = require('./utils')
  *             enum: ['Person']
  *           id:
  *             type: string
+ *             format: url
  *       summaryMap:
  *         type: object
  *         properties:

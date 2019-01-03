@@ -12,6 +12,7 @@ const utils = require('./utils')
  *     properties:
  *       id:
  *         type: string
+ *         format: url
  *       type:
  *         type: string
  *         enum: ['Person']
@@ -24,8 +25,10 @@ const utils = require('./utils')
  *         type: array
  *       inbox:
  *         type: string
+ *         format: url
  *       outbox:
  *         type: string
+ *         format: url
  *       streams:
  *         type: object
  *       published:

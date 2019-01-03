@@ -23,6 +23,7 @@ const utils = require('./utils')
  *           type:
  *             type: string
  *             enum: ['reader:Publication', 'Document', 'Note']
+ *         additionalProperties: true
  *       '@context':
  *         type: array
  *

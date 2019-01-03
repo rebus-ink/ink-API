@@ -16,6 +16,7 @@ const utils = require('./utils')
  *         type: string
  *       id:
  *         type: string
+ *         format: url
  *       published:
  *         type: string
  *         format: date-time
@@ -28,6 +29,7 @@ const utils = require('./utils')
  *     properties:
  *       id:
  *         type: string
+ *         format: url
  *       type:
  *         type: string
  *         enum: ['reader:Publication']
