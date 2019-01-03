@@ -6,9 +6,80 @@ const debug = require('debug')('hobb:routes:activity')
 // app.use('/', require('./routes/activity'))
 const utils = require('./utils')
 
+/**
+ * @swagger
+ * definition:
+ *   activity:
+ *     properties:
+ *       id:
+ *         type: string
+ *       '@context':
+ *         type: array
+ *       type:
+ *         type: string
+ *       object:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *           id:
+ *             type: string
+ *       actor:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *           id:
+ *             type: string
+ *       summaryMap:
+ *         type: object
+ *         properties:
+ *           en:
+ *             type: string
+ *       published:
+ *         type: string
+ *         format: date-time
+ *       updated:
+ *         type: string
+ *         format: date-time
+ *       attributedTo:
+ *         type: array
+ *
+ */
+
 module.exports = function (app) {
   app.use('/', router)
 
+  /**
+   * @swagger
+   * /activity-{shortId}:
+   *   get:
+   *     tags:
+   *       - activities
+   *     description: GET /activity-:shortId
+   *     parameters:
+   *       - in: path
+   *         name: shortId
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: the short id of the activity
+   *     security:
+   *       - Bearer: []
+   *     produces:
+   *       - application/json
+   *     responses:
+   *       200:
+   *         description: An Activity object
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/activity'
+   *       404:
+   *         description: 'No Activity with ID {shortId}'
+   *       403:
+   *         description: 'Access to activity {shortId} disallowed'
+   */
   router.get(
     '/activity-:shortId',
     passport.authenticate('jwt', { session: false }),

@@ -6,6 +6,27 @@ const debug = require('debug')('hobb:routes:whoami')
 const NoSuchReaderError = require('../errors/no-such-reader')
 
 module.exports = app => {
+  /**
+   * @swagger
+   * /whoami:
+   *   get:
+   *     tags:
+   *       - readers
+   *     description: GET /whoami
+   *     security:
+   *       - Bearer: []
+   *     produces:
+   *       - application/json
+   *     responses:
+   *       200:
+   *         description: The reader object for the reader currently logged in
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/reader'
+   *       404:
+   *         description: 'No Reader with ID {shortId}'
+   */
   app.use('/', router)
   router.get(
     '/whoami',

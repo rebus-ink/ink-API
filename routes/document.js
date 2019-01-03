@@ -5,8 +5,64 @@ const { Document } = require('../models/Document')
 const debug = require('debug')('hobb:routes:document')
 const utils = require('./utils')
 
+/**
+ * @swagger
+ * definition:
+ *   document:
+ *     properties:
+ *       id:
+ *         type: string
+ *       name:
+ *         type: string
+ *       content:
+ *         type: string
+ *       '@context':
+ *         type: array
+ *       published:
+ *         type: string
+ *         format: date-time
+ *       updated:
+ *         type: string
+ *         format: date-time
+ *       attributedTo:
+ *         type: array
+ *
+ */
+
 module.exports = app => {
   app.use('/', router)
+
+  /**
+   * @swagger
+   * /document-{shortId}:
+   *   get:
+   *     tags:
+   *       - documents
+   *     description: GET /document-:shortId
+   *     parameters:
+   *       - in: path
+   *         name: shortId
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: the short id of the document
+   *     security:
+   *       - Bearer: []
+   *     produces:
+   *       - application/json
+   *     responses:
+   *       200:
+   *         description: A Document Object
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/document'
+   *       404:
+   *         description: 'No Document with ID {shortId}'
+   *       403:
+   *         description: 'Access to document {shortId} disallowed'
+   */
+
   router.get(
     '/document-:shortId',
     passport.authenticate('jwt', { session: false }),

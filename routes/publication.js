@@ -4,8 +4,84 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const debug = require('debug')('hobb:routes:publication')
 const utils = require('./utils')
+/**
+ * @swagger
+ * definition:
+ *   document-ref:
+ *     properties:
+ *       type:
+ *         type: string
+ *         enum: ['Document']
+ *       name:
+ *         type: string
+ *       id:
+ *         type: string
+ *       published:
+ *         type: string
+ *         format: date-time
+ *       updated:
+ *         type: string
+ *         format: date-time
+ *       attributedTo:
+ *         type: array
+ *   publication:
+ *     properties:
+ *       id:
+ *         type: string
+ *       type:
+ *         type: string
+ *         enum: ['reader:Publication']
+ *       summaryMap:
+ *         type: object
+ *         properties:
+ *           en:
+ *             type: string
+ *       '@context':
+ *         type: array
+ *       totalItems:
+ *         type: number
+ *       orderedItems:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/document-ref'
+ *       attachment:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/document-ref'
+ *
+ */
 
 module.exports = function (app) {
+  /**
+   * @swagger
+   * /publication-{shortId}:
+   *   get:
+   *     tags:
+   *       - publications
+   *     description: GET /publication-:shortId
+   *     parameters:
+   *       - in: path
+   *         name: shortId
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: the short id of the publication
+   *     security:
+   *       - Bearer: []
+   *     produces:
+   *       - application/json
+   *     responses:
+   *       200:
+   *         description: The publication objects, with a list of document references (document object without the content field)
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/publication'
+   *       404:
+   *         description: 'No Publication with ID {shortId}'
+   *       403:
+   *         description: 'Access to publication {shortId} disallowed'
+   */
   app.use('/', router)
   router.get(
     '/publication-:shortId',
