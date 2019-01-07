@@ -64,3 +64,4 @@ app-development.yaml
 secrets.tar
 app-staging.yaml
 dev.sqlite3
+test.sqlite3
