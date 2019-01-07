@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
 const fs = require('fs')
+const urlparse = require('url').parse
 
 const getToken = () => {
   const options = {
@@ -39,4 +40,16 @@ const destroyDB = async () => {
   }
 }
 
-module.exports = { getToken, createUser, destroyDB }
+const getActivityFromUrl = async (app, url, token) => {
+  const res = await request(app)
+    .get(urlparse(url).path)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+
+  return res.body
+}
+
+module.exports = { getToken, createUser, destroyDB, getActivityFromUrl }
