@@ -10,7 +10,6 @@ const test = async () => {
   const token = getToken()
   const userId = await createUser(app, token)
   const userUrl = urlparse(userId).path
-  let activityUrl
 
   await tap.test('Create Activity', async () => {
     const res = await request(app)
@@ -43,7 +42,6 @@ const test = async () => {
       )
 
     await tap.equal(res.status, 201)
-    activityUrl = res.get('Location')
   })
 
   await tap.test('Get Outbox', async () => {
