@@ -68,6 +68,7 @@ const test = async () => {
       })
     )
 
+  // get the urls needed for the tests
   const activityUrl = res.get('Location')
 
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
@@ -158,6 +159,61 @@ const test = async () => {
       )
 
     await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('Requests without authentication', async () => {
+    // outbox
+    const res1 = await request(app)
+      .get(`${urlparse(userUrl).path}/activity`)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res1.statusCode, 401)
+
+    // user
+    const res2 = await request(app)
+      .get(urlparse(userUrl).path)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res2.statusCode, 401)
+
+    const res3 = await request(app)
+      .get('/whoami')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res3.statusCode, 401)
+
+    // publication
+    const res4 = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res4.statusCode, 401)
+
+    // document
+    const res5 = await request(app)
+      .get(urlparse(documentUrl).path)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res5.statusCode, 401)
+
+    // activity
+    const res6 = await request(app)
+      .get(urlparse(activityUrl).path)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res6.statusCode, 401)
   })
 
   await app.terminate()
