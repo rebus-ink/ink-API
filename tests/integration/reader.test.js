@@ -27,6 +27,7 @@ const test = async () => {
       )
 
     await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
     readerUrl = res.get('Location')
   })
 

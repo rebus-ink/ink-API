@@ -43,6 +43,7 @@ const test = async () => {
       )
 
     await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
   })
 
@@ -79,21 +80,6 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 404)
   })
-
-  // this is making things a bit complicated. I might test this separately, for all routes.
-  // await tap.test('Get Activity that belongs to another reader', async () => {
-  //   ActivityStub.Activity.byShortId = async () => Promise.resolve(activity)
-  //   checkReaderStub.returns(false)
-
-  //   const res = await request(app)
-  //     .get('/activity-123')
-  //     .set('Host', 'reader-api.test')
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-
-  //   await tap.equal(res.statusCode, 403)
-  // })
 
   await app.terminate()
   await destroyDB()
