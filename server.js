@@ -52,12 +52,10 @@ const setupKnex = async () => {
   /* istanbul ignore next */
   if (process.env.POSTGRE_INSTANCE) {
     config = require('./knexfile.js')['postgresql']
+  } else if (process.env.NODE_ENV === 'test') {
+    config = require('./knexfile.js')['test']
   } else {
-    if (process.env.NODE_ENV === 'test') {
-      config = require('./knexfile.js')['test']
-    } else {
-      config = require('./knexfile.js')['development']
-    }
+    config = require('./knexfile.js')['development']
   }
   app.knex = require('knex')(config)
   await app.knex.migrate.latest()

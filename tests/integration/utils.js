@@ -34,7 +34,7 @@ const createUser = async (app, token) => {
 }
 
 const destroyDB = async () => {
-  if (process.env.NODE_ENV) {
+  if (process.env.NODE_ENV === 'test') {
     await fs.unlinkSync('./test.sqlite3')
   }
 }
