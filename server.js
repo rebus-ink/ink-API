@@ -11,7 +11,7 @@ const helmet = require('helmet')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const activityRoute = require('./routes/activity')
 const documentRoute = require('./routes/document')
-const publicationRoute = require('./routes/document')
+const publicationRoute = require('./routes/publication')
 const readerLibraryRoute = require('./routes/user-library')
 const userStreamsRoute = require('./routes/user-streams')
 const userRoute = require('./routes/user')
@@ -52,6 +52,8 @@ const setupKnex = async () => {
   /* istanbul ignore next */
   if (process.env.POSTGRE_INSTANCE) {
     config = require('./knexfile.js')['postgresql']
+  } else if (process.env.NODE_ENV === 'test') {
+    config = require('./knexfile.js')['test']
   } else {
     config = require('./knexfile.js')['development']
   }
