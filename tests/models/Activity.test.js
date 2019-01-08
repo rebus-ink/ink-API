@@ -62,7 +62,6 @@ const test = async () => {
     await tap.ok(response)
     await tap.type(response, 'object')
     await tap.equal(response.type, 'Activity')
-    await tap.equal(response.id, newActivity.id)
     id = parseurl(response.url).path.substr(10)
   })
 
