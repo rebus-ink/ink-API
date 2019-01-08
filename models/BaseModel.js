@@ -177,7 +177,7 @@ function objectToId (obj) {
   const url = getIdURL(obj)
   let type
   try {
-    const pathname = new URL(url).pathname
+    const pathname = url.replace(process.env.DOMAIN, '')
     type = pathname.split('-')[0].slice(1)
   } catch (err) {
     return undefined
