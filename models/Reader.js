@@ -87,8 +87,8 @@ class Reader extends BaseModel {
     }
   }
 
-  static async checkIfExists (shortId) {
-    const userId = `auth0|${shortId}`
+  static async checkIfExists (id) {
+    const userId = `auth0|${id}`
     const qb = Reader.query(Reader.knex()).where('userId', '=', userId)
     const readers = await qb
     return readers.length > 0
@@ -115,8 +115,8 @@ class Reader extends BaseModel {
     return reader.$relatedQuery('publications').insertGraph(graph)
   }
 
-  static async addDocument (reader, publication) {
-    return reader.$relatedQuery('documents').insert(publication)
+  static async addDocument (reader, document) {
+    return reader.$relatedQuery('documents').insert(document)
   }
 
   static async addNote (reader, note) {
