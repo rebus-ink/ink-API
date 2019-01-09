@@ -2,8 +2,6 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const app = require('../../server').app
 const { Reader } = require('../../models/Reader')
-const { Publication } = require('../../models/Publication')
-const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
 
 const test = async () => {
