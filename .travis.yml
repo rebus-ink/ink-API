@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - lts/*
 cache: npm
-repos: 
+repos:
   RebusFoundation/reader-api:
     endpoint: https://api.travis-ci.org/
 addons:
