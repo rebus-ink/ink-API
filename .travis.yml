@@ -2,30 +2,15 @@ language: node_js
 node_js:
 - lts/*
 cache: npm
-# From travis-ci.com: "The default user for accessing the local PostgreSQL server is postgres with a blank password."
-# The database name (created below) is: "travis_ci_test"
+repos:
+  RebusFoundation/reader-api:
+    endpoint: https://api.travis-ci.org/
 addons:
-  postgresql: "9.4"
+  postgresql: '9.4'
 services:
 - postgresql
 before_install:
-- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_28143c166499_key -iv $encrypted_28143c166499_iv
-  -in secrets.tar.enc -out secrets.tar -d || true'
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_28143c166499_key
+  -iv $encrypted_28143c166499_iv -in secrets.tar.enc -out secrets.tar -d || true'
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && tar xvf secrets.tar || true'
 - psql -c 'create database travis_ci_test;' -U postgres
-deploy:
-  - provider: gae
-    keyfile: google-keyfile.json
-    project: thematic-cider-139815
-    config: app-development.yaml
-    skip_cleanup: true
-    on:
-      branch: master
-  - provider: gae
-    keyfile: google-keyfile.json
-    project: thematic-cider-139815
-    config: app-staging.yaml
-    skip_cleanup: true
-    on:
-      tags: true
-      branch: master
