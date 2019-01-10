@@ -3,10 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { Activity } = require('../models/Activity')
-const NoSuchReaderError = require('../errors/no-such-reader')
 const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const _ = require('lodash')
 
 const utils = require('./utils')
 /**

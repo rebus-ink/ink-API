@@ -151,7 +151,9 @@ function getUUID (prop /*: string */) {
     const pathname = new URL(id).pathname
     const shortId = pathname.split('-')[1]
     return translator.toUUID(shortId)
-  } catch (err) {}
+  } catch (err) {
+    /* should we throw? */
+  }
 }
 
 function getCanonical (urls = []) {

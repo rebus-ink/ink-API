@@ -327,16 +327,16 @@ const main = async () => {
     await tap.equal(body.streams.items.length, 1)
 
     debug('Testing library')
-    const library = body.streams.items[0]
+    const library2 = body.streams.items[0]
 
-    await tap.type(library, 'object')
+    await tap.type(library2, 'object')
     await tap.match(
-      library.id,
+      library2.id,
       /https:\/\/reader-api.test\/reader-(.*)\/library/
     )
-    await tap.equal(library.type, 'Collection')
-    await tap.type(library.summaryMap, 'object')
-    await tap.type(library.summaryMap.en, 'string')
+    await tap.equal(library2.type, 'Collection')
+    await tap.type(library2.summaryMap, 'object')
+    await tap.type(library2.summaryMap.en, 'string')
     debug('Done with properties')
   })
 
@@ -380,17 +380,17 @@ const main = async () => {
     await tap.equal(body.type, 'Collection')
     await tap.ok(Array.isArray(body.items) && body.items.length > 0)
 
-    const [library] = body.items.filter(item =>
+    const [library2] = body.items.filter(item =>
       item.id.match(/https:\/\/reader-api.test\/reader-(.*)\/library/)
     )
 
-    await tap.type(library, 'object')
+    await tap.type(library2, 'object')
 
     await tap.match(
-      library.id,
+      library2.id,
       /https:\/\/reader-api.test\/reader-(.*)\/library/
     )
-    await tap.equal(library.type, 'Collection')
+    await tap.equal(library2.type, 'Collection')
   })
 
   await tap.test('GET inbox with no authentication', async () => {

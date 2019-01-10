@@ -1,5 +1,4 @@
 const proxyquire = require('proxyquire')
-const sinon = require('sinon')
 const supertest = require('supertest')
 const express = require('express')
 const tap = require('tap')
