@@ -18,9 +18,6 @@ jobs:
   include:
     stage: 'Unit Tests'
     script: 'npm run test-unit'
-    name: 'unit tests'
     stage: 'Integration Tests'
     script: 'npm run test-integration'
-    name: 'integration tests'
     script: 'npm run test-models'
-    name: 'model tests'
