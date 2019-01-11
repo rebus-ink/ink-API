@@ -20,4 +20,4 @@ jobs:
     script: 'npm run test-unit'
     - stage: 'Integration Tests'
     script: 'npm run test-integration'
-    script: 'npm run test-models'
+    - script: 'npm run test-models'
