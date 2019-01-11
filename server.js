@@ -50,10 +50,10 @@ const swaggerSpec = swaggerJSDoc(options)
 const setupKnex = async () => {
   let config
   /* istanbul ignore next */
-  if (process.env.POSTGRE_INSTANCE) {
-    config = require('./knexfile.js')['postgresql']
-  } else if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test') {
     config = require('./knexfile.js')['test']
+  } else if (process.env.POSTGRE_INSTANCE) {
+    config = require('./knexfile.js')['postgresql']
   } else {
     config = require('./knexfile.js')['development']
   }
