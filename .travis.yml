@@ -16,8 +16,8 @@ before_install:
 - psql -c 'create database travis_ci_test;' -U postgres
 jobs:
   include:
-    stage: 'Unit Tests'
+    - stage: 'Unit Tests'
     script: 'npm run test-unit'
-    stage: 'Integration Tests'
+    - stage: 'Integration Tests'
     script: 'npm run test-integration'
     script: 'npm run test-models'
