@@ -14,10 +14,12 @@ before_install:
   -iv $encrypted_28143c166499_iv -in secrets.tar.enc -out secrets.tar -d || true'
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && tar xvf secrets.tar || true'
 - psql -c 'create database travis_ci_test;' -U postgres
-jobs:
+jobs:  
   include:
-    - stage: 'Unit Tests'
-    script: 'npm run test-unit'
-    - stage: 'Integration Tests'
-    script: 'npm run test-integration'
-    - script: 'npm run test-models'
+    - stage: "Unit Tests"                # naming the Tests stage
+      script: npm run test-unit
+    - stage: "Integration Tests"
+      name: "routes integration tests"
+      script: npm run test-integration
+    - script: npm run test-models
+      name: "model integration tests" 
