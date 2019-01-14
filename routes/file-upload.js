@@ -3,7 +3,6 @@ const router = express.Router()
 const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
 const passport = require('passport')
-const { getId } = require('../utils/get-id.js')
 
 const storage = new Storage()
 
@@ -15,7 +14,7 @@ module.exports = app => {
     '/file-upload',
     passport.authenticate('jwt', { session: false }),
     m.single('file'),
-    async function (req, res, next) {
+    async function (req, res) {
       // currently putting all the files in a single bucket
       const bucketName = 'rebus-default-bucket'
       let bucket = storage.bucket(bucketName)

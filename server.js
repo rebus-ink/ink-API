@@ -145,7 +145,7 @@ app.use(passport.initialize())
  *                 enum: ['true']
  *
  */
-app.get('/', function (req, res, next) {
+app.get('/', function (req, res) {
   return res.format({
     'text/html': function () {
       res.send('Running!')

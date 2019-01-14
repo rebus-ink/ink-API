@@ -3,7 +3,6 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:readers')
-const _ = require('lodash')
 
 class ReaderExistsError extends Error {
   constructor (userId) {

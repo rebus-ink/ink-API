@@ -21,7 +21,7 @@ const test = async () => {
   const token2 = getToken()
 
   // create publication and documents for user 1
-  const res = await request(app)
+  const resActivity = await request(app)
     .post(`${userUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
@@ -69,7 +69,7 @@ const test = async () => {
     )
 
   // get the urls needed for the tests
-  const activityUrl = res.get('Location')
+  const activityUrl = resActivity.get('Location')
 
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
   const publicationUrl = activityObject.object.id

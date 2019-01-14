@@ -22,13 +22,13 @@ const tap = require('tap')
 tap.test('Models', async test => {
   await knex.migrate.latest()
 
-  test.test('Reader jsonSchema', test => {
-    test.ok(Reader.jsonSchema)
-    test.ok(Reader.relationMappings)
-    test.end()
+  test.test('Reader jsonSchema', testResult => {
+    testResult.ok(Reader.jsonSchema)
+    testResult.ok(Reader.relationMappings)
+    testResult.end()
   })
 
-  test.test('Reader model', async test => {
+  test.test('Reader model', async testResult => {
     let result, publication, docs, notes
     await objection
       .transaction(Reader.knex(), async trx => {
@@ -49,22 +49,22 @@ tap.test('Models', async test => {
       })
       .catch(() => {})
     const reader = JSON.parse(JSON.stringify(result))
-    test.ok(reader.published)
-    test.ok(reader.updated)
-    test.ok(reader.id.includes('reader-'))
-    test.equals(publication.json.name, 'Bingo! The Publication')
-    test.notOk(publication.json.bto)
-    test.ok(publication.url.includes('publication-'))
-    test.ok(docs[0])
-    test.ok(docs[0].id)
-    test.ok(docs[0].url.includes('document-'))
-    test.ok(notes[0])
-    test.ok(notes[0].id)
-    test.ok(notes[0].url.includes('reader-'))
-    test.end()
+    testResult.ok(reader.published)
+    testResult.ok(reader.updated)
+    testResult.ok(reader.id.includes('reader-'))
+    testResult.equals(publication.json.name, 'Bingo! The Publication')
+    testResult.notOk(publication.json.bto)
+    testResult.ok(publication.url.includes('publication-'))
+    testResult.ok(docs[0])
+    testResult.ok(docs[0].id)
+    testResult.ok(docs[0].url.includes('document-'))
+    testResult.ok(notes[0])
+    testResult.ok(notes[0].id)
+    testResult.ok(notes[0].url.includes('reader-'))
+    testResult.end()
   })
 
-  test.test('Reader model - update', async test => {
+  test.test('Reader model - update', async testResult => {
     let updated
     await objection
       .transaction(Reader.knex(), async trx => {
@@ -78,56 +78,59 @@ tap.test('Models', async test => {
         return trx.rollback()
       })
       .catch(() => {})
-    test.equals(updated.json.summary, 'Anonymous')
-    test.end()
+    testResult.equals(updated.json.summary, 'Anonymous')
+    testResult.end()
   })
-  test.test('Publication Model - static properties', test => {
-    test.ok(Publication.jsonSchema)
-    test.ok(Publication.tableName)
-    test.ok(Publication.relationMappings)
-    test.end()
+  test.test('Publication Model - static properties', testResult => {
+    testResult.ok(Publication.jsonSchema)
+    testResult.ok(Publication.tableName)
+    testResult.ok(Publication.relationMappings)
+    testResult.end()
   })
-  test.test('Document Model - static properties', test => {
-    test.ok(Document.jsonSchema)
-    test.ok(Document.tableName)
-    test.ok(Document.relationMappings)
-    test.end()
+  test.test('Document Model - static properties', testResult => {
+    testResult.ok(Document.jsonSchema)
+    testResult.ok(Document.tableName)
+    testResult.ok(Document.relationMappings)
+    testResult.end()
   })
-  test.test('Note Model - static properties', test => {
-    test.ok(Note.jsonSchema)
-    test.ok(Note.tableName)
-    test.ok(Note.relationMappings)
-    test.end()
+  test.test('Note Model - static properties', testResult => {
+    testResult.ok(Note.jsonSchema)
+    testResult.ok(Note.tableName)
+    testResult.ok(Note.relationMappings)
+    testResult.end()
   })
-  test.test('Activity Model - static properties', async test => {
-    test.equal(Activity.tableName, 'Activity')
-    test.type(Activity.jsonSchema, 'object')
-    test.type(Activity.jsonSchema.properties, 'object')
-    test.type(Activity.jsonSchema.properties.type, 'object')
-    test.type(Activity.jsonSchema.properties.readerId, 'object')
-    test.type(Activity.jsonSchema.properties.publicationId, 'object')
-    test.type(Activity.jsonSchema.properties.documentId, 'object')
-    test.type(Activity.jsonSchema.properties.noteId, 'object')
-    test.type(Activity.relationMappings, 'object')
-    test.type(Activity.relationMappings.reader, 'object')
-    test.type(Activity.relationMappings.document, 'object')
-    test.type(Activity.relationMappings.publication, 'object')
-    test.type(Activity.relationMappings.note, 'object')
+  test.test('Activity Model - static properties', async testResult => {
+    testResult.equal(Activity.tableName, 'Activity')
+    testResult.type(Activity.jsonSchema, 'object')
+    testResult.type(Activity.jsonSchema.properties, 'object')
+    testResult.type(Activity.jsonSchema.properties.type, 'object')
+    testResult.type(Activity.jsonSchema.properties.readerId, 'object')
+    testResult.type(Activity.jsonSchema.properties.publicationId, 'object')
+    testResult.type(Activity.jsonSchema.properties.documentId, 'object')
+    testResult.type(Activity.jsonSchema.properties.noteId, 'object')
+    testResult.type(Activity.relationMappings, 'object')
+    testResult.type(Activity.relationMappings.reader, 'object')
+    testResult.type(Activity.relationMappings.document, 'object')
+    testResult.type(Activity.relationMappings.publication, 'object')
+    testResult.type(Activity.relationMappings.note, 'object')
     const metadata = await Activity.fetchTableMetadata()
-    test.type(metadata, 'object')
-    test.ok(Array.isArray(metadata.columns))
-    test.equal(Activity.propertyNameToColumnName('type'), 'type')
-    test.equal(Activity.propertyNameToColumnName('readerId'), 'readerId')
-    test.equal(
+    testResult.type(metadata, 'object')
+    testResult.ok(Array.isArray(metadata.columns))
+    testResult.equal(Activity.propertyNameToColumnName('type'), 'type')
+    testResult.equal(Activity.propertyNameToColumnName('readerId'), 'readerId')
+    testResult.equal(
       Activity.propertyNameToColumnName('publicationId'),
       'publicationId'
     )
-    test.equal(Activity.propertyNameToColumnName('documentId'), 'documentId')
-    test.equal(Activity.propertyNameToColumnName('noteId'), 'noteId')
-    test.end()
+    testResult.equal(
+      Activity.propertyNameToColumnName('documentId'),
+      'documentId'
+    )
+    testResult.equal(Activity.propertyNameToColumnName('noteId'), 'noteId')
+    testResult.end()
   })
 
-  test.test('Activity model - create publication', async test => {
+  test.test('Activity model - create publication', async testResult => {
     let result, publication, inserted
     await objection
       .transaction(Reader.knex(), async trx => {
@@ -165,28 +168,28 @@ tap.test('Models', async test => {
       })
       .catch(() => {})
     const activity = JSON.parse(JSON.stringify(inserted))
-    test.type(activity.id, 'string')
-    test.equal(activity.type, 'Create')
-    test.type(activity.actor, 'object')
-    test.type(activity.actor.id, 'string')
-    test.equal(activity.actor.type, 'Person')
-    test.type(activity.object, 'object')
-    test.type(activity.object.id, 'string')
-    test.equal(activity.object.type, 'reader:Publication')
-    test.end()
+    testResult.type(activity.id, 'string')
+    testResult.equal(activity.type, 'Create')
+    testResult.type(activity.actor, 'object')
+    testResult.type(activity.actor.id, 'string')
+    testResult.equal(activity.actor.type, 'Person')
+    testResult.type(activity.object, 'object')
+    testResult.type(activity.object.id, 'string')
+    testResult.equal(activity.object.type, 'reader:Publication')
+    testResult.end()
   })
 
-  test.test('Attribution Model - static properties', test => {
-    test.ok(Attribution.jsonSchema)
-    test.ok(Attribution.tableName)
-    test.ok(Attribution.relationMappings)
-    test.end()
+  test.test('Attribution Model - static properties', testResult => {
+    testResult.ok(Attribution.jsonSchema)
+    testResult.ok(Attribution.tableName)
+    testResult.ok(Attribution.relationMappings)
+    testResult.end()
   })
-  test.test('Tag Model - static properties', test => {
-    test.ok(Tag.jsonSchema)
-    test.ok(Tag.tableName)
-    test.ok(Tag.relationMappings)
-    test.end()
+  test.test('Tag Model - static properties', testResult => {
+    testResult.ok(Tag.jsonSchema)
+    testResult.ok(Tag.tableName)
+    testResult.ok(Tag.relationMappings)
+    testResult.end()
   })
 })
 

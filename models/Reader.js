@@ -1,7 +1,6 @@
 const assert = require('assert')
 const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
-const NoSuchReaderError = require('../errors/no-such-reader')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
