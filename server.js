@@ -226,7 +226,7 @@ app.terminate = async in_options => {
   }
   app.initialized = false
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
-    await app.knex.raw('DROP DATABASE testDB')
+    await app.knex.raw('DROP DATABASE travis_ci_test')
   }
   return app.knex.destroy()
 }
