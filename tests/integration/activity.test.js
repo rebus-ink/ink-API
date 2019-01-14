@@ -81,8 +81,8 @@ const test = async () => {
     await tap.equal(res.statusCode, 404)
   })
 
-  await app.terminate()
   await destroyDB(app)
+  await app.terminate()
 }
 
 test()
