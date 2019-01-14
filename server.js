@@ -225,10 +225,12 @@ app.terminate = async in_options => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
+
+  await app.knex.destroy()
+
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
     await app.knex.raw('DROP DATABASE travis_ci_test')
   }
-  return app.knex.destroy()
 }
 
 activityRoute(app)
