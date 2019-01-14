@@ -35,7 +35,9 @@ const createUser = async (app, token) => {
 }
 
 const destroyDB = async () => {
-  if (process.env.NODE_ENV === 'test') {
+  if (process.env.POSTGRE_INSTANCE) {
+    app.clearPostgresDB()
+  } else if (process.env.NODE_ENV === 'test') {
     await fs.unlinkSync('./test.sqlite3')
   }
 }

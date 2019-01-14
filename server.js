@@ -23,6 +23,7 @@ const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
 const swaggerJSDoc = require('swagger-jsdoc')
 const path = require('path')
+const knexCleaner = require('knex-cleaner')
 
 // -- setup up swagger-jsdoc --
 const swaggerDefinition = {
@@ -50,10 +51,10 @@ const swaggerSpec = swaggerJSDoc(options)
 const setupKnex = async () => {
   let config
   /* istanbul ignore next */
-  if (process.env.NODE_ENV === 'test') {
-    config = require('./knexfile.js')['test']
-  } else if (process.env.POSTGRE_INSTANCE) {
+  if (process.env.POSTGRE_INSTANCE) {
     config = require('./knexfile.js')['postgresql']
+  } else if (process.env.NODE_ENV === 'test') {
+    config = require('./knexfile.js')['test']
   } else {
     config = require('./knexfile.js')['development']
   }
@@ -225,6 +226,10 @@ app.terminate = async () => {
   }
   app.initialized = false
   return app.knex.destroy()
+}
+
+app.clearPostgresDB = async () => {
+  await knexCleaner.clean(app.knex)
 }
 
 activityRoute(app)
