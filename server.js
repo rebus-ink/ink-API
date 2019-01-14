@@ -220,16 +220,15 @@ app.initialize = async () => {
   return app.initialized
 }
 
-app.terminate = async () => {
+app.terminate = async in_options => {
   if (!app.initialized) {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
+  if (in_options.clearDB) {
+    knexCleaner.clean(app.knex)
+  }
   return app.knex.destroy()
-}
-
-app.clearPostgresDB = async () => {
-  await knexCleaner.clean(app.knex)
 }
 
 activityRoute(app)
