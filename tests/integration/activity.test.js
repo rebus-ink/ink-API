@@ -82,7 +82,7 @@ const test = async () => {
   })
 
   await destroyDB()
-  await app.terminate({ destroyDB: true })
+  await app.terminate({ clearDB: true })
 }
 
 test()
