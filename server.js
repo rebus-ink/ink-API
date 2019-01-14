@@ -226,7 +226,7 @@ app.terminate = async in_options => {
   }
   app.initialized = false
   if (in_options.clearDB) {
-    knexCleaner.clean(app.knex)
+    await knexCleaner.clean(app.knex)
   }
   return app.knex.destroy()
 }
