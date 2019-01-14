@@ -3,6 +3,7 @@ const { destroyDB } = require('../integration/utils')
 const app = require('../../server').app
 const { Activity } = require('../../models/Activity')
 const parseurl = require('url').parse
+let parseurl = require('url').parse
 
 const test = async () => {
   await app.initialize()
