@@ -72,7 +72,7 @@ const test = async () => {
   })
 
   await app.terminate()
-  await destroyDB()
+  await destroyDB(app)
 
   await tap.test('DB should be cleared', async () => {
     const activity = await Activity.byShortId(id)

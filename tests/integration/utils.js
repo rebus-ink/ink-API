@@ -34,7 +34,7 @@ const createUser = async (app, token) => {
   return res.body.id
 }
 
-const destroyDB = async () => {
+const destroyDB = async app => {
   if (process.env.POSTGRE_INSTANCE) {
     app.clearPostgresDB()
   } else if (process.env.NODE_ENV === 'test') {
