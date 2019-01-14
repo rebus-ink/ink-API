@@ -13,7 +13,7 @@ before_install:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_28143c166499_key
   -iv $encrypted_28143c166499_iv -in secrets.tar.enc -out secrets.tar -d || true'
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && tar xvf secrets.tar || true'
-- psql -c 'drop database travis_ci_test && create database travis_ci_test;' -U postgres
+- psql -c 'create database travis_ci_test;' -U postgres
 jobs:  
   include:
     - stage: "Lint"
