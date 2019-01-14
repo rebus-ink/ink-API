@@ -225,8 +225,8 @@ app.terminate = async in_options => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-  if (in_options.clearDB) {
-    await knexCleaner.clean(app.knex)
+  if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
+    await knexCleaner.clean(app.knex, { mode: 'delete' })
   }
   return app.knex.destroy()
 }
