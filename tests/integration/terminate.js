@@ -1,5 +1,9 @@
 const app = require('../../server').app
 
-if (process.env.POSTGRE_INSTANCE) {
-  app.terminate()
+const term = async () => {
+  if (process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
 }
+
+term()
