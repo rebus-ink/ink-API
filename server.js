@@ -220,11 +220,19 @@ app.initialize = async () => {
   return app.initialized
 }
 
-app.terminate = async () => {
+app.terminate = async in_options => {
   if (!app.initialized) {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
+
+  if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
+    const tables = await app.knex.raw(
+      'SELECT tablename FROM pg_catalog.pg_tables'
+    )
+    console.log(tables)
+    return await app.knex.raw('DROP DATABASE travis_ci_test')
+  }
 
   return await app.knex.destroy()
 }
