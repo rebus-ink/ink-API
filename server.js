@@ -228,11 +228,11 @@ app.terminate = async in_options => {
 
   if (in_options && in_options.clearDB && process.env.POSTGRE_INSTANCE) {
     await app.knex.schema.dropTable('Activity')
-    await app.knex.schema.dropTable('Publication')
     await app.knex.schema.dropTable('Document')
     await app.knex.schema.dropTable('Attribution')
     await app.knex.schema.dropTable('Note')
     await app.knex.schema.dropTable('Tag')
+    await app.knex.schema.dropTable('Publication')
     await app.knex.schema.dropTable('Reader')
   }
 
