@@ -228,7 +228,7 @@ app.terminate = async in_options => {
 
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
     const tables = await app.knex.raw(
-      'SELECT tablename FROM pg_catalog.pg_tables'
+      "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';"
     )
     console.log(tables)
     return await app.knex.raw('DROP DATABASE travis_ci_test')
