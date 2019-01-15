@@ -226,11 +226,11 @@ app.terminate = async in_options => {
   }
   app.initialized = false
 
-  await app.knex.destroy()
-
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
-    await app.knex.raw('DROP DATABASE travis_ci_test')
+    return await app.knex.raw('DROP DATABASE travis_ci_test')
   }
+
+  return await app.knex.destroy()
 }
 
 activityRoute(app)
