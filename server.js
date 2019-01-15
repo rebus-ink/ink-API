@@ -227,13 +227,13 @@ app.terminate = async in_options => {
   app.initialized = false
 
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
-    await app.knex.dropTable('Activity')
-    await app.knex.dropTable('Reader')
-    await app.knex.dropTable('Publication')
-    await app.knex.dropTable('Document')
-    await app.knex.dropTable('Attribution')
-    await app.knex.dropTable('Note')
-    await app.knex.dropTable('Tag')
+    await app.knex.schema.dropTable('Activity')
+    await app.knex.schema.dropTable('Reader')
+    await app.knex.schema.dropTable('Publication')
+    await app.knex.schema.dropTable('Document')
+    await app.knex.schema.dropTable('Attribution')
+    await app.knex.schema.dropTable('Note')
+    await app.knex.schema.dropTable('Tag')
   }
 
   return await app.knex.destroy()
