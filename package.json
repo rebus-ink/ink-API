@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test-unit": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/unit/*.test.js",
-    "test-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/integration/index.js",
+    "pretest-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test node tests/integration/initialize.js",
+    "test-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/integration/*.test.js",
+    "posttest-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test node tests/integration/terminate.js",
     "test-models": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/*.test.js",
     "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/*/*.test.js",
     "start": "node index.js",
