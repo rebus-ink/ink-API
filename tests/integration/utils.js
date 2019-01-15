@@ -39,7 +39,7 @@ const destroyDB = async app => {
   if (!process.env.POSTGRE_INSTANCE && process.env.NODE_ENV === 'test') {
     await fs.unlinkSync('./test.sqlite3')
   } else if (process.env.NODE_ENV === 'test') {
-    knexCleaner.clean(app.knex)
+    await knexCleaner.clean(app.knex)
   }
 }
 
