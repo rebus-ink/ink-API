@@ -5,8 +5,9 @@ const { getToken, createUser, destroyDB } = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
-  await app.initialize()
-
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
   const token = getToken()
   const userId = await createUser(app, token)
   const userUrl = urlparse(userId).path
@@ -73,8 +74,10 @@ const test = async () => {
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
-  await app.terminate()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB(app)
 }
 
-test()
+module.exports = test

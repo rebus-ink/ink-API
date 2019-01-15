@@ -81,8 +81,10 @@ const test = async () => {
     await tap.equal(res.statusCode, 404)
   })
 
-  await app.terminate({ clearDB: true })
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB()
 }
 
-test()
+module.exports = test

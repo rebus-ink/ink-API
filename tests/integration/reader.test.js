@@ -5,7 +5,9 @@ const { getToken, destroyDB } = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
-  await app.initialize()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const token = getToken()
   let readerUrl
@@ -89,8 +91,10 @@ const test = async () => {
     await tap.equal(res.statusCode, 404)
   })
 
-  await app.terminate()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB(app)
 }
 
-test()
+module.exports = test

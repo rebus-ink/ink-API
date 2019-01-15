@@ -224,4 +224,4 @@ const test = async () => {
   }
 }
 
-test()
+module.exports = test

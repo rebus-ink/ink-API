@@ -5,7 +5,9 @@ const { getToken, createUser, destroyDB } = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
-  await app.initialize()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const token = getToken()
   const userId = await createUser(app, token)
@@ -82,7 +84,9 @@ const test = async () => {
   })
 
   await destroyDB()
-  await app.terminate({ clearDB: true })
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
 }
 
-test()
+module.exports = test
