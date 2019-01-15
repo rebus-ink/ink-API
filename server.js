@@ -220,15 +220,11 @@ app.initialize = async () => {
   return app.initialized
 }
 
-app.terminate = async in_options => {
+app.terminate = async () => {
   if (!app.initialized) {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-
-  if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
-    return await app.knex.raw('DROP DATABASE travis_ci_test')
-  }
 
   return await app.knex.destroy()
 }
