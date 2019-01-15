@@ -83,7 +83,7 @@ const test = async () => {
     await tap.equal(res.statusCode, 404)
   })
 
-  await destroyDB()
+  await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

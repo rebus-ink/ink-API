@@ -84,7 +84,7 @@ const test = async () => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
-  await destroyDB()
+  await destroyDB(app)
 }
 
 module.exports = test

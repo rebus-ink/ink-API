@@ -75,8 +75,8 @@ const test = async () => {
     await tap.equal(refObject.userId, undefined)
   })
 
-  await app.terminate({ cleanDB: true })
-  await destroyDB()
+  await app.terminate()
+  await destroyDB(app)
 }
 
 test()
