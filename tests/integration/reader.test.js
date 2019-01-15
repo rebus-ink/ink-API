@@ -91,9 +91,9 @@ const test = async () => {
     await tap.equal(res.statusCode, 404)
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
+  // if (!process.env.POSTGRE_INSTANCE) {
+  await app.terminate()
+  // }
   await destroyDB(app)
 }
 

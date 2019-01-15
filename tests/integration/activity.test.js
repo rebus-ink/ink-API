@@ -5,14 +5,10 @@ const { getToken, createUser, destroyDB } = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
+  await app.initialize()
 
   const token = getToken()
-  console.log('getToken ok')
   const userId = await createUser(app, token)
-  console.log('create user ok')
   const userUrl = urlparse(userId).path
   let activityUrl
 
