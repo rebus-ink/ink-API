@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
+const knexCleaner = require('knex-cleaner')
 
 const getToken = () => {
   const options = {
@@ -34,9 +35,11 @@ const createUser = async (app, token) => {
   return res.body.id
 }
 
-const destroyDB = async () => {
+const destroyDB = async app => {
   if (!process.env.POSTGRE_INSTANCE && process.env.NODE_ENV === 'test') {
     await fs.unlinkSync('./test.sqlite3')
+  } else if (process.env.NODE_ENV === 'test') {
+    knexCleaner.clean(app.knex)
   }
 }
 

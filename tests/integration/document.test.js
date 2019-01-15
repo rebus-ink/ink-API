@@ -10,7 +10,9 @@ const {
 const app = require('../../server').app
 
 const test = async () => {
-  await app.initialize()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const token = getToken()
   const userId = await createUser(app, token)
