@@ -5,6 +5,7 @@ const { getToken, createUser, destroyDB } = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
+  console.log('doest this run?????')
   await app.initialize()
 
   const token = getToken()
