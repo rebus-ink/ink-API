@@ -227,11 +227,13 @@ app.terminate = async in_options => {
   app.initialized = false
 
   if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
-    const tables = await app.knex.raw(
-      "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';"
-    )
-    console.log(tables)
-    return await app.knex.raw('DROP DATABASE travis_ci_test')
+    await app.knex.dropTable('Activity')
+    await app.knex.dropTable('Reader')
+    await app.knex.dropTable('Publication')
+    await app.knex.dropTable('Document')
+    await app.knex.dropTable('Attribution')
+    await app.knex.dropTable('Note')
+    await app.knex.dropTable('Tag')
   }
 
   return await app.knex.destroy()
