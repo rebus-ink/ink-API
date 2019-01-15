@@ -62,8 +62,8 @@ const test = async () => {
     // asRef is broken. Will fix the test and the code in another PR
   })
 
-  await app.terminate()
-  await destroyDB(app)
+  await app.terminate({ clearDB: true })
+  await destroyDB()
 }
 
 test()

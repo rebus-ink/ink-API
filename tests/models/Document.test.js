@@ -73,8 +73,8 @@ const test = async () => {
     await tap.notOk(refDocument.attachment)
   })
 
-  await app.terminate()
-  await destroyDB(app)
+  await app.terminate({ clearDB: true })
+  await destroyDB()
 }
 
 test()

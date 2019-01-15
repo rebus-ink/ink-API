@@ -226,7 +226,7 @@ app.terminate = async in_options => {
   }
   app.initialized = false
 
-  if (in_options.clearDB && process.env.POSTGRE_INSTANCE) {
+  if (in_options && in_options.clearDB && process.env.POSTGRE_INSTANCE) {
     await app.knex.schema.dropTable('Activity')
     await app.knex.schema.dropTable('Publication')
     await app.knex.schema.dropTable('Document')
