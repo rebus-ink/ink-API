@@ -10,7 +10,9 @@ const test = async () => {
   }
 
   const token = getToken()
+  console.log('getToken ok')
   const userId = await createUser(app, token)
+  console.log('create user ok')
   const userUrl = urlparse(userId).path
   let activityUrl
 
