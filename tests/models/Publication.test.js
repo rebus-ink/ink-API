@@ -1,13 +1,14 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const app = require('../../server').app
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const reader = Object.assign(new Reader(), {
     id: '123456789abcdef',
@@ -62,8 +63,10 @@ const test = async () => {
     // asRef is broken. Will fix the test and the code in another PR
   })
 
-  await app.terminate({ clearDB: true })
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB(app)
 }
 
-test()
+module.exports = test

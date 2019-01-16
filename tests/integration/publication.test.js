@@ -94,8 +94,6 @@ const test = async app => {
     await tap.ok(Array.isArray(body.attachment))
     await tap.ok(Array.isArray(body.orderedItems))
     // check the order of items
-    await tap.equal(body.attachment[0].name, 'Chapter 2')
-    await tap.equal(body.attachment[2].name, 'Not a Chapter')
     await tap.equal(body.orderedItems[0].name, 'Chapter 1')
     await tap.notOk(body.orderedItems[2])
   })

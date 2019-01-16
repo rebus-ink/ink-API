@@ -12,7 +12,6 @@ const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
-
   await activityTests(app)
   await authErrorTests(app)
   await documentTests(app)

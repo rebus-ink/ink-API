@@ -1,13 +1,14 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const app = require('../../server').app
 const { Activity } = require('../../models/Activity')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const reader = Object.assign(new Reader(), {
     id: '123456789abcdef',
@@ -73,8 +74,10 @@ const test = async () => {
     await tap.notOk(refDocument.attachment)
   })
 
-  await app.terminate({ clearDB: true })
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB(app)
 }
 
-test()
+module.exports = test

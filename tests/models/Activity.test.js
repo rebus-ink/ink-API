@@ -1,11 +1,12 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const app = require('../../server').app
 const { Activity } = require('../../models/Activity')
 const parseurl = require('url').parse
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const newActivity = Object.assign(new Activity(), {
     type: 'Activity',
@@ -71,8 +72,10 @@ const test = async () => {
     await tap.equal(activity.type, 'Activity')
   })
 
-  await app.terminate({ clearDB: true })
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
   await destroyDB(app)
 }
 
-test()
+module.exports = test
