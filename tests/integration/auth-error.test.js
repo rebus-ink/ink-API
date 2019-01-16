@@ -7,7 +7,7 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
-const app = require('../../server').app
+const app = require('./initialize')
 
 const test = async () => {
   if (!process.env.POSTGRE_INSTANCE) {

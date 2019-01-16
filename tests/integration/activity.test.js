@@ -2,11 +2,11 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('./utils')
-const app = require('../../server').app
+const app = require('./initialize')
 
 const test = async () => {
   console.log('doest this run?????')
-  await app.initialize()
+  // await app.initialize()
 
   const token = getToken()
   const userId = await createUser(app, token)
