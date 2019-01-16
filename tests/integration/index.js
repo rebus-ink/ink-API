@@ -12,13 +12,13 @@ if (process.env.POSTGRE_INSTANCE) {
   app.initialize()
 }
 
-activityTests()
-authErrorTests()
-documentTests()
-libraryTests()
-outboxTests()
-publicationTests()
-readerTests()
+activityTests(app)
+authErrorTests(app)
+documentTests(app)
+libraryTests(app)
+outboxTests(app)
+publicationTests(app)
+readerTests(app)
 
 if (process.env.POSTGRE_INSTANCE) {
   app.terminate()
