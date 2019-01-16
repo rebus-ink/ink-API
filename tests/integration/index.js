@@ -13,13 +13,13 @@ const allTests = async () => {
     await app.initialize()
   }
 
-  activityTests(app)
-  authErrorTests(app)
-  documentTests(app)
-  libraryTests(app)
-  outboxTests(app)
-  publicationTests(app)
-  readerTests(app)
+  await activityTests(app)
+  await authErrorTests(app)
+  await documentTests(app)
+  await libraryTests(app)
+  await outboxTests(app)
+  await publicationTests(app)
+  await readerTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.terminate()

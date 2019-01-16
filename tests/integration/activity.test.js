@@ -4,7 +4,6 @@ const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('./utils')
 
 const test = async app => {
-  console.log('doest this run?????')
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
