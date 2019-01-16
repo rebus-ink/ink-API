@@ -8,18 +8,22 @@ const readerTests = require('./reader.test')
 
 const app = require('../../server').app
 
-if (process.env.POSTGRE_INSTANCE) {
-  app.initialize()
+const allTests = async () => {
+  if (process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
+
+  activityTests(app)
+  authErrorTests(app)
+  documentTests(app)
+  libraryTests(app)
+  outboxTests(app)
+  publicationTests(app)
+  readerTests(app)
+
+  if (process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
 }
 
-activityTests(app)
-authErrorTests(app)
-documentTests(app)
-libraryTests(app)
-outboxTests(app)
-publicationTests(app)
-readerTests(app)
-
-if (process.env.POSTGRE_INSTANCE) {
-  app.terminate()
-}
+allTests()
