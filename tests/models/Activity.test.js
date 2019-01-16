@@ -1,6 +1,7 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Activity } = require('../../models/Activity')
+const { Reader } = require('../../models/Reader')
 const parseurl = require('url').parse
 
 const test = async app => {
@@ -26,19 +27,11 @@ const test = async app => {
       },
       summaryMap: { en: 'someone created' }
     },
-    readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
     documentId: null,
     publicationId: 'a2091266-624b-4c46-9066-ce1c642b1898',
     noteId: null,
     published: '2018-12-18T14:56:53.173Z',
     updated: '2018-12-18 14:56:53',
-    reader: {
-      id: 'b10debec-bfee-438f-a394-25e75457ff62',
-      json: { name: 'J. Random Reader', userId: 'auth0|foo1545145012840' },
-      userId: 'auth0|foo1545145012840',
-      published: '2018-12-18T14:56:52.924Z',
-      updated: '2018-12-18 14:56:52'
-    },
     publication: {
       id: 'a2091266-624b-4c46-9066-ce1c642b1898',
       description: null,
@@ -55,6 +48,22 @@ const test = async app => {
     document: null,
     note: null
   })
+
+  const reader = Object.assign(new Reader(), {
+    id: '123456789abcdef',
+    json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
+    userId: 'auth0|foo1545149868964',
+    published: '2018-12-18T16:17:49.077Z',
+    updated: '2018-12-18 16:17:49'
+  })
+
+  const createdReader = await Reader.createReader(
+    'auth0|foo1545149868964',
+    reader
+  )
+
+  newActivity.reader = createdReader
+  newActivity.readerId = createdReader.id
 
   let id
 
