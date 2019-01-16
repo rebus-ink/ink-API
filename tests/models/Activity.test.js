@@ -16,35 +16,21 @@ const test = async app => {
         'https://www.w3.org/ns/activitystreams',
         { reader: 'https://rebus.foundation/ns/reader' }
       ],
-      type: 'Create',
-      object: {
-        type: 'reader:Publication',
-        id: 'https://reader-api.test/publication-m1vGaFVCQTzVBkdLFaxbSm'
+      type: 'Arrive',
+      location: {
+        id: 'https://places.test/rebus-foundation-office',
+        type: 'Place',
+        nameMap: {
+          en: 'Rebus Foundation Office'
+        }
       },
-      actor: {
-        type: 'Person',
-        id: 'https://reader-api.test/reader-nS5zw1btwDYT5S6DdvL9yj'
-      },
-      summaryMap: { en: 'someone created' }
+      summaryMap: { en: 'neutral activity' }
     },
     documentId: null,
-    publicationId: 'a2091266-624b-4c46-9066-ce1c642b1898',
     noteId: null,
     published: '2018-12-18T14:56:53.173Z',
     updated: '2018-12-18 14:56:53',
-    publication: {
-      id: 'a2091266-624b-4c46-9066-ce1c642b1898',
-      description: null,
-      json: {
-        attachment: [],
-        type: 'reader:Publication',
-        name: 'Publication A',
-        attributedTo: [{ type: 'Person', name: 'Sample Author' }]
-      },
-      readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-      published: '2018-12-18T14:56:53.149Z',
-      updated: '2018-12-18 14:56:53'
-    },
+    publication: null,
     document: null,
     note: null
   })
