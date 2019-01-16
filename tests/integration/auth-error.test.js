@@ -223,4 +223,4 @@ const test = async app => {
   }
 }
 
-test()
+module.exports = test

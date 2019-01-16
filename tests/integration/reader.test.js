@@ -96,4 +96,4 @@ const test = async app => {
   await destroyDB(app)
 }
 
-test()
+module.exports = test
