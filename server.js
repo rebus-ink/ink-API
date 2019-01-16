@@ -23,7 +23,6 @@ const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
 const swaggerJSDoc = require('swagger-jsdoc')
 const path = require('path')
-const knexCleaner = require('knex-cleaner')
 
 // -- setup up swagger-jsdoc --
 const swaggerDefinition = {

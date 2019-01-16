@@ -47,7 +47,7 @@ const test = async app => {
     publicationId = parseurl(response.url).path.substr(13)
   })
 
-  await tap.test('By short id', async () => {
+  await tap.test('Get publication by short id', async () => {
     publication = await Publication.byShortId(publicationId)
     await tap.type(publication, 'object')
     await tap.ok(publication instanceof Publication)
@@ -59,7 +59,7 @@ const test = async app => {
     await tap.ok(publication.attachment[0] instanceof Document)
   })
 
-  await tap.test('asRef', async () => {
+  await tap.test('Publication asRef', async () => {
     // asRef is broken. Will fix the test and the code in another PR
   })
 

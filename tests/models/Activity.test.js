@@ -66,7 +66,7 @@ const test = async app => {
     id = parseurl(response.url).path.substr(10)
   })
 
-  await tap.test('By short id', async () => {
+  await tap.test('Get activity by short id', async () => {
     const activity = await Activity.byShortId(id)
     await tap.type(activity, 'object')
     await tap.equal(activity.type, 'Activity')

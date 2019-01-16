@@ -1,8 +1,8 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const { Activity } = require('../../models/Activity')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
+const { Publication } = require('../../models/Publication')
 const parseurl = require('url').parse
 
 const test = async app => {
@@ -27,7 +27,6 @@ const test = async app => {
       content: 'Sample document content 1',
       position: 0
     },
-    publicationId: '061656bd-f7b3-4cf5-a0d6-1d4ac7c3118d',
     published: '2018-12-18T15:54:12.106Z',
     updated: '2018-12-18 15:54:12',
     reader: {
@@ -39,10 +38,27 @@ const test = async app => {
     }
   })
 
+  const publicationObject = new Publication()
+  Object.assign(publicationObject, {
+    description: null,
+    json: {
+      type: 'reader:Publication',
+      name: 'Publication A',
+      attributedTo: [{ type: 'Person', name: 'Sample Author' }]
+    },
+    attachment: [{ type: 'Document', content: 'content of document' }]
+  })
+
   const createdReader = await Reader.createReader(
     'auth0|foo1545149868964',
     reader
   )
+
+  let publication = await Reader.addPublication(
+    createdReader,
+    publicationObject
+  )
+  documentObject.publicationId = publication.id
 
   let documentId
   let document
@@ -56,7 +72,7 @@ const test = async app => {
     documentId = parseurl(response.url).path.substr(10)
   })
 
-  await tap.test('By short id', async () => {
+  await tap.test('Get document by short id', async () => {
     document = await Document.byShortId(documentId)
     await tap.type(document, 'object')
     await tap.equal(document.type, 'text/html')
@@ -66,7 +82,7 @@ const test = async app => {
     await tap.ok(document.reader instanceof Reader)
   })
 
-  await tap.test('asRef', async () => {
+  await tap.test('Document asRef', async () => {
     // make it clearer what asRef should keep and what it should remove
     const refDocument = document.asRef()
     await tap.ok(refDocument)
