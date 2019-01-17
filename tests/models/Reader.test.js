@@ -1,11 +1,12 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const app = require('../../server').app
 const { Reader } = require('../../models/Reader')
 const parseurl = require('url').parse
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const reader = Object.assign(new Reader(), {
     id: '123456789abcdef',
@@ -27,7 +28,7 @@ const test = async () => {
     readerShortId = parseurl(createdReader.url).path.substr(8)
   })
 
-  await tap.test('By short id', async () => {
+  await tap.test('Get reader by short id', async () => {
     const responseReader = await Reader.byShortId(readerShortId)
 
     await tap.type(responseReader, 'object')
@@ -35,7 +36,7 @@ const test = async () => {
     await tap.ok(responseReader.publications === undefined)
   })
 
-  await tap.test('By short id with eager loading', async () => {
+  await tap.test('Get reader by short id with eager loading', async () => {
     const responseReader = await Reader.byShortId(readerShortId, [
       'publications'
     ])
@@ -44,18 +45,21 @@ const test = async () => {
     await tap.ok(responseReader instanceof Reader)
   })
 
-  await tap.test('By user id', async () => {
+  await tap.test('Get reader by user id', async () => {
     const responseReader = await Reader.byUserId(readerId)
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
   })
 
-  await tap.test('Check If Exists - returns true if exists', async () => {
-    const response = await Reader.checkIfExists(readerId)
+  await tap.test(
+    'Check If Reader Exists - returns true if exists',
+    async () => {
+      const response = await Reader.checkIfExists(readerId)
 
-    await tap.equal(response, true)
-  })
+      await tap.equal(response, true)
+    }
+  )
 
   await tap.test(
     'Check If Exists - returns false if does not exist',
@@ -66,7 +70,7 @@ const test = async () => {
     }
   )
 
-  await tap.test('asRef', async () => {
+  await tap.test('Reader asRef', async () => {
     const refObject = createdReader.asRef()
 
     await tap.type(refObject, 'object')
@@ -75,8 +79,10 @@ const test = async () => {
     await tap.equal(refObject.userId, undefined)
   })
 
-  await app.terminate()
-  await destroyDB()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
+  await destroyDB(app)
 }
 
-test()
+module.exports = test

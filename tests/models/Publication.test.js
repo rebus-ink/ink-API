@@ -1,13 +1,14 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const app = require('../../server').app
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   const reader = Object.assign(new Reader(), {
     id: '123456789abcdef',
@@ -46,7 +47,7 @@ const test = async () => {
     publicationId = parseurl(response.url).path.substr(13)
   })
 
-  await tap.test('By short id', async () => {
+  await tap.test('Get publication by short id', async () => {
     publication = await Publication.byShortId(publicationId)
     await tap.type(publication, 'object')
     await tap.ok(publication instanceof Publication)
@@ -58,12 +59,14 @@ const test = async () => {
     await tap.ok(publication.attachment[0] instanceof Document)
   })
 
-  await tap.test('asRef', async () => {
+  await tap.test('Publication asRef', async () => {
     // asRef is broken. Will fix the test and the code in another PR
   })
 
-  await app.terminate()
-  await destroyDB()
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
+  await destroyDB(app)
 }
 
-test()
+module.exports = test
