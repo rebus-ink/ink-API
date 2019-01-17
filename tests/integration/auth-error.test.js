@@ -7,10 +7,11 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
-const app = require('../../server').app
 
-const test = async () => {
-  await app.initialize()
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
 
   // user1
   const token = getToken()
@@ -216,8 +217,10 @@ const test = async () => {
     await tap.equal(res6.statusCode, 401)
   })
 
-  await app.terminate()
-  await destroyDB()
+  await destroyDB(app)
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
 }
 
-test()
+module.exports = test

@@ -52,10 +52,10 @@ const swaggerSpec = swaggerJSDoc(options)
 const setupKnex = async () => {
   let config
   /* istanbul ignore next */
-  if (process.env.NODE_ENV === 'test') {
-    config = require('./knexfile.js')['test']
-  } else if (process.env.POSTGRE_INSTANCE) {
+  if (process.env.POSTGRE_INSTANCE) {
     config = require('./knexfile.js')['postgresql']
+  } else if (process.env.NODE_ENV === 'test') {
+    config = require('./knexfile.js')['test']
   } else {
     config = require('./knexfile.js')['development']
   }
@@ -226,7 +226,8 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-  return app.knex.destroy()
+
+  return await app.knex.destroy()
 }
 
 activityRoute(app)

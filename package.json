@@ -8,9 +8,9 @@
   },
   "scripts": {
     "test-unit": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/unit/*.test.js",
-    "test-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/integration/*.test.js",
-    "test-models": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/*.test.js",
-    "test": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/*/*.test.js",
+    "test-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/integration/index.js",
+    "test-models": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
+    "test": "npm run test-unit && npm run test-integration && npm run test-models",
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint ."
@@ -35,6 +35,7 @@
     "flow-coverage-report": "^0.6.0",
     "husky": "^1.0.0-rc.14",
     "jsonwebtoken": "^8.3.0",
+    "knex-cleaner": "^1.1.4",
     "lint-staged": "^7.2.2",
     "node-mocks-http": "^1.7.3",
     "nodemon": "^1.18.7",
