@@ -69,11 +69,45 @@ const test = async app => {
       })
     )
 
+  // create Note for user 1
+
+  const noteActivity = await request(app)
+    .post(`${userUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Create',
+        object: {
+          type: 'Note',
+          content: 'This is the content of note A.',
+          'oa:hasSelector': {},
+          context: 'http://localhost:8080/publication-abc123',
+          inReplyTo: 'http://localhost:8080/document-abc123'
+        }
+      })
+    )
+
   // get the urls needed for the tests
   const activityUrl = resActivity.get('Location')
+  const noteActivityUrl = noteActivity.get('Location')
 
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
   const publicationUrl = activityObject.object.id
+
+  const noteActivityObject = await getActivityFromUrl(
+    app,
+    noteActivityUrl,
+    token
+  )
+  const noteUrl = noteActivityObject.object.id
 
   const resPublication = await request(app)
     .get(urlparse(publicationUrl).path)
@@ -114,6 +148,18 @@ const test = async app => {
   await tap.test('Try to get document belonging to another user', async () => {
     const res = await request(app)
       .get(urlparse(documentUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('Try to get note belonging to another user', async () => {
+    const res = await request(app)
+      .get(urlparse(noteUrl).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(

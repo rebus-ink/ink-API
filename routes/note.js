@@ -16,8 +16,8 @@ const utils = require('./utils')
  *       type:
  *         type: string
  *         enum: ['Note']
-         'oa:hasSelector':
-            type: object
+ *       'oa:hasSelector':
+ *         type: object
  *       content:
  *         type: string
  *       '@context':
@@ -89,9 +89,8 @@ module.exports = app => {
                     'https://www.w3.org/ns/activitystreams',
                     { reader: 'https://rebus.foundation/ns/reader' }
                   ],
-                  // not sure why context disapears when .toJSON is run. Giving it a different name is a quick fix.
-                  context: note.json.pubcontext,
-                  pubcontext: undefined
+                  // not sure why context disapears when .toJSON is run
+                  context: note.json.context
                 })
               )
             )
