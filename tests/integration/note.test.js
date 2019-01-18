@@ -63,7 +63,6 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
-    console.log(body)
     await tap.type(body, 'object')
     await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')

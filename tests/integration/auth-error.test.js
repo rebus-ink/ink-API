@@ -69,6 +69,18 @@ const test = async app => {
       })
     )
 
+  const activityUrl = resActivity.get('Location')
+  const activityObject = await getActivityFromUrl(app, activityUrl, token)
+  const publicationUrl = activityObject.object.id
+
+  const resPublication = await request(app)
+    .get(urlparse(publicationUrl).path)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+  const documentUrl = resPublication.body.orderedItems[0].id
   // create Note for user 1
 
   const noteActivity = await request(app)
@@ -89,18 +101,14 @@ const test = async app => {
           type: 'Note',
           content: 'This is the content of note A.',
           'oa:hasSelector': {},
-          context: 'http://localhost:8080/publication-abc123',
-          inReplyTo: 'http://localhost:8080/document-abc123'
+          context: publicationUrl,
+          inReplyTo: documentUrl
         }
       })
     )
 
   // get the urls needed for the tests
-  const activityUrl = resActivity.get('Location')
   const noteActivityUrl = noteActivity.get('Location')
-
-  const activityObject = await getActivityFromUrl(app, activityUrl, token)
-  const publicationUrl = activityObject.object.id
 
   const noteActivityObject = await getActivityFromUrl(
     app,
@@ -108,15 +116,6 @@ const test = async app => {
     token
   )
   const noteUrl = noteActivityObject.object.id
-
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-  const documentUrl = resPublication.body.orderedItems[0].id
 
   await tap.test('Try to get activity belonging to another user', async () => {
     const res = await request(app)
