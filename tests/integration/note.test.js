@@ -56,8 +56,8 @@ const test = async app => {
     )
 
   const pubActivityUrl = resActivity.get('Location')
-  const activityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publicationUrl = activityObject.object.id
+  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
+  const publicationUrl = pubActivityObject.object.id
   const resPublication = await request(app)
     .get(urlparse(publicationUrl).path)
     .set('Host', 'reader-api.test')
