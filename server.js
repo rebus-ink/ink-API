@@ -21,6 +21,8 @@ const readersRoute = require('./routes/readers')
 const getOutboxRoute = require('./routes/outbox-get')
 const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
+const noteRoute = require('./routes/note')
+
 const swaggerJSDoc = require('swagger-jsdoc')
 const path = require('path')
 
@@ -240,6 +242,7 @@ readersRoute(app)
 getOutboxRoute(app)
 postOutboxRoute(app)
 fileUploadRoute(app)
+noteRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

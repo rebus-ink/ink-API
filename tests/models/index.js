@@ -2,6 +2,7 @@ const activityTests = require('./Activity.test')
 const documentTests = require('./Document.test')
 const publicationTests = require('./Publication.test')
 const readerTests = require('./Reader.test')
+const noteTests = require('./Note.test')
 
 const app = require('../../server').app
 
@@ -13,6 +14,7 @@ const allTests = async () => {
   await documentTests(app)
   await publicationTests(app)
   await readerTests(app)
+  await noteTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.terminate()

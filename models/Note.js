@@ -2,6 +2,8 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
+const short = require('short-uuid')
+const translator = short()
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -42,6 +44,7 @@ class Note extends BaseModel {
       required: ['json']
     }
   }
+
   static get relationMappings () {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
@@ -90,6 +93,12 @@ class Note extends BaseModel {
         }
       }
     }
+  }
+
+  static async byShortId (shortId /*: string */) {
+    return Note.query()
+      .findById(translator.toUUID(shortId))
+      .eager('reader')
   }
 }
 
