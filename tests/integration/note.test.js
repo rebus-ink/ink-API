@@ -19,6 +19,54 @@ const test = async app => {
   let noteUrl
   let activityUrl
 
+  const resActivity = await request(app)
+    .post(`${userUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Create',
+        object: {
+          type: 'reader:Publication',
+          name: 'Publication A',
+          attributedTo: [
+            {
+              type: 'Person',
+              name: 'Sample Author'
+            }
+          ],
+          totalItems: 2,
+          attachment: [
+            {
+              type: 'Document',
+              name: 'Chapter 1',
+              content: 'Sample document content 1',
+              position: 0
+            }
+          ]
+        }
+      })
+    )
+
+  const pubActivityUrl = resActivity.get('Location')
+  const activityObject = await getActivityFromUrl(app, pubActivityUrl, token)
+  const publicationUrl = activityObject.object.id
+  const resPublication = await request(app)
+    .get(urlparse(publicationUrl).path)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+  const documentUrl = resPublication.body.orderedItems[0].id
+
   await tap.test('Create Note', async () => {
     const res = await request(app)
       .post(`${userUrl}/activity`)
@@ -38,8 +86,8 @@ const test = async app => {
             type: 'Note',
             content: 'This is the content of note A.',
             'oa:hasSelector': {},
-            context: 'http://localhost:8080/publication-abc123',
-            inReplyTo: 'http://localhost:8080/document-abc123'
+            context: publicationUrl,
+            inReplyTo: documentUrl
           }
         })
       )
