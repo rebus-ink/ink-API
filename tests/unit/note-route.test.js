@@ -31,6 +31,7 @@ const note = Object.assign(new Note(), {
     content: 'Sample Note content',
     'oa:hasSelector': {},
     pubcontext: 'http://localhost:8080/publication-abc123',
+    context: 'http://localhost:8080/publication-abc123',
     inReplyTo: 'http://localhost:8080/document-abc123'
   },
   readerId: '36dee441-3bf0-4e24-9d36-87bf01b27e89',

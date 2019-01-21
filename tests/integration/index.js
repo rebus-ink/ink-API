@@ -5,6 +5,7 @@ const libraryTests = require('./library.test')
 const outboxTests = require('./outbox.test')
 const publicationTests = require('./publication.test')
 const readerTests = require('./reader.test')
+const noteTests = require('./note.test')
 
 const app = require('../../server').app
 
@@ -19,6 +20,7 @@ const allTests = async () => {
   await outboxTests(app)
   await publicationTests(app)
   await readerTests(app)
+  await noteTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.terminate()
