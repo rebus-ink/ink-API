@@ -9,6 +9,8 @@ const noteTests = require('./note.test')
 
 const app = require('../../server').app
 
+require('dotenv').config()
+
 const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize()
@@ -23,6 +25,8 @@ const allTests = async () => {
   await noteTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
+    await app.knex.raw('DROP SCHEMA public CASCADE')
+    await app.knex.raw('CREATE SCHEMA public')
     await app.terminate()
   }
 }
