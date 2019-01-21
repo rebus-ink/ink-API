@@ -3,6 +3,8 @@ const app = express()
 const morgan = require('morgan')
 const URL = require('url').URL
 
+require('dotenv').config()
+
 app.use(
   morgan('combined', {
     skip: function (req, res) {
