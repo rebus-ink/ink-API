@@ -93,7 +93,7 @@ module.exports = app => {
                   ],
                   replies: document.replies
                     ? document.replies.map(reply => reply.toJSON())
-                    : null
+                    : []
                 })
               )
             )

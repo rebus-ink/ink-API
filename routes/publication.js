@@ -117,7 +117,7 @@ module.exports = function (app) {
                   ],
                   replies: publication.replies
                     ? publication.replies.map(note => note.asRef())
-                    : null
+                    : []
                 })
               )
             )
