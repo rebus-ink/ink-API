@@ -117,7 +117,7 @@ class Publication extends BaseModel {
   static async byShortId (shortId /*: string */) {
     return Publication.query()
       .findById(translator.toUUID(shortId))
-      .eager('[reader, attachment]')
+      .eager('[reader, attachment, replies]')
   }
 
   $formatJson (json /*: any */) {
