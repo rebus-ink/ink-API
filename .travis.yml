@@ -24,4 +24,7 @@ jobs:
       name: "routes integration tests"
       script: npm run test-integration
     - script: npm run test-models
-      name: "model integration tests" 
+      name: "model integration tests"
+    - stage: "Documentation"
+      if: branch = master AND type != pull_request
+      script: npm run doc

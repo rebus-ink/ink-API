@@ -180,7 +180,7 @@ app.get('/', function (req, res) {
  *                 type: object
  *               openapi:
  *                 type: string
- *                 enum: ['3.0.0']
+ *                 enum: ['3.0.0!!!']
  *               paths:
  *                 type: object
  *               definitions:
