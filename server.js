@@ -165,7 +165,7 @@ app.get('/', function (req, res) {
  *   get:
  *     tags:
  *       - general
- *     description: GET /swagger.json
+ *     description: GET /swagger.json???
  *     produces:
  *       - application/json:
  *     responses:
@@ -180,7 +180,7 @@ app.get('/', function (req, res) {
  *                 type: object
  *               openapi:
  *                 type: string
- *                 enum: ['3.0.0']
+ *                 enum: ['3.0.0!!!']
  *               paths:
  *                 type: object
  *               definitions:
