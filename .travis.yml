@@ -25,6 +25,5 @@ jobs:
       script: npm run test-integration
     - script: npm run test-models
       name: "model integration tests"
-    - stage: "Documentation"
-      if: branch = master
-      script: npm run doc
+after_success:
+  - npm run doc
