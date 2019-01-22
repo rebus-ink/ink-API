@@ -6,7 +6,6 @@ const tap = require('tap')
 const passport = require('passport')
 const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
-const { Document } = require('../../models/Document')
 const { Note } = require('../../models/Note')
 
 const setupPassport = () => {
