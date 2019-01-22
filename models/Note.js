@@ -100,6 +100,10 @@ class Note extends BaseModel {
       .findById(translator.toUUID(shortId))
       .eager('reader')
   }
+
+  asRef () {
+    return this.toJSON().id
+  }
 }
 
 module.exports = { Note }

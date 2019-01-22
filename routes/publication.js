@@ -114,7 +114,10 @@ module.exports = function (app) {
                     'https://www.w3.org/ns/activitystreams',
                     { reader: 'https://rebus.foundation/ns/reader' },
                     { schema: 'https://schema.org/' }
-                  ]
+                  ],
+                  replies: publication.replies
+                    ? publication.replies.map(note => note.asRef())
+                    : null
                 })
               )
             )

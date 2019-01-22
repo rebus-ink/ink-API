@@ -90,7 +90,10 @@ module.exports = app => {
                   '@context': [
                     'https://www.w3.org/ns/activitystreams',
                     { reader: 'https://rebus.foundation/ns/reader' }
-                  ]
+                  ],
+                  replies: document.replies
+                    ? document.replies.map(reply => reply.toJSON())
+                    : null
                 })
               )
             )

@@ -3,6 +3,7 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const { Publication } = require('./Publication.js')
+const { Note } = require('./Note')
 const { Reader } = require('./Reader.js')
 const short = require('short-uuid')
 const translator = short()
@@ -47,7 +48,6 @@ class Document extends BaseModel {
     }
   }
   static get relationMappings () {
-    const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')
     const { Tag } = require('./Tag.js')
@@ -110,7 +110,7 @@ class Document extends BaseModel {
   static async byShortId (shortId /*: string */) {
     return Document.query()
       .findById(translator.toUUID(shortId))
-      .eager('reader')
+      .eager('[reader, replies]')
   }
 }
 module.exports = { Document }
