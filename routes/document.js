@@ -30,6 +30,10 @@ const utils = require('./utils')
  *         format: date-time
  *       attributedTo:
  *         type: array
+ *       replies:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/note'
  *
  */
 

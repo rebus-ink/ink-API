@@ -50,6 +50,11 @@ const utils = require('./utils')
  *         type: array
  *         items:
  *           $ref: '#/definitions/document-ref'
+ *       replies:
+ *         type: array
+ *         items:
+ *           type: string
+ *           format: url
  *
  */
 

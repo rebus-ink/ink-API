@@ -28,6 +28,14 @@ const utils = require('./utils')
  *       updated:
  *         type: string
  *         format: date-time
+ *       inReplyTo:
+ *         type: string
+ *         format: url
+ *         description: The url of the document
+ *       context:
+ *         type: string
+ *         format: url
+ *         description: The url of the publication
  *
  */
 
