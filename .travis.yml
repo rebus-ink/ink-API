@@ -26,5 +26,5 @@ jobs:
     - script: npm run test-models
       name: "model integration tests"
     - stage: "Documentation"
-      if: branch = master AND type != pull_request
+      if: branch = master
       script: npm run doc
