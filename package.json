@@ -13,7 +13,8 @@
     "test": "npm run test-unit && npm run test-integration && npm run test-models",
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "doc": "swagger-jsdoc -d swaggerDef.js -o doc.json && spectacle -d doc.json -t docs -f index.html"
   },
   "repository": {
     "type": "git",
