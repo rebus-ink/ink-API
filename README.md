@@ -5,7 +5,7 @@ If you are interested in the project, please contact the development team.
 
 Hobb API Server: backend for the Rebus Reader system
 
-[![Build Status](https://travis-ci.com/RebusFoundation/reader-api.svg?token=gL3WLUGSnpsqdtB2nHUM&branch=master)](https://travis-ci.com/RebusFoundation/reader-api)
+[![Build Status](https://travis-ci.org/RebusFoundation/reader-api.svg?branch=master)](https://travis-ci.org/RebusFoundation/reader-api)
 
 ## Starting the Server
 
