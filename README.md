@@ -57,10 +57,10 @@ All objects are represented as [Activity Streams 2.0](https://www.w3.org/TR/acti
 
 ### Documentation
 
-The documentation for the routes and the expected request / response objects can be found
-in html format at route /docs
+The documentation for the routes is available at: https://rebusfoundation.github.io/reader-api
 
-To get the raw json documentation, use the /swagger.json route
+Note for developers: inline swagger documentation should be updated whenever you make changes to the routes
+The hosted documentation will be updated automatically once a pull request is merged on master
 
 ### Activity types
 

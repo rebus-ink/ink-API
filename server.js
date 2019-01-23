@@ -23,32 +23,6 @@ const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
 const noteRoute = require('./routes/note')
 
-const swaggerJSDoc = require('swagger-jsdoc')
-const path = require('path')
-
-// -- setup up swagger-jsdoc --
-const swaggerDefinition = {
-  info: {
-    title: 'Reader API',
-    version: '1.0.0',
-    description: ''
-  },
-  components: {
-    securitySchemes: {
-      Bearer: {
-        type: 'http',
-        scheme: 'bearer'
-      }
-    }
-  },
-  openapi: '3.0.0'
-}
-const options = {
-  swaggerDefinition,
-  apis: ['server.js', './routes/*.js']
-}
-const swaggerSpec = swaggerJSDoc(options)
-
 const setupKnex = async () => {
   let config
   /* istanbul ignore next */
@@ -156,59 +130,6 @@ app.get('/', function (req, res) {
       return res.send({ running: true })
     }
   })
-})
-
-// -- routes for docs and generated swagger spec --
-/**
- * @swagger
- * /swagger.json:
- *   get:
- *     tags:
- *       - general
- *     description: GET /swagger.json???
- *     produces:
- *       - application/json:
- *     responses:
- *       200:
- *         description: this documentation in json format
- *         content:
- *           application/json:
- *             properties:
- *               info:
- *                 type: object
- *               components:
- *                 type: object
- *               openapi:
- *                 type: string
- *                 enum: ['3.0.0!!!']
- *               paths:
- *                 type: object
- *               definitions:
- *                 type: object
- *               tags:
- *                 type: object
- */
-app.get('/swagger.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json')
-  res.send(swaggerSpec)
-})
-
-/**
- * @swagger
- * /docs:
- *   get:
- *     tags:
- *       - general
- *     description: GET /docs
- *     produces:
- *       - text/html:
- *     responses:
- *       200:
- *         description: this documenation in html format
- *
- */
-app.get('/docs', (req, res) => {
-  res.sendFile(path.join(__dirname, '/doc/doc.html'))
 })
 
 app.initialized = false
