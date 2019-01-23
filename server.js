@@ -107,7 +107,7 @@ app.use(passport.initialize())
  *   get:
  *     tags:
  *       - general
- *     description: GET / ?????
+ *     description: GET /
  *     produces:
  *       - text/html:
  *     responses:
