@@ -25,4 +25,8 @@ jobs:
       script: npm run test-integration
     - script: npm run test-models
       name: "model integration tests"
-after_success: npm run doc
+deploy:
+  provider: script
+  script: npm run doc
+  on:
+    branch: master
