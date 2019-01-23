@@ -25,6 +25,9 @@ jobs:
       script: npm run test-integration
     - script: npm run test-models
       name: "model integration tests"
+    - stage: "Deploy"
+      script: ./before_deploy
+    - script: ./deploy
 before_deploy: npm run doc
 deploy:
   provider: pages
