@@ -14,7 +14,7 @@
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint .",
-    "doc": "swagger-jsdoc -d swaggerDef.js -o doc.json && spectacle doc.json -t docs -f index.html"
+    "doc": "swagger-jsdoc -d swaggerDef.js -o doc.json && node_modules/.bin/api2html -o docs/index.html -l javascript--nodejs doc.json"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@commitlint/cli": "^7.1.2",
     "@commitlint/config-conventional": "^7.1.2",
+    "api2html": "^0.2.1",
     "csurf": "^1.9.0",
     "documentation": "^8.1.2",
     "eslint": "^5.12.0",
@@ -45,7 +46,6 @@
     "prettier-standard": "^8.0.1",
     "proxyquire": "^2.1.0",
     "sinon": "^6.3.3",
-    "spectacle-docs": "^1.0.6",
     "sqlite3": "^4.0.4",
     "standard": "^11.0.1",
     "supertest": "^3.3.0",

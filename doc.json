@@ -53,7 +53,7 @@
         "tags": [
           "general"
         ],
-        "description": "GET /swagger.json!!!",
+        "description": "GET /swagger.json???",
         "produces": [
           {
             "application/json": null
