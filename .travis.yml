@@ -28,5 +28,6 @@ jobs:
 deploy:
   provider: script
   script: npm run doc
+  skip_cleanup: true
   on:
     branch: master
