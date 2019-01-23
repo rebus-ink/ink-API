@@ -25,11 +25,4 @@ jobs:
       script: npm run test-integration
     - script: npm run test-models
       name: "model integration tests"
-before_deploy: npm run doc
-deploy:
-  provider: pages
-  skip-cleanup: true
-  keep-history: true
-  local-dir: docs
-  on:
-    branch: master
+after_success: npm run doc
