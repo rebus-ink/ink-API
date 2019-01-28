@@ -7,6 +7,23 @@ const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
 
+/*::
+type activity = {
+    id: string,
+    type: string,
+    json: {
+      '@context': Array<string | {reader: string}>,
+      type: string,
+      location: any,
+      summaryMap: { en: string }
+    },
+    readerId: string,
+    published: string,
+    updated: string,
+    reader: {id: string, json: any, userId: string, published: string, updated: string}
+  }
+*/
+
 /**
  *
  * @property {Reader} reader - returns the reader that owns this activity. This is the 'actor' in the activity streams sense
@@ -28,7 +45,7 @@ class Activity extends BaseModel {
   get path () /*: string */ {
     return 'activity'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -50,7 +67,7 @@ class Activity extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
@@ -148,13 +165,13 @@ class Activity extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) {
+  static async byShortId (shortId /*: string */) /*: Promise<activity> */ {
     return Activity.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, publication, document, note]')
   }
 
-  static async createActivity (activity /*: any */) {
+  static async createActivity (activity /*: any */) /*: Promise<activity> */ {
     return Activity.query().insert(activity)
   }
 }

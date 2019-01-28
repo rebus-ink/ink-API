@@ -103,11 +103,38 @@ class Document extends BaseModel {
     }
   }
 
-  asRef () /*: any */ {
+  asRef () /*: {
+    type: string,
+    name: string,
+    position: ?number,
+    context: ?string,
+    id: string,
+    published: string,
+    updated: string,
+    attachment: any,
+    attributedTo: Array<any>
+  } */ {
     return _.omit(this.toJSON(), ['content', 'contentMap'])
   }
 
-  static async byShortId (shortId /*: string */) /*: any */ {
+  static async byShortId (
+    shortId /*: string */
+  ) /*: Promise<{
+    id: string,
+    type: string,
+    json: {
+      type: string,
+      name: string,
+      content: string,
+      position: ?number
+    },
+    readerId: string,
+    publicationId: string,
+    published: string,
+    updated: string,
+    reader: {id: string, json: any, userId: string, published: string, updated: string},
+    replies: Array<any>
+  }> */ {
     return Document.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, replies]')

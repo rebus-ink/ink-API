@@ -92,14 +92,17 @@ class Reader extends BaseModel {
     }
   }
 
-  static async checkIfExists (id /*: string */) /*: boolean */ {
+  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
     const userId = `auth0|${id}`
     const qb = Reader.query(Reader.knex()).where('userId', '=', userId)
     const readers = await qb
     return readers.length > 0
   }
 
-  static async createReader (userId /*: string */, person /*: any */) /*: any */ {
+  static async createReader (
+    userId /*: string */,
+    person /*: any */
+  ) /*: Promise<any> */ {
     let props = _.pick(person, personAttrs)
     props.userId = `auth0|${userId}`
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
@@ -123,11 +126,14 @@ class Reader extends BaseModel {
     return reader.$relatedQuery('publications').insertGraph(graph)
   }
 
-  static async addDocument (reader /*: any */, document /*: any */) /*: any */ {
+  static async addDocument (
+    reader /*: any */,
+    document /*: any */
+  ) /*: Promise<any> */ {
     return reader.$relatedQuery('documents').insert(document)
   }
 
-  static async addNote (reader /*: any */, note /*: any */) /*: any */ {
+  static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
     return reader.$relatedQuery('replies').insert(note)
   }
 
@@ -251,7 +257,7 @@ class Reader extends BaseModel {
     return json
   }
 
-  asRef () /*: any */ {
+  asRef () /*: {name: string, nameMap: any, summary: any, summaryMap: any, id: string, type: string} */ {
     return Object.assign(
       _.pick(this.json, ['name', 'nameMap', 'summary', 'summaryMap']),
       {

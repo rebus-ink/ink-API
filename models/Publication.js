@@ -101,7 +101,15 @@ class Publication extends BaseModel {
     }
   }
 
-  asRef () /*: any */ {
+  asRef () /*: {
+    type: string,
+    id: string,
+    name: ?string,
+    attributedTo: {
+      type: string,
+      name: ?string
+    }
+  } */ {
     const author = this.attributedTo || this.json.attributedTo || null
     return {
       type: 'reader:Publication',
@@ -114,7 +122,31 @@ class Publication extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) /*: any */ {
+  static async byShortId (
+    shortId /*: string */
+  ) /*: Promise<{
+    id: string,
+    description: ?string,
+    json: {
+      attachment: Array<{
+        type: string,
+        content: string
+      }>,
+      id: string,
+      desription: ?string,
+      summaryMap: {en: string}
+    },
+    readerId: string,
+    published: string,
+    updated: string,
+    reader: {
+      id: string,
+      json: any,
+      userId: string,
+      published: string,
+      updated: string
+    }
+  }> */ {
     return Publication.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, attachment, replies]')

@@ -24,7 +24,7 @@ class Attribution extends BaseModel {
   get path () /*: string */ {
     return 'attribution'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -48,7 +48,7 @@ class Attribution extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader')

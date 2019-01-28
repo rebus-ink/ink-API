@@ -95,13 +95,30 @@ class Note extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) /*: any */ {
+  static async byShortId (
+    shortId /*: string */
+  ) /*: Promise<{
+    id: string,
+    type: string,
+    json: {
+      type: string,
+      content: string,
+      'oa:selector':any,
+      context: string,
+      inReplyTo: string,
+      summaryMap: { en: string },
+      readerId: string,
+      published: string,
+      updated: string,
+      reader: {id: string, json: any, userId: string, published: string, updated: string}
+    }
+  }> */ {
     return Note.query()
       .findById(translator.toUUID(shortId))
       .eager('reader')
   }
 
-  asRef () /*: any */ {
+  asRef () /*: string */ {
     return this.toJSON().id
   }
 }

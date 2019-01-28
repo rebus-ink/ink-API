@@ -191,7 +191,15 @@ function objectToId (obj /*: any */) /*: any */ {
   return { [type + 'Id']: id }
 }
 
-function addReaderToGraph (json /*: any */) /*: any */ {
+function addReaderToGraph (
+  json /*: any */
+) /*: {
+  attachment: any,
+  outbox: any,
+  tag: any,
+  replies: any,
+  attributedTo: any
+} */ {
   const bto = json.bto
   const props = ['attachment', 'outbox', 'tag', 'replies', 'attributedTo']
   const result = {}
