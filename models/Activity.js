@@ -1,3 +1,4 @@
+/* @flow */
 'use strict'
 const assert = require('assert')
 const Model = require('objection').Model
@@ -21,10 +22,10 @@ const _ = require('lodash')
  * The document, note, and publication fields on the `relationMappings` property are not exclusive. You can have an activity on a document, with no note or publication. And you can have an activity that is the addition of a note to a document in the context of a publication.
  */
 class Activity extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Activity'
   }
-  get path () {
+  get path () /*: string */ {
     return 'activity'
   }
   static get jsonSchema () {
@@ -98,7 +99,7 @@ class Activity extends BaseModel {
     }
   }
 
-  summarize () {
+  summarize () /*: string */ {
     const past = this.pastTense
     const actor = this.reader
       ? this.reader.json.name || this.reader.json.nameMap.en
@@ -114,8 +115,8 @@ class Activity extends BaseModel {
     return summary
   }
 
-  get pastTense () {
-    let type
+  get pastTense () /*: string */ {
+    let type /*: string */
     if (_.isString(this.type)) {
       type = this.type
     } else if (_.isString(this.json.type)) {
@@ -153,7 +154,7 @@ class Activity extends BaseModel {
       .eager('[reader, publication, document, note]')
   }
 
-  static async createActivity (activity) {
+  static async createActivity (activity /*: any */) {
     return Activity.query().insert(activity)
   }
 }

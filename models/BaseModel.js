@@ -23,19 +23,19 @@ const _ = require('lodash')
  * The base model for most of the other models. Implements url, shortId, published, and updated.
  */
 class BaseModel extends guid(DbErrors(Model)) {
-  static get jsonAttributes () {
+  static get jsonAttributes () /*: Array<string> */ {
     return ['json', 'properties']
   }
 
-  static get virtualAttributes () {
+  static get virtualAttributes () /*: Array<string> */ {
     return ['url']
   }
 
-  get url () {
+  get url () /*: string */ {
     return getId(`/${this.path}-${this.shortId}`)
   }
 
-  get shortId () {
+  get shortId () /*: string */ {
     return translator.fromUUID(this.id)
   }
 
@@ -52,7 +52,7 @@ class BaseModel extends guid(DbErrors(Model)) {
     })
   }
 
-  hasName () {
+  hasName () /*: string */ {
     return (
       this.json.name ||
       this.json.nameMap ||
@@ -61,8 +61,8 @@ class BaseModel extends guid(DbErrors(Model)) {
     )
   }
 
-  summarize () {
-    let type
+  summarize () /*: string */ {
+    let type /*: string */
     if (_.isString(this.type)) {
       type = this.type.toLowerCase()
     } else if (_.isString(this.json.type)) {
@@ -73,7 +73,10 @@ class BaseModel extends guid(DbErrors(Model)) {
     return `${type} with id ${this.id}`
   }
 
-  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+  $beforeUpdate (
+    queryOptions /*: any */,
+    context /*: any */
+  ) /*: Promise<any> */ {
     const parent = super.$beforeUpdate(queryOptions, context)
     const doc = this
     return Promise.resolve(parent).then(function () {
@@ -81,7 +84,7 @@ class BaseModel extends guid(DbErrors(Model)) {
     })
   }
 
-  $parseJson (json /*: any */, opt /*: any */) {
+  $parseJson (json /*: any */, opt /*: any */) /*: any */ {
     json = super.$parseJson(json, opt)
     // Need to discover id, readerId, canonicalId
     const id = getUUID(json.id)
@@ -145,7 +148,7 @@ class BaseModel extends guid(DbErrors(Model)) {
   }
 }
 
-function getUUID (prop /*: string */) {
+function getUUID (prop /*: string */) /*: ?string */ {
   try {
     const id = getIdURL(prop)
     const pathname = new URL(id).pathname
@@ -156,17 +159,18 @@ function getUUID (prop /*: string */) {
   }
 }
 
-function getCanonical (urls = []) {
+function getCanonical (urls /*: Array<string> */ = []) /*: Array<string> */ {
   urls = arrify(urls)
   const link = urls.filter(item => item.rel === 'canonical')
   return lodash.get(link, '0.href')
 }
 
-function stripUndefined (json) {
+function stripUndefined (json /*: any */) /*: any */ {
   return lodash.omitBy(json, lodash.isUndefined)
 }
 
 function getIdURL (idOrObject /*: any */) {
+  // not able to type the return value, but it will be a string
   if (lodash.isObject(idOrObject)) {
     return idOrObject.id
   } else {
@@ -174,10 +178,10 @@ function getIdURL (idOrObject /*: any */) {
   }
 }
 
-function objectToId (obj) {
+function objectToId (obj /*: any */) /*: any */ {
   const id = getUUID(obj)
   const url = getIdURL(obj)
-  let type
+  let type /*: string */
   try {
     const pathname = url.replace(process.env.DOMAIN, '')
     type = pathname.split('-')[0].slice(1)
@@ -187,7 +191,7 @@ function objectToId (obj) {
   return { [type + 'Id']: id }
 }
 
-function addReaderToGraph (json) {
+function addReaderToGraph (json /*: any */) /*: any */ {
   const bto = json.bto
   const props = ['attachment', 'outbox', 'tag', 'replies', 'attributedTo']
   const result = {}

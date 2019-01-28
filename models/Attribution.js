@@ -18,10 +18,10 @@ const { BaseModel } = require('./BaseModel.js')
  * The `role` property is derived from `schema:` metadata properties on the publication JSON file itself.
  */
 class Attribution extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Attribution'
   }
-  get path () {
+  get path () /*: string */ {
     return 'attribution'
   }
   static get jsonSchema () {

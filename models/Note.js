@@ -18,13 +18,13 @@ const translator = short()
  *
  */
 class Note extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Note'
   }
-  get path () {
+  get path () /*: string */ {
     return 'note'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -45,7 +45,7 @@ class Note extends BaseModel {
     }
   }
 
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
@@ -95,13 +95,13 @@ class Note extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) {
+  static async byShortId (shortId /*: string */) /*: any */ {
     return Note.query()
       .findById(translator.toUUID(shortId))
       .eager('reader')
   }
 
-  asRef () {
+  asRef () /*: any */ {
     return this.toJSON().id
   }
 }

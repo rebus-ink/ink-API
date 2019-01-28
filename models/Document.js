@@ -20,13 +20,13 @@ const _ = require('lodash')
  * This model covers Images, Pages (HTML, plain text, markdown), Articles, Audio, and Video resources that can be included in a publication and uploaded by a reader
  */
 class Document extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Document'
   }
-  get path () {
+  get path () /*: string */ {
     return 'document'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -47,7 +47,7 @@ class Document extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')
     const { Tag } = require('./Tag.js')
@@ -103,11 +103,11 @@ class Document extends BaseModel {
     }
   }
 
-  asRef () {
+  asRef () /*: any */ {
     return _.omit(this.toJSON(), ['content', 'contentMap'])
   }
 
-  static async byShortId (shortId /*: string */) {
+  static async byShortId (shortId /*: string */) /*: any */ {
     return Document.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, replies]')

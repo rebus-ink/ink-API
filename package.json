@@ -14,6 +14,8 @@
     "start": "node index.js",
     "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint .",
+    "flow": "flow",
+    "flow-check": "npm run flow check",
     "doc": "swagger-jsdoc -d swaggerDef.js -o doc.json && node_modules/.bin/api2html -o docs/index.html -l javascript--nodejs doc.json"
   },
   "repository": {
