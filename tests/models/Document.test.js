@@ -2,7 +2,6 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
-const { Publication } = require('../../models/Publication')
 const parseurl = require('url').parse
 
 const test = async app => {
@@ -10,44 +9,24 @@ const test = async app => {
     await app.initialize()
   }
 
-  const reader = Object.assign(new Reader(), {
-    id: '123456789abcdef',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
-    userId: 'auth0|foo1545149868964',
-    published: '2018-12-18T16:17:49.077Z',
-    updated: '2018-12-18 16:17:49'
-  })
+  const reader = {
+    name: 'J. Random Reader',
+    userId: 'auth0|foo1545149868964'
+  }
 
-  const documentObject = Object.assign(new Document(), {
-    id: 'd66ffff8-06ad-4d72-88a2-4fddfb123a12',
-    type: 'text/html',
-    json: {
-      type: 'Document',
-      name: 'Chapter 1',
-      content: 'Sample document content 1',
-      position: 0
-    },
-    published: '2018-12-18T15:54:12.106Z',
-    updated: '2018-12-18 15:54:12',
-    reader: {
-      id: '36dee441-3bf0-4e24-9d36-87bf01b27e89',
-      json: { name: 'J. Random Reader', userId: 'auth0|foo1545148451777' },
-      userId: 'auth0|foo1545148451777',
-      published: '2018-12-18T15:54:11.865Z',
-      updated: '2018-12-18 15:54:11'
-    }
-  })
+  const documentObject = {
+    type: 'Document',
+    name: 'Chapter 1',
+    content: 'Sample document content 1',
+    position: 0
+  }
 
-  const publicationObject = new Publication()
-  Object.assign(publicationObject, {
-    description: null,
-    json: {
-      type: 'reader:Publication',
-      name: 'Publication A',
-      attributedTo: [{ type: 'Person', name: 'Sample Author' }]
-    },
+  const publicationObject = {
+    type: 'reader:Publication',
+    name: 'Publication A',
+    attributedTo: [{ type: 'Person', name: 'Sample Author' }],
     attachment: [{ type: 'Document', content: 'content of document' }]
-  })
+  }
 
   const createdReader = await Reader.createReader(
     'auth0|foo1545149868964',

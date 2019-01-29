@@ -35,13 +35,10 @@ const test = async app => {
     note: null
   })
 
-  const reader = Object.assign(new Reader(), {
-    id: '123456789abcdef',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
-    userId: 'auth0|foo1545149868964',
-    published: '2018-12-18T16:17:49.077Z',
-    updated: '2018-12-18 16:17:49'
-  })
+  const reader = {
+    name: 'J. Random Reader',
+    userId: 'auth0|foo1545149868964'
+  }
 
   const createdReader = await Reader.createReader(
     'auth0|foo1545149868964',
