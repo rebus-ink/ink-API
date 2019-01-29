@@ -26,6 +26,7 @@ jobs:
     - script: npm run test-models
       name: "model integration tests"
     - stage: "Deploy"
+      if: type != pull_request
       script: skip
       before_deploy: npm run doc
       deploy:
