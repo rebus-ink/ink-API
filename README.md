@@ -15,9 +15,13 @@ To start the dev-server (which uses `nodemon` to automatically restart): `npm ru
 
 ## Starting Tests
 
-Unit tests can be run with `npm run test`
+Unit tests can be run with `npm run test-unit`
+Test for the database models can be run with `npm run test-models`
+Integration test for the routes can be run with `npm run test-integration`
 
-Integration tests will be added soon.
+`npm run test` will run all three sets of tests
+
+`npm run lint` will run eslint (only select rules are applied) and check flow types
 
 ## Interface
 
