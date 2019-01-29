@@ -81,6 +81,7 @@ const test = async app => {
   noteObject.json.context = publication.id
 
   let noteId
+  let note
 
   await tap.test('Create Note', async () => {
     let response = await Reader.addNote(createdReader, noteObject)
@@ -93,14 +94,20 @@ const test = async app => {
   })
 
   await tap.test('Get note by short id', async () => {
-    const note = await Note.byShortId(noteId)
+    note = await Note.byShortId(noteId)
     await tap.type(note, 'object')
     await tap.equal(note.type, 'text/html')
     await tap.ok(note instanceof Note)
-    // does the note need to eager load anything?
+    // eager loading the reader
+    await tap.type(note.reader, 'object')
+    await tap.ok(note.reader instanceof Reader)
   })
 
-  // I don't think we need an asRef for notes.
+  await tap.test('Note as Ref', async () => {
+    const noteRef = note.asRef()
+    await tap.ok(noteRef)
+    await tap.type(noteRef, 'string')
+  })
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
