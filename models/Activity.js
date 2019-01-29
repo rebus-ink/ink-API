@@ -1,3 +1,4 @@
+/* @flow */
 'use strict'
 const assert = require('assert')
 const Model = require('objection').Model
@@ -5,6 +6,23 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
+
+/*::
+type activity = {
+    id: string,
+    type: string,
+    json: {
+      '@context': Array<string | {reader: string}>,
+      type: string,
+      location: any,
+      summaryMap: { en: string }
+    },
+    readerId: string,
+    published: string,
+    updated: string,
+    reader: {id: string, json: any, userId: string, published: string, updated: string}
+  }
+*/
 
 /**
  *
@@ -21,13 +39,13 @@ const _ = require('lodash')
  * The document, note, and publication fields on the `relationMappings` property are not exclusive. You can have an activity on a document, with no note or publication. And you can have an activity that is the addition of a note to a document in the context of a publication.
  */
 class Activity extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Activity'
   }
-  get path () {
+  get path () /*: string */ {
     return 'activity'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -49,7 +67,7 @@ class Activity extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
@@ -98,7 +116,7 @@ class Activity extends BaseModel {
     }
   }
 
-  summarize () {
+  summarize () /*: string */ {
     const past = this.pastTense
     const actor = this.reader
       ? this.reader.json.name || this.reader.json.nameMap.en
@@ -114,8 +132,8 @@ class Activity extends BaseModel {
     return summary
   }
 
-  get pastTense () {
-    let type
+  get pastTense () /*: string */ {
+    let type /*: string */
     if (_.isString(this.type)) {
       type = this.type
     } else if (_.isString(this.json.type)) {
@@ -147,13 +165,13 @@ class Activity extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) {
+  static async byShortId (shortId /*: string */) /*: Promise<activity> */ {
     return Activity.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, publication, document, note]')
   }
 
-  static async createActivity (activity) {
+  static async createActivity (activity /*: any */) /*: Promise<activity> */ {
     return Activity.query().insert(activity)
   }
 }

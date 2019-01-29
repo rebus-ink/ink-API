@@ -16,13 +16,13 @@ const _ = require('lodash')
  * This class represents an individual publication and holds references to the documents it contains, its creators/contributors, the notes on both the documents and publication itself, the reader who owns it, and the tags used to group it (and its contents) with other publications.
  */
 class Publication extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Publication'
   }
-  get path () {
+  get path () /*: string */ {
     return 'publication'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -42,7 +42,7 @@ class Publication extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
@@ -101,7 +101,15 @@ class Publication extends BaseModel {
     }
   }
 
-  asRef () {
+  asRef () /*: {
+    type: string,
+    id: string,
+    name: ?string,
+    attributedTo: {
+      type: string,
+      name: ?string
+    }
+  } */ {
     const author = this.attributedTo || this.json.attributedTo || null
     return {
       type: 'reader:Publication',
@@ -114,13 +122,37 @@ class Publication extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) {
+  static async byShortId (
+    shortId /*: string */
+  ) /*: Promise<{
+    id: string,
+    description: ?string,
+    json: {
+      attachment: Array<{
+        type: string,
+        content: string
+      }>,
+      id: string,
+      desription: ?string,
+      summaryMap: {en: string}
+    },
+    readerId: string,
+    published: string,
+    updated: string,
+    reader: {
+      id: string,
+      json: any,
+      userId: string,
+      published: string,
+      updated: string
+    }
+  }> */ {
     return Publication.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, attachment, replies]')
   }
 
-  $formatJson (json /*: any */) {
+  $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     let attachment = null
     if (this.attachment) {

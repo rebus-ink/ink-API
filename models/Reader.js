@@ -49,7 +49,10 @@ const personAttrs = [
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
 class Reader extends BaseModel {
-  static async byUserId (userId, namespace = 'auth0') {
+  static async byUserId (
+    userId /*: string */,
+    namespace = 'auth0' /*: string */
+  ) /*: any */ {
     const readers = await Reader.query(Reader.knex()).where(
       'userId',
       '=',
@@ -66,7 +69,10 @@ class Reader extends BaseModel {
     }
   }
 
-  static async byShortId (shortId, eager = []) {
+  static async byShortId (
+    shortId /*: string */,
+    eager = [] /*: Array<string> */
+  ) /*: any */ {
     const id = translator.toUUID(shortId)
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
 
@@ -86,14 +92,17 @@ class Reader extends BaseModel {
     }
   }
 
-  static async checkIfExists (id) {
+  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
     const userId = `auth0|${id}`
     const qb = Reader.query(Reader.knex()).where('userId', '=', userId)
     const readers = await qb
     return readers.length > 0
   }
 
-  static async createReader (userId, person) {
+  static async createReader (
+    userId /*: string */,
+    person /*: any */
+  ) /*: Promise<any> */ {
     let props = _.pick(person, personAttrs)
     props.userId = `auth0|${userId}`
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
@@ -102,7 +111,10 @@ class Reader extends BaseModel {
     return createdReader
   }
 
-  static async addPublication (reader, publication) {
+  static async addPublication (
+    reader /*: any */,
+    publication /*: any */
+  ) /*: any */ {
     const related = {
       bto: reader.url,
       attachment: publication.orderedItems
@@ -114,21 +126,24 @@ class Reader extends BaseModel {
     return reader.$relatedQuery('publications').insertGraph(graph)
   }
 
-  static async addDocument (reader, document) {
+  static async addDocument (
+    reader /*: any */,
+    document /*: any */
+  ) /*: Promise<any> */ {
     return reader.$relatedQuery('documents').insert(document)
   }
 
-  static async addNote (reader, note) {
+  static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
     return reader.$relatedQuery('replies').insert(note)
   }
 
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Reader'
   }
-  get path () {
+  get path () /*: string */ {
     return 'reader'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       title: 'User Profile',
@@ -149,7 +164,7 @@ class Reader extends BaseModel {
       additionalProperties: true
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
@@ -208,7 +223,7 @@ class Reader extends BaseModel {
     }
   }
 
-  $formatJson (json) {
+  $formatJson (json /*: any */) /*: any */ {
     const original = super.$formatJson(json)
     json = original.json || {}
     Object.assign(json, {
@@ -242,7 +257,7 @@ class Reader extends BaseModel {
     return json
   }
 
-  asRef () {
+  asRef () /*: {name: string, nameMap: any, summary: any, summaryMap: any, id: string, type: string} */ {
     return Object.assign(
       _.pick(this.json, ['name', 'nameMap', 'summary', 'summaryMap']),
       {

@@ -13,13 +13,13 @@ const { BaseModel } = require('./BaseModel.js')
  *
  */
 class Tag extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Tag'
   }
-  get path () {
+  get path () /*: string */ {
     return 'tag'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -41,7 +41,7 @@ class Tag extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader')

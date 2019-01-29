@@ -18,13 +18,13 @@ const { BaseModel } = require('./BaseModel.js')
  * The `role` property is derived from `schema:` metadata properties on the publication JSON file itself.
  */
 class Attribution extends BaseModel {
-  static get tableName () {
+  static get tableName () /*: string */ {
     return 'Attribution'
   }
-  get path () {
+  get path () /*: string */ {
     return 'attribution'
   }
-  static get jsonSchema () {
+  static get jsonSchema () /*: any */ {
     return {
       type: 'object',
       properties: {
@@ -48,7 +48,7 @@ class Attribution extends BaseModel {
       required: ['json']
     }
   }
-  static get relationMappings () {
+  static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader')
