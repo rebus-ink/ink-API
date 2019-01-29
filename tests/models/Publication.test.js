@@ -10,36 +10,32 @@ const test = async app => {
     await app.initialize()
   }
 
-  const reader = Object.assign(new Reader(), {
-    id: '123456789abcdef',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
-    userId: 'auth0|foo1545149868964',
-    published: '2018-12-18T16:17:49.077Z',
-    updated: '2018-12-18 16:17:49'
-  })
+  const reader = {
+    name: 'J. Random Reader',
+    userId: 'auth0|foo1545149868964'
+  }
 
   const createdReader = await Reader.createReader(
     'auth0|foo1545149868964',
     reader
   )
 
-  const publicationObject = new Publication()
-  Object.assign(publicationObject, {
-    id: '28ca9d84-9afb-4f9e-a437-6f05dc2f5824',
-    description: null,
-    json: {
-      type: 'reader:Publication',
-      name: 'Publication A',
-      attributedTo: [{ type: 'Person', name: 'Sample Author' }]
-    },
+  const createPublicationObj = {
+    type: 'reader:Publication',
+    name: 'Publication A',
+    attributedTo: [{ type: 'Person', name: 'Sample Author' }],
+    totalItems: 1,
     attachment: [{ type: 'Document', content: 'content of document' }]
-  })
+  }
 
   let publicationId
   let publication
 
   await tap.test('Create Publication', async () => {
-    let response = await Reader.addPublication(createdReader, publicationObject)
+    let response = await Reader.addPublication(
+      createdReader,
+      createPublicationObj
+    )
     await tap.ok(response)
     await tap.ok(response instanceof Publication)
     await tap.equal(response.readerId, createdReader.id)
