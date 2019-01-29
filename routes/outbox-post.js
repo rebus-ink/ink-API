@@ -89,7 +89,7 @@ module.exports = function (app) {
                   pr = Reader.addNote(reader, body.object)
                   break
                 default:
-                  pr = Promise.resolve(null)
+                  res.status(400).send(`cannot create ${body.object.type}`)
               }
             } else {
               pr = Promise.resolve(null)

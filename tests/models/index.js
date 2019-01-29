@@ -3,6 +3,7 @@ const documentTests = require('./Document.test')
 const publicationTests = require('./Publication.test')
 const readerTests = require('./Reader.test')
 const noteTests = require('./Note.test')
+const tagTests = require('./Tag.test')
 
 const app = require('../../server').app
 
@@ -17,6 +18,7 @@ const allTests = async () => {
   await publicationTests(app)
   await readerTests(app)
   await noteTests(app)
+  await tagTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.raw('DROP SCHEMA public CASCADE')
