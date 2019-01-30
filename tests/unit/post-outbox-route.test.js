@@ -288,7 +288,7 @@ const test = async () => {
 
   await tap.test('Create Stack', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
-    ReaderStub.Reader.addNote = async () => Promise.resolve(reader)
+    ReaderStub.Reader.addTag = async () => Promise.resolve(reader)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 

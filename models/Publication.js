@@ -89,15 +89,15 @@ class Publication extends BaseModel {
           from: 'Publication.id',
           to: 'Document.publicationId'
         }
-      },
-      tag: {
-        relation: Model.HasManyRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Publication.id',
-          to: 'Tag.publicationId'
-        }
       }
+      // tag: {
+      //   relation: Model.HasManyRelation,
+      //   modelClass: Tag,
+      //   join: {
+      //     from: 'Publication.id',
+      //     to: 'Tag.publicationId'
+      //   }
+      // }
     }
   }
 

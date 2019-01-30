@@ -26,7 +26,7 @@ const personAttrs = [
   'startTime',
   'summary',
   'summaryMap',
-  'tag',
+  'tags',
   'updated',
   'url',
   'to',
@@ -44,7 +44,7 @@ const personAttrs = [
  * @property {Note[]} replies - Returns the notes owned by this Reader.
  * @property {Activity[]} outbox - Returns the activities by this Reader.
  * @property {Attribution[]} attributions - Returns the creators/contributors in this Reader's library. How do we surface this in the Activity Streams JSON?
- * @property {Tag[]} tag - Returns the tags in this Reader's library.
+ * @property {Tag[]} tags - Returns the tags in this Reader's library.
  *
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
@@ -71,17 +71,11 @@ class Reader extends BaseModel {
 
   static async byShortId (
     shortId /*: string */,
-    eager = [] /*: Array<string> */
+    eager /*: string */
   ) /*: any */ {
     const id = translator.toUUID(shortId)
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
-
-    eager.forEach(rel => {
-      qb.eager(rel)
-    })
-
-    const readers = await qb
-
+    const readers = await qb.eager(eager)
     if (readers.length === 0) {
       return null
     } else if (readers.length > 1) {
@@ -135,6 +129,13 @@ class Reader extends BaseModel {
 
   static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
     return reader.$relatedQuery('replies').insert(note)
+  }
+
+  static async addTag (
+    reader /*: any */,
+    tag /*: {type: string, name: string} */
+  ) {
+    return reader.$relatedQuery('tags').insert(tag)
   }
 
   static get tableName () /*: string */ {
@@ -212,7 +213,7 @@ class Reader extends BaseModel {
           to: 'Attribution.readerId'
         }
       },
-      tag: {
+      tags: {
         relation: Model.HasManyRelation,
         modelClass: Tag,
         join: {

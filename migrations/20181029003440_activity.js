@@ -29,6 +29,12 @@ exports.up = function (knex, Promise) {
       .nullable()
       .index()
     table
+      .uuid('tagId')
+      .references('id')
+      .inTable('Tag')
+      .nullable()
+      .index()
+    table
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()

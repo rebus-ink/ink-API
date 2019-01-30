@@ -36,9 +36,10 @@ const test = async app => {
   })
 
   await tap.test('Get reader by short id with eager loading', async () => {
-    const responseReader = await Reader.byShortId(readerShortId, [
-      'publications'
-    ])
+    const responseReader = await Reader.byShortId(
+      readerShortId,
+      '[publications]'
+    )
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)

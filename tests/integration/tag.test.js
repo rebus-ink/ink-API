@@ -94,6 +94,20 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
+  await tap.test('Get tag when fetching library', async () => {
+    const res = await request(app)
+      .get(`${userUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.type(body.tags[0].name, 'string')
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

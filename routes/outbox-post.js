@@ -88,6 +88,9 @@ module.exports = function (app) {
                 case 'Note':
                   pr = Reader.addNote(reader, body.object)
                   break
+                case 'reader:Stack':
+                  pr = Reader.addTag(reader, body.object)
+                  break
                 default:
                   res.status(400).send(`cannot create ${body.object.type}`)
               }

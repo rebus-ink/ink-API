@@ -91,15 +91,15 @@ class Document extends BaseModel {
           from: 'Document.publicationId',
           to: 'Publication.id'
         }
-      },
-      tag: {
-        relation: Model.HasManyRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Document.id',
-          to: 'Tag.documentId'
-        }
       }
+      // tag: {
+      //   relation: Model.HasManyRelation,
+      //   modelClass: Tag,
+      //   join: {
+      //     from: 'Document.id',
+      //     to: 'Tag.documentId'
+      //   }
+      // }
     }
   }
 

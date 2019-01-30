@@ -47,14 +47,14 @@ class Tag extends BaseModel {
     const { Reader } = require('./Reader')
     const { Note } = require('./Note.js')
     return {
-      document: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Document,
-        join: {
-          from: 'Tag.documentId',
-          to: 'Document.id'
-        }
-      },
+      // document: {
+      //   relation: Model.BelongsToOneRelation,
+      //   modelClass: Document,
+      //   join: {
+      //     from: 'Tag.documentId',
+      //     to: 'Document.id'
+      //   }
+      // },
       reader: {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
@@ -62,23 +62,23 @@ class Tag extends BaseModel {
           from: 'Tag.readerId',
           to: 'Reader.id'
         }
-      },
-      publication: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Publication,
-        join: {
-          from: 'Tag.publicationId',
-          to: 'Publication.id'
-        }
-      },
-      note: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Note,
-        join: {
-          from: 'Tag.noteId',
-          to: 'Note.id'
-        }
       }
+      // publication: {
+      //   relation: Model.BelongsToOneRelation,
+      //   modelClass: Publication,
+      //   join: {
+      //     from: 'Tag.publicationId',
+      //     to: 'Publication.id'
+      //   }
+      // },
+      // note: {
+      //   relation: Model.BelongsToOneRelation,
+      //   modelClass: Note,
+      //   join: {
+      //     from: 'Tag.noteId',
+      //     to: 'Note.id'
+      //   }
+      // }
     }
   }
 }

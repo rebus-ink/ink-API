@@ -83,15 +83,15 @@ class Note extends BaseModel {
           from: 'Note.publicationId',
           to: 'Publication.id'
         }
-      },
-      tag: {
-        relation: Model.HasManyRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Note.id',
-          to: 'Tag.noteId'
-        }
       }
+      // tag: {
+      //   relation: Model.HasManyRelation,
+      //   modelClass: Tag,
+      //   join: {
+      //     from: 'Note.id',
+      //     to: 'Tag.noteId'
+      //   }
+      // }
     }
   }
 
