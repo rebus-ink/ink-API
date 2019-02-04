@@ -3,7 +3,6 @@ exports.up = function (knex, Promise) {
     table.uuid('id').primary()
     table.string('canonicalId').index()
     table.string('type').defaultTo('HashTag')
-    table.string('name')
     table.jsonb('json')
     table
       .uuid('readerId')
