@@ -50,7 +50,6 @@ class Note extends BaseModel {
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
     const { Activity } = require('./Activity.js')
-    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -84,14 +83,6 @@ class Note extends BaseModel {
           to: 'Publication.id'
         }
       }
-      // tag: {
-      //   relation: Model.HasManyRelation,
-      //   modelClass: Tag,
-      //   join: {
-      //     from: 'Note.id',
-      //     to: 'Tag.noteId'
-      //   }
-      // }
     }
   }
 

@@ -89,15 +89,19 @@ class Publication extends BaseModel {
           from: 'Publication.id',
           to: 'Document.publicationId'
         }
+      },
+      tags: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Publication.id',
+          through: {
+            from: 'publications_tags.publicationId',
+            to: 'publications_tags.tagId'
+          },
+          to: 'Tag.id'
+        }
       }
-      // tag: {
-      //   relation: Model.HasManyRelation,
-      //   modelClass: Tag,
-      //   join: {
-      //     from: 'Publication.id',
-      //     to: 'Tag.publicationId'
-      //   }
-      // }
     }
   }
 
@@ -149,7 +153,7 @@ class Publication extends BaseModel {
   }> */ {
     return Publication.query()
       .findById(translator.toUUID(shortId))
-      .eager('[reader, attachment, replies]')
+      .eager('[reader, attachment, replies, tags]')
   }
 
   $formatJson (json /*: any */) /*: any */ {

@@ -3,6 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { Activity } = require('../models/Activity')
+const { Publications_Tags } = require('../models/Publications_Tags')
 const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 
@@ -14,13 +15,13 @@ const utils = require('./utils')
  *     properties:
  *       type:
  *         type: string
- *         enum: ['Create']
+ *         enum: ['Create', 'Add']
  *       object:
  *         type: object
  *         properties:
  *           type:
  *             type: string
- *             enum: ['reader:Publication', 'Document', 'Note']
+ *             enum: ['reader:Publication', 'Document', 'Note', 'reader:Tag']
  *         additionalProperties: true
  *       '@context':
  *         type: array
@@ -50,6 +51,8 @@ module.exports = function (app) {
    *     responses:
    *       201:
    *         description: Created
+   *       200:
+   *         description: Added successfully
    *       404:
    *         description: 'No Reader with ID {shortId}'
    *       403:
@@ -77,25 +80,55 @@ module.exports = function (app) {
             }
 
             let pr
-            if (body.type === 'Create') {
-              switch (body.object.type) {
-                case 'reader:Publication':
-                  pr = Reader.addPublication(reader, body.object)
-                  break
-                case 'Document':
-                  pr = Reader.addDocument(reader, body.object)
-                  break
-                case 'Note':
-                  pr = Reader.addNote(reader, body.object)
-                  break
-                case 'reader:Stack':
-                  pr = Reader.addTag(reader, body.object)
-                  break
-                default:
-                  res.status(400).send(`cannot create ${body.object.type}`)
-              }
-            } else {
-              pr = Promise.resolve(null)
+            let expectedStatus
+
+            switch (body.type) {
+              case 'Create':
+                expectedStatus = 201
+                switch (body.object.type) {
+                  case 'reader:Publication':
+                    pr = Reader.addPublication(reader, body.object)
+                    break
+                  case 'Document':
+                    pr = Reader.addDocument(reader, body.object)
+                    break
+                  case 'Note':
+                    pr = Reader.addNote(reader, body.object)
+                    break
+                  case 'reader:Stack':
+                    pr = Reader.addTag(reader, body.object)
+                    break
+                  default:
+                    res.status(400).send(`cannot create ${body.object.type}`)
+                    break
+                }
+                break
+
+              case 'Add':
+                expectedStatus = 204
+                switch (body.object.type) {
+                  case 'reader:Stack':
+                    pr = Publications_Tags.addTagToPub(
+                      body.target.id,
+                      body.object.id
+                    )
+                    break
+
+                  default:
+                    res.status(400).send(`cannot add ${body.object.type}`)
+                    break
+                }
+                break
+
+              case 'Arrive': // used for testing only
+                expectedStatus = 201
+                pr = Promise.resolve(null)
+                break
+
+              default:
+                res.status(400).send(`action ${body.type} not reconized`)
+
+                break
             }
             pr
               .then(result => {
@@ -109,7 +142,7 @@ module.exports = function (app) {
                 if (result) {
                   props = Object.assign(props, {
                     object: {
-                      type: result.json.type,
+                      type: result.json ? result.json.type : null,
                       id: result.url
                     }
                   })
@@ -117,7 +150,7 @@ module.exports = function (app) {
                 debug(props)
                 Activity.createActivity(props)
                   .then(activity => {
-                    res.status(201)
+                    res.status(expectedStatus)
                     res.set('Location', activity.url)
                     res.end()
                   })

@@ -2,6 +2,8 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
+const short = require('short-uuid')
+const translator = short()
 
 /**
  * @property {Document} document - returns the document, if any, that this tag is a property of.
@@ -42,19 +44,9 @@ class Tag extends BaseModel {
     }
   }
   static get relationMappings () /*: any */ {
-    const { Publication } = require('./Publication.js')
-    const { Document } = require('./Document.js')
     const { Reader } = require('./Reader')
-    const { Note } = require('./Note.js')
+    const { Activity } = require('./Activity')
     return {
-      // document: {
-      //   relation: Model.BelongsToOneRelation,
-      //   modelClass: Document,
-      //   join: {
-      //     from: 'Tag.documentId',
-      //     to: 'Document.id'
-      //   }
-      // },
       reader: {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
@@ -62,24 +54,20 @@ class Tag extends BaseModel {
           from: 'Tag.readerId',
           to: 'Reader.id'
         }
+      },
+      activity: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Activity,
+        join: {
+          from: 'Tag.activityId',
+          to: 'Activity.id'
+        }
       }
-      // publication: {
-      //   relation: Model.BelongsToOneRelation,
-      //   modelClass: Publication,
-      //   join: {
-      //     from: 'Tag.publicationId',
-      //     to: 'Publication.id'
-      //   }
-      // },
-      // note: {
-      //   relation: Model.BelongsToOneRelation,
-      //   modelClass: Note,
-      //   join: {
-      //     from: 'Tag.noteId',
-      //     to: 'Note.id'
-      //   }
-      // }
     }
+  }
+
+  static async byShortId (shortId /*: string */) /*: Promise<any> */ {
+    return Tag.query().findById(translator.toUUID(shortId))
   }
 }
 

@@ -2,6 +2,7 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
+const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
 
@@ -27,6 +28,11 @@ const test = async app => {
     totalItems: 1,
     attachment: [{ type: 'Document', content: 'content of document' }]
   }
+
+  const createdTag = await Reader.addTag(createdReader, {
+    type: 'reader:Stack',
+    name: 'mystack'
+  })
 
   let publicationId
   let publication
@@ -57,6 +63,18 @@ const test = async app => {
 
   await tap.test('Publication asRef', async () => {
     // asRef is broken. Will fix the test and the code in another PR
+  })
+
+  await tap.test('Publication addTag', async () => {
+    const res = await Publications_Tags.addTagToPub(
+      publication.url,
+      createdTag.url
+    )
+
+    await tap.ok(res.publicationId)
+    await tap.ok(res.tagId)
+    await tap.equal(res.publicationId, publication.id)
+    await tap.equal(res.tagId, createdTag.id)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

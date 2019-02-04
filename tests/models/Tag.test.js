@@ -14,13 +14,6 @@ const test = async app => {
     userId: 'auth0|foo1545149868964'
   }
 
-  const publicationObject = {
-    type: 'reader:Publication',
-    name: 'Publication A',
-    attributedTo: [{ type: 'Person', name: 'Sample Author' }],
-    attachment: [{ type: 'Document', content: 'content of document' }]
-  }
-
   const tagObject = {
     type: 'reader:Stack',
     name: 'mystack'
@@ -31,19 +24,23 @@ const test = async app => {
     reader
   )
 
-  let publication = await Reader.addPublication(
-    createdReader,
-    publicationObject
-  )
-
   await tap.test('Create Stack', async () => {
     let response = await Reader.addTag(createdReader, tagObject)
     await tap.ok(response)
     await tap.ok(response instanceof Tag)
     await tap.equal(response.readerId, createdReader.id)
+
+    tagId = parseurl(response.url).path.substr(5)
   })
 
-  // tags probably don't need a byShortId or asRef
+  await tap.test('get Tag by short id', async () => {
+    tag = await Tag.byShortId(tagId)
+    await tap.type(tag, 'object')
+    await tap.ok(tag instanceof Tag)
+    await tap.equal(tag.readerId, createdReader.id)
+  })
+
+  // tags probably don't need asRef
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
