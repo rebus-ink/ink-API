@@ -134,7 +134,12 @@ class Reader extends BaseModel {
   static async addTag (
     reader /*: any */,
     tag /*: {type: string, name: string} */
-  ) {
+  ) /*: Promise<{
+    json: {type: string, name: string},
+    readerId: string,
+    id: string,
+    published: string
+  }> */ {
     return reader.$relatedQuery('tags').insert(tag)
   }
 

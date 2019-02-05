@@ -66,7 +66,16 @@ class Tag extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) /*: Promise<any> */ {
+  static async byShortId (
+    shortId /*: string */
+  ) /*: Promise<{
+    id: string,
+    type: string,
+    json: {type: string, name: string},
+    readerId: string,
+    published: string,
+    updated: string
+  }> */ {
     return Tag.query().findById(translator.toUUID(shortId))
   }
 }
