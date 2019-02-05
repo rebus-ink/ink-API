@@ -77,6 +77,14 @@ const test = async app => {
     await tap.equal(res.tagId, createdTag.id)
   })
 
+  await tap.test('Publication remove tag', async () => {
+    const res = await Publications_Tags.removeTagFromPub(
+      publication.url,
+      createdTag.url
+    )
+    await tap.equal(res, 1)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

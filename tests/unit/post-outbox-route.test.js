@@ -120,6 +120,22 @@ const addPubToStackRequest = {
   }
 }
 
+const removeTagFromStackRequest = {
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Remove',
+  object: {
+    type: 'reader:Stack',
+    id: 'https://localhost:8080/tag-123'
+  },
+  target: {
+    type: 'reader:Publication',
+    id: 'https://localhost:8080/publication-123'
+  }
+}
+
 const neutralActivityRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Arrive',
@@ -356,6 +372,32 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 204)
     await tap.ok(addTagToPubSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Remove publication from stack', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    Publication_TagsStub.Publications_Tags.removeTagFromPub = async () =>
+      Promise.resolve()
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const removeTagFromPubSpy = sinon.spy(
+      Publication_TagsStub.Publications_Tags,
+      'removeTagFromPub'
+    )
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(removeTagFromStackRequest))
+
+    await tap.equal(res.statusCode, 204)
+    await tap.ok(removeTagFromPubSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
 

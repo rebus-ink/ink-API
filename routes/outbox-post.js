@@ -51,8 +51,8 @@ module.exports = function (app) {
    *     responses:
    *       201:
    *         description: Created
-   *       200:
-   *         description: Added successfully
+   *       204:
+   *         description: Successfully added or removed a tag
    *       404:
    *         description: 'No Reader with ID {shortId}'
    *       403:
@@ -116,6 +116,22 @@ module.exports = function (app) {
 
                   default:
                     res.status(400).send(`cannot add ${body.object.type}`)
+                    break
+                }
+                break
+
+              case 'Remove':
+                expectedStatus = 204
+                switch (body.object.type) {
+                  case 'reader:Stack':
+                    pr = Publications_Tags.removeTagFromPub(
+                      body.target.id,
+                      body.object.id
+                    )
+                    break
+
+                  default:
+                    res.status(400).send(`cannot remove ${body.object.type}`)
                     break
                 }
                 break

@@ -137,6 +137,42 @@ const test = async app => {
     await tap.equal(body.tags[0].name, 'mystack')
   })
 
+  await tap.test('remove tag from publication', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Remove',
+          object: stack,
+          target: publication
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const pubres = await request(app)
+      .get(urlparse(publication.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(pubres.status, 200)
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 0)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
