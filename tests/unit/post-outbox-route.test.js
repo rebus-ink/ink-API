@@ -8,6 +8,7 @@ const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Reader } = require('../../models/Reader')
 const { Activity } = require('../../models/Activity')
+const { Publication_Tags } = require('../../models/Publications_Tags')
 
 const setupPassport = () => {
   var opts = {}
@@ -103,6 +104,38 @@ const createStackRequest = {
   }
 }
 
+const addPubToStackRequest = {
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Add',
+  object: {
+    type: 'reader:Stack',
+    id: 'https://localhost:8080/tag-123'
+  },
+  target: {
+    type: 'reader:Publication',
+    id: 'https://localhost:8080/publication-123'
+  }
+}
+
+const removeTagFromStackRequest = {
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Remove',
+  object: {
+    type: 'reader:Stack',
+    id: 'https://localhost:8080/tag-123'
+  },
+  target: {
+    type: 'reader:Publication',
+    id: 'https://localhost:8080/publication-123'
+  }
+}
+
 const neutralActivityRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Arrive',
@@ -177,6 +210,12 @@ const activity = Object.assign(new Activity(), {
   note: null
 })
 
+const pub_tag = {
+  publicationId: 'abcd',
+  tagId: '1234',
+  id: '1'
+}
+
 const reader = Object.assign(new Reader(), {
   id: '7441db0a-c14b-4925-a7dc-4b7ff5d0c8cc',
   json: { name: 'J. Random Reader', userId: 'auth0|foo1545228877880' },
@@ -188,11 +227,13 @@ const reader = Object.assign(new Reader(), {
 const test = async () => {
   const ReaderStub = {}
   const ActivityStub = {}
+  const Publication_TagsStub = {}
   const checkReaderStub = sinon.stub()
 
   const outboxRoute = proxyquire('../../routes/outbox-post', {
     '../models/Reader.js': ReaderStub,
     '../models/Activity.js': ActivityStub,
+    '../models/Publications_Tags.js': Publication_TagsStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
@@ -305,6 +346,58 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 201)
     await tap.ok(addTagSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Add publication to stack', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
+      Promise.resolve(pub_tag)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const addTagToPubSpy = sinon.spy(
+      Publication_TagsStub.Publications_Tags,
+      'addTagToPub'
+    )
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(addPubToStackRequest))
+
+    await tap.equal(res.statusCode, 204)
+    await tap.ok(addTagToPubSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Remove publication from stack', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    Publication_TagsStub.Publications_Tags.removeTagFromPub = async () =>
+      Promise.resolve()
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const removeTagFromPubSpy = sinon.spy(
+      Publication_TagsStub.Publications_Tags,
+      'removeTagFromPub'
+    )
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(removeTagFromStackRequest))
+
+    await tap.equal(res.statusCode, 204)
+    await tap.ok(removeTagFromPubSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
 
