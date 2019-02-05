@@ -79,7 +79,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId, ['publications.attributedTo'])
+      Reader.byShortId(shortId, '[tags, publications.attributedTo]')
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${shortId}`)
@@ -99,7 +99,8 @@ module.exports = app => {
                 type: 'Collection',
                 id: getId(`/reader-${shortId}/library`),
                 totalItems: reader.publications.length,
-                items: reader.publications.map(pub => pub.asRef())
+                items: reader.publications.map(pub => pub.asRef()),
+                tags: reader.tags
               })
             )
           }

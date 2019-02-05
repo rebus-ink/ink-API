@@ -78,6 +78,31 @@ const createDocumentRequest = {
   }
 }
 
+const createNoteRequest = {
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Create',
+  object: {
+    type: 'Note',
+    content: 'Sample Note content',
+    'oa:hasSelector': {}
+  }
+}
+
+const createStackRequest = {
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Create',
+  object: {
+    type: 'reader:Stack',
+    name: 'mystack'
+  }
+}
+
 const neutralActivityRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Arrive',
@@ -236,6 +261,50 @@ const test = async () => {
 
     await tap.equal(res.statusCode, 201)
     await tap.ok(addDocumentSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Create note', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    ReaderStub.Reader.addNote = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const addNoteSpy = sinon.spy(ReaderStub.Reader, 'addNote')
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(createNoteRequest))
+
+    await tap.equal(res.statusCode, 201)
+    await tap.ok(addNoteSpy.calledOnce)
+    await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Create Stack', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    ReaderStub.Reader.addTag = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const addTagSpy = sinon.spy(ReaderStub.Reader, 'addTag')
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(createStackRequest))
+
+    await tap.equal(res.statusCode, 201)
+    await tap.ok(addTagSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
 

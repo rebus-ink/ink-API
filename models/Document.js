@@ -50,7 +50,6 @@ class Document extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')
-    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -90,14 +89,6 @@ class Document extends BaseModel {
         join: {
           from: 'Document.publicationId',
           to: 'Publication.id'
-        }
-      },
-      tag: {
-        relation: Model.HasManyRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Document.id',
-          to: 'Tag.documentId'
         }
       }
     }

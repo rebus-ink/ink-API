@@ -71,7 +71,7 @@ module.exports = function (app) {
     .route('/reader-:shortId/activity')
     .get(jwtAuth, function (req, res, next) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId, ['outbox'])
+      Reader.byShortId(shortId, '[outbox]')
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${shortId}`)

@@ -12,26 +12,6 @@ exports.up = function (knex, Promise) {
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('documentId')
-      .references('id')
-      .inTable('Document')
-      .nullable()
-      .index()
-    table
-      .uuid('publicationId')
-      .references('id')
-      .inTable('Publication')
-      .nullable()
-      .onDelete('CASCADE')
-      .index()
-    table
-      .uuid('noteId')
-      .references('id')
-      .inTable('Note')
-      .nullable()
-      .onDelete('CASCADE')
-      .index()
-    table
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()

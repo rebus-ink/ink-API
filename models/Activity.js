@@ -55,6 +55,7 @@ class Activity extends BaseModel {
         publicationId: { type: 'string', format: 'uuid', maxLength: 255 },
         documentId: { type: 'string', format: 'uuid', maxLength: 255 },
         noteId: { type: 'string', format: 'uuid', maxLength: 255 },
+        tagId: { type: 'string', format: 'uuid', maxLength: 255 },
         json: {
           type: 'object',
           additionalProperties: true,
@@ -72,6 +73,7 @@ class Activity extends BaseModel {
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
+    const { Tag } = require('./Tag.js')
 
     assert.ok(Model)
     assert.ok(Model.BelongsToOneRelation)
@@ -111,6 +113,14 @@ class Activity extends BaseModel {
         join: {
           from: 'Activity.publicationId',
           to: 'Publication.id'
+        }
+      },
+      tag: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Activity.tagId',
+          to: 'Tag.id'
         }
       }
     }
