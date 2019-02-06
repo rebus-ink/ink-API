@@ -31,7 +31,6 @@ module.exports = app => {
         })
 
         stream.on('error', err => {
-          console.log(err.message)
           res
             .status(400)
             .send(`error connecting to the google cloud bucket: ${err.message}`)

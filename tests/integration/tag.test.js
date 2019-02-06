@@ -119,7 +119,6 @@ const test = async app => {
           target: publication
         })
       )
-
     await tap.equal(res.status, 204)
 
     const pubres = await request(app)

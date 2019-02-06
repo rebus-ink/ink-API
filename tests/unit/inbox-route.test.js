@@ -22,8 +22,8 @@ setupPassport()
 
 const reader = Object.assign(new Reader(), {
   id: '0dad66d5-670f-41e1-886a-b2e25b510b2d',
-  json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868964' },
-  userId: 'auth0|foo1545149868964',
+  json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868967' },
+  userId: 'auth0|foo1545149868967',
   published: '2018-12-18T16:17:49.077Z',
   updated: '2018-12-18 16:17:49'
 })

@@ -186,9 +186,7 @@ tap.test('Models', async test => {
     testResult.end()
   })
   test.test('Tag Model - static properties', testResult => {
-    testResult.ok(Tag.jsonSchema)
     testResult.ok(Tag.tableName)
-    testResult.ok(Tag.relationMappings)
     testResult.end()
   })
 })

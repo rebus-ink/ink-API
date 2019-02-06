@@ -52,7 +52,7 @@ class BaseModel extends guid(DbErrors(Model)) {
     })
   }
 
-  hasName () /*: string */ {
+  hasName () /*: boolean */ {
     return (
       this.json.name ||
       this.json.nameMap ||
