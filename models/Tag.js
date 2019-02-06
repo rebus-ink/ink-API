@@ -19,51 +19,6 @@ class Tag extends Model {
   get path () /*: string */ {
     return 'tag'
   }
-  // static get jsonSchema () /*: any */ {
-  //   return {
-  //     type: 'object',
-  //     properties: {
-  //       canonicalId: { type: ['string', 'null'], format: 'url' },
-  //       id: { type: 'string', format: 'uuid', maxLength: 255 },
-  //       readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-  //       json: {
-  //         type: 'object',
-  //         properties: {
-  //           type: { type: 'string' },
-  //           name: { type: 'string' }
-  //         },
-  //         additionalProperties: true
-  //       },
-  //       updated: { type: 'string', format: 'date-time' },
-  //       published: { type: 'string', format: 'date-time' },
-  //       type: { type: 'string' }
-  //     },
-  //     additionalProperties: true,
-  //     required: ['json']
-  //   }
-  // }
-  // static get relationMappings () /*: any */ {
-  //   const { Reader } = require('./Reader')
-  //   const { Activity } = require('./Activity')
-  //   return {
-  //     reader: {
-  //       relation: Model.BelongsToOneRelation,
-  //       modelClass: Reader,
-  //       join: {
-  //         from: 'Tag.readerId',
-  //         to: 'Reader.id'
-  //       }
-  //     },
-  //     activity: {
-  //       relation: Model.BelongsToOneRelation,
-  //       modelClass: Activity,
-  //       join: {
-  //         from: 'Tag.activityId',
-  //         to: 'Activity.id'
-  //       }
-  //     }
-  //   }
-  // }
 
   static async createTag (
     readerId /*: string */,
