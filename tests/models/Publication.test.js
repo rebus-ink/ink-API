@@ -85,6 +85,17 @@ const test = async app => {
     await tap.equal(res, 1)
   })
 
+  await tap.test('Try to assign same tag twice', async () => {
+    await Publications_Tags.addTagToPub(publication.url, createdTag.id)
+
+    const res = await Publications_Tags.addTagToPub(
+      publication.url,
+      createdTag.id
+    )
+
+    await tap.equal(res.code, 'SQLITE_CONSTRAINT')
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

@@ -149,6 +149,15 @@ module.exports = function (app) {
             pr
               .then(result => {
                 debug(result)
+                // catching duplicate entries to publication_tag table
+                if (
+                  body.object &&
+                  body.object.type === 'reader:Stack' &&
+                  result &&
+                  result.code === 'SQLITE_CONSTRAINT'
+                ) {
+                  return res.status(400).send('duplicate entry')
+                }
                 let props = Object.assign(body, {
                   actor: {
                     type: 'Person',

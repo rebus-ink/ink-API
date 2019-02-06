@@ -13,10 +13,14 @@ class Publications_Tags extends Model {
   ) /*: any */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
     const publication = await Publication.byShortId(publicationShortId)
-    return await Publications_Tags.query().insert({
-      publicationId: publication.id,
-      tagId
-    })
+    try {
+      return await Publications_Tags.query().insert({
+        publicationId: publication.id,
+        tagId
+      })
+    } catch (err) {
+      return err
+    }
   }
 
   static async removeTagFromPub (

@@ -1,7 +1,7 @@
 
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('publications_tags', function(table){
-    table.increments('id').primary()
+    table.primary(['publicationId', 'tagId'])
     table
       .uuid('publicationId')
       .references('id')
