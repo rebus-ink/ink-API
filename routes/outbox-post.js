@@ -156,7 +156,15 @@ module.exports = function (app) {
                   result &&
                   result.code === 'SQLITE_CONSTRAINT'
                 ) {
-                  return res.status(400).send('duplicate entry')
+                  return res
+                    .status(400)
+                    .send(
+                      `publication ${
+                        body.target.id
+                      } already asssociated with tag ${body.object.id} (${
+                        body.object.name
+                      })`
+                    )
                 }
                 let props = Object.assign(body, {
                   actor: {
