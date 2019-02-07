@@ -1,6 +1,6 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Tag', function (table) {
-    table.increments()
+    table.increments('id')
     table.string('canonicalId').index()
     table.string('type').defaultTo('HashTag')
     table.string('name')

@@ -55,7 +55,7 @@ class Activity extends BaseModel {
         publicationId: { type: 'string', format: 'uuid', maxLength: 255 },
         documentId: { type: 'string', format: 'uuid', maxLength: 255 },
         noteId: { type: 'string', format: 'uuid', maxLength: 255 },
-        tagId: { type: 'string', format: 'uuid', maxLength: 255 },
+        tagId: { type: 'integer' },
         json: {
           type: 'object',
           additionalProperties: true,

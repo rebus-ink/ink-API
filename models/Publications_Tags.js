@@ -7,9 +7,13 @@ class Publications_Tags extends Model {
     return 'publications_tags'
   }
 
+  static get idColumn () {
+    return ['publicationId', 'tagId']
+  }
+
   static async addTagToPub (
     publicationUrl /*: string */,
-    tagId /*: string */
+    tagId /*: number */
   ) /*: any */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
     const publication = await Publication.byShortId(publicationShortId)

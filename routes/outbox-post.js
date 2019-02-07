@@ -153,8 +153,7 @@ module.exports = function (app) {
                 if (
                   body.object &&
                   body.object.type === 'reader:Stack' &&
-                  result &&
-                  result.code === 'SQLITE_CONSTRAINT'
+                  result instanceof Error // note: ideally we should check for which error it is. But that changes from sqlite to postgres.
                 ) {
                   return res
                     .status(400)
