@@ -23,7 +23,7 @@ const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
 const noteRoute = require('./routes/note')
 
-const setupKnex = async () => {
+const setupKnex = async skip_migrate => {
   let config
   /* istanbul ignore next */
   if (process.env.POSTGRE_INSTANCE) {
@@ -34,7 +34,11 @@ const setupKnex = async () => {
     config = require('./knexfile.js')['development']
   }
   app.knex = require('knex')(config)
-  await app.knex.migrate.latest()
+  if (!skip_migrate) {
+    console.log('migrating????')
+    await app.knex.migrate.rollback()
+    await app.knex.migrate.latest()
+  }
   const objection = require('objection')
   const Model = objection.Model
   Model.knex(app.knex)
@@ -134,9 +138,9 @@ app.get('/', function (req, res) {
 
 app.initialized = false
 
-app.initialize = async () => {
+app.initialize = async skip_migrate => {
   if (!app.initialized) {
-    await setupKnex()
+    await setupKnex(skip_migrate)
     app.initialized = true
   }
   return app.initialized
