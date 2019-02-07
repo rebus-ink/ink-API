@@ -93,7 +93,7 @@ const test = async app => {
       createdTag.id
     )
 
-    await tap.equal(res.code, 'SQLITE_CONSTRAINT')
+    await tap.equal(res.message, 'duplicate')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
