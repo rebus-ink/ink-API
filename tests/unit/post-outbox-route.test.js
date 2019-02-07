@@ -385,7 +385,7 @@ const test = async () => {
   await tap.test('Duplicate Add publication to stack', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
-      Promise.resolve({ code: 'SQLITE_CONSTRAINT' })
+      Promise.resolve(new Error('duplicate'))
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
@@ -393,7 +393,6 @@ const test = async () => {
       Publication_TagsStub.Publications_Tags,
       'addTagToPub'
     )
-    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
 
     const res = await request
       .post('/reader-123/activity')
