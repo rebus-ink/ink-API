@@ -16,6 +16,9 @@ const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize(true)
     await app.knex.migrate.rollback()
+    if (process.env.POSTGRE_INSTANCE !== 'localhost') {
+      await app.knex.migrate.latest()
+    }
   }
   await activityTests(app)
   await authErrorTests(app)
