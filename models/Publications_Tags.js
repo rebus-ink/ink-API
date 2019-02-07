@@ -23,7 +23,7 @@ class Publications_Tags extends Model {
         tagId
       })
     } catch (err) {
-      return err
+      return new Error(err.message || err)
     }
   }
 
