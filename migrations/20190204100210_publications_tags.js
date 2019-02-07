@@ -8,7 +8,7 @@ exports.up = function(knex, Promise) {
       .inTable('Publication')
       .onDelete('CASCADE')
       .index()
-    table.uuid('tagId').references('id').inTable('Tag').onDelete('CASCADE').index();
+    table.integer('tagId').references('id').inTable('Tag').onDelete('CASCADE').index();
   })
 };
 
