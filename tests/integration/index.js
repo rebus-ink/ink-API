@@ -16,7 +16,7 @@ const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize(true)
     await app.knex.migrate.rollback()
-    if (process.env.POSTGRE_INSTANCE !== 'localhost') {
+    if (process.env.POSTGRE_DB === 'travis_ci_test') {
       await app.knex.migrate.latest()
     }
   }
