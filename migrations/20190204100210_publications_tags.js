@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
       .onDelete('CASCADE')
       .index()
     table.integer('tagId').references('id').inTable('Tag').notNullable().onDelete('CASCADE').index();
-    table.primary(['publicationId', 'tagId'])
+    table.primary(['publicationId', 'tagId']).unique()
 
   })
 };
