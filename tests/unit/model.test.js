@@ -18,8 +18,10 @@ const { Activity } = require('../../models/Activity')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
 const tap = require('tap')
+const fs = require('fs')
 
 tap.test('Models', async test => {
+  await fs.unlinkSync('./test.sqlite3')
   await knex.migrate.latest()
 
   test.test('Reader jsonSchema', testResult => {
