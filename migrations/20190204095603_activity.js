@@ -29,7 +29,7 @@ exports.up = function (knex, Promise) {
       .nullable()
       .index()
     table
-      .uuid('tagId')
+      .integer('tagId')
       .references('id')
       .inTable('Tag')
       .nullable()
