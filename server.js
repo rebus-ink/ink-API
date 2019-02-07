@@ -35,7 +35,6 @@ const setupKnex = async skip_migrate => {
   }
   app.knex = require('knex')(config)
   if (!skip_migrate) {
-    console.log('migrating????')
     await app.knex.migrate.rollback()
     await app.knex.migrate.latest()
   }
