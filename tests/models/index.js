@@ -11,7 +11,11 @@ require('dotenv').config()
 
 const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
+    await app.initialize(true)
+    await app.knex.migrate.rollback()
+    if (process.env.POSTGRE_DB === 'travis_ci_test') {
+      await app.knex.migrate.latest()
+    }
   }
   await activityTests(app)
   await documentTests(app)
@@ -21,8 +25,7 @@ const allTests = async () => {
   await tagTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
-    await app.knex.raw('DROP SCHEMA public CASCADE')
-    await app.knex.raw('CREATE SCHEMA public')
+    await app.knex.migrate.rollback()
     await app.terminate()
   }
 }
