@@ -1,9 +1,9 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Tag', function (table) {
-    table.uuid('id').primary()
+    table.increments('id')
     table.string('canonicalId').index()
     table.string('type').defaultTo('HashTag')
-    table.jsonb('json')
+    table.string('name')
     table
       .uuid('readerId')
       .references('id')

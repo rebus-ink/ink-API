@@ -1,40 +1,47 @@
 const { Model } = require('objection')
 const parseurl = require('url').parse
 const { Publication } = require('./Publication')
-const { Tag } = require('./Tag')
 
 class Publications_Tags extends Model {
   static get tableName () {
     return 'publications_tags'
   }
 
+  static get idColumn () {
+    return ['publicationId', 'tagId']
+  }
+
   static async addTagToPub (
     publicationUrl /*: string */,
-    tagUrl /*: string */
+    tagId /*: number */
   ) /*: any */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
-    let tagShortId = parseurl(tagUrl).path.substr(5)
     const publication = await Publication.byShortId(publicationShortId)
-    const tag = await Tag.byShortId(tagShortId)
+    // check if already exists
+    const result = await Publications_Tags.query().where({
+      publicationId: publication.id,
+      tagId
+    })
+    if (result.length > 0) {
+      return new Error('duplicate')
+    }
     return await Publications_Tags.query().insert({
       publicationId: publication.id,
-      tagId: tag.id
+      tagId
     })
   }
 
   static async removeTagFromPub (
     publicationUrl /*: string */,
-    tagUrl /*: string */
+    tagId /*: string */
   ) /*: number */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
-    let tagShortId = parseurl(tagUrl).path.substr(5)
     const publication = await Publication.byShortId(publicationShortId)
-    const tag = await Tag.byShortId(tagShortId)
     return await Publications_Tags.query()
       .delete()
       .where({
         publicationId: publication.id,
-        tagId: tag.id
+        tagId
       })
   }
 }

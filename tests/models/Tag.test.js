@@ -2,7 +2,6 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
-const parseurl = require('url').parse
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -11,7 +10,7 @@ const test = async app => {
 
   const reader = {
     name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868964'
+    userId: 'auth0|foo1545149868966'
   }
 
   const tagObject = {
@@ -20,24 +19,16 @@ const test = async app => {
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149868964',
+    'auth0|foo1545149868966',
     reader
   )
 
   await tap.test('Create Stack', async () => {
-    let response = await Reader.addTag(createdReader, tagObject)
+    let response = await Tag.createTag(createdReader.id, tagObject)
     await tap.ok(response)
     await tap.ok(response instanceof Tag)
     await tap.equal(response.readerId, createdReader.id)
-
-    tagId = parseurl(response.url).path.substr(5)
-  })
-
-  await tap.test('get Tag by short id', async () => {
-    tag = await Tag.byShortId(tagId)
-    await tap.type(tag, 'object')
-    await tap.ok(tag instanceof Tag)
-    await tap.equal(tag.readerId, createdReader.id)
+    tagId = response.id
   })
 
   // tags probably don't need asRef

@@ -68,7 +68,7 @@ const test = async app => {
   await tap.test('Publication addTag', async () => {
     const res = await Publications_Tags.addTagToPub(
       publication.url,
-      createdTag.url
+      createdTag.id
     )
 
     await tap.ok(res.publicationId)
@@ -80,9 +80,20 @@ const test = async app => {
   await tap.test('Publication remove tag', async () => {
     const res = await Publications_Tags.removeTagFromPub(
       publication.url,
-      createdTag.url
+      createdTag.id
     )
     await tap.equal(res, 1)
+  })
+
+  await tap.test('Try to assign same tag twice', async () => {
+    await Publications_Tags.addTagToPub(publication.url, createdTag.id)
+
+    const res = await Publications_Tags.addTagToPub(
+      publication.url,
+      createdTag.id
+    )
+
+    await tap.equal(res.message, 'duplicate')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

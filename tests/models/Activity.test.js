@@ -37,11 +37,11 @@ const test = async app => {
 
   const reader = {
     name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868964'
+    userId: 'auth0|foo1545149868961'
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149868964',
+    'auth0|foo1545149868961',
     reader
   )
 

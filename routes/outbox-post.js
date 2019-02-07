@@ -6,6 +6,7 @@ const { Activity } = require('../models/Activity')
 const { Publications_Tags } = require('../models/Publications_Tags')
 const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
+const { Tag } = require('../models/Tag')
 
 const utils = require('./utils')
 /**
@@ -81,7 +82,6 @@ module.exports = function (app) {
 
             let pr
             let expectedStatus
-
             switch (body.type) {
               case 'Create':
                 expectedStatus = 201
@@ -96,7 +96,7 @@ module.exports = function (app) {
                     pr = Reader.addNote(reader, body.object)
                     break
                   case 'reader:Stack':
-                    pr = Reader.addTag(reader, body.object)
+                    pr = Tag.createTag(reader.id, body.object)
                     break
                   default:
                     res.status(400).send(`cannot create ${body.object.type}`)
@@ -149,6 +149,23 @@ module.exports = function (app) {
             pr
               .then(result => {
                 debug(result)
+                // catching duplicate entries to publication_tag table
+                if (
+                  body.object &&
+                  body.object.type === 'reader:Stack' &&
+                  result instanceof Error &&
+                  result.message === 'duplicate'
+                ) {
+                  return res
+                    .status(400)
+                    .send(
+                      `publication ${
+                        body.target.id
+                      } already asssociated with tag ${body.object.id} (${
+                        body.object.name
+                      })`
+                    )
+                }
                 let props = Object.assign(body, {
                   actor: {
                     type: 'Person',

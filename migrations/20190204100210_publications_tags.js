@@ -1,14 +1,15 @@
 
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('publications_tags', function(table){
-    table.increments('id').primary()
+    table.increments('id')
     table
       .uuid('publicationId')
+      .notNullable()
       .references('id')
       .inTable('Publication')
       .onDelete('CASCADE')
       .index()
-    table.uuid('tagId').references('id').inTable('Tag').onDelete('CASCADE').index();
+    table.integer('tagId').references('id').inTable('Tag').notNullable().onDelete('CASCADE').index();
   })
 };
 

@@ -79,7 +79,6 @@ const test = async app => {
           }
         })
       )
-
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
@@ -119,7 +118,6 @@ const test = async app => {
           target: publication
         })
       )
-
     await tap.equal(res.status, 204)
 
     const pubres = await request(app)
@@ -133,6 +131,7 @@ const test = async app => {
     await tap.equal(pubres.status, 200)
     const body = pubres.body
     await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 1)
     await tap.equal(body.tags[0].type, 'reader:Stack')
     await tap.equal(body.tags[0].name, 'mystack')
   })
@@ -171,6 +170,63 @@ const test = async app => {
     const body = pubres.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 0)
+  })
+
+  await tap.test('Try to assign publication to tag twice', async () => {
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: stack,
+          target: publication
+        })
+      )
+
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: stack,
+          target: publication
+        })
+      )
+    await tap.equal(res.status, 400)
+
+    // doesn't affect the publication
+    const pubres = await request(app)
+      .get(urlparse(publication.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(pubres.status, 200)
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 1)
+    await tap.equal(body.tags[0].type, 'reader:Stack')
+    await tap.equal(body.tags[0].name, 'mystack')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
