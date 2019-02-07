@@ -17,14 +17,18 @@ class Publications_Tags extends Model {
   ) /*: any */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
     const publication = await Publication.byShortId(publicationShortId)
-    try {
-      return await Publications_Tags.query().insert({
-        publicationId: publication.id,
-        tagId
-      })
-    } catch (err) {
-      return new Error(err.message || err)
+    // check if already exists
+    const result = await Publications_Tags.query().where({
+      publicationId: publication.id,
+      tagId
+    })
+    if (result.length > 0) {
+      return new Error('duplicate')
     }
+    return await Publications_Tags.query().insert({
+      publicationId: publication.id,
+      tagId
+    })
   }
 
   static async removeTagFromPub (

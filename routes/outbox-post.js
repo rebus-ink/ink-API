@@ -153,7 +153,8 @@ module.exports = function (app) {
                 if (
                   body.object &&
                   body.object.type === 'reader:Stack' &&
-                  result instanceof Error // note: ideally we should check for which error it is. But that changes from sqlite to postgres.
+                  result instanceof Error &&
+                  result.message === 'duplicate'
                 ) {
                   return res
                     .status(400)
