@@ -18,6 +18,7 @@ const test = async app => {
   const userUrl = urlparse(userId).path
   let publicationUrl
   let activityUrl
+  let documentUrl
 
   await tap.test('Create Publication', async () => {
     const res = await request(app)
@@ -72,7 +73,7 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
-  await tap.test('Get Publicaiton', async () => {
+  await tap.test('Get Publication', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     publicationUrl = activityObject.object.id
 
@@ -96,6 +97,8 @@ const test = async app => {
     // check the order of items
     await tap.equal(body.orderedItems[0].name, 'Chapter 1')
     await tap.notOk(body.orderedItems[2])
+
+    documentUrl = body.orderedItems[0].id
   })
 
   await tap.test('Get Publication that does not exist', async () => {
@@ -133,7 +136,6 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 204)
-
     // publication should no longer exist
     const getres = await request(app)
       .get(urlparse(publicationUrl).path)
@@ -144,6 +146,17 @@ const test = async app => {
       )
 
     await tap.equal(getres.statusCode, 404)
+
+    // TODO: should eventually delete the documents as well. And the notes.
+    // const docres = await request(app)
+    //   .get(urlparse(documentUrl).path)
+    //   .set('Host', 'reader-api.test')
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .type(
+    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    //   )
+
+    // await tap.equal(docres.statusCode, 404)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

@@ -47,7 +47,6 @@ class Publication extends BaseModel {
     const { Reader } = require('./Reader')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
-    const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')
     const { Tag } = require('./Tag.js')
     return {
