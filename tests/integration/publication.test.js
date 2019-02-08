@@ -136,6 +136,10 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 204)
+<<<<<<< HEAD
+=======
+
+>>>>>>> delete publiation implemented
     // publication should no longer exist
     const getres = await request(app)
       .get(urlparse(publicationUrl).path)
