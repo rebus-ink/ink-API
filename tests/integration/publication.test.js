@@ -110,6 +110,42 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
   })
 
+  await tap.test('Delete Publication', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'reader:Publication',
+            id: publicationUrl
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 204)
+
+    // publication should no longer exist
+    const getres = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(getres.statusCode, 404)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

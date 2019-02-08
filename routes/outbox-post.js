@@ -7,6 +7,8 @@ const { Publications_Tags } = require('../models/Publications_Tags')
 const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Tag } = require('../models/Tag')
+const { Publication } = require('../models/Publication')
+const parseurl = require('url').parse
 
 const utils = require('./utils')
 /**
@@ -16,7 +18,7 @@ const utils = require('./utils')
  *     properties:
  *       type:
  *         type: string
- *         enum: ['Create', 'Add']
+ *         enum: ['Create', 'Add', 'Remove', 'Delete']
  *       object:
  *         type: object
  *         properties:
@@ -53,7 +55,7 @@ module.exports = function (app) {
    *       201:
    *         description: Created
    *       204:
-   *         description: Successfully added or removed a tag
+   *         description: Successfully added or removed a tag, or successfully deleted
    *       404:
    *         description: 'No Reader with ID {shortId}'
    *       403:
@@ -132,6 +134,21 @@ module.exports = function (app) {
 
                   default:
                     res.status(400).send(`cannot remove ${body.object.type}`)
+                    break
+                }
+                break
+
+              case 'Delete':
+                expectedStatus = 204
+                switch (body.object.type) {
+                  case 'reader:Publication':
+                    pr = Publication.delete(
+                      parseurl(body.object.id).path.substr(13)
+                    )
+                    break
+
+                  default:
+                    res.status(400).send(`cannot delete ${body.object.type}`)
                     break
                 }
                 break

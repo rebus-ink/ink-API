@@ -96,6 +96,12 @@ const test = async app => {
     await tap.equal(res.message, 'duplicate')
   })
 
+  await tap.test('Delete publication', async () => {
+    const res = await Publication.delete(publicationId)
+
+    await tap.equal(res, 1)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

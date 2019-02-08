@@ -4,6 +4,7 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
+const { Activity } = require('./Activity')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -154,6 +155,14 @@ class Publication extends BaseModel {
     return Publication.query()
       .findById(translator.toUUID(shortId))
       .eager('[reader, attachment, replies, tags]')
+  }
+
+  static async delete (shortId /*: string */) /*: number */ {
+    const publicationId = translator.toUUID(shortId)
+    await Activity.query()
+      .delete()
+      .where({ publicationId })
+    return Publication.query().deleteById(publicationId)
   }
 
   $formatJson (json /*: any */) /*: any */ {
