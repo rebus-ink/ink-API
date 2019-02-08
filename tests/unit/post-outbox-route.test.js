@@ -445,7 +445,7 @@ const test = async () => {
   })
 
   await tap.test('Detele a publication', async () => {
-    PublicationStub.Publication.delete = async () => Promise.resolve()
+    PublicationStub.Publication.delete = async () => Promise.resolve(1)
     checkReaderStub.returns(true)
 
     const res = await request
