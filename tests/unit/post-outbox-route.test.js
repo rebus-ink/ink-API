@@ -8,6 +8,7 @@ const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Reader } = require('../../models/Reader')
 const { Activity } = require('../../models/Activity')
+const { Publication } = require('../../models/Publication')
 
 const setupPassport = () => {
   var opts = {}
@@ -135,6 +136,15 @@ const removeTagFromStackRequest = {
   }
 }
 
+const deletePublicationRequest = {
+  '@context': 'https://www.w3.org/ns/activitystreams',
+  type: 'Delete',
+  object: {
+    type: 'reader:Publication',
+    id: 'https://localhost:8080/publication-123'
+  }
+}
+
 const neutralActivityRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Arrive',
@@ -235,6 +245,7 @@ const test = async () => {
   const ActivityStub = {}
   const Publication_TagsStub = {}
   const TagStub = {}
+  const PublicationStub = {}
   const checkReaderStub = sinon.stub()
 
   const outboxRoute = proxyquire('../../routes/outbox-post', {
@@ -242,6 +253,7 @@ const test = async () => {
     '../models/Activity.js': ActivityStub,
     '../models/Publications_Tags.js': Publication_TagsStub,
     '../models/Tag.js': TagStub,
+    '../models/Publication.js': PublicationStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
@@ -430,6 +442,21 @@ const test = async () => {
     await tap.equal(res.statusCode, 204)
     await tap.ok(removeTagFromPubSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
+  })
+
+  await tap.test('Detele a publication', async () => {
+    PublicationStub.Publication.delete = async () => Promise.resolve(1)
+    checkReaderStub.returns(true)
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(deletePublicationRequest))
+
+    await tap.equal(res.statusCode, 204)
   })
 
   await tap.test('Try to create an activity for the wrong user', async () => {
