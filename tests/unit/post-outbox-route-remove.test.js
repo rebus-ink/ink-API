@@ -111,19 +111,6 @@ const activity = Object.assign(new Activity(), {
   note: null
 })
 
-const pub_tag = {
-  publicationId: 'abcd',
-  tagId: '1234',
-  id: '1'
-}
-
-const tag = {
-  id: '1',
-  readerId: '1234',
-  type: 'reader:Stack',
-  name: 'mystack'
-}
-
 const reader = Object.assign(new Reader(), {
   id: '7441db0a-c14b-4925-a7dc-4b7ff5d0c8cc',
   json: { name: 'J. Random Reader', userId: 'auth0|foo1545228877880' },
