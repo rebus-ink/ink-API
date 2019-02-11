@@ -7,7 +7,7 @@ const handleDelete = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Publication':
-      const resultPub = Publication.delete(
+      const resultPub = await Publication.delete(
         parseurl(body.object.id).path.substr(13)
       )
       const activityObjPub = createActivityObject(body, resultPub, reader)
