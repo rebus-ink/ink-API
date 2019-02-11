@@ -1,6 +1,5 @@
 // @flow
 'use strict'
-const short = require('short-uuid')
 const { Model } = require('objection')
 
 /**

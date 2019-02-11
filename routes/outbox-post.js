@@ -2,13 +2,12 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
-const { Activity } = require('../models/Activity')
-const { Publications_Tags } = require('../models/Publications_Tags')
-const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Tag } = require('../models/Tag')
-const { Publication } = require('../models/Publication')
-const parseurl = require('url').parse
+const { handleCreate } = require('./activities/create')
+const { handleAdd } = require('./activities/add')
+const { handleRemove } = require('./activities/remove')
+const { handleDelete } = require('./activities/delete')
+const { handleArrive } = require('./activities/arrive')
 
 const utils = require('./utils')
 /**
@@ -82,131 +81,33 @@ module.exports = function (app) {
               return next(new Error('Body must be a JSON object'))
             }
 
-            let pr
-            let expectedStatus
-            switch (body.type) {
-              case 'Create':
-                expectedStatus = 201
-                switch (body.object.type) {
-                  case 'reader:Publication':
-                    pr = Reader.addPublication(reader, body.object)
-                    break
-                  case 'Document':
-                    pr = Reader.addDocument(reader, body.object)
-                    break
-                  case 'Note':
-                    pr = Reader.addNote(reader, body.object)
-                    break
-                  case 'reader:Stack':
-                    pr = Tag.createTag(reader.id, body.object)
-                    break
-                  default:
-                    res.status(400).send(`cannot create ${body.object.type}`)
-                    break
-                }
-                break
+            const handleActivity = async () => {
+              switch (body.type) {
+                case 'Create':
+                  await handleCreate(req, res, reader)
+                  break
 
-              case 'Add':
-                expectedStatus = 204
-                switch (body.object.type) {
-                  case 'reader:Stack':
-                    pr = Publications_Tags.addTagToPub(
-                      body.target.id,
-                      body.object.id
-                    )
-                    break
+                case 'Add':
+                  await handleAdd(req, res, reader)
+                  break
 
-                  default:
-                    res.status(400).send(`cannot add ${body.object.type}`)
-                    break
-                }
-                break
+                case 'Remove':
+                  await handleRemove(req, res, reader)
+                  break
 
-              case 'Remove':
-                expectedStatus = 204
-                switch (body.object.type) {
-                  case 'reader:Stack':
-                    pr = Publications_Tags.removeTagFromPub(
-                      body.target.id,
-                      body.object.id
-                    )
-                    break
+                case 'Delete':
+                  await handleDelete(req, res, reader)
+                  break
 
-                  default:
-                    res.status(400).send(`cannot remove ${body.object.type}`)
-                    break
-                }
-                break
+                case 'Arrive':
+                  await handleArrive(req, res, reader)
+                  break
 
-              case 'Delete':
-                expectedStatus = 204
-                switch (body.object.type) {
-                  case 'reader:Publication':
-                    pr = Publication.delete(
-                      parseurl(body.object.id).path.substr(13)
-                    )
-                    break
-
-                  default:
-                    res.status(400).send(`cannot delete ${body.object.type}`)
-                    break
-                }
-                break
-
-              case 'Arrive': // used for testing only
-                expectedStatus = 201
-                pr = Promise.resolve(null)
-                break
-
-              default:
-                res.status(400).send(`action ${body.type} not reconized`)
-
-                break
+                default:
+                  res.status(400).send(`action ${body.type} not reconized`)
+              }
             }
-            pr
-              .then(result => {
-                debug(result)
-                // catching duplicate entries to publication_tag table
-                if (
-                  body.object &&
-                  body.object.type === 'reader:Stack' &&
-                  result instanceof Error &&
-                  result.message === 'duplicate'
-                ) {
-                  return res
-                    .status(400)
-                    .send(
-                      `publication ${
-                        body.target.id
-                      } already asssociated with tag ${body.object.id} (${
-                        body.object.name
-                      })`
-                    )
-                }
-                let props = Object.assign(body, {
-                  actor: {
-                    type: 'Person',
-                    id: reader.url
-                  }
-                })
-                if (result) {
-                  props = Object.assign(props, {
-                    object: {
-                      type: result.json ? result.json.type : null,
-                      id: result.url
-                    }
-                  })
-                }
-                debug(props)
-                Activity.createActivity(props)
-                  .then(activity => {
-                    res.status(expectedStatus)
-                    res.set('Location', activity.url)
-                    res.end()
-                  })
-                  .catch(next)
-              })
-              .catch(next)
+            return handleActivity()
           }
         })
         .catch(err => {

@@ -18,7 +18,7 @@ const test = async app => {
   const userUrl = urlparse(userId).path
   let publicationUrl
   let activityUrl
-  let documentUrl
+  //  let documentUrl
 
   await tap.test('Create Publication', async () => {
     const res = await request(app)
@@ -136,6 +136,7 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 204)
+
     // publication should no longer exist
     const getres = await request(app)
       .get(urlparse(publicationUrl).path)
