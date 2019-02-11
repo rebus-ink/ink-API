@@ -18,7 +18,7 @@ const test = async app => {
   const userUrl = urlparse(userId).path
   let publicationUrl
   let activityUrl
-  let documentUrl
+  //  let documentUrl
 
   await tap.test('Create Publication', async () => {
     const res = await request(app)

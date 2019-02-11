@@ -8,7 +8,6 @@ const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Reader } = require('../../models/Reader')
 const { Activity } = require('../../models/Activity')
-const { Publication } = require('../../models/Publication')
 
 const setupPassport = () => {
   var opts = {}
