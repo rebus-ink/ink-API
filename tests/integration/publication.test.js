@@ -137,7 +137,7 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 204)
 
-    // publication should no longer exist
+    // getting deleted publication should return 404 error
     const getres = await request(app)
       .get(urlparse(publicationUrl).path)
       .set('Host', 'reader-api.test')
@@ -147,6 +147,21 @@ const test = async app => {
       )
 
     await tap.equal(getres.statusCode, 404)
+
+    // publication should no longer be in the reader library
+    const libraryres = await request(app)
+      .get(`${userUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(libraryres.status, 200)
+    const body = libraryres.body
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 0)
+    await tap.equal(body.totalItems, 0)
 
     // TODO: should eventually delete the documents as well. And the notes.
     // const docres = await request(app)

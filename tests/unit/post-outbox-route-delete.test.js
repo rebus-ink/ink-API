@@ -42,6 +42,15 @@ const deletePublicationRequest = {
   }
 }
 
+const deleteNoteRequest = {
+  '@context': 'https://www.w3.org/ns/activitystreams',
+  type: 'Delete',
+  object: {
+    type: 'Note',
+    id: 'https://localhost:8080/note-123'
+  }
+}
+
 const activity = Object.assign(new Activity(), {
   id: 'dc9794fa-4806-4b56-90b9-6fd444fc1485',
   type: 'Activity',
@@ -118,6 +127,7 @@ const test = async () => {
   const Publication_TagsStub = {}
   const TagStub = {}
   const PublicationStub = {}
+  const NoteStub = {}
   const checkReaderStub = sinon.stub()
 
   const outboxRoute = proxyquire('../../routes/outbox-post', {
@@ -126,6 +136,7 @@ const test = async () => {
     '../models/Publications_Tags.js': Publication_TagsStub,
     '../models/Tag.js': TagStub,
     '../models/Publication.js': PublicationStub,
+    '../models/Note.js': NoteStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
@@ -148,6 +159,23 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
       .send(JSON.stringify(deletePublicationRequest))
+
+    await tap.equal(res.statusCode, 204)
+  })
+
+  await tap.test('Detele a note', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    NoteStub.Note.delete = async () => Promise.resolve(1)
+    checkReaderStub.returns(true)
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(deleteNoteRequest))
 
     await tap.equal(res.statusCode, 204)
   })

@@ -96,7 +96,7 @@ class BaseModel extends guid(DbErrors(Model)) {
       json.bto = json.actor
     }
     const canonicalId = getCanonical(json.url)
-    const { userId, inReplyTo, context } = json
+    const { userId, inReplyTo, context, deleted } = json
     // Should get the inReplyTo document id, much like context
     const publicationId = getUUID(context)
     const documentId = getUUID(inReplyTo)
@@ -119,7 +119,8 @@ class BaseModel extends guid(DbErrors(Model)) {
           replies,
           attributedTo,
           publicationId,
-          documentId
+          documentId,
+          deleted
         },
         activityRelation
       )

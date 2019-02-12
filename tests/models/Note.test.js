@@ -78,6 +78,16 @@ const test = async app => {
     await tap.type(noteRef, 'string')
   })
 
+  await tap.test('Delete Note', async () => {
+    const res = await Note.delete(noteId)
+    await tap.ok(res.deleted)
+  })
+
+  await tap.test('Delete Note that does not exist', async () => {
+    const res = await Note.delete('123')
+    await tap.notOk(res)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

@@ -18,6 +18,8 @@ exports.up = function (knex, Promise) {
       .timestamp('updated')
       .defaultTo(knex.fn.now())
       .notNullable()
+    table
+      .timestamp('deleted')
   })
 }
 

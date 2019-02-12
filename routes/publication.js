@@ -97,7 +97,7 @@ module.exports = function (app) {
       const shortId = req.params.shortId
       Publication.byShortId(shortId)
         .then(publication => {
-          if (!publication) {
+          if (!publication || publication.deleted) {
             res.status(404).send(`No publication with ID ${shortId}`)
           } else if (!utils.checkReader(req, publication.reader)) {
             res.status(403).send(`Access to publication ${shortId} disallowed`)
@@ -121,7 +121,9 @@ module.exports = function (app) {
                     { schema: 'https://schema.org/' }
                   ],
                   replies: publication.replies
-                    ? publication.replies.map(note => note.asRef())
+                    ? publication.replies
+                      .filter(note => !note.deleted)
+                      .map(note => note.asRef())
                     : [],
                   tags: publication.tags
                 })

@@ -98,8 +98,12 @@ const test = async app => {
 
   await tap.test('Delete publication', async () => {
     const res = await Publication.delete(publicationId)
+    await tap.ok(res.deleted)
+  })
 
-    await tap.equal(res, 1)
+  await tap.test('Delete publication that does not exist', async () => {
+    const res = await Publication.delete('123')
+    await tap.notOk(res)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

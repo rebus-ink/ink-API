@@ -80,6 +80,7 @@ const test = async app => {
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
+
   const documentUrl = resPublication.body.orderedItems[0].id
   // create Note for user 1
 

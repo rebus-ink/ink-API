@@ -80,7 +80,7 @@ module.exports = app => {
       const shortId = req.params.shortId
       Note.byShortId(shortId)
         .then(note => {
-          if (!note) {
+          if (!note || note.deleted) {
             res.status(404).send(`No note with ID ${shortId}`)
           } else if (!utils.checkReader(req, note.reader)) {
             res.status(403).send(`Access to note ${shortId} disallowed`)
