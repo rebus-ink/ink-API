@@ -244,6 +244,86 @@ const test = async app => {
     }
   )
 
+  await tap.test('Delete a Note', async () => {
+    // before: there are two notes on this publication
+    const pubresbefore = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(pubresbefore.body.replies.length, 2)
+
+    // before: document has one note attached
+    const docresbefore = await request(app)
+      .get(urlparse(documentUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(docresbefore.body.replies.length, 1)
+
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Note',
+            id: noteUrl
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 204)
+
+    // note should no longer exist
+    const getres = await request(app)
+      .get(urlparse(noteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(getres.statusCode, 404)
+
+    // note should no longer be attached to publication
+    const pubres = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(pubres.statusCode, 200)
+
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.replies))
+    await tap.equal(body.replies.length, 1)
+
+    const docres = await request(app)
+      .get(urlparse(documentUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(docres.body.replies.length, 0)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

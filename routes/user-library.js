@@ -90,6 +90,9 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
+            const publications = reader.publications.filter(
+              pub => !pub.json.deleted
+            )
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
@@ -98,8 +101,8 @@ module.exports = app => {
                 },
                 type: 'Collection',
                 id: getId(`/reader-${shortId}/library`),
-                totalItems: reader.publications.length,
-                items: reader.publications.map(pub => pub.asRef()),
+                totalItems: publications.length,
+                items: publications.map(pub => pub.asRef()),
                 tags: reader.tags
               })
             )

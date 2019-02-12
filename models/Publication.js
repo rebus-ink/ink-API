@@ -37,7 +37,8 @@ class Publication extends BaseModel {
           additionalProperties: true
         },
         updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string', format: 'date-time' },
+        deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
       required: ['json']
@@ -158,10 +159,9 @@ class Publication extends BaseModel {
 
   static async delete (shortId /*: string */) /*: number */ {
     const publicationId = translator.toUUID(shortId)
-    await Activity.query()
-      .delete()
-      .where({ publicationId })
-    return Publication.query().deleteById(publicationId)
+    return await Publication.query().patchAndFetchById(publicationId, {
+      deleted: new Date().toISOString()
+    })
   }
 
   $formatJson (json /*: any */) /*: any */ {

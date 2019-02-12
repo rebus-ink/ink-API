@@ -96,7 +96,9 @@ module.exports = app => {
                     { reader: 'https://rebus.foundation/ns/reader' }
                   ],
                   replies: document.replies
-                    ? document.replies.map(reply => reply.toJSON())
+                    ? document.replies
+                      .filter(reply => !reply.deleted)
+                      .map(reply => reply.toJSON())
                     : []
                 })
               )

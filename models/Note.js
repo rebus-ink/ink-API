@@ -4,6 +4,7 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
+const { Activity } = require('./Activity')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -38,7 +39,8 @@ class Note extends BaseModel {
           additionalProperties: true
         },
         updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string', format: 'date-time' },
+        deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
       required: ['json']
@@ -49,7 +51,6 @@ class Note extends BaseModel {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
-    const { Activity } = require('./Activity.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -111,6 +112,13 @@ class Note extends BaseModel {
 
   asRef () /*: string */ {
     return this.toJSON().id
+  }
+
+  static async delete (shortId /*: string */) /*: Promise<any> */ {
+    const noteId = translator.toUUID(shortId)
+    return await Note.query().patchAndFetchById(noteId, {
+      deleted: new Date().toISOString()
+    })
   }
 }
 
