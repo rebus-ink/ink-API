@@ -288,6 +288,8 @@ const test = async app => {
     await tap.type(body.id, 'string')
     await tap.type(body.content, 'string')
     await tap.equal(body.content, 'new content!!')
+    await tap.notEqual(body.published, body.updated)
+    // check that old properties are still there
     await tap.type(body.inReplyTo, 'string')
     await tap.type(body.context, 'string')
     await tap.type(body['oa:hasSelector'], 'object')
