@@ -57,7 +57,7 @@ module.exports = function (app) {
    *       204:
    *         description: Successfully added or removed a tag, or successfully deleted
    *       404:
-   *         description: 'No Reader with ID {shortId}'
+   *         description: 'No Reader / Publication / Note with ID {shortId}'
    *       403:
    *         description: 'Access to reader {shortId} disallowed'
    */

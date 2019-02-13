@@ -18,13 +18,13 @@ const utils = require('./utils')
  *         type: array
  *       type:
  *         type: string
- *         enum: ['Create']
+ *         enum: ['Create', 'Add', 'Remove', 'Delete', 'Update']
  *       object:
  *         type: object
  *         properties:
  *           type:
  *             type: string
- *             enum: ['reader:Publication', 'Document', 'Note']
+ *             enum: ['reader:Publication', 'Document', 'Note', 'reader:Stack']
  *           id:
  *             type: string
  *             format: url
