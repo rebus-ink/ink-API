@@ -90,9 +90,7 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
-            const publications = reader.publications.filter(
-              pub => !pub.json.deleted
-            )
+            const publications = reader.publications.filter(pub => !pub.deleted)
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
