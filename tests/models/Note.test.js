@@ -51,6 +51,7 @@ const test = async app => {
 
   let noteId
   let note
+  let noteUrl
 
   await tap.test('Create Note', async () => {
     let response = await Reader.addNote(createdReader, noteObject)
@@ -60,6 +61,7 @@ const test = async app => {
     await tap.equal(response.json.inReplyTo, document.id)
 
     noteId = parseurl(response.url).path.substr(6)
+    noteUrl = response.url
   })
 
   await tap.test('Get note by short id', async () => {
@@ -86,6 +88,12 @@ const test = async app => {
   await tap.test('Delete Note that does not exist', async () => {
     const res = await Note.delete('123')
     await tap.notOk(res)
+  })
+
+  await tap.test('Update Note', async () => {
+    const res = await Note.update({ id: noteUrl, content: 'new content' })
+    await tap.ok(res)
+    await tap.equal(res.json.content, 'new content')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

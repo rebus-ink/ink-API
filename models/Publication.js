@@ -159,9 +159,15 @@ class Publication extends BaseModel {
 
   static async delete (shortId /*: string */) /*: number */ {
     const publicationId = translator.toUUID(shortId)
-    return await Publication.query().patchAndFetchById(publicationId, {
-      deleted: new Date().toISOString()
-    })
+    let publication = await Publication.query().findById(publicationId)
+    if (!publication) {
+      return null
+    }
+    publication.deleted = new Date().toISOString()
+    return await Publication.query().updateAndFetchById(
+      publicationId,
+      publication
+    )
   }
 
   $formatJson (json /*: any */) /*: any */ {

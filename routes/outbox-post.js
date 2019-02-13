@@ -8,6 +8,7 @@ const { handleAdd } = require('./activities/add')
 const { handleRemove } = require('./activities/remove')
 const { handleDelete } = require('./activities/delete')
 const { handleArrive } = require('./activities/arrive')
+const { handleUpdate } = require('./activities/update')
 
 const utils = require('./utils')
 /**
@@ -17,7 +18,7 @@ const utils = require('./utils')
  *     properties:
  *       type:
  *         type: string
- *         enum: ['Create', 'Add', 'Remove', 'Delete']
+ *         enum: ['Create', 'Add', 'Remove', 'Delete', 'Update']
  *       object:
  *         type: object
  *         properties:
@@ -56,7 +57,7 @@ module.exports = function (app) {
    *       204:
    *         description: Successfully added or removed a tag, or successfully deleted
    *       404:
-   *         description: 'No Reader with ID {shortId}'
+   *         description: 'No Reader / Publication / Note with ID {shortId}'
    *       403:
    *         description: 'Access to reader {shortId} disallowed'
    */
@@ -101,6 +102,10 @@ module.exports = function (app) {
 
                 case 'Arrive':
                   await handleArrive(req, res, reader)
+                  break
+
+                case 'Update':
+                  await handleUpdate(req, res, reader)
                   break
 
                 default:

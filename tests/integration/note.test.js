@@ -244,6 +244,59 @@ const test = async app => {
     }
   )
 
+  await tap.test('Update a Note', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Note',
+            id: noteUrl,
+            content: 'new content!!'
+          }
+        })
+      )
+    await tap.equal(res.statusCode, 201)
+    await tap.type(res.get('Location'), 'string')
+    activityUrl = res.get('Location')
+
+    const activityObject = await getActivityFromUrl(app, activityUrl, token)
+    noteUrl = activityObject.object.id
+
+    const resnote = await request(app)
+      .get(urlparse(noteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(resnote.statusCode, 200)
+
+    const body = resnote.body
+    await tap.type(body, 'object')
+    await tap.equal(body.type, 'Note')
+    await tap.type(body.id, 'string')
+    await tap.type(body.content, 'string')
+    await tap.equal(body.content, 'new content!!')
+    await tap.notEqual(body.published, body.updated)
+    // check that old properties are still there
+    await tap.type(body.inReplyTo, 'string')
+    await tap.type(body.context, 'string')
+    await tap.type(body['oa:hasSelector'], 'object')
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+  })
+
   await tap.test('Delete a Note', async () => {
     // before: there are two notes on this publication
     const pubresbefore = await request(app)

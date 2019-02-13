@@ -5,6 +5,8 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const { Activity } = require('./Activity')
+const parseurl = require('url').parse
+const _ = require('lodash')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -116,9 +118,22 @@ class Note extends BaseModel {
 
   static async delete (shortId /*: string */) /*: Promise<any> */ {
     const noteId = translator.toUUID(shortId)
-    return await Note.query().patchAndFetchById(noteId, {
-      deleted: new Date().toISOString()
-    })
+    let note = await Note.query().findById(noteId)
+    if (!note) return null
+    note.deleted = new Date().toISOString()
+    return await Note.query().updateAndFetchById(noteId, note)
+  }
+
+  static async update (object /*: any */) /*: Promise<any> */ {
+    // $FlowFixMe
+    const noteId = translator.toUUID(parseurl(object.id).path.substr(6))
+    const modifications = _.pick(object, ['content', 'oa:hasSelector'])
+    let note = await Note.query().findById(noteId)
+    if (!note) {
+      return undefined
+    }
+    note.json = Object.assign(note.json, modifications)
+    return await Note.query().updateAndFetchById(noteId, note)
   }
 }
 
