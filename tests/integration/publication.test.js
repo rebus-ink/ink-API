@@ -206,7 +206,6 @@ const test = async app => {
           }
         })
       )
-    console.log(res.error)
     await tap.equal(res.statusCode, 204)
 
     // getting deleted publication should return 404 error

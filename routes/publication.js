@@ -113,7 +113,7 @@ module.exports = function (app) {
             let positionObject = {}
             const readActivities = []
             publication.attachment.forEach(document => {
-              if (document.outbox.length > 0) {
+              if (document.outbox && document.outbox.length > 0) {
                 document.outbox.forEach(act => {
                   if (act.type === 'Read') readActivities.push(act)
                 })

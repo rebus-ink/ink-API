@@ -92,11 +92,14 @@ module.exports = app => {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             let position
-            const readAct = document.outbox.filter(act => act.type === 'Read')
-            if (readAct.length > 0) {
-              position = _.maxBy(readAct, o => o.published).json[
-                'oa:hasSelector'
-              ].value
+            let readAct
+            if (document.outbox) {
+              readAct = document.outbox.filter(act => act.type === 'Read')
+              if (readAct.length > 0) {
+                position = _.maxBy(readAct, o => o.published).json[
+                  'oa:hasSelector'
+                ].value
+              }
             }
 
             res.end(
