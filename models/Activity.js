@@ -45,6 +45,7 @@ class Activity extends BaseModel {
   get path () /*: string */ {
     return 'activity'
   }
+
   static get jsonSchema () /*: any */ {
     return {
       type: 'object',
@@ -183,6 +184,14 @@ class Activity extends BaseModel {
 
   static async createActivity (activity /*: any */) /*: Promise<activity> */ {
     return Activity.query().insert(activity)
+  }
+
+  $parseJson (json /*: any */, opt /*: any */) /*: any */ {
+    json = super.$parseJson(json, opt)
+    const type = json.json.type
+    return Object.assign(json, {
+      type
+    })
   }
 }
 

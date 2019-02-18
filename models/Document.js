@@ -128,7 +128,7 @@ class Document extends BaseModel {
   }> */ {
     return Document.query()
       .findById(translator.toUUID(shortId))
-      .eager('[reader, replies]')
+      .eager('[reader, replies, outbox]')
   }
 }
 module.exports = { Document }

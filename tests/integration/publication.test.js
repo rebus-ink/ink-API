@@ -18,7 +18,7 @@ const test = async app => {
   const userUrl = urlparse(userId).path
   let publicationUrl
   let activityUrl
-  //  let documentUrl
+  let documentUrl
 
   await tap.test('Create Publication', async () => {
     const res = await request(app)
@@ -101,6 +101,78 @@ const test = async app => {
     documentUrl = body.orderedItems[0].id
   })
 
+  await tap.test('Read activity should appear on the publication', async () => {
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' },
+            { oa: 'http://www.w3.org/ns/oa#' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: documentUrl },
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span'
+          }
+        })
+      )
+
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' },
+            { oa: 'http://www.w3.org/ns/oa#' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: documentUrl },
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span2'
+          }
+        })
+      )
+
+    const activityObject = await getActivityFromUrl(app, activityUrl, token)
+    publicationUrl = activityObject.object.id
+
+    const res = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.position, 'object')
+    await tap.type(body.position.documentId, 'string')
+    await tap.equal(body.position.documentId, documentUrl)
+    await tap.type(body.position.value, 'string')
+    await tap.equal(
+      body.position.value,
+      '/html/body/p[2]/table/tr[2]/td[3]/span2'
+    )
+  })
+
   await tap.test('Get Publication that does not exist', async () => {
     const res = await request(app)
       .get(urlparse(publicationUrl).path + 'abc')
@@ -134,7 +206,6 @@ const test = async app => {
           }
         })
       )
-
     await tap.equal(res.statusCode, 204)
 
     // getting deleted publication should return 404 error

@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Document } = require('../models/Document')
 const debug = require('debug')('hobb:routes:document')
 const utils = require('./utils')
+const _ = require('lodash')
 
 /**
  * @swagger
@@ -34,6 +35,8 @@ const utils = require('./utils')
  *         type: array
  *         items:
  *           $ref: '#/definitions/note'
+ *       position:
+ *         type: string
  *
  */
 
@@ -88,6 +91,17 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
+            let position
+            let readAct
+            if (document.outbox) {
+              readAct = document.outbox.filter(act => act.type === 'Read')
+              if (readAct.length > 0) {
+                position = _.maxBy(readAct, o => o.published).json[
+                  'oa:hasSelector'
+                ].value
+              }
+            }
+
             res.end(
               JSON.stringify(
                 Object.assign(document.toJSON(), {
@@ -99,7 +113,8 @@ module.exports = app => {
                     ? document.replies
                       .filter(reply => !reply.deleted)
                       .map(reply => reply.toJSON())
-                    : []
+                    : [],
+                  position: position
                 })
               )
             )

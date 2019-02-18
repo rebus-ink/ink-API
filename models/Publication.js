@@ -154,7 +154,7 @@ class Publication extends BaseModel {
   }> */ {
     return Publication.query()
       .findById(translator.toUUID(shortId))
-      .eager('[reader, attachment, replies, tags]')
+      .eager('[reader, attachment.outbox, replies, tags]')
   }
 
   static async delete (shortId /*: string */) /*: number */ {

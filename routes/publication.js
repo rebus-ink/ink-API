@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const debug = require('debug')('hobb:routes:publication')
 const utils = require('./utils')
+const _ = require('lodash')
 /**
  * @swagger
  * definition:
@@ -108,6 +109,24 @@ module.exports = function (app) {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             const publicationJson = publication.toJSON()
+            // get latest read position from the attached documents
+            let positionObject = {}
+            const readActivities = []
+            publication.attachment.forEach(document => {
+              if (document.outbox && document.outbox.length > 0) {
+                document.outbox.forEach(act => {
+                  if (act.type === 'Read') readActivities.push(act)
+                })
+              }
+            })
+            if (readActivities.length > 0) {
+              let position = _.maxBy(readActivities, o => o.published)
+              positionObject = {
+                documentId: position.json.object.id,
+                value: position.json['oa:hasSelector'].value
+              }
+            }
+
             res.end(
               JSON.stringify(
                 Object.assign(publicationJson, {
@@ -125,7 +144,8 @@ module.exports = function (app) {
                       .filter(note => !note.deleted)
                       .map(note => note.asRef())
                     : [],
-                  tags: publication.tags
+                  tags: publication.tags,
+                  position: positionObject
                 })
               )
             )

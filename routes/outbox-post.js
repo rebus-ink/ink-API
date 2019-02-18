@@ -9,6 +9,7 @@ const { handleRemove } = require('./activities/remove')
 const { handleDelete } = require('./activities/delete')
 const { handleArrive } = require('./activities/arrive')
 const { handleUpdate } = require('./activities/update')
+const { handleRead } = require('./activities/read')
 
 const utils = require('./utils')
 /**
@@ -18,7 +19,7 @@ const utils = require('./utils')
  *     properties:
  *       type:
  *         type: string
- *         enum: ['Create', 'Add', 'Remove', 'Delete', 'Update']
+ *         enum: ['Create', 'Add', 'Remove', 'Delete', 'Update', 'Read']
  *       object:
  *         type: object
  *         properties:
@@ -106,6 +107,10 @@ module.exports = function (app) {
 
                 case 'Update':
                   await handleUpdate(req, res, reader)
+                  break
+
+                case 'Read':
+                  await handleRead(req, res, reader)
                   break
 
                 default:
