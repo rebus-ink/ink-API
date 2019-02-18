@@ -6,7 +6,7 @@ const handleRemove = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
-      const resultStack = Publications_Tags.removeTagFromPub(
+      const resultStack = await Publications_Tags.removeTagFromPub(
         body.target.id,
         body.object.id
       )
