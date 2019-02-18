@@ -134,6 +134,46 @@ const test = async app => {
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
+
+    // making sure the position returned in the document is the latest
+
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' },
+            { oa: 'http://www.w3.org/ns/oa#' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: documentUrl },
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span2'
+          }
+        })
+      )
+
+    const resDoc = await request(app)
+      .get(urlparse(documentUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(resDoc.statusCode, 200)
+
+    const body = resDoc.body
+    await tap.type(body, 'object')
+    await tap.type(body.position, 'string')
+    await tap.equal(body.position, '/html/body/p[2]/table/tr[2]/td[3]/span2')
   })
 
   await tap.test('Get Document that does not exist', async () => {
