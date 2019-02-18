@@ -44,7 +44,6 @@ const test = async app => {
                 name: 'Sample Author'
               }
             ],
-            totalItems: 2,
             attachment: [
               {
                 type: 'Document',

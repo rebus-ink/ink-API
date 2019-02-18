@@ -4,6 +4,7 @@ const { Model } = require('objection')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
+const parseurl = require('url').parse
 
 const personAttrs = [
   'attachment',
@@ -124,6 +125,11 @@ class Reader extends BaseModel {
     reader /*: any */,
     document /*: any */
   ) /*: Promise<any> */ {
+    if (document.context) {
+      document.publicationId = translator.toUUID(
+        parseurl(document.context).path.substr(13)
+      )
+    }
     return reader.$relatedQuery('documents').insert(document)
   }
 

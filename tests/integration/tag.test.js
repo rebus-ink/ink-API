@@ -114,8 +114,8 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Add',
-          object: stack,
-          target: publication
+          object: { id: stack.id, type: stack.type },
+          target: { id: publication.id }
         })
       )
     await tap.equal(res.status, 204)

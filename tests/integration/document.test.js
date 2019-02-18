@@ -74,6 +74,7 @@ const test = async app => {
           type: 'Create',
           object: {
             type: 'Document',
+            context: publicationUrl,
             name: 'Document A',
             content: 'This is the content of document A.'
           }
@@ -105,6 +106,23 @@ const test = async app => {
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))
   })
+
+  await tap.test(
+    'Publication context should now include the document',
+    async () => {
+      const res = await request(app)
+        .get(urlparse(publicationUrl).path)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.statusCode, 200)
+
+      const body = res.body
+      await tap.type(body, 'object')
+    }
+  )
 
   await tap.test('Document Read Activity', async () => {
     const res = await request(app)
