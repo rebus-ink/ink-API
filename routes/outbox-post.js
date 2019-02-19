@@ -114,7 +114,7 @@ module.exports = function (app) {
                   break
 
                 default:
-                  res.status(400).send(`action ${body.type} not reconized`)
+                  res.status(400).send(`action ${body.type} not recognized`)
               }
             }
             return handleActivity()

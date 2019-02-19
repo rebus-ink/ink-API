@@ -6,6 +6,14 @@ This document provides examples for different activities that are implemented at
 
 In all cases, the endpoint will return a 201 status and a Location that is the url of the activity created.
 
+General Errors:
+These errors can be thrown on various activities
+
+* 404: 'No reader with id {id}'
+* 403: 'Access to reader {id} disallowed'
+* 400: 'action {action type} not recognized' - action type should be one of 'Create', 'Add', 'Remove', 'Delete', 'Update', 'Read'
+* 400: 'cannot {verb} {type}' e.g. 'cannot delete Document'. Object types can be 'reader:Publication', 'Document', 'Note', 'reader:Stack'. But not all action - object combinations are supported. For example, Update reader:Publication is not supported.
+
 ## Publications
 
 ### Create a Publication
@@ -62,6 +70,11 @@ Required properties:
 
 Documents attached to a publication will also be created and will belong to the publication. Alternatively, they can be created separately through the Create Document activity (see below)
 
+Possible errors:
+
+* 400 'create publication error: {message}' - generic error that occured on createPublication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
 ### Delete a Publication
 
 Example:
@@ -79,6 +92,12 @@ Example:
   }
 }
 ```
+
+Possible errors:
+
+* 404: 'publication with id {id} does not exist or has already been deleted'
+* 400: 'delete publication error: {message}' - generic error that occured on deletePublication. Refer to message for more details
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ### Other
 
@@ -110,6 +129,11 @@ Example:
 
 This will create a document that will be attached to the publication specified in object.context
 
+Possible errors:
+
+* 400: 'create document error: {message}' - generic error that occured on createDocument. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
 ### Read Activity
 
 Example:
@@ -133,6 +157,11 @@ Example:
 
 Once read activity is attached to a document, getting that document will return the latest read activity for that document position in the 'position' property
 Similarly, getting the publication will return the latest read activity attached to any of its documents.
+
+Possible errors:
+
+* 404: 'document with id {id} not found'
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ## Notes
 
@@ -164,6 +193,11 @@ This will create a note that is attached to the document specified in object.inR
 The specific location of the annotation within the document is specified by the oa:hasSelector object
 ADD LINK
 
+Possible errors:
+
+* 400: 'create note error: {message}' - generic error that occured on createNote. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
 ### Edit a Note
 
 Example:
@@ -186,6 +220,11 @@ Example:
 
 The API supports changes to either the content or the oa:hasSelector, or both. These properties only need to be included in the object only if they are changed.
 
+Possible errors:
+
+* 404: 'no note found with id {id}'
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
 ### Delete a Note
 
 Example:
@@ -203,6 +242,12 @@ Example:
   }
 }
 ```
+
+Possible errors:
+
+* 404: 'note with id {id} does not exist or has already been deleted'
+* 400: 'delete note error: {message}' - generic error taht occured on deleteNote. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ## Tags
 
@@ -226,6 +271,11 @@ Example:
 }
 ```
 
+Possible errors:
+
+* 400: 'create stack error: {message}' - generic error that occured on createTag. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
 ### Asssign a Tag to a Publication
 
 Example:
@@ -247,11 +297,17 @@ Example:
 }
 ```
 
-If the tag was already assigned to the publication, the API will return error 400: 'publication {publicationId} already associated with tag {tagId} ({tag name})'
-
 object can contain the entire note object, as returned as a reply to the GET document route. But only the id and the type are required.
 
 Similarly, target can contain the entire publication object, but only the id proeprty is required.
+
+Possible errors:
+
+* 404 'no publiation found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'publication {publicationId} already associated with tag {tagId} ({tag name})'
+* 400: 'add tag to publication error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ### Remove Tag from Publication
 
@@ -271,3 +327,10 @@ Similarly, target can contain the entire publication object, but only the id pro
   }
 }
 ```
+
+Possible errors:
+
+* 404 'no publication found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'remove tag from publication error: {message}' - generic error that occured on remove tag from publication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.

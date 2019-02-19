@@ -118,6 +118,7 @@ const test = async app => {
           target: { id: publication.id }
         })
       )
+    console.log(res.error)
     await tap.equal(res.status, 204)
 
     const pubres = await request(app)

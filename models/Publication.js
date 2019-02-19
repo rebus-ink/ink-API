@@ -160,7 +160,7 @@ class Publication extends BaseModel {
   static async delete (shortId /*: string */) /*: number */ {
     const publicationId = translator.toUUID(shortId)
     let publication = await Publication.query().findById(publicationId)
-    if (!publication) {
+    if (!publication || publication.deleted) {
       return null
     }
     publication.deleted = new Date().toISOString()

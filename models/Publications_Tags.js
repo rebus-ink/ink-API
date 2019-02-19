@@ -1,6 +1,7 @@
 const { Model } = require('objection')
 const parseurl = require('url').parse
 const { Publication } = require('./Publication')
+const { Tag } = require('./Tag')
 
 class Publications_Tags extends Model {
   static get tableName () {
@@ -17,6 +18,9 @@ class Publications_Tags extends Model {
   ) /*: any */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
     const publication = await Publication.byShortId(publicationShortId)
+    if (!publication) return new Error('no publication')
+    const tag = await Tag.byId(tagId)
+    if (!tag) return new Error('no tag')
     // check if already exists
     const result = await Publications_Tags.query().where({
       publicationId: publication.id,
@@ -37,6 +41,9 @@ class Publications_Tags extends Model {
   ) /*: number */ {
     let publicationShortId = parseurl(publicationUrl).path.substr(13)
     const publication = await Publication.byShortId(publicationShortId)
+    if (!publication) return new Error('no publication')
+    const tag = await Tag.byId(tagId)
+    if (!tag) return new Error('no tag')
     return await Publications_Tags.query()
       .delete()
       .where({

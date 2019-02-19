@@ -10,16 +10,35 @@ const handleAdd = async (req, res, reader) => {
         body.target.id,
         body.object.id
       )
-      if (resultStack instanceof Error && resultStack.message === 'duplicate') {
-        res
-          .status(400)
-          .send(
-            `publication ${body.target.id} already asssociated with tag ${
-              body.object.id
-            } (${body.object.name})`
-          )
+      if (resultStack instanceof Error) {
+        switch (resultStack.message) {
+          case 'duplicate':
+            res
+              .status(400)
+              .send(
+                `publication ${body.target.id} already asssociated with tag ${
+                  body.object.id
+                } (${body.object.name})`
+              )
+            break
+
+          case 'no publication':
+            res
+              .status(404)
+              .send(`no publication found with id ${body.target.id}`)
+            break
+
+          case 'no tag':
+            res.status(404).send(`no tag found with id ${body.object.id}`)
+            break
+
+          default:
+            res.status(400).send(`add tag to publication error: ${err.message}`)
+            break
+        }
         break
       }
+
       const activityObjStack = createActivityObject(body, resultStack, reader)
       Activity.createActivity(activityObjStack)
         .then(activity => {
@@ -28,7 +47,7 @@ const handleAdd = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`add tag to publication error: ${err.message}`)
+          res.status(400).send(`create activity error: ${err.message}`)
         })
       break
 
