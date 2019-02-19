@@ -276,7 +276,7 @@ Possible errors:
 * 400: 'create stack error: {message}' - generic error that occured on createTag. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
-### Asssign a Tag to a Publication
+### Assign a Tag to a Publication
 
 Example:
 
