@@ -190,7 +190,7 @@ const test = async app => {
               type: 'Document',
               name: 'Document B',
               content: 'This is the content of document B.',
-              publicationId: publicationUrl
+              context: publicationUrl
             }
           })
         )

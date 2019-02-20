@@ -5,6 +5,7 @@ const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
 const parseurl = require('url').parse
+const { Publication } = require('./Publication')
 
 const personAttrs = [
   'attachment',
@@ -125,15 +126,37 @@ class Reader extends BaseModel {
     reader /*: any */,
     document /*: any */
   ) /*: Promise<any> */ {
+    const publicationId = translator.toUUID(
+      parseurl(document.context).path.substr(13)
+    )
     if (document.context) {
-      document.publicationId = translator.toUUID(
-        parseurl(document.context).path.substr(13)
-      )
+      document.publicationId = publicationId
     }
+    // check that publication exists
+    let publication = await Publication.query().findById(publicationId)
+    if (!publication) {
+      return new Error('no publication')
+    }
+
     return reader.$relatedQuery('documents').insert(document)
   }
 
   static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
+    // check that document exists, publication exists and document belongs to publication
+    const { Document } = require('./Document')
+
+    const document = await Document.byShortId(
+      parseurl(note.inReplyTo).path.substr(10)
+    )
+    if (!document) return new Error('no document')
+
+    const publication = await Publication.byShortId(
+      parseurl(note.context).path.substr(13)
+    )
+    if (!publication) return new Error('no publication')
+
+    if (document.publicationId !== publication.id) { return new Error('wrong publication') }
+
     return reader.$relatedQuery('replies').insert(note)
   }
 
@@ -177,8 +200,8 @@ class Reader extends BaseModel {
     }
   }
   static get relationMappings () /*: any */ {
-    const { Publication } = require('./Publication.js')
-    const { Document } = require('./Document.js')
+    const { Document } = require('./Document')
+
     const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
     const { Attribution } = require('./Attribution.js')

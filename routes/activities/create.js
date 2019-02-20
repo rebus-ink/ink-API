@@ -28,6 +28,18 @@ const handleCreate = async (req, res, reader) => {
 
     case 'Document':
       const resultDoc = await Reader.addDocument(reader, body.object)
+      if (
+        resultDoc instanceof Error &&
+        resultDoc.message === 'no publication'
+      ) {
+        res
+          .status(404)
+          .send(
+            `no publication found for ${
+              body.object.context
+            }. Document must belong to an existing publication.`
+          )
+      }
       if (resultDoc instanceof Error || !resultDoc) {
         const message = resultDoc
           ? resultDoc.message
@@ -48,6 +60,45 @@ const handleCreate = async (req, res, reader) => {
 
     case 'Note':
       const resultNote = await Reader.addNote(reader, body.object)
+      if (!resultNote) res.status.send('create note error')
+      if (resultNote instanceof Error) {
+        switch (resultNote.message) {
+          case 'no publication':
+            res
+              .status(404)
+              .send(
+                `note creation failed: no publication found with id ${
+                  body.object.context
+                }`
+              )
+            break
+
+          case 'no document':
+            res
+              .status(404)
+              .send(
+                `note creation failed: no document found with id ${
+                  body.object.inReplyTo
+                }`
+              )
+            break
+
+          case 'wrong publication':
+            res
+              .status(400)
+              .send(
+                `note creation failed: document ${
+                  body.object.inReplyTo
+                } does not belong to publication ${body.object.context}`
+              )
+            break
+
+          default:
+            res.status(400).send(`note creation failed: ${resultNote.message}`)
+            break
+        }
+        break
+      }
       if (resultNote instanceof Error || !resultNote) {
         const message = resultNote ? resultNote.message : 'note creation failed'
         res.status(400).send(`create note error: ${message}`)

@@ -131,6 +131,7 @@ This will create a document that will be attached to the publication specified i
 
 Possible errors:
 
+* 404: 'no publication found for {publicaitonId}. Document must belong to an existing publication'
 * 400: 'create document error: {message}' - generic error that occured on createDocument. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
@@ -195,6 +196,9 @@ ADD LINK
 
 Possible errors:
 
+* 404: 'note creation failed: no publication found with id {id}' - publication id in note.context must point to an existing publication
+* 404: 'note creation failed: no document found with id {id}' - document id in note.inReplyTo must point to an existing document
+* 400: 'note creation failed: document {id} does not belong to publication {id}' - the document id in note.inReplyTo must belong to the publication in note.context
 * 400: 'create note error: {message}' - generic error that occured on createNote. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
