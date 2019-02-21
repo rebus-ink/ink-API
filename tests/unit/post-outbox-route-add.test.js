@@ -196,6 +196,55 @@ const test = async () => {
     await tap.equal(res.statusCode, 400)
     await tap.ok(addTagToPubSpy.calledOnce)
   })
+
+  await tap.test('Add publication to stack that does not exist', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
+      Promise.resolve(new Error('no tag'))
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const addTagToPubSpy = sinon.spy(
+      Publication_TagsStub.Publications_Tags,
+      'addTagToPub'
+    )
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(addPubToStackRequest))
+    await tap.equal(res.statusCode, 404)
+    await tap.ok(res.error.text.startsWith('no tag found with id'))
+    await tap.ok(addTagToPubSpy.calledOnce)
+  })
+
+  await tap.test('Add publication that does not exist to a stack', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
+      Promise.resolve(new Error('no publication'))
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const addTagToPubSpy = sinon.spy(
+      Publication_TagsStub.Publications_Tags,
+      'addTagToPub'
+    )
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(addPubToStackRequest))
+
+    await tap.equal(res.statusCode, 404)
+    await tap.ok(res.error.text.startsWith('no publication found with id'))
+    await tap.ok(addTagToPubSpy.calledOnce)
+  })
 }
 
 test()

@@ -140,6 +140,7 @@ const test = async () => {
 
   outboxRoute(app)
   const request = supertest(app)
+
   await tap.test('Remove publication from stack', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     Publication_TagsStub.Publications_Tags.removeTagFromPub = async () =>
@@ -165,6 +166,60 @@ const test = async () => {
     await tap.ok(removeTagFromPubSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
+
+  await tap.test(
+    'Try to remove publication from stack where publication not valid',
+    async () => {
+      Publication_TagsStub.Publications_Tags.removeTagFromPub = async () =>
+        Promise.resolve(new Error('no publication'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const removeTagFromPubSpy = sinon.spy(
+        Publication_TagsStub.Publications_Tags,
+        'removeTagFromPub'
+      )
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(removeTagFromStackRequest))
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(res.error.text.startsWith('no publication found with id'))
+      await tap.ok(removeTagFromPubSpy.calledOnce)
+    }
+  )
+
+  await tap.test(
+    'Try to remove publication from stack where tag not valid',
+    async () => {
+      Publication_TagsStub.Publications_Tags.removeTagFromPub = async () =>
+        Promise.resolve(new Error('no tag'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const removeTagFromPubSpy = sinon.spy(
+        Publication_TagsStub.Publications_Tags,
+        'removeTagFromPub'
+      )
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(removeTagFromStackRequest))
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(res.error.text.startsWith('no tag found with id'))
+      await tap.ok(removeTagFromPubSpy.calledOnce)
+    }
+  )
 }
 
 test()

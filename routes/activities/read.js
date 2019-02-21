@@ -12,6 +12,7 @@ const handleRead = async (req, res, reader) => {
       )
       if (!resultDoc) {
         res.status(404).send(`document with id ${body.object.id} not found`)
+        break
       }
       const activityObjStack = createActivityObject(body, resultDoc, reader)
       Activity.createActivity(activityObjStack)

@@ -39,12 +39,14 @@ const handleCreate = async (req, res, reader) => {
               body.object.context
             }. Document must belong to an existing publication.`
           )
+        break
       }
       if (resultDoc instanceof Error || !resultDoc) {
         const message = resultDoc
           ? resultDoc.message
           : 'document creation failed'
         res.status(400).send(`create document error: ${message}`)
+        break
       }
       const activityObjDoc = createActivityObject(body, resultDoc, reader)
       Activity.createActivity(activityObjDoc)

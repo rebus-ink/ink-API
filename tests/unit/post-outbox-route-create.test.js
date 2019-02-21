@@ -277,6 +277,32 @@ const test = async () => {
     await tap.ok(createActivitySpy.calledOnce)
   })
 
+  await tap.test(
+    'Try to create document with no (or invalid) publication context',
+    async () => {
+      ActivityStub.Activity.createActivity = async () =>
+        Promise.resolve(activity)
+      ReaderStub.Reader.addDocument = async () =>
+        Promise.resolve(new Error('no publication'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const addDocumentSpy = sinon.spy(ReaderStub.Reader, 'addDocument')
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(createDocumentRequest))
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(res.error.text.startsWith('no publication found for'))
+      await tap.ok(addDocumentSpy.calledOnce)
+    }
+  )
+
   await tap.test('Create note', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     ReaderStub.Reader.addNote = async () => Promise.resolve(reader)
@@ -299,6 +325,92 @@ const test = async () => {
     await tap.ok(createActivitySpy.calledOnce)
   })
 
+  await tap.test(
+    'Try to create a note with no (or invalid) publication context',
+    async () => {
+      ActivityStub.Activity.createActivity = async () =>
+        Promise.resolve(activity)
+      ReaderStub.Reader.addNote = async () =>
+        Promise.resolve(new Error('no publication'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const addNoteSpy = sinon.spy(ReaderStub.Reader, 'addNote')
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(createNoteRequest))
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(
+        res.error.text.startsWith(
+          'note creation failed: no publication found with id'
+        )
+      )
+      await tap.ok(addNoteSpy.calledOnce)
+    }
+  )
+
+  await tap.test(
+    'Try to create a note with no (or invalid) document inReplyTo',
+    async () => {
+      ActivityStub.Activity.createActivity = async () =>
+        Promise.resolve(activity)
+      ReaderStub.Reader.addNote = async () =>
+        Promise.resolve(new Error('no document'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const addNoteSpy = sinon.spy(ReaderStub.Reader, 'addNote')
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(createNoteRequest))
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(
+        res.error.text.startsWith(
+          'note creation failed: no document found with id'
+        )
+      )
+      await tap.ok(addNoteSpy.calledOnce)
+    }
+  )
+
+  await tap.test(
+    'Try to create a note where the inReplyTo document does not belong to the context publication',
+    async () => {
+      ActivityStub.Activity.createActivity = async () =>
+        Promise.resolve(activity)
+      ReaderStub.Reader.addNote = async () =>
+        Promise.resolve(new Error('wrong publication'))
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      checkReaderStub.returns(true)
+
+      const addNoteSpy = sinon.spy(ReaderStub.Reader, 'addNote')
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(createNoteRequest))
+
+      await tap.equal(res.statusCode, 400)
+      await tap.ok(res.error.text.startsWith('note creation failed: document'))
+      await tap.ok(addNoteSpy.calledOnce)
+    }
+  )
+
   await tap.test('Create Stack', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     TagStub.Tag.createTag = async () => Promise.resolve(tag)
@@ -319,6 +431,7 @@ const test = async () => {
     await tap.ok(addTagSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
+
   await tap.test('Try to create an activity for the wrong user', async () => {
     checkReaderStub.returns(false)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)

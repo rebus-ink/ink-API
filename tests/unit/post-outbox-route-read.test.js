@@ -176,6 +176,27 @@ const test = async () => {
     await tap.equal(res.statusCode, 201)
     await tap.ok(createActivitySpy.calledOnce)
   })
+
+  await tap.test(
+    'Read activity on a document that does not exist',
+    async () => {
+      ActivityStub.Activity.createActivity = async () =>
+        Promise.resolve(activity)
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      DocumentStub.Document.byShortId = async () => Promise.resolve(null)
+      checkReaderStub.returns(true)
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(readActivityRequest))
+
+      await tap.equal(res.statusCode, 404)
+    }
+  )
 }
 
 test()

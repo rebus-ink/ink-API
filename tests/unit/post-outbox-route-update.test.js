@@ -143,6 +143,28 @@ const test = async () => {
     await tap.ok(updateSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })
+
+  await tap.test('Try to update a note that does not exist', async () => {
+    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
+    NoteStub.Note.update = async () => Promise.resolve(null)
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(true)
+
+    const updateSpy = sinon.spy(NoteStub.Note, 'update')
+    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(updateNoteRequest))
+
+    await tap.equal(res.statusCode, 404)
+    await tap.ok(res.error.text.startsWith('no note found with id'))
+    await tap.ok(updateSpy.calledOnce)
+  })
 }
 
 test()

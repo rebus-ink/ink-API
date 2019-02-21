@@ -7,7 +7,10 @@ const handleUpdate = async (req, res, reader) => {
   switch (body.object.type) {
     case 'Note':
       const resultNote = await Note.update(body.object)
-      if (resultNote === null) { res.status(404).send(`no note found with id ${body.object.id}`) }
+      if (resultNote === null) {
+        res.status(404).send(`no note found with id ${body.object.id}`)
+        break
+      }
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {
