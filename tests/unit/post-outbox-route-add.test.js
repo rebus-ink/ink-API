@@ -198,7 +198,6 @@ const test = async () => {
   })
 
   await tap.test('Add publication to stack that does not exist', async () => {
-    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
       Promise.resolve(new Error('no tag'))
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
@@ -222,7 +221,6 @@ const test = async () => {
   })
 
   await tap.test('Add publication that does not exist to a stack', async () => {
-    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     Publication_TagsStub.Publications_Tags.addTagToPub = async () =>
       Promise.resolve(new Error('no publication'))
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)

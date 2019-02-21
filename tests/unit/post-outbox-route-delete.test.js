@@ -166,8 +166,6 @@ const test = async () => {
   await tap.test(
     'Try to delete a publication that does not exist',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
       PublicationStub.Publication.delete = async () => Promise.resolve(null)
       checkReaderStub.returns(true)
@@ -202,7 +200,6 @@ const test = async () => {
   })
 
   await tap.test('Try to delete a note that does not exist', async () => {
-    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     NoteStub.Note.delete = async () => Promise.resolve(null)
     checkReaderStub.returns(true)

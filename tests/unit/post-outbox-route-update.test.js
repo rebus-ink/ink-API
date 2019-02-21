@@ -145,13 +145,11 @@ const test = async () => {
   })
 
   await tap.test('Try to update a note that does not exist', async () => {
-    ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     NoteStub.Note.update = async () => Promise.resolve(null)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const updateSpy = sinon.spy(NoteStub.Note, 'update')
-    const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
 
     const res = await request
       .post('/reader-123/activity')

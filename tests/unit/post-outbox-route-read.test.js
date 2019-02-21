@@ -180,8 +180,6 @@ const test = async () => {
   await tap.test(
     'Read activity on a document that does not exist',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
       DocumentStub.Document.byShortId = async () => Promise.resolve(null)
       checkReaderStub.returns(true)

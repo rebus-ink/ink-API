@@ -85,6 +85,36 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
+  await tap.test(
+    'Try to create Document with invalid publication context',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Create',
+            object: {
+              type: 'Document',
+              context: undefined,
+              name: 'Document A',
+              content: 'This is the content of document A.'
+            }
+          })
+        )
+      await tap.equal(res.status, 404)
+      await tap.ok(res.error.text.startsWith('no publication found for'))
+    }
+  )
+
   await tap.test('Get Document', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     documentUrl = activityObject.object.id
@@ -191,6 +221,35 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.position, 'string')
     await tap.equal(body.position, '/html/body/p[2]/table/tr[2]/td[3]/span2')
+  })
+
+  await tap.test('Document Read activity for invalid document id', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' },
+            { oa: 'http://www.w3.org/ns/oa#' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: documentUrl + '123' },
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span'
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    await tap.ok(res.error.text.startsWith('document with id'))
   })
 
   await tap.test('Get Document that does not exist', async () => {

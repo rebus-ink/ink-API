@@ -280,8 +280,6 @@ const test = async () => {
   await tap.test(
     'Try to create document with no (or invalid) publication context',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.addDocument = async () =>
         Promise.resolve(new Error('no publication'))
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
@@ -328,8 +326,6 @@ const test = async () => {
   await tap.test(
     'Try to create a note with no (or invalid) publication context',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.addNote = async () =>
         Promise.resolve(new Error('no publication'))
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
@@ -358,8 +354,6 @@ const test = async () => {
   await tap.test(
     'Try to create a note with no (or invalid) document inReplyTo',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.addNote = async () =>
         Promise.resolve(new Error('no document'))
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
@@ -388,8 +382,6 @@ const test = async () => {
   await tap.test(
     'Try to create a note where the inReplyTo document does not belong to the context publication',
     async () => {
-      ActivityStub.Activity.createActivity = async () =>
-        Promise.resolve(activity)
       ReaderStub.Reader.addNote = async () =>
         Promise.resolve(new Error('wrong publication'))
       ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
