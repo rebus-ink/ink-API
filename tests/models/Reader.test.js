@@ -1,7 +1,7 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
-const parseurl = require('url').parse
+const { urlToShortId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -24,7 +24,7 @@ const test = async app => {
 
     await tap.ok(createdReader)
     await tap.ok(createdReader instanceof Reader)
-    readerShortId = parseurl(createdReader.url).path.substr(8)
+    readerShortId = urlToShortId(createdReader.url)
   })
 
   await tap.test('Get reader by short id', async () => {

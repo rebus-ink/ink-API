@@ -4,7 +4,7 @@ const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
-const parseurl = require('url').parse
+const { urlToShortId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -46,7 +46,7 @@ const test = async app => {
     await tap.ok(response instanceof Publication)
     await tap.equal(response.readerId, createdReader.id)
 
-    publicationId = parseurl(response.url).path.substr(13)
+    publicationId = urlToShortId(response.url)
   })
 
   await tap.test('Get publication by short id', async () => {

@@ -1,15 +1,13 @@
 const { createActivityObject } = require('./utils')
 const { Activity } = require('../../models/Activity')
 const { Document } = require('../../models/Document')
-const parseurl = require('url').parse
+const { urlToShortId } = require('../utils')
 
 const handleRead = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'Document':
-      const resultDoc = await Document.byShortId(
-        parseurl(body.object.id).path.substr(10)
-      )
+      const resultDoc = await Document.byShortId(urlToShortId(body.object.id))
       if (!resultDoc) {
         res.status(404).send(`document with id ${body.object.id} not found`)
         break
