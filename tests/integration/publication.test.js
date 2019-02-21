@@ -44,7 +44,6 @@ const test = async app => {
                 name: 'Sample Author'
               }
             ],
-            totalItems: 2,
             attachment: [
               {
                 type: 'Document',
@@ -244,6 +243,54 @@ const test = async app => {
     //   )
 
     // await tap.equal(docres.statusCode, 404)
+  })
+
+  await tap.test('delete publication that does not exist', async () => {
+    // already deleted
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'reader:Publication',
+            id: publicationUrl
+          }
+        })
+      )
+    await tap.equal(res.statusCode, 404)
+
+    // never existed
+    const res1 = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'reader:Publication',
+            id: publicationUrl + '123'
+          }
+        })
+      )
+    await tap.equal(res1.statusCode, 404)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

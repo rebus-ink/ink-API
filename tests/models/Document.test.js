@@ -3,6 +3,8 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
+const short = require('short-uuid')
+const translator = short()
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -37,8 +39,9 @@ const test = async app => {
     createdReader,
     publicationObject
   )
-  documentObject.publicationId = publication.id
 
+  let publicationShortId = translator.fromUUID(publication.id)
+  documentObject.context = `http://localhost:8080/publication-${publicationShortId}`
   let documentId
   let document
 
@@ -50,6 +53,17 @@ const test = async app => {
 
     documentId = parseurl(response.url).path.substr(10)
   })
+
+  await tap.test(
+    'Try to create Document with no publication context',
+    async () => {
+      let badDocument = Object.assign(documentObject, { context: undefined })
+      const response = await Reader.addDocument(createdReader, badDocument)
+
+      await tap.ok(typeof response, Error)
+      await tap.equal(response.message, 'no publication')
+    }
+  )
 
   await tap.test('Get document by short id', async () => {
     document = await Document.byShortId(documentId)

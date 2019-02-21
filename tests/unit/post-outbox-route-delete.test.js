@@ -145,7 +145,7 @@ const test = async () => {
   outboxRoute(app)
   const request = supertest(app)
 
-  await tap.test('Detele a publication', async () => {
+  await tap.test('Delete a publication', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
 
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
@@ -163,7 +163,26 @@ const test = async () => {
     await tap.equal(res.statusCode, 204)
   })
 
-  await tap.test('Detele a note', async () => {
+  await tap.test(
+    'Try to delete a publication that does not exist',
+    async () => {
+      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+      PublicationStub.Publication.delete = async () => Promise.resolve(null)
+      checkReaderStub.returns(true)
+
+      const res = await request
+        .post('/reader-123/activity')
+        .set('Host', 'reader-api.test')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(JSON.stringify(deletePublicationRequest))
+
+      await tap.equal(res.statusCode, 404)
+    }
+  )
+
+  await tap.test('Delete a note', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
     NoteStub.Note.delete = async () => Promise.resolve(1)
@@ -178,6 +197,22 @@ const test = async () => {
       .send(JSON.stringify(deleteNoteRequest))
 
     await tap.equal(res.statusCode, 204)
+  })
+
+  await tap.test('Try to delete a note that does not exist', async () => {
+    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    NoteStub.Note.delete = async () => Promise.resolve(null)
+    checkReaderStub.returns(true)
+
+    const res = await request
+      .post('/reader-123/activity')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(deleteNoteRequest))
+
+    await tap.equal(res.statusCode, 404)
   })
 }
 

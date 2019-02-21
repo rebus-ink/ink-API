@@ -10,6 +10,26 @@ const handleRemove = async (req, res, reader) => {
         body.target.id,
         body.object.id
       )
+      if (resultStack instanceof Error) {
+        switch (resultStack.message) {
+          case 'no publication':
+            res
+              .status(404)
+              .send(`no publication found with id ${body.target.id}`)
+            break
+
+          case 'no tag':
+            res.status(404).send(`no tag found with id ${body.object.id}`)
+            break
+
+          default:
+            res
+              .status(400)
+              .send(`remove tag from publication error: ${err.message}`)
+            break
+        }
+        break
+      }
       const activityObjStack = createActivityObject(body, resultStack, reader)
       Activity.createActivity(activityObjStack)
         .then(activity => {
@@ -18,9 +38,7 @@ const handleRemove = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res
-            .status(400)
-            .send(`remove tag from publication error: ${err.message}`)
+          res.status(400).send(`create activity error: ${err.message}`)
         })
       break
 

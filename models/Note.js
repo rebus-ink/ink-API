@@ -119,7 +119,7 @@ class Note extends BaseModel {
   static async delete (shortId /*: string */) /*: Promise<any> */ {
     const noteId = translator.toUUID(shortId)
     let note = await Note.query().findById(noteId)
-    if (!note) return null
+    if (!note || note.deleted) return null
     note.deleted = new Date().toISOString()
     return await Note.query().updateAndFetchById(noteId, note)
   }
@@ -130,7 +130,7 @@ class Note extends BaseModel {
     const modifications = _.pick(object, ['content', 'oa:hasSelector'])
     let note = await Note.query().findById(noteId)
     if (!note) {
-      return undefined
+      return null
     }
     note.json = Object.assign(note.json, modifications)
     return await Note.query().updateAndFetchById(noteId, note)

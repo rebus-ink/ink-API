@@ -26,6 +26,10 @@ class Tag extends Model {
     tag.readerId = readerId
     return await Tag.query().insert(tag)
   }
+
+  static async byId (id /*: string */) /*: any */ {
+    return await Tag.query().findById(id)
+  }
 }
 
 module.exports = { Tag }

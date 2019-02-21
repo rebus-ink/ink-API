@@ -97,6 +97,68 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
+  await tap.test(
+    'Try to create Note with invalid Publication context',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Create',
+            object: {
+              type: 'Note',
+              content: 'This is the content of note A.',
+              'oa:hasSelector': {},
+              context: publicationUrl + '123',
+              inReplyTo: documentUrl
+            }
+          })
+        )
+
+      await tap.equal(res.status, 404)
+    }
+  )
+
+  await tap.test(
+    'Try to create Note with invalid inReplyTo Document',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Create',
+            object: {
+              type: 'Note',
+              content: 'This is the content of note A.',
+              'oa:hasSelector': {},
+              context: publicationUrl,
+              inReplyTo: documentUrl + '123'
+            }
+          })
+        )
+
+      await tap.equal(res.status, 404)
+    }
+  )
+
   await tap.test('Get note', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
@@ -190,7 +252,7 @@ const test = async app => {
               type: 'Document',
               name: 'Document B',
               content: 'This is the content of document B.',
-              publicationId: publicationUrl
+              context: publicationUrl
             }
           })
         )
@@ -297,6 +359,31 @@ const test = async app => {
     await tap.ok(Array.isArray(body['@context']))
   })
 
+  await tap.test('Try to update a Note that does not exist', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Note',
+            id: noteUrl + 'abc',
+            content: 'new content!!'
+          }
+        })
+      )
+    await tap.equal(res.statusCode, 404)
+  })
+
   await tap.test('Delete a Note', async () => {
     // before: there are two notes on this publication
     const pubresbefore = await request(app)
@@ -375,6 +462,55 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(docres.body.replies.length, 0)
+  })
+
+  await tap.test('Try to delete a Note that does not exist', async () => {
+    // already deleted
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Note',
+            id: noteUrl
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+
+    const res1 = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Note',
+            id: noteUrl + '123'
+          }
+        })
+      )
+
+    await tap.equal(res1.statusCode, 404)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

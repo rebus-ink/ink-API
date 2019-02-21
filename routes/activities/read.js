@@ -10,6 +10,10 @@ const handleRead = async (req, res, reader) => {
       const resultDoc = await Document.byShortId(
         parseurl(body.object.id).path.substr(10)
       )
+      if (!resultDoc) {
+        res.status(404).send(`document with id ${body.object.id} not found`)
+        break
+      }
       const activityObjStack = createActivityObject(body, resultDoc, reader)
       Activity.createActivity(activityObjStack)
         .then(activity => {
@@ -18,7 +22,7 @@ const handleRead = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`read error: ${err.message}`)
+          res.status(400).send(`create read activity error: ${err.message}`)
         })
       break
 

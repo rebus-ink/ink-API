@@ -114,8 +114,8 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Add',
-          object: stack,
-          target: publication
+          object: { id: stack.id, type: stack.type },
+          target: { id: publication.id }
         })
       )
     await tap.equal(res.status, 204)
@@ -135,6 +135,56 @@ const test = async app => {
     await tap.equal(body.tags[0].type, 'reader:Stack')
     await tap.equal(body.tags[0].name, 'mystack')
   })
+
+  await tap.test(
+    'Try to assign publication to tag with invalid tag',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Add',
+            object: { id: undefined, type: stack.type },
+            target: { id: publication.id }
+          })
+        )
+      await tap.equal(res.status, 404)
+    }
+  )
+
+  await tap.test(
+    'Try to assign publication to tag with invalid publication',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Add',
+            object: { id: stack.id, type: stack.type },
+            target: { id: undefined }
+          })
+        )
+      await tap.equal(res.status, 404)
+    }
+  )
 
   await tap.test('remove tag from publication', async () => {
     const res = await request(app)
@@ -171,6 +221,56 @@ const test = async app => {
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 0)
   })
+
+  await tap.test(
+    'Try to remove a tag from a publication with invalid tag',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: undefined, type: stack.type },
+            target: { id: publication.id }
+          })
+        )
+      await tap.equal(res.status, 404)
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a publication with invalid publication',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: stack.id, type: stack.type },
+            target: { id: undefined }
+          })
+        )
+      await tap.equal(res.status, 404)
+    }
+  )
 
   await tap.test('Try to assign publication to tag twice', async () => {
     await request(app)

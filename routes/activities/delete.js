@@ -11,6 +11,22 @@ const handleDelete = async (req, res, reader) => {
       const returned = await Publication.delete(
         parseurl(body.object.id).path.substr(13)
       )
+      if (returned === null) {
+        res
+          .status(404)
+          .send(
+            `publication with id ${
+              body.object.id
+            } does not exist or has already been deleted`
+          )
+        break
+      } else if (returned instanceof Error || !returned) {
+        const message = returned
+          ? returned.message
+          : 'publication deletion failed'
+        res.status(400).send(`delete publication error: ${message}`)
+        break
+      }
       const activityObjPub = createActivityObject(body, returned, reader)
       Activity.createActivity(activityObjPub)
         .then(activity => {
@@ -19,7 +35,7 @@ const handleDelete = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`delete publication error: ${err.message}`)
+          res.status(400).send(`create activity error: ${err.message}`)
         })
       break
 
@@ -27,6 +43,20 @@ const handleDelete = async (req, res, reader) => {
       const resultNote = await Note.delete(
         parseurl(body.object.id).path.substr(6)
       )
+      if (resultNote === null) {
+        res
+          .status(404)
+          .send(
+            `note with id ${
+              body.object.id
+            } does not exist or has already been deleted`
+          )
+        break
+      } else if (resultNote instanceof Error || !resultNote) {
+        const message = resultNote ? resultNote.message : 'note deletion failed'
+        res.status(400).send(`delete note error: ${message}`)
+        break
+      }
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {
@@ -35,7 +65,7 @@ const handleDelete = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`delete note error: ${err.message}`)
+          res.status(400).send(`create activity error: ${err.message}`)
         })
       break
 
