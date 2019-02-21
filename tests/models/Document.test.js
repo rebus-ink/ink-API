@@ -3,6 +3,8 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
 const parseurl = require('url').parse
+const short = require('short-uuid')
+const translator = short()
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -37,8 +39,9 @@ const test = async app => {
     createdReader,
     publicationObject
   )
-  documentObject.publicationId = publication.id
 
+  let publicationShortId = translator.fromUUID(publication.id)
+  documentObject.context = `http://localhost:8080/publication-${publicationShortId}`
   let documentId
   let document
 

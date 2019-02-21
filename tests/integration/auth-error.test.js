@@ -68,7 +68,6 @@ const test = async app => {
         }
       })
     )
-
   const activityUrl = resActivity.get('Location')
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
   const publicationUrl = activityObject.object.id

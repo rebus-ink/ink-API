@@ -3,6 +3,8 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const parseurl = require('url').parse
+const short = require('short-uuid')
+const translator = short()
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -43,11 +45,12 @@ const test = async app => {
     createdReader,
     publicationObject
   )
-  documentObject.publicationId = publication.id
-
+  let publicationShortId = translator.fromUUID(publication.id)
+  documentObject.context = `http://localhost:8080/publication-${publicationShortId}`
   let document = await Reader.addDocument(createdReader, documentObject)
-  noteObject.inReplyTo = document.id
-  noteObject.context = publication.id
+  let documentShortId = translator.fromUUID(document.id)
+  noteObject.inReplyTo = `http://localhost:8080/document-${documentShortId}`
+  noteObject.context = `http://localhost:8080/publication-${publicationShortId}`
 
   let noteId
   let note
@@ -58,7 +61,10 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
-    await tap.equal(response.json.inReplyTo, document.id)
+    await tap.equal(
+      response.json.inReplyTo,
+      `http://localhost:8080/document-${documentShortId}`
+    )
 
     noteId = parseurl(response.url).path.substr(6)
     noteUrl = response.url
