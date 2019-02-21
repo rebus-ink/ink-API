@@ -77,12 +77,49 @@ const test = async app => {
     await tap.equal(res.tagId, createdTag.id)
   })
 
+  await tap.test('addTagToPub with invalid tag id ', async () => {
+    const res = await Publications_Tags.addTagToPub(
+      publication.url,
+      createdTag.id + '123'
+    )
+
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no tag')
+  })
+
+  await tap.test('addTagToPub with invalid publication id ', async () => {
+    const res = await Publications_Tags.addTagToPub(undefined, createdTag.id)
+
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no publication')
+  })
+
   await tap.test('Publication remove tag', async () => {
     const res = await Publications_Tags.removeTagFromPub(
       publication.url,
       createdTag.id
     )
     await tap.equal(res, 1)
+  })
+
+  await tap.test('removeTagFromPub with invalid tag id ', async () => {
+    const res = await Publications_Tags.removeTagFromPub(
+      publication.url,
+      createdTag.id + '123'
+    )
+
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no tag')
+  })
+
+  await tap.test('removeTagFromPub with invalid publication id ', async () => {
+    const res = await Publications_Tags.removeTagFromPub(
+      undefined,
+      createdTag.id
+    )
+
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no publication')
   })
 
   await tap.test('Try to assign same tag twice', async () => {

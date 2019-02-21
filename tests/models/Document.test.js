@@ -54,6 +54,17 @@ const test = async app => {
     documentId = parseurl(response.url).path.substr(10)
   })
 
+  await tap.test(
+    'Try to create Document with no publication context',
+    async () => {
+      let badDocument = Object.assign(documentObject, { context: undefined })
+      const response = await Reader.addDocument(createdReader, badDocument)
+
+      await tap.ok(typeof response, Error)
+      await tap.equal(response.message, 'no publication')
+    }
+  )
+
   await tap.test('Get document by short id', async () => {
     document = await Document.byShortId(documentId)
     await tap.type(document, 'object')

@@ -144,10 +144,14 @@ class Reader extends BaseModel {
     // check that document exists, publication exists and document belongs to publication
 
     const { Document } = require('./Document')
+
+    if (!note.inReplyTo) return new Error('no document')
     const document = await Document.byShortId(
       parseurl(note.inReplyTo).path.substr(10)
     )
     if (!document) return new Error('no document')
+
+    if (!note.context) return new Error('no publication')
     const publication = await Publication.byShortId(
       parseurl(note.context).path.substr(13)
     )

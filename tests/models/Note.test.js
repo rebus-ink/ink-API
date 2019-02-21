@@ -70,6 +70,28 @@ const test = async app => {
     noteUrl = response.url
   })
 
+  await tap.test(
+    'Try to Create Note with invalid inReplyTo Document',
+    async () => {
+      const badNote = Object.assign({}, noteObject, { inReplyTo: undefined })
+
+      let response = await Reader.addNote(createdReader, badNote)
+      await tap.ok(typeof response, Error)
+      await tap.equal(response.message, 'no document')
+    }
+  )
+
+  await tap.test(
+    'Try to Create Note with invalid Publication context',
+    async () => {
+      const badNote = Object.assign({}, noteObject, { context: undefined })
+
+      let response = await Reader.addNote(createdReader, badNote)
+      await tap.ok(typeof response, Error)
+      await tap.equal(response.message, 'no publication')
+    }
+  )
+
   await tap.test('Get note by short id', async () => {
     note = await Note.byShortId(noteId)
     await tap.type(note, 'object')
@@ -91,15 +113,23 @@ const test = async app => {
     await tap.ok(res.deleted)
   })
 
-  await tap.test('Delete Note that does not exist', async () => {
+  await tap.test('Try to delete a note that does not exist', async () => {
     const res = await Note.delete('123')
-    await tap.notOk(res)
+    await tap.equal(res, null)
   })
 
   await tap.test('Update Note', async () => {
     const res = await Note.update({ id: noteUrl, content: 'new content' })
     await tap.ok(res)
     await tap.equal(res.json.content, 'new content')
+  })
+
+  await tap.test('Try to update a note that does not exist', async () => {
+    const res = await Note.update({
+      id: noteUrl + '123',
+      content: 'new content'
+    })
+    await tap.equal(res, null)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
