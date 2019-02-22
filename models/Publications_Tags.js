@@ -1,7 +1,7 @@
 const { Model } = require('objection')
-const parseurl = require('url').parse
 const { Publication } = require('./Publication')
 const { Tag } = require('./Tag')
+const { urlToShortId } = require('../routes/utils')
 
 class Publications_Tags extends Model {
   static get tableName () {
@@ -18,7 +18,7 @@ class Publications_Tags extends Model {
   ) /*: any */ {
     // check publication
     if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = parseurl(publicationUrl).path.substr(13)
+    let publicationShortId = urlToShortId(publicationUrl)
     const publication = await Publication.byShortId(publicationShortId)
     if (!publication) return new Error('no publication')
 
@@ -46,7 +46,7 @@ class Publications_Tags extends Model {
   ) /*: number */ {
     // check publication
     if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = parseurl(publicationUrl).path.substr(13)
+    let publicationShortId = urlToShortId(publicationUrl)
     const publication = await Publication.byShortId(publicationShortId)
     if (!publication) return new Error('no publication')
 

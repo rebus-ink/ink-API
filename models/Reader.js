@@ -4,8 +4,8 @@ const { Model } = require('objection')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
-const parseurl = require('url').parse
 const { Publication } = require('./Publication')
+const { urlToId, urlToShortId } = require('../routes/utils')
 
 const personAttrs = [
   'attachment',
@@ -127,9 +127,7 @@ class Reader extends BaseModel {
     document /*: any */
   ) /*: Promise<any> */ {
     if (!document.context) return new Error('no publication')
-    document.publicationId = translator.toUUID(
-      parseurl(document.context).path.substr(13)
-    )
+    document.publicationId = urlToId(document.context)
 
     // check that publication exists
     let publication = await Publication.query().findById(document.publicationId)
@@ -146,15 +144,11 @@ class Reader extends BaseModel {
     const { Document } = require('./Document')
 
     if (!note.inReplyTo) return new Error('no document')
-    const document = await Document.byShortId(
-      parseurl(note.inReplyTo).path.substr(10)
-    )
+    const document = await Document.byShortId(urlToShortId(note.inReplyTo))
     if (!document) return new Error('no document')
 
     if (!note.context) return new Error('no publication')
-    const publication = await Publication.byShortId(
-      parseurl(note.context).path.substr(13)
-    )
+    const publication = await Publication.byShortId(urlToShortId(note.context))
     if (!publication) return new Error('no publication')
 
     if (document.publicationId !== publication.id) {

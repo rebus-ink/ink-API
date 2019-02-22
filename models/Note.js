@@ -5,8 +5,8 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const { Activity } = require('./Activity')
-const parseurl = require('url').parse
 const _ = require('lodash')
+const { urlToId } = require('../routes/utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -126,7 +126,7 @@ class Note extends BaseModel {
 
   static async update (object /*: any */) /*: Promise<any> */ {
     // $FlowFixMe
-    const noteId = translator.toUUID(parseurl(object.id).path.substr(6))
+    const noteId = urlToId(object.id)
     const modifications = _.pick(object, ['content', 'oa:hasSelector'])
     let note = await Note.query().findById(noteId)
     if (!note) {

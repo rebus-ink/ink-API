@@ -2,7 +2,7 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Activity } = require('../../models/Activity')
 const { Reader } = require('../../models/Reader')
-const parseurl = require('url').parse
+const { urlToShortId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -55,7 +55,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.type(response, 'object')
     await tap.equal(response.type, 'Activity')
-    id = parseurl(response.url).path.substr(10)
+    id = urlToShortId(response.url)
   })
 
   await tap.test('Get activity by short id', async () => {

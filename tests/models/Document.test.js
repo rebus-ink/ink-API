@@ -2,9 +2,9 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
-const parseurl = require('url').parse
 const short = require('short-uuid')
 const translator = short()
+const { urlToShortId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -51,7 +51,7 @@ const test = async app => {
     await tap.ok(response instanceof Document)
     await tap.equal(response.readerId, createdReader.id)
 
-    documentId = parseurl(response.url).path.substr(10)
+    documentId = urlToShortId(response.url)
   })
 
   await tap.test(
