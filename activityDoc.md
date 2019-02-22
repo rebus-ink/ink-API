@@ -292,7 +292,7 @@ Example:
   ],
   type: 'Add',
   object: {
-    id: <noteId>
+    id: <tagId>
     type: 'reader:Stack'
   },
   target: {
@@ -323,7 +323,7 @@ Possible errors:
   ],
   type: 'Remove',
   object: {
-    id: <noteId>
+    id: <tagId>
     type: 'reader:Stack'
   },
   target: {
