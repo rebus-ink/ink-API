@@ -54,9 +54,7 @@ module.exports = function (app) {
    *             $ref: '#/definitions/outbox-request'
    *     responses:
    *       201:
-   *         description: Created
-   *       201:
-   *         description: Successfully added or removed a tag, or successfully deleted
+   *         description: Successfully completed the activity
    *       404:
    *         description: 'No Reader / Publication / Note with ID {shortId}'
    *       403:
