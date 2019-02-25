@@ -113,6 +113,10 @@ const test = async () => {
     await tap.notOk(body.items[0].orderedItems)
   })
 
+  await tap.test('filter library by collection', async () => {
+    // add more publications
+  })
+
   await tap.test(
     'Try to get library for user that does not exist',
     async () => {
