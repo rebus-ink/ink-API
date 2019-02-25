@@ -28,7 +28,7 @@ const handleDelete = async (req, res, reader) => {
       const activityObjPub = createActivityObject(body, returned, reader)
       Activity.createActivity(activityObjPub)
         .then(activity => {
-          res.status(204)
+          res.status(201)
           res.set('Location', activity.url)
           res.end()
         })
@@ -56,7 +56,7 @@ const handleDelete = async (req, res, reader) => {
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {
-          res.status(204)
+          res.status(201)
           res.set('Location', activity.url)
           res.end()
         })

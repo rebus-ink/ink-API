@@ -42,7 +42,7 @@ const handleAdd = async (req, res, reader) => {
       const activityObjStack = createActivityObject(body, resultStack, reader)
       Activity.createActivity(activityObjStack)
         .then(activity => {
-          res.status(204)
+          res.status(201)
           res.set('Location', activity.url)
           res.end()
         })
