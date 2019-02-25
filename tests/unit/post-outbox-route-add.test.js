@@ -168,7 +168,7 @@ const test = async () => {
       )
       .send(JSON.stringify(addPubToStackRequest))
 
-    await tap.equal(res.statusCode, 204)
+    await tap.equal(res.statusCode, 201)
     await tap.ok(addTagToPubSpy.calledOnce)
     await tap.ok(createActivitySpy.calledOnce)
   })

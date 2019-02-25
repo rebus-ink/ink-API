@@ -118,7 +118,7 @@ const test = async app => {
           target: { id: publication.id }
         })
       )
-    await tap.equal(res.status, 204)
+    await tap.equal(res.status, 201)
 
     const pubres = await request(app)
       .get(urlparse(publication.id).path)
@@ -206,7 +206,7 @@ const test = async app => {
         })
       )
 
-    await tap.equal(res.status, 204)
+    await tap.equal(res.status, 201)
 
     const pubres = await request(app)
       .get(urlparse(publication.id).path)

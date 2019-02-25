@@ -55,7 +55,7 @@ module.exports = function (app) {
    *     responses:
    *       201:
    *         description: Created
-   *       204:
+   *       201:
    *         description: Successfully added or removed a tag, or successfully deleted
    *       404:
    *         description: 'No Reader / Publication / Note with ID {shortId}'

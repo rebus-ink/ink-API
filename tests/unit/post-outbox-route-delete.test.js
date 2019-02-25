@@ -160,7 +160,7 @@ const test = async () => {
       )
       .send(JSON.stringify(deletePublicationRequest))
 
-    await tap.equal(res.statusCode, 204)
+    await tap.equal(res.statusCode, 201)
   })
 
   await tap.test(
@@ -196,7 +196,7 @@ const test = async () => {
       )
       .send(JSON.stringify(deleteNoteRequest))
 
-    await tap.equal(res.statusCode, 204)
+    await tap.equal(res.statusCode, 201)
   })
 
   await tap.test('Try to delete a note that does not exist', async () => {
