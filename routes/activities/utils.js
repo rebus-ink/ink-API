@@ -8,8 +8,8 @@ const createActivityObject = (body, result, reader) => {
   if (result) {
     props = Object.assign(props, {
       object: {
-        type: result.json ? result.json.type : null,
-        id: result.url
+        type: result.json ? result.json.type : result.type,
+        id: result.url || result.id
       }
     })
   }

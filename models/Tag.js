@@ -24,6 +24,13 @@ class Tag extends Model {
     tag /*: {type: string, name: string, readerId: ?string} */
   ) /*: any */ {
     tag.readerId = readerId
+    // reject duplicates
+    const existing = await Tag.query().where({
+      readerId: tag.readerId,
+      type: tag.type,
+      name: tag.name
+    })
+    if (existing.length > 0) return new Error('duplicate')
     return await Tag.query().insert(tag)
   }
 

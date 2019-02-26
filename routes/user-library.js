@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('./utils')
+const _ = require('lodash')
 /**
  * @swagger
  * definition:
@@ -79,7 +80,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId, '[tags, publications.attributedTo]')
+      Reader.byShortId(shortId, '[tags, publications.[attributedTo, tags]]')
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${shortId}`)
@@ -90,7 +91,17 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
-            const publications = reader.publications.filter(pub => !pub.deleted)
+            let publications = reader.publications.filter(pub => !pub.deleted)
+            if (req.query.stack) {
+              publications = publications.filter(pub => {
+                const result = _.find(pub.tags, tag => {
+                  return (
+                    tag.type === 'reader:Stack' && tag.name === req.query.stack
+                  )
+                })
+                return result
+              })
+            }
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
