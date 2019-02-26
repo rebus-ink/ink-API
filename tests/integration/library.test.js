@@ -1,7 +1,12 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, createUser, destroyDB } = require('./utils')
+const {
+  getToken,
+  createUser,
+  destroyDB,
+  getActivityFromUrl
+} = require('./utils')
 const app = require('../../server').app
 
 const test = async () => {
@@ -115,6 +120,155 @@ const test = async () => {
 
   await tap.test('filter library by collection', async () => {
     // add more publications
+    // publication B
+    const pubBres = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Publication',
+            name: 'Publication B',
+            attributedTo: [
+              {
+                type: 'Person',
+                name: 'Sample Author'
+              }
+            ],
+            totalItems: 1,
+            attachment: [
+              {
+                type: 'Document',
+                name: 'Chapter',
+                content: 'Sample document content 2',
+                position: 0
+              }
+            ]
+          }
+        })
+      )
+
+    const pubActivityUrl = pubBres.get('Location')
+    const pubActivityObject = await getActivityFromUrl(
+      app,
+      pubActivityUrl,
+      token
+    )
+    const publication = pubActivityObject.object
+
+    // publication C
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Publication',
+            name: 'Publication C',
+            attributedTo: [
+              {
+                type: 'Person',
+                name: 'Sample Author'
+              }
+            ],
+            totalItems: 1,
+            attachment: [
+              {
+                type: 'Document',
+                name: 'Chapter',
+                content: 'Sample document content',
+                position: 0
+              }
+            ]
+          }
+        })
+      )
+
+    // create a stack
+    const stackRes = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Stack',
+            name: 'mystack'
+          }
+        })
+      )
+
+    const stackActivityUrl = stackRes.get('Location')
+    const stackActivityObject = await getActivityFromUrl(
+      app,
+      stackActivityUrl,
+      token
+    )
+    const stack = stackActivityObject.object
+
+    // assign mystack to publication B
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: { id: stack.id, type: stack.type },
+          target: { id: publication.id }
+        })
+      )
+
+    // get library with filter for collection
+
+    const res = await request(app)
+      .get(`${userUrl}/library?stack=mystack`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.totalItems, 1)
+    await tap.ok(Array.isArray(body.items))
+    // documents should include:
+    await tap.equal(body.items[0].name, 'Publication B')
   })
 
   await tap.test(

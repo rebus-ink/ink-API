@@ -119,6 +119,11 @@ const handleCreate = async (req, res, reader) => {
 
     case 'reader:Stack':
       const resultStack = await Tag.createTag(reader.id, body.object)
+      if (resultStack instanceof Error && resultStack.message === 'duplicate') {
+        res
+          .status(400)
+          .send(`duplicate error: stack ${body.object.name} already exists`)
+      }
       if (resultStack instanceof Error || !resultStack) {
         const message = resultStack
           ? resultStack.message
