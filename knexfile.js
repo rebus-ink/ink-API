@@ -1,12 +1,17 @@
 // Update with your config settings.
 
+const path = require('path')
 module.exports = {
   development: {
     client: 'sqlite3',
     connection: {
       filename: process.env.SQLITE_DB || './dev.sqlite3'
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
+    migrations: {
+      tableName: 'knex_migrations',
+      directory: path.join(__dirname, 'migrations')
+    }
   },
 
   test: {
@@ -29,7 +34,8 @@ module.exports = {
       max: 10
     },
     migrations: {
-      tableName: 'knex_migrations'
+      tableName: 'knex_migrations',
+      directory: path.join(__dirname, 'migrations')
     }
   }
 }
