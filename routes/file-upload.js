@@ -3,6 +3,7 @@ const router = express.Router()
 const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
 const passport = require('passport')
+const crypto = require('crypto')
 
 const storage = new Storage()
 
@@ -11,41 +12,65 @@ const m = multer({ storage: multer.memoryStorage() })
 module.exports = app => {
   app.use('/', router)
   router.post(
-    '/file-upload',
+    '/reader-:shortId/file-upload',
     passport.authenticate('jwt', { session: false }),
-    m.single('file'),
+    m.array('files'),
     async function (req, res) {
-      // currently putting all the files in a single bucket
-      const bucketName = 'rebus-default-bucket'
-      let bucket = storage.bucket(bucketName)
+      let prefix =
+        process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
 
-      if (!req.file) {
+      const bucketName = prefix + req.params.shortId.toLowerCase()
+
+      // TODO: check what happens if the bucket already exists
+      let bucket = storage.bucket(bucketName)
+      const exists = await bucket.exists()
+      if (!exists[0]) {
+        await storage.createBucket(bucketName)
+      }
+
+      if (!req.files) {
         res.status(400).send('no file was included in this upload')
       } else {
-        const blob = bucket.file(req.file.originalname)
-
-        const stream = blob.createWriteStream({
-          metadata: {
-            contentType: req.file.mimetype // allows us to view the image in a browser instead of downloading it
-          }
-        })
-
-        stream.on('error', err => {
-          res
-            .status(400)
-            .send(`error connecting to the google cloud bucket: ${err.message}`)
-        })
-
-        stream.on('finish', () => {
-          let url = `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-          // we might want to remove the makePublic
-          blob.makePublic().then(() => {
-            res.setHeader('Content-Type', 'application/json;')
-            res.end(JSON.stringify({ url }))
+        let promises = []
+        let response = {}
+        // //
+        req.files.forEach(file => {
+          const extension = file.originalname.split('.').pop()
+          const randomFileName = `${crypto
+            .randomBytes(15)
+            .toString('hex')}.${extension}`
+          file.name = randomFileName
+          response[
+            file.originalname
+          ] = `https://storage.googleapis.com/${bucketName}/${randomFileName}`
+          const blob = bucket.file(file.name)
+          const newPromise = new Promise((resolve, reject) => {
+            blob
+              .createWriteStream({
+                metadata: {
+                  contentType: file.mimetype // allows us to view the image in a browser instead of downloading it
+                }
+              })
+              .on('finish', async () => {
+                await blob.makePublic()
+                resolve()
+              })
+              .on('error', err => {
+                reject('upload error: ', err)
+              })
+              .end(file.buffer)
           })
+
+          promises.push(newPromise)
         })
 
-        stream.end(req.file.buffer)
+        Promise.all(promises)
+          .then(() => {
+            res.status(200).json(response)
+          })
+          .catch(err => {
+            res.status(400).send(err.message)
+          })
       }
     }
   )
