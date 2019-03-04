@@ -207,6 +207,21 @@ const test = async app => {
     await tap.equal(res.statusCode, 403)
   })
 
+  await tap.test(
+    'Try to upload files to a folder belonging to another user',
+    async () => {
+      const res = await request(app)
+        .post(`${urlparse(userUrl).path}/file-upload`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .attach('files', 'tests/test-files/test-file3.txt')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.statusCode, 403)
+    }
+  )
+
   await tap.test('Requests without authentication', async () => {
     // outbox
     const res1 = await request(app)
@@ -260,6 +275,16 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res6.statusCode, 401)
+
+    // file upload
+    const res7 = await request(app)
+      .post(`${urlparse(userUrl).path}/file-upload`)
+      .set('Host', 'reader-api.test')
+      .attach('files', 'tests/test-files/test-file3.txt')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res7.statusCode, 401)
   })
 
   await destroyDB(app)
