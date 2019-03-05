@@ -106,25 +106,8 @@ class Publication extends BaseModel {
     }
   }
 
-  asRef () /*: {
-    type: string,
-    id: string,
-    name: ?string,
-    attributedTo: {
-      type: string,
-      name: ?string
-    }
-  } */ {
-    const author = this.attributedTo || this.json.attributedTo || null
-    return {
-      type: 'reader:Publication',
-      id: this.url,
-      name: this.name || this.json.name || null,
-      attributedTo: {
-        type: 'Person',
-        name: author ? author.name : null
-      }
-    }
+  asRef () /*: any */ {
+    return this
   }
 
   static async byShortId (
