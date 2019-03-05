@@ -10,32 +10,34 @@ addons:
 services:
 - postgresql
 before_install:
-- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_28143c166499_key
-  -iv $encrypted_28143c166499_iv -in secrets.tar.enc -out secrets.tar -d || true'
-- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && tar xvf secrets.tar || true'
+- '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_6def506fdf9f_key -iv $encrypted_6def506fdf9f_iv -in google-keyfile.json.enc -out google-keyfile.json -d || true'
 - psql -c 'create database travis_ci_test;' -U postgres
-jobs:  
+jobs:
   include:
-    - stage: "Lint"
-      script: npm run lint
-    - stage: "Unit Tests"
-      script: npm run test-unit
-    - stage: "Integration Tests"
-      name: "routes integration tests"
-      script: npm run test-integration
-    - script: npm run test-models
-      name: "model integration tests"
-    - stage: "Doc"
-      script: npm run doc
-    - stage: "Deploy"
-      if: type != pull_request
-      script: skip
-      before_deploy: npm run doc
-      deploy:
-        provider: pages
-        skip-cleanup: true
-        github-token: $GITHUB_TOKEN
-        keep-history: true
-        local-dir: docs
-        on:
-          branch: master
+  - stage: Lint
+    script: npm run lint
+  - stage: Unit Tests
+    script: npm run test-unit
+  - stage: Integration Tests
+    name: routes integration tests
+    script: npm run test-integration
+  - script: npm run test-models
+    name: model integration tests
+  - stage: Google Tests
+    if: type != pull_request
+    name: google integration tests
+    script: npm run test-google
+  - stage: Doc
+    script: npm run doc
+  - stage: Deploy
+    if: type != pull_request
+    script: skip
+    before_deploy: npm run doc
+    deploy:
+      provider: pages
+      skip-cleanup: true
+      github-token: "$GITHUB_TOKEN"
+      keep-history: true
+      local-dir: docs
+      on:
+        branch: master
