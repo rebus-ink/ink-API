@@ -135,6 +135,7 @@ class BaseModel extends guid(DbErrors(Model)) {
       published,
       updated,
       attachment,
+      tags,
       context = {},
       attributedTo = []
     } = original
@@ -143,6 +144,7 @@ class BaseModel extends guid(DbErrors(Model)) {
       id,
       published,
       updated,
+      tags,
       attachment,
       attributedTo
     })
