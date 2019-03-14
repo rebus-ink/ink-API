@@ -105,6 +105,9 @@ class BaseModel extends guid(DbErrors(Model)) {
       json
     )
     delete json.bto
+    delete json.attachment
+    delete json.replies
+    delete json.attributedTo
     return stripUndefined(
       Object.assign(
         {
