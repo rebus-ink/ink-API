@@ -1,16 +1,10 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const {
-  getToken,
-  createUser,
-  destroyDB,
-  getActivityFromUrl
-} = require('../integration/utils')
+const { getToken, createUser, destroyDB } = require('../integration/utils')
 const app = require('../../server').app
 
 const createPublication = require('./utils/createPublication')
-const createDocument = require('./utils/createDocument')
 const createNotes = require('./utils/createNotes')
 
 const test = async () => {

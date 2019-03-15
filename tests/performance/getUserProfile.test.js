@@ -1,12 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const {
-  getToken,
-  createUser,
-  destroyDB,
-  getActivityFromUrl
-} = require('../integration/utils')
+const { getToken, createUser, destroyDB } = require('../integration/utils')
 const app = require('../../server').app
 
 const createPublication = require('./utils/createPublication')
@@ -25,7 +20,7 @@ const test = async () => {
     await createPublication(token, userUrl, 100)
 
     console.time(testName)
-    const res = await request(app)
+    await request(app)
       .get('/whoami')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
