@@ -26,7 +26,6 @@ const test = async () => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(res.status, 200)
 
     const body = res.body
@@ -87,7 +86,6 @@ const test = async () => {
           }
         })
       )
-
     const res = await request(app)
       .get(`${userUrl}/library`)
       .set('Host', 'reader-api.test')
@@ -95,7 +93,6 @@ const test = async () => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
@@ -253,7 +250,6 @@ const test = async () => {
       )
 
     // get library with filter for collection
-
     const res = await request(app)
       .get(`${userUrl}/library?stack=mystack`)
       .set('Host', 'reader-api.test')
