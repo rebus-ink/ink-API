@@ -5,7 +5,7 @@ const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
 const { Publication } = require('./Publication')
-const { urlToId, urlToShortId } = require('../routes/utils')
+const { urlToId } = require('../routes/utils')
 
 const personAttrs = [
   'attachment',

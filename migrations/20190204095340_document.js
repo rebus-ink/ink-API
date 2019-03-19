@@ -17,7 +17,8 @@ exports.up = function (knex, Promise) {
       .uuid('publicationId')
       .references('id')
       .inTable('Publication')
-      .notNullable()
+      .nullable()
+     // .notNullable() TODO: migrate
       .onDelete('CASCADE')
       .index()
     table

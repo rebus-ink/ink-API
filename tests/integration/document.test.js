@@ -85,35 +85,36 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
-  await tap.test(
-    'Try to create Document with invalid publication context',
-    async () => {
-      const res = await request(app)
-        .post(`${userUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Create',
-            object: {
-              type: 'Document',
-              context: 'notanid',
-              name: 'Document A',
-              content: 'This is the content of document A.'
-            }
-          })
-        )
-      await tap.equal(res.status, 404)
-      await tap.ok(res.error.text.startsWith('no publication found for'))
-    }
-  )
+  // TODO: migrate
+  // await tap.test(
+  //   'Try to create Document with invalid publication context',
+  //   async () => {
+  //     const res = await request(app)
+  //       .post(`${userUrl}/activity`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
+  //       .send(
+  //         JSON.stringify({
+  //           '@context': [
+  //             'https://www.w3.org/ns/activitystreams',
+  //             { reader: 'https://rebus.foundation/ns/reader' }
+  //           ],
+  //           type: 'Create',
+  //           object: {
+  //             type: 'Document',
+  //             context: 'notanid',
+  //             name: 'Document A',
+  //             content: 'This is the content of document A.'
+  //           }
+  //         })
+  //       )
+  //     await tap.equal(res.status, 404)
+  //     await tap.ok(res.error.text.startsWith('no publication found for'))
+  //   }
+  // )
 
   await tap.test('Get Document', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)

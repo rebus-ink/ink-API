@@ -70,27 +70,29 @@ const test = async app => {
     noteUrl = response.url
   })
 
-  await tap.test(
-    'Try to Create Note with invalid inReplyTo Document',
-    async () => {
-      const badNote = Object.assign({}, noteObject, { inReplyTo: undefined })
+  // TODO: migrate
+  // await tap.test(
+  //   'Try to Create Note with invalid inReplyTo Document',
+  //   async () => {
+  //     const badNote = Object.assign({}, noteObject, { inReplyTo: undefined })
 
-      let response = await Reader.addNote(createdReader, badNote)
-      await tap.ok(typeof response, Error)
-      await tap.equal(response.message, 'no document')
-    }
-  )
+  //     let response = await Reader.addNote(createdReader, badNote)
+  //     await tap.ok(typeof response, Error)
+  //     await tap.equal(response.message, 'no document')
+  //   }
+  // )
 
-  await tap.test(
-    'Try to Create Note with invalid Publication context',
-    async () => {
-      const badNote = Object.assign({}, noteObject, { context: undefined })
+  // TODO: migrate
+  // await tap.test(
+  //   'Try to Create Note with invalid Publication context',
+  //   async () => {
+  //     const badNote = Object.assign({}, noteObject, { context: undefined })
 
-      let response = await Reader.addNote(createdReader, badNote)
-      await tap.ok(typeof response, Error)
-      await tap.equal(response.message, 'no publication')
-    }
-  )
+  //     let response = await Reader.addNote(createdReader, badNote)
+  //     await tap.ok(typeof response, Error)
+  //     await tap.equal(response.message, 'no publication')
+  //   }
+  // )
 
   await tap.test('Get note by short id', async () => {
     note = await Note.byShortId(noteId)

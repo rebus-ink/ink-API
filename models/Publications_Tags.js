@@ -1,7 +1,5 @@
 const { Model } = require('objection')
-const { Publication } = require('./Publication')
-const { Tag } = require('./Tag')
-const { urlToShortId, urlToId } = require('../routes/utils')
+const { urlToId } = require('../routes/utils')
 
 class Publications_Tags extends Model {
   static get tableName () {
@@ -49,10 +47,10 @@ class Publications_Tags extends Model {
     publicationUrl /*: string */,
     tagId /*: string */
   ) /*: number */ {
-    const publicationId = await urlToId(publicationUrl)
-
     // check publication
     if (!publicationUrl) return new Error('no publication')
+
+    const publicationId = await urlToId(publicationUrl)
 
     // check tag
     if (!tagId) return new Error('no tag')

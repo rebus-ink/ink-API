@@ -285,30 +285,30 @@ const test = async app => {
     }
   )
 
-  // await tap.test(
-  //   'Try to remove a tag from a publication with invalid publication',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`${userUrl}/activity`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type(
-  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //       )
-  //       .send(
-  //         JSON.stringify({
-  //           '@context': [
-  //             'https://www.w3.org/ns/activitystreams',
-  //             { reader: 'https://rebus.foundation/ns/reader' }
-  //           ],
-  //           type: 'Remove',
-  //           object: { id: stack.id, type: stack.type },
-  //           target: { id: 'notanid' }
-  //         })
-  //       )
-  //     await tap.equal(res.status, 404)
-  //   }
-  // )
+  await tap.test(
+    'Try to remove a tag from a publication with invalid publication',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: stack.id, type: stack.type },
+            target: { id: 'notanid' }
+          })
+        )
+      await tap.equal(res.status, 404)
+    }
+  )
 
   // error disabled for now
 
@@ -372,7 +372,7 @@ const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
-  // await destroyDB(app)
+  await destroyDB(app)
 }
 
 module.exports = test

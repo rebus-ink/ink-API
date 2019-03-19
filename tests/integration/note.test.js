@@ -97,67 +97,69 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
-  await tap.test(
-    'Try to create Note with invalid Publication context',
-    async () => {
-      const res = await request(app)
-        .post(`${userUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Create',
-            object: {
-              type: 'Note',
-              content: 'This is the content of note A.',
-              'oa:hasSelector': {},
-              context: publicationUrl + '123',
-              inReplyTo: documentUrl
-            }
-          })
-        )
+  // TODO: migrate
+  // await tap.test(
+  //   'Try to create Note with invalid Publication context',
+  //   async () => {
+  //     const res = await request(app)
+  //       .post(`${userUrl}/activity`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
+  //       .send(
+  //         JSON.stringify({
+  //           '@context': [
+  //             'https://www.w3.org/ns/activitystreams',
+  //             { reader: 'https://rebus.foundation/ns/reader' }
+  //           ],
+  //           type: 'Create',
+  //           object: {
+  //             type: 'Note',
+  //             content: 'This is the content of note A.',
+  //             'oa:hasSelector': {},
+  //             context: publicationUrl + '123',
+  //             inReplyTo: documentUrl
+  //           }
+  //         })
+  //       )
 
-      await tap.equal(res.status, 404)
-    }
-  )
+  //     await tap.equal(res.status, 404)
+  //   }
+  // )
 
-  await tap.test(
-    'Try to create Note with invalid inReplyTo Document',
-    async () => {
-      const res = await request(app)
-        .post(`${userUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Create',
-            object: {
-              type: 'Note',
-              content: 'This is the content of note A.',
-              'oa:hasSelector': {},
-              context: publicationUrl,
-              inReplyTo: documentUrl + '123'
-            }
-          })
-        )
+  // TODO: migrate
+  // await tap.test(
+  //   'Try to create Note with invalid inReplyTo Document',
+  //   async () => {
+  //     const res = await request(app)
+  //       .post(`${userUrl}/activity`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
+  //       .send(
+  //         JSON.stringify({
+  //           '@context': [
+  //             'https://www.w3.org/ns/activitystreams',
+  //             { reader: 'https://rebus.foundation/ns/reader' }
+  //           ],
+  //           type: 'Create',
+  //           object: {
+  //             type: 'Note',
+  //             content: 'This is the content of note A.',
+  //             'oa:hasSelector': {},
+  //             context: publicationUrl,
+  //             inReplyTo: documentUrl + '123'
+  //           }
+  //         })
+  //       )
 
-      await tap.equal(res.status, 404)
-    }
-  )
+  //     await tap.equal(res.status, 404)
+  //   }
+  // )
 
   await tap.test('Get note', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)

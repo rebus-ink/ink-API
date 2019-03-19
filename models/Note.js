@@ -133,7 +133,7 @@ class Note extends BaseModel {
       'oa:hasSelector'
     ])
     let note = await Note.query().findById(noteId)
-    if (!note || note.deleted) {
+    if (!note) {
       return null
     }
     note.json = Object.assign(note.json, modifications)
