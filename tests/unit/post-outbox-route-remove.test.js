@@ -189,7 +189,7 @@ const test = async () => {
         .send(JSON.stringify(removeTagFromStackRequest))
 
       await tap.equal(res.statusCode, 404)
-      await tap.ok(res.error.text.startsWith('no publication found with id'))
+      await tap.ok(res.error.text.startsWith('no publication'))
       await tap.ok(removeTagFromPubSpy.calledOnce)
     }
   )
@@ -216,7 +216,7 @@ const test = async () => {
         .send(JSON.stringify(removeTagFromStackRequest))
 
       await tap.equal(res.statusCode, 404)
-      await tap.ok(res.error.text.startsWith('no tag found with id'))
+      await tap.ok(res.error.text.startsWith('no tag'))
       await tap.ok(removeTagFromPubSpy.calledOnce)
     }
   )

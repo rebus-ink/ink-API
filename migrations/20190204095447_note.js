@@ -15,12 +15,14 @@ exports.up = function (knex, Promise) {
       .references('id')
       .inTable('Document')
       .nullable()
+      //.notNullable() TODO: migrate
       .index()
     table
       .uuid('publicationId')
       .references('id')
       .inTable('Publication')
       .nullable()
+      //.notNullable() TODO: migrate
       .index()
     table
       .timestamp('published')

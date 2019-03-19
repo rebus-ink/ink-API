@@ -1,7 +1,5 @@
 const { Model } = require('objection')
-const { Publication } = require('./Publication')
-const { Tag } = require('./Tag')
-const { urlToShortId } = require('../routes/utils')
+const { urlToId } = require('../routes/utils')
 
 class Publications_Tags extends Model {
   static get tableName () {
@@ -18,26 +16,31 @@ class Publications_Tags extends Model {
   ) /*: any */ {
     // check publication
     if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = urlToShortId(publicationUrl)
-    const publication = await Publication.byShortId(publicationShortId)
-    if (!publication) return new Error('no publication')
+    const publicationId = await urlToId(publicationUrl)
 
     // check tag
     if (!tagId) return new Error('no tag')
-    const tag = await Tag.byId(tagId)
-    if (!tag) return new Error('no tag')
-    // check if already exists
-    const result = await Publications_Tags.query().where({
-      publicationId: publication.id,
-      tagId
-    })
-    if (result.length > 0) {
-      return new Error('duplicate')
+
+    // // check if already exists - SKIPPED FOR NOW
+    // const result = await Publications_Tags.query().where({
+    //   publicationId: publication.id,
+    //   tagId
+    // })
+    // if (result.length > 0) {
+    //   return new Error('duplicate')
+
+    try {
+      return await Publications_Tags.query().insert({
+        publicationId: publicationId,
+        tagId
+      })
+    } catch (err) {
+      if (err.constraint === 'publications_tags_tagid_foreign') {
+        return new Error('no tag')
+      } else if (err.constraint === 'publications_tags_publicationid_foreign') {
+        return new Error('no publication')
+      }
     }
-    return await Publications_Tags.query().insert({
-      publicationId: publication.id,
-      tagId
-    })
   }
 
   static async removeTagFromPub (
@@ -46,21 +49,24 @@ class Publications_Tags extends Model {
   ) /*: number */ {
     // check publication
     if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = urlToShortId(publicationUrl)
-    const publication = await Publication.byShortId(publicationShortId)
-    if (!publication) return new Error('no publication')
+
+    const publicationId = await urlToId(publicationUrl)
 
     // check tag
     if (!tagId) return new Error('no tag')
-    const tag = await Tag.byId(tagId)
-    if (!tag) return new Error('no tag')
 
-    return await Publications_Tags.query()
+    const result = await Publications_Tags.query()
       .delete()
       .where({
-        publicationId: publication.id,
+        publicationId: publicationId,
         tagId
       })
+
+    if (result === 0) {
+      return new Error('not found')
+    } else {
+      return result
+    }
   }
 }
 
