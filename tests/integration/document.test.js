@@ -104,7 +104,7 @@ const test = async app => {
             type: 'Create',
             object: {
               type: 'Document',
-              context: undefined,
+              context: 'notanid',
               name: 'Document A',
               content: 'This is the content of document A.'
             }

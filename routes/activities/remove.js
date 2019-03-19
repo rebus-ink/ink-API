@@ -13,13 +13,21 @@ const handleRemove = async (req, res, reader) => {
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
           case 'no publication':
-            res
-              .status(404)
-              .send(`no publication found with id ${body.target.id}`)
+            res.status(404).send(`no publication provided`)
             break
 
           case 'no tag':
-            res.status(404).send(`no tag found with id ${body.object.id}`)
+            res.status(404).send(`no tag provided`)
+            break
+
+          case 'not found':
+            res
+              .status(404)
+              .send(
+                `no relationship found between tag ${
+                  body.object.id
+                } and publication ${body.target.id}`
+              )
             break
 
           default:

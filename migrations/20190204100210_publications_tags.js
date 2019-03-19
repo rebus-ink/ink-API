@@ -4,9 +4,9 @@ exports.up = function(knex, Promise) {
     table.increments('id')
     table
       .uuid('publicationId')
-      .notNullable()
       .references('id')
       .inTable('Publication')
+      .notNullable()
       .onDelete('CASCADE')
       .index()
     table.integer('tagId').references('id').inTable('Tag').notNullable().onDelete('CASCADE').index();

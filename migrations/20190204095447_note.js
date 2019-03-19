@@ -14,13 +14,13 @@ exports.up = function (knex, Promise) {
       .uuid('documentId')
       .references('id')
       .inTable('Document')
-      .nullable()
+      .notNullable()
       .index()
     table
       .uuid('publicationId')
       .references('id')
       .inTable('Publication')
-      .nullable()
+      .notNullable()
       .index()
     table
       .timestamp('published')
