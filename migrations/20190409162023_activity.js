@@ -1,7 +1,9 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('Publication', function (table) {
+  return knex.schema.createTable('Activity', function (table) {
     table.uuid('id').primary()
-    table.text('description')
+    table.string('type').index().notNullable()
+    table.jsonb('object')
+    table.jsonb('target')
     table.jsonb('json')
     table
       .uuid('readerId')
@@ -14,15 +16,9 @@ exports.up = function (knex, Promise) {
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()
-    table
-      .timestamp('updated')
-      .defaultTo(knex.fn.now())
-      .notNullable()
-    table
-      .timestamp('deleted')
   })
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('Publication')
+  return knex.schema.dropTable('Activity')
 }

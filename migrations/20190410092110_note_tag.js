@@ -1,11 +1,10 @@
-
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable('publications_tags', function(table){
+  return knex.schema.createTable('note_tag', function(table){
     table.increments('id')
     table
-      .uuid('publicationId')
+      .uuid('noteId')
       .references('id')
-      .inTable('Publication')
+      .inTable('Note')
       .notNullable()
       .onDelete('CASCADE')
       .index()
@@ -14,5 +13,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable('publications_tags')
+  return knex.schema.dropTable('note_tag')
 };
