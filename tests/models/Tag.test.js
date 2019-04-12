@@ -31,6 +31,12 @@ const test = async app => {
     tagId = response.id
   })
 
+  await tap.test('Get tag by id', async () => {
+    let response = await Tag.byId(tagId)
+    await tap.ok(response)
+    await tap.ok(response instanceof Tag)
+  })
+
   // tags probably don't need asRef
 
   if (!process.env.POSTGRE_INSTANCE) {
