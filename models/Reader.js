@@ -43,7 +43,7 @@ class Reader extends BaseModel {
   static async byId (
     id /*: string */,
     eager /*: string */
-  ) /*: Promise<Reader> */ {
+  ) /*: Promise<ReaderType> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb.eager(eager)
     return readers[0]
@@ -63,7 +63,7 @@ class Reader extends BaseModel {
   static async createReader (
     authId /*: string */,
     person /*: any */
-  ) /*: Promise<Reader> */ {
+  ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
     props.authId = authId
     const date = new Date().toISOString()
