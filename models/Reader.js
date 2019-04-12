@@ -4,37 +4,8 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { urlToId } = require('../routes/utils')
 
-const personAttrs = [
-  'attachment',
-  'attributedTo',
-  'audience',
-  'content',
-  'context',
-  'contentMap',
-  'name',
-  'nameMap',
-  'endTime',
-  'generator',
-  'icon',
-  'image',
-  'inReplyTo',
-  'location',
-  'preview',
-  'published',
-  'replies',
-  'startTime',
-  'summary',
-  'summaryMap',
-  'tags',
-  'updated',
-  'url',
-  'to',
-  'bto',
-  'cc',
-  'bcc',
-  'mediaType',
-  'duration'
-]
+const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
+
 /*::
 type Reader = {
   id: string,
@@ -42,6 +13,7 @@ type Reader = {
   name?: string,
   json?: object,
   profile?: object,
+  preferences?: object,
   published: Date,
   updated: Date
 };
@@ -68,7 +40,10 @@ class Reader extends BaseModel {
     return readers[0]
   }
 
-  static async byId (id /*: string */, eager /*: string */) /*: Promise<Reader> */ {
+  static async byId (
+    id /*: string */,
+    eager /*: string */
+  ) /*: Promise<Reader> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb.eager(eager)
     return readers[0]
@@ -89,9 +64,11 @@ class Reader extends BaseModel {
     authId /*: string */,
     person /*: any */
   ) /*: Promise<Reader> */ {
-    let props = _.pick(person, personAttrs)
+    const props = _.pick(person, attributes)
     props.authId = authId
-    props.published = new Date().toISOString()
+    const date = new Date().toISOString()
+    props.published = date
+    props.updated = date
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
       props
     )

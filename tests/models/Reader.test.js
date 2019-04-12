@@ -12,13 +12,40 @@ const test = async app => {
     authId: 'auth0|foo1545149868965'
   }
 
-  let createdReader
+  const reader2 = {
+    name: 'J. Random Reader',
+    authId: 'auth0|foo1545149868966',
+    json: {
+      property1: 'value',
+      property2: 4
+    },
+    profile: {
+      age: 99
+    },
+    preferences: {
+      favoriteColor: 'rainbow'
+    },
+    extraProperty: 'this should not be saved'
+  }
+
+  let createdReader, createdReader2
 
   await tap.test('Create Reader', async () => {
     createdReader = await Reader.createReader(reader.authId, reader)
 
     await tap.ok(createdReader)
     await tap.ok(createdReader instanceof Reader)
+  })
+
+  await tap.test('Create Reader with additional properties', async () => {
+    createdReader2 = await Reader.createReader(reader2.authId, reader2)
+
+    await tap.ok(createdReader2)
+    await tap.ok(createdReader2 instanceof Reader)
+    await tap.equal(createdReader2.profile.age, 99)
+    await tap.equal(createdReader2.json.property2, 4)
+    await tap.equal(createdReader2.preferences.favoriteColor, 'rainbow')
+    await tap.equal(createdReader2.extraProperty, undefined)
   })
 
   await tap.test('Get reader by id', async () => {
@@ -69,6 +96,12 @@ const test = async app => {
     await tap.type(refObject.id, 'string')
     await tap.equal(refObject.type, 'Person')
     await tap.equal(refObject.authId, undefined)
+
+    const refObject2 = createdReader2.asRef()
+    await tap.type(refObject2, 'object')
+    await tap.equal(refObject2.json, undefined)
+    await tap.equal(refObject2.preferences, undefined)
+    await tap.equal(refObject2.profile, undefined)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
