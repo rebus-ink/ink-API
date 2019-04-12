@@ -9,7 +9,7 @@ exports.up = function (knex, Promise) {
     table.string('normalizedName').notNullable().index()
     table.string('type').defaultTo('Person')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()
