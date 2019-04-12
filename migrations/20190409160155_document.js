@@ -8,7 +8,7 @@ exports.up = function (knex, Promise) {
     table.string('path').notNullable().index()
     table.jsonb('json')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()

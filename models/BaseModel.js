@@ -39,18 +39,18 @@ class BaseModel extends guid(DbErrors(Model)) {
     return translator.fromUUID(this.id)
   }
 
-  $beforeInsert (context /*: any */) {
-    const parent = super.$beforeInsert(context)
-    const doc = this
-    return Promise.resolve(parent).then(function () {
-      doc.published = new Date().toISOString()
-      if (!doc.hasName()) {
-        doc.json.summaryMap = {
-          en: doc.summarize()
-        }
-      }
-    })
-  }
+  // $beforeInsert (context /*: any */) {
+  //   const parent = super.$beforeInsert(context)
+  //   const doc = this
+  //   return Promise.resolve(parent).then(function () {
+  //     doc.published = new Date().toISOString()
+  //     if (!doc.hasName()) {
+  //       doc.json.summaryMap = {
+  //         en: doc.summarize()
+  //       }
+  //     }
+  //   })
+  // }
 
   hasName () /*: string */ {
     return (
@@ -84,51 +84,51 @@ class BaseModel extends guid(DbErrors(Model)) {
     })
   }
 
-  $parseJson (json /*: any */, opt /*: any */) /*: any */ {
-    json = super.$parseJson(json, opt)
-    // Need to discover id, readerId, canonicalId
-    const id = getUUID(json.id)
-    let readerId
-    if (json.bto) {
-      readerId = getUUID(json.bto)
-    } else {
-      readerId = getUUID(json.actor)
-      json.bto = json.actor
-    }
-    const canonicalId = getCanonical(json.url)
-    const { userId, inReplyTo, context, deleted } = json
-    // Should get the inReplyTo document id, much like context
-    const publicationId = getUUID(context)
-    const documentId = getUUID(inReplyTo)
-    const activityRelation = objectToId(json.object)
-    const { attachment, outbox, tag, replies, attributedTo } = addReaderToGraph(
-      json
-    )
-    delete json.bto
-    delete json.attachment
-    delete json.replies
-    delete json.attributedTo
-    return stripUndefined(
-      Object.assign(
-        {
-          id,
-          readerId,
-          canonicalId,
-          userId,
-          json,
-          attachment,
-          outbox,
-          tag,
-          replies,
-          attributedTo,
-          publicationId,
-          documentId,
-          deleted
-        },
-        activityRelation
-      )
-    )
-  }
+  // $parseJson (json /*: any */, opt /*: any */) /*: any */ {
+  //   json = super.$parseJson(json, opt)
+  //   // Need to discover id, readerId, canonicalId
+  //   const id = getUUID(json.id)
+  //   let readerId
+  //   if (json.bto) {
+  //     readerId = getUUID(json.bto)
+  //   } else {
+  //     readerId = getUUID(json.actor)
+  //     json.bto = json.actor
+  //   }
+  //   const canonicalId = getCanonical(json.url)
+  //   const { userId, inReplyTo, context, deleted } = json
+  //   // Should get the inReplyTo document id, much like context
+  //   const publicationId = getUUID(context)
+  //   const documentId = getUUID(inReplyTo)
+  //   const activityRelation = objectToId(json.object)
+  //   const { attachment, outbox, tag, replies, attributedTo } = addReaderToGraph(
+  //     json
+  //   )
+  //   delete json.bto
+  //   delete json.attachment
+  //   delete json.replies
+  //   delete json.attributedTo
+  //   return stripUndefined(
+  //     Object.assign(
+  //       {
+  //         id,
+  //         readerId,
+  //         canonicalId,
+  //         userId,
+  //         json,
+  //         attachment,
+  //         outbox,
+  //         tag,
+  //         replies,
+  //         attributedTo,
+  //         publicationId,
+  //         documentId,
+  //         deleted
+  //       },
+  //       activityRelation
+  //     )
+  //   )
+  // }
 
   $formatJson (json /*: any */) {
     const original = super.$formatJson(json)

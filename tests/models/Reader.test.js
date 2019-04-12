@@ -1,7 +1,6 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
-const { urlToShortId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -10,43 +9,63 @@ const test = async app => {
 
   const reader = {
     name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868965',
-    published: '2018-12-18T16:17:49.077Z',
-    updated: '2018-12-18 16:17:49'
+    authId: 'auth0|foo1545149868965'
   }
 
-  let readerShortId
-  let createdReader
-  let readerId = 'auth0|foo1545149868965'
+  const reader2 = {
+    name: 'J. Random Reader',
+    authId: 'auth0|foo1545149868966',
+    json: {
+      property1: 'value',
+      property2: 4
+    },
+    profile: {
+      age: 99
+    },
+    preferences: {
+      favoriteColor: 'rainbow'
+    },
+    extraProperty: 'this should not be saved'
+  }
+
+  let createdReader, createdReader2
 
   await tap.test('Create Reader', async () => {
-    createdReader = await Reader.createReader(readerId, reader)
+    createdReader = await Reader.createReader(reader.authId, reader)
 
     await tap.ok(createdReader)
     await tap.ok(createdReader instanceof Reader)
-    readerShortId = urlToShortId(createdReader.url)
   })
 
-  await tap.test('Get reader by short id', async () => {
-    const responseReader = await Reader.byShortId(readerShortId)
+  await tap.test('Create Reader with additional properties', async () => {
+    createdReader2 = await Reader.createReader(reader2.authId, reader2)
+
+    await tap.ok(createdReader2)
+    await tap.ok(createdReader2 instanceof Reader)
+    await tap.equal(createdReader2.profile.age, 99)
+    await tap.equal(createdReader2.json.property2, 4)
+    await tap.equal(createdReader2.preferences.favoriteColor, 'rainbow')
+    await tap.equal(createdReader2.extraProperty, undefined)
+  })
+
+  await tap.test('Get reader by id', async () => {
+    const responseReader = await Reader.byId(createdReader.id)
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
     await tap.ok(responseReader.publications === undefined)
   })
 
-  await tap.test('Get reader by short id with eager loading', async () => {
-    const responseReader = await Reader.byShortId(
-      readerShortId,
-      '[publications]'
-    )
+  await tap.test('Get reader by id with eager loading', async () => {
+    const responseReader = await Reader.byId(createdReader.id, '[publications]')
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
+    await tap.ok(Array.isArray(responseReader.publications))
   })
 
-  await tap.test('Get reader by user id', async () => {
-    const responseReader = await Reader.byUserId(readerId)
+  await tap.test('Get reader by auth id', async () => {
+    const responseReader = await Reader.byAuthId(reader.authId)
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
@@ -55,7 +74,7 @@ const test = async app => {
   await tap.test(
     'Check If Reader Exists - returns true if exists',
     async () => {
-      const response = await Reader.checkIfExists(readerId)
+      const response = await Reader.checkIfExistsByAuthId(reader.authId)
 
       await tap.equal(response, true)
     }
@@ -64,7 +83,7 @@ const test = async app => {
   await tap.test(
     'Check If Exists - returns false if does not exist',
     async () => {
-      const response = await Reader.checkIfExists('auth0|123456789abc')
+      const response = await Reader.checkIfExistsByAuthId('auth0|123456789abc')
 
       await tap.equal(response, false)
     }
@@ -76,7 +95,13 @@ const test = async app => {
     await tap.type(refObject, 'object')
     await tap.type(refObject.id, 'string')
     await tap.equal(refObject.type, 'Person')
-    await tap.equal(refObject.userId, undefined)
+    await tap.equal(refObject.authId, undefined)
+
+    const refObject2 = createdReader2.asRef()
+    await tap.type(refObject2, 'object')
+    await tap.equal(refObject2.json, undefined)
+    await tap.equal(refObject2.preferences, undefined)
+    await tap.equal(refObject2.profile, undefined)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
