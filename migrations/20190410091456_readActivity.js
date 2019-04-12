@@ -4,7 +4,7 @@ exports.up = function (knex, Promise) {
     table.json('selector')
     table.jsonb('json')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()

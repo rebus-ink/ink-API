@@ -9,6 +9,8 @@ const app = require('../../server').app
 
 require('dotenv').config()
 
+// note: after new migration, remove 'true' from app.initialize and comment out rollback. Once.
+
 const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize(true)
@@ -17,12 +19,12 @@ const allTests = async () => {
       await app.knex.migrate.latest()
     }
   }
-  await activityTests(app)
-  await documentTests(app)
-  await publicationTests(app)
+  // await activityTests(app)
+  // await documentTests(app)
+  // await publicationTests(app)
   await readerTests(app)
-  await noteTests(app)
-  await tagTests(app)
+  // await noteTests(app)
+  // await tagTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()
