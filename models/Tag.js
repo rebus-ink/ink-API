@@ -1,6 +1,18 @@
 // @flow
 'use strict'
 const { Model } = require('objection')
+const _ = require('lodash')
+
+/*::
+type TagType = {
+  id: string,
+  name: string,
+  type: string,
+  json?: {},
+  published: Date,
+  updated: Date
+};
+*/
 
 /**
  * @property {Document} document - returns the document, if any, that this tag is a property of.
@@ -21,20 +33,24 @@ class Tag extends Model {
 
   static async createTag (
     readerId /*: string */,
-    tag /*: {type: string, name: string, readerId: ?string} */
+    tag /*: {type: string, name: string, json?: {}, readerId?: string} */
   ) /*: any */ {
     tag.readerId = readerId
-    // reject duplicates
+
+    // reject duplicates TODO: enforce this as the database level?
     const existing = await Tag.query().where({
       readerId: tag.readerId,
       type: tag.type,
       name: tag.name
     })
     if (existing.length > 0) return new Error('duplicate')
-    return await Tag.query().insert(tag)
+
+    const props = _.pick(tag, ['name', 'type', 'json', 'readerId'])
+
+    return await Tag.query().insert(props)
   }
 
-  static async byId (id /*: string */) /*: any */ {
+  static async byId (id /*: string */) /*: Promise<TagType> */ {
     return await Tag.query().findById(id)
   }
 }
