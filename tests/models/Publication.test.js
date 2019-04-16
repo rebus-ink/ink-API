@@ -29,7 +29,7 @@ const test = async app => {
     attachment: [{ type: 'Document', content: 'content of document' }]
   }
 
-  const createdTag = await Reader.addTag(createdReader, {
+  const createdTag = await Tag.createTag(createdReader.id, {
     type: 'reader:Stack',
     name: 'mystack'
   })
