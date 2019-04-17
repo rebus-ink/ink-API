@@ -39,8 +39,8 @@ class Publication extends BaseModel {
         inLanguage: { type: 'array' },
         keywords: { type: 'array' },
         readingOrder: { type: 'string' },
-        resources: { type: 'array' },
-        links: { type: 'array' },
+        resources: { type: 'string' },
+        links: { type: 'string' },
         json: { type: 'object' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
@@ -141,6 +141,8 @@ class Publication extends BaseModel {
     props.published = time
     props.updated = time
     props.readingOrder = JSON.stringify(props.readingOrder)
+    props.links = JSON.stringify(props.links)
+    props.resources = JSON.stringify(props.resources)
 
     const createdPublication = await Publication.query(
       Publication.knex()

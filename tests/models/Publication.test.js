@@ -16,7 +16,7 @@ const test = async app => {
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149868961',
+    'auth0|foo1545149868941',
     reader
   )
 
@@ -50,6 +50,42 @@ const test = async app => {
         hreflang: 'en',
         mediaType: 'text/html',
         name: 'An example link2'
+      }
+    ],
+    links: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc3',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link3'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc4',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link4'
+      }
+    ],
+    resources: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc5',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link5'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc6',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link6'
       }
     ]
   }
