@@ -15,7 +15,7 @@ exports.up = function (knex, Promise) {
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
       .nullable()

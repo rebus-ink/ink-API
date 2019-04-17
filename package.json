@@ -79,7 +79,8 @@
     "pg": "^7.4.3",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0",
-    "swagger-jsdoc": "^3.2.6"
+    "swagger-jsdoc": "^3.2.6",
+    "uuid": "^3.3.2"
   },
   "standard": {
     "ignore": [

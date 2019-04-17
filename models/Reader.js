@@ -3,6 +3,7 @@ const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { urlToId } = require('../routes/utils')
+const { createId } = require('./utils')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -61,14 +62,16 @@ class Reader extends BaseModel {
   }
 
   static async createReader (
-    authId /*: string */,
+    authId,
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-    props.authId = authId
+    props.id = createId('reader')
+
     const date = new Date().toISOString()
     props.published = date
     props.updated = date
+    props.authId = authId
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
       props
     )
@@ -76,20 +79,6 @@ class Reader extends BaseModel {
   }
 
   // TODO: update this method when I update publication
-  static async addPublication (
-    reader /*: any */,
-    publication /*: any */
-  ) /*: any */ {
-    const related = {
-      bto: reader.url,
-      attachment: publication.orderedItems
-    }
-    const graph = Object.assign(
-      related,
-      _.omit(publication, ['orderedItems', 'totalItems'])
-    )
-    return reader.$relatedQuery('publications').insertGraph(graph)
-  }
 
   // TODO: update this method when I update document
   static async addDocument (
