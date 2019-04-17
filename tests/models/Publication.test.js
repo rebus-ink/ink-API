@@ -16,12 +16,12 @@ const test = async app => {
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149868941',
+    'auth0|foo1545149568941',
     reader
   )
 
   const createPublicationObj = {
-    type: 'reader:Publication',
+    type: 'Publication',
     name: 'Publication A',
     description: 'description of publication A',
     author: [
@@ -90,6 +90,29 @@ const test = async app => {
     ]
   }
 
+  const simplePublication = {
+    type: 'reader:Publication',
+    name: 'Publication A',
+    readingOrder: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc2',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link2'
+      }
+    ]
+  }
+
   // const createdTag = await Tag.createTag(createdReader.id, {
   //   type: 'reader:Stack',
   //   name: 'mystack'
@@ -102,6 +125,17 @@ const test = async app => {
     let response = await Publication.createPublication(
       createdReader,
       createPublicationObj
+    )
+    await tap.ok(response)
+    await tap.ok(response instanceof Publication)
+    await tap.equal(response.readerId, createdReader.id)
+    publicationId = response.id
+  })
+
+  await tap.test('Create simple publication', async () => {
+    let response = await Publication.createPublication(
+      createdReader,
+      simplePublication
     )
     await tap.ok(response)
     await tap.ok(response instanceof Publication)

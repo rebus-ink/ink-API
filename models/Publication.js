@@ -38,9 +38,9 @@ class Publication extends BaseModel {
         datePublished: { type: 'string', format: 'date-time' },
         inLanguage: { type: 'array' },
         keywords: { type: 'array' },
-        readingOrder: { type: 'string' },
-        resources: { type: 'string' },
-        links: { type: 'string' },
+        readingOrder: { type: 'object' },
+        resources: { type: 'object' },
+        links: { type: 'object' },
         json: { type: 'object' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
@@ -140,9 +140,9 @@ class Publication extends BaseModel {
     props.metadata = metadata
     props.published = time
     props.updated = time
-    props.readingOrder = JSON.stringify(props.readingOrder)
-    props.links = JSON.stringify(props.links)
-    props.resources = JSON.stringify(props.resources)
+    props.readingOrder = { data: props.readingOrder }
+    if (props.links) props.links = { data: props.links }
+    if (props.resources) props.resources = { data: props.resources }
 
     const createdPublication = await Publication.query(
       Publication.knex()
@@ -181,6 +181,10 @@ class Publication extends BaseModel {
       pub.metadata = undefined
     }
 
+    pub.readingOrder = pub.readingOrder.data
+    if (pub.links) pub.links = pub.links.data
+    if (pub.resources) pub.resources = pub.resources.data
+
     return pub
   }
 
@@ -189,7 +193,6 @@ class Publication extends BaseModel {
     if (!publication || publication.deleted) {
       return null
     }
-    publication.readingOrder = JSON.stringify(publication.readingOrder)
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
