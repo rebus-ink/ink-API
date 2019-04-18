@@ -83,10 +83,10 @@ class Attribution extends BaseModel {
         name: attribution,
         type: 'Person',
         published: undefined,
-        publicationId: undefined,
-        readerId: undefined,
+        publicationId: publication.id,
+        readerId: publication.readerId,
         normalizedName: undefined,
-        role: undefined
+        role: role
       }
     } else {
       if (
@@ -100,13 +100,13 @@ class Attribution extends BaseModel {
         )
       }
       props = _.pick(attribution, ['name', 'type', 'isContributor'])
+      props.role = role
+      props.readerId = publication.readerId
+      props.publicationId = publication.id
     }
 
     const time = new Date().toISOString()
-    props.role = role
     props.normalizedName = props.name.toLowerCase() // todo: remove accents, etc.
-    props.readerId = publication.readerId
-    props.publicationId = publication.id
     props.published = time
 
     return await Attribution.query(Attribution.knex()).insertAndFetch(props)
