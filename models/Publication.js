@@ -151,26 +151,26 @@ class Publication extends BaseModel {
     // create attributions
     if (publication.author) {
       createdPublication.author = []
-      publication.author.forEach(async author => {
+      for (const author of publication.author) {
         const createdAuthor = await Attribution.createAttribution(
           author,
           'author',
           createdPublication
         )
         createdPublication.author.push(createdAuthor)
-      })
+      }
     }
 
     if (publication.editor) {
       createdPublication.editor = []
-      publication.editor.forEach(async editor => {
+      for (const editor of publication.editor) {
         const createdEditor = await Attribution.createAttribution(
           editor,
           'editor',
           createdPublication
         )
         createdPublication.editor.push(createdEditor)
-      })
+      }
     }
 
     return createdPublication
@@ -194,6 +194,8 @@ class Publication extends BaseModel {
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
 
+    // TODO: missing authors and editors
+    // Need a way to retrieve attribution by pubId and role
     return pub
   }
 
