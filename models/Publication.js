@@ -151,7 +151,7 @@ class Publication extends BaseModel {
     // if (publication.author) {
     //   createdPublication.author = []
     //   publication.author.forEach(async (author) => {
-    //     const createdAuthor = await Attribution.createAttribution(author, 'author')
+    //     const createdAuthor = await Attribution.createAttribution(author, 'author', createdPublication.id)
     //     createdPublication.author.push(createdAuthor)
     //   })
     // }
