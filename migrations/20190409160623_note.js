@@ -18,7 +18,7 @@ exports.up = function (knex, Promise) {
       .inTable('Document')
       .index()
     table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
       .index()

@@ -6,6 +6,8 @@ const translator = short()
 const _ = require('lodash')
 const { Activity } = require('./Activity')
 
+const metadataProps = ['inLanguage', 'keywords']
+
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
  * @property {Document[]} attachment - Returns the documents attached to this publication.
@@ -27,21 +29,24 @@ class Publication extends BaseModel {
     return {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid', maxLength: 255 },
-        readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        json: {
-          type: 'object',
-          properties: {
-            type: { const: 'reader:Publication' }
-          },
-          additionalProperties: true
-        },
+        id: { type: 'string' },
+        readerId: { type: 'string' },
+        name: { type: 'string' },
+        author: { type: 'array' },
+        description: { type: 'string' },
+        editor: { type: 'array' },
+        datePublished: { type: 'string', format: 'date-time' },
+        inLanguage: { type: 'array' },
+        keywords: { type: 'array' },
+        readingOrder: { type: 'object' },
+        resources: { type: 'object' },
+        links: { type: 'object' },
+        json: { type: 'object' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
-      additionalProperties: true,
-      required: ['json']
+      required: ['name', 'readerId', 'readingOrder']
     }
   }
   static get relationMappings () /*: any */ {
@@ -59,15 +64,15 @@ class Publication extends BaseModel {
           to: 'Reader.id'
         }
       },
-      outbox: {
+      author: {
         relation: Model.HasManyRelation,
-        modelClass: Activity,
+        modelClass: Attribution,
         join: {
           from: 'Publication.id',
-          to: 'Activity.publicationId'
+          to: 'Attribution.publicationId'
         }
       },
-      attributedTo: {
+      editor: {
         relation: Model.HasManyRelation,
         modelClass: Attribution,
         join: {
@@ -97,8 +102,8 @@ class Publication extends BaseModel {
         join: {
           from: 'Publication.id',
           through: {
-            from: 'publications_tags.publicationId',
-            to: 'publications_tags.tagId'
+            from: 'publication_tag.publicationId',
+            to: 'publication_tag.tagId'
           },
           to: 'Tag.id'
         }
@@ -110,63 +115,86 @@ class Publication extends BaseModel {
     return this
   }
 
-  static async byShortId (
-    shortId /*: string */
-  ) /*: Promise<{
-    id: string,
-    description: ?string,
-    json: {
-      attachment: Array<{
-        type: string,
-        content: string
-      }>,
-      id: string,
-      desription: ?string,
-      summaryMap: {en: string}
-    },
-    readerId: string,
-    published: string,
-    updated: string,
-    reader: {
-      id: string,
-      json: any,
-      userId: string,
-      published: string,
-      updated: string
-    }
-  }> */ {
-    return Publication.query()
-      .findById(translator.toUUID(shortId))
-      .eager('[reader, attachment.outbox, replies, tags]')
+  static async createPublication (
+    reader /*: any */,
+    publication /*: any */
+  ) /*: any */ {
+    const metadata = {}
+    metadataProps.forEach(property => {
+      metadata[property] = publication[property]
+    })
+
+    const time = new Date().toISOString()
+
+    const props = _.pick(publication, [
+      'id',
+      'name',
+      'description',
+      'datePublished',
+      'json',
+      'readingOrder',
+      'resources',
+      'links'
+    ])
+    props.readerId = reader.id
+    props.metadata = metadata
+    props.published = time
+    props.updated = time
+    props.readingOrder = { data: props.readingOrder }
+    if (props.links) props.links = { data: props.links }
+    if (props.resources) props.resources = { data: props.resources }
+
+    const createdPublication = await Publication.query(
+      Publication.knex()
+    ).insertAndFetch(props)
+    // // create attributions
+    // if (publication.author) {
+    //   createdPublication.author = []
+    //   publication.author.forEach(async (author) => {
+    //     const createdAuthor = await Attribution.createAttribution(author, 'author')
+    //     createdPublication.author.push(createdAuthor)
+    //   })
+    // }
+
+    // if (publication.editor) {
+    //   createdPublication.editor = []
+    //   publication.editor.forEach(async (editor) => {
+    //     const createdEditor = await Attribution.createAttribution(editor, 'editor')
+    //     createdPublication.editor.push(createdEditor)
+    //   })
+    // }
+
+    return createdPublication
   }
 
-  static async delete (shortId /*: string */) /*: number */ {
-    const publicationId = translator.toUUID(shortId)
-    let publication = await Publication.query().findById(publicationId)
+  static async byId (id /*: string */) /*: Promise<any> */ {
+    const pub = await Publication.query()
+      .findById(id)
+      .eager('[reader, replies, tags, author, editor]')
+
+    if (!pub || pub.deleted) return null
+
+    if (pub.metadata) {
+      metadataProps.forEach(prop => {
+        pub[prop] = pub.metadata[prop]
+      })
+      pub.metadata = undefined
+    }
+
+    pub.readingOrder = pub.readingOrder.data
+    if (pub.links) pub.links = pub.links.data
+    if (pub.resources) pub.resources = pub.resources.data
+
+    return pub
+  }
+
+  static async delete (id /*: string */) /*: number */ {
+    let publication = await Publication.query().findById(id)
     if (!publication || publication.deleted) {
       return null
     }
-    publication.deleted = new Date().toISOString()
-    return await Publication.query().updateAndFetchById(
-      publicationId,
-      publication
-    )
-  }
-
-  $formatJson (json /*: any */) /*: any */ {
-    json = super.$formatJson(json)
-    let attachment = null
-    if (this.attachment) {
-      attachment = _.sortBy(
-        this.attachment.filter(
-          doc => doc.json.position || doc.json.position === 0
-        ),
-        'json.position'
-      )
-    }
-    return Object.assign(json, {
-      orderedItems: attachment
-    })
+    const date = new Date().toISOString()
+    return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
 }
 

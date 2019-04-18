@@ -2,9 +2,7 @@
 'use strict'
 const { Model } = require('objection')
 const { DbErrors } = require('objection-db-errors')
-const guid = require('objection-guid')({
-  field: 'id'
-})
+const guid = require('objection-guid')()
 const short = require('short-uuid')
 const translator = short()
 const { getId } = require('../utils/get-id.js')
@@ -38,19 +36,6 @@ class BaseModel extends guid(DbErrors(Model)) {
   get shortId () /*: string */ {
     return translator.fromUUID(this.id)
   }
-
-  // $beforeInsert (context /*: any */) {
-  //   const parent = super.$beforeInsert(context)
-  //   const doc = this
-  //   return Promise.resolve(parent).then(function () {
-  //     doc.published = new Date().toISOString()
-  //     if (!doc.hasName()) {
-  //       doc.json.summaryMap = {
-  //         en: doc.summarize()
-  //       }
-  //     }
-  //   })
-  // }
 
   hasName () /*: string */ {
     return (
