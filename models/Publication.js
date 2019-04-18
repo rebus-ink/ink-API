@@ -9,6 +9,8 @@ const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
 const { urlToId } = require('../routes/utils')
 
+const metadataProps = ['inLanguage', 'keywords']
+
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
  * @property {Document[]} attachment - Returns the documents attached to this publication.
