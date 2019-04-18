@@ -1,6 +1,6 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Attribution', function (table) {
-    table.uuid('id').primary()
+    table.string('id').primary()
     table.string('role').notNullable().index()
     table
       .boolean('isContributor')
