@@ -23,7 +23,7 @@ const allTests = async () => {
   // await activityTests(app)
   // await documentTests(app)
   await publicationTests(app)
-  await attributionTests(app)
+  // await attributionTests(app)
   // await readerTests(app)
   // await noteTests(app)
   // await tagTests(app)
