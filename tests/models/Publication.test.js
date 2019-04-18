@@ -5,6 +5,7 @@ const { Publication } = require('../../models/Publication')
 const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
 const { urlToShortId } = require('../../routes/utils')
+const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -16,7 +17,7 @@ const test = async app => {
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149568941',
+    'auth0|foo1545149548941',
     reader
   )
 
@@ -129,6 +130,10 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Publication)
     await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.author.length, 2)
+    await tap.ok(response.author[0] instanceof Attribution)
+    await tap.equal(response.editor.length, 1)
+    await tap.ok(response.editor[0] instanceof Attribution)
     publicationId = response.id
   })
 
