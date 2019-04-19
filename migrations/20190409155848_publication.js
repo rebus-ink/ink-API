@@ -1,11 +1,11 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Publication', function (table) {
-    table.string('id').primary().index()
+    table.string('id').primary()
     table.text('description')
     table.string('name').notNullable()
     table.timestamp('datePublished')
     table.jsonb('metadata')
-    table.string('readingOrder').notNullable()
+    table.jsonb('readingOrder').notNullable()
     table.jsonb('resources')
     table.jsonb('links')
     table.jsonb('json')
