@@ -121,6 +121,29 @@ const test = async app => {
     await tap.ok(response instanceof Attribution)
   })
 
+  await tap.test('Get all attributions by publicationId', async () => {
+    let attributions = await Attribution.getAttributionByPubId(publication.id)
+
+    await tap.ok(attributions)
+    await tap.ok(attributions[0] instanceof Attribution)
+    await tap.equal(attributions[0].name, 'Jane Doe')
+  })
+
+  await tap.test(
+    'Delete attributions with a certain role of a given publication',
+    async () => {
+      let numDeleted = await Attribution.deleteAttributionOfPub(
+        publication.id,
+        'author'
+      )
+
+      console.log('Num cols deleted ' + numDeleted)
+
+      await tap.ok(numDeleted > 0)
+      // await tap.ok(numDeleted > 0)
+    }
+  )
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
