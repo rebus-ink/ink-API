@@ -25,7 +25,7 @@ const allTests = async () => {
   await publicationTests(app)
   await attributionTests(app)
   await readerTests(app)
-  // await noteTests(app)
+  await noteTests(app)
   await tagTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
