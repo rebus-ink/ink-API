@@ -17,7 +17,7 @@ const test = async app => {
   }
 
   const createdReader = await Reader.createReader(
-    'auth0|foo1545149548941',
+    'auth0|foo1542140548941',
     reader
   )
 

@@ -1,11 +1,11 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Document', function (table) {
-    table.uuid('id').primary().index()
+    table.string('id').primary()
     table.string('mediaType')
       .defaultTo('text/html')
       .index()
     table.string('url').notNullable()
-    table.string('path').notNullable().index()
+    table.string('documentPath').notNullable().index()
     table.jsonb('json')
     table
       .string('readerId')
