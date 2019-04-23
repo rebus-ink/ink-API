@@ -137,10 +137,7 @@ const test = async app => {
         'author'
       )
 
-      console.log('Num cols deleted ' + numDeleted)
-
       await tap.ok(numDeleted > 0)
-      // await tap.ok(numDeleted > 0)
     }
   )
 

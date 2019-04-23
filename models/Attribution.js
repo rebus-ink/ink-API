@@ -123,18 +123,18 @@ class Attribution extends BaseModel {
 
   // TODO: delete by publicationIdb
 
-  static async getAttributionByPubId (publicationId /*: any */) /*: any */ {
-    /*
-    return Attribution.query(knex.js).where(publicationId)
-    */
+  static async getAttributionByPubId (publicationId /*: string */) /*: any */ {
+    if (publicationId == null) {
+      throw Error(`Your publicationId cannot be null`)
+    }
 
     // return Attribution.query().where(publicationId)
     return Attribution.query().where('publicationId', publicationId)
   }
 
   static async deleteAttributionOfPub (
-    publicationId /*: any */,
-    role /*: any */
+    publicationId /*: string */,
+    role /*: string */
   ) /*: any */ {
     if (_.indexOf(attributionRoles, role.toLowerCase()) === -1) {
       throw Error(`${role} is not a valid attribution role`)
