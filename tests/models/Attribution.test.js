@@ -122,22 +122,49 @@ const test = async app => {
   })
 
   await tap.test('Get all attributions by publicationId', async () => {
+    let newContributor = await Attribution.createAttribution(
+      'Sonya Rabhi',
+      'editor',
+      publication
+    )
+
     let attributions = await Attribution.getAttributionByPubId(publication.id)
 
     await tap.ok(attributions)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions[0].name, 'Jane Doe')
+    await tap.equal(attributions[0].name, 'Sonya Rabhi')
+    await tap.equal(attributions[0].role, 'editor')
+    await tap.equal(attributions[1].name, 'Jane Doe')
+    await tap.equal(attributions.length, 3)
   })
 
   await tap.test(
     'Delete attributions with a certain role of a given publication',
     async () => {
+      let newAuthor = await Attribution.createAttribution(
+        'John Doe',
+        'author',
+        publication
+      )
+
+      let newEditor = await Attribution.createAttribution(
+        'Bugs Bunny',
+        'editor',
+        publication
+      )
+
       let numDeleted = await Attribution.deleteAttributionOfPub(
         publication.id,
         'author'
       )
 
-      await tap.ok(numDeleted > 0)
+      let attributions = await Attribution.getAttributionByPubId(publication.id)
+
+      await tap.equal(numDeleted, 2)
+      await tap.equal(attributions[0].name, 'Bugs Bunny')
+      await tap.equal(attributions[0].role, 'editor')
+      await tap.equal(attributions[1].name, 'Sonya Rabhi')
+      await tap.equal(attributions[1].role, 'editor')
     }
   )
 

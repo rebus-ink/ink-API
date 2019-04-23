@@ -121,14 +121,11 @@ class Attribution extends BaseModel {
     return await Attribution.query().findById(id)
   }
 
-  // TODO: delete by publicationIdb
-
   static async getAttributionByPubId (publicationId /*: string */) /*: any */ {
     if (publicationId == null) {
       throw Error(`Your publicationId cannot be null`)
     }
 
-    // return Attribution.query().where(publicationId)
     return Attribution.query().where('publicationId', publicationId)
   }
 
@@ -140,12 +137,10 @@ class Attribution extends BaseModel {
       throw Error(`${role} is not a valid attribution role`)
     }
 
-    const numDeleted = await Attribution.query(Attribution.knex())
+    return await Attribution.query(Attribution.knex())
       .where('role', '=', role)
       .andWhere('publicationId', '=', publicationId)
       .del()
-
-    return numDeleted
   }
 }
 
