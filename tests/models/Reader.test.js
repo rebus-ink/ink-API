@@ -1,20 +1,24 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
+const crypto = require('crypto')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
 
+  const random1 = crypto.randomBytes(13).toString('hex')
+  const random2 = crypto.randomBytes(13).toString('hex')
+
   const reader = {
     name: 'J. Random Reader',
-    authId: 'auth0|foo1545149868965'
+    authId: `auth0|foo${random1}`
   }
 
   const reader2 = {
     name: 'J. Random Reader',
-    authId: 'auth0|foo1545149868966',
+    authId: `auth0|foo${random2}`,
     json: {
       property1: 'value',
       property2: 4

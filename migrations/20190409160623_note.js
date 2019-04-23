@@ -1,6 +1,6 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Note', function (table) {
-    table.uuid('id').primary()
+    table.string('id').primary()
     table.string('noteType').notNullable().index()
     table.text('content')
     table.jsonb('selector')
