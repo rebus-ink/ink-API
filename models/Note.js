@@ -7,6 +7,7 @@ const translator = short()
 const { Activity } = require('./Activity')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
+const { createId } = require('./utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -31,21 +32,20 @@ class Note extends BaseModel {
     return {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid', maxLength: 255 },
-        readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        json: {
-          type: 'object',
-          properties: {
-            type: { const: 'Note' }
-          },
-          additionalProperties: true
-        },
+        id: { type: 'string' },
+        noteType: { type: 'string' },
+        content: { type: 'string' },
+        selector: { type: 'object' },
+        json: { type: 'object' },
+        readerId: { type: 'string' },
+        documentId: { type: 'string' },
+        publicationId: { type: 'string' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['json']
+      required: ['id', 'noteType', 'readerId', 'published', 'updated']
     }
   }
 
@@ -60,14 +60,6 @@ class Note extends BaseModel {
         join: {
           from: 'Note.readerId',
           to: 'Reader.id'
-        }
-      },
-      outbox: {
-        relation: Model.HasManyRelation,
-        modelClass: Activity,
-        join: {
-          from: 'Note.id',
-          to: 'Activity.noteId'
         }
       },
       inReplyTo: {
@@ -89,55 +81,54 @@ class Note extends BaseModel {
     }
   }
 
-  static async byShortId (
-    shortId /*: string */
-  ) /*: Promise<{
-    id: string,
-    type: string,
-    json: {
-      type: string,
-      content: string,
-      'oa:selector':any,
-      context: string,
-      inReplyTo: string,
-      summaryMap: { en: string },
-      readerId: string,
-      published: string,
-      updated: string,
-      reader: {id: string, json: any, userId: string, published: string, updated: string}
-    }
-  }> */ {
+  static async createNote (
+    reader /*: any */,
+    note /*: any */
+  ) /*: Promise<any> */ {
+    const props = _.pick(note, [
+      'noteType',
+      'content',
+      'selector',
+      'json',
+      'documentId',
+      'publicationId'
+    ])
+
+    props.id = createId('note')
+    props.readerId = reader.id
+    const time = new Date().toISOString()
+    props.published = time
+    props.updated = time
+    return await Note.query().insertAndFetch(props)
+  }
+
+  static async byId (id /*: string */) /*: Promise<any> */ {
     return Note.query()
-      .findById(translator.toUUID(shortId))
+      .findById(id)
       .eager('reader')
   }
 
   asRef () /*: string */ {
-    return this.toJSON().id
+    return this.id
   }
 
-  static async delete (shortId /*: string */) /*: Promise<any> */ {
-    const noteId = translator.toUUID(shortId)
-    let note = await Note.query().findById(noteId)
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    let note = await Note.query().findById(id)
     if (!note || note.deleted) return null
     note.deleted = new Date().toISOString()
-    return await Note.query().updateAndFetchById(noteId, note)
+    return await Note.query().updateAndFetchById(id, note)
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
     // $FlowFixMe
-    const noteId = urlToId(object.id)
-    const modifications = _.pick(object, [
-      'content',
-      'summary',
-      'oa:hasSelector'
-    ])
-    let note = await Note.query().findById(noteId)
+    const modifications = _.pick(object, ['content', 'selector'])
+    let note = await Note.query().findById(object.id)
     if (!note) {
       return null
     }
-    note.json = Object.assign(note.json, modifications)
-    return await Note.query().updateAndFetchById(noteId, note)
+    note = Object.assign(note, modifications)
+    note.updated = new Date().toISOString()
+    return await Note.query().updateAndFetchById(object.id, note)
   }
 }
 

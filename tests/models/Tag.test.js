@@ -2,15 +2,16 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
+const crypto = require('crypto')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
+  const random = crypto.randomBytes(13).toString('hex')
 
   const reader = {
-    name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868966'
+    name: 'J. Random Reader'
   }
 
   const tagObject = {
@@ -18,10 +19,7 @@ const test = async app => {
     name: 'mystack'
   }
 
-  const createdReader = await Reader.createReader(
-    'auth0|foo1545149868966',
-    reader
-  )
+  const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
   await tap.test('Create Stack', async () => {
     let response = await Tag.createTag(createdReader.id, tagObject)

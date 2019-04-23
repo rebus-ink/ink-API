@@ -1,6 +1,6 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('readActivity', function (table) {
-    table.uuid('id').primary()
+    table.string('id').primary()
     table.json('selector')
     table.jsonb('json')
     table

@@ -99,19 +99,6 @@ class Reader extends BaseModel {
     }
   }
 
-  // TODO: update this method when I update note
-  static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
-    try {
-      return await reader.$relatedQuery('replies').insert(note)
-    } catch (err) {
-      if (err.nativeError.constraint === 'note_publicationid_foreign') {
-        return new Error('no publication')
-      } else if (err.nativeError.constraint === 'note_documentid_foreign') {
-        return new Error('no document')
-      }
-    }
-  }
-
   static get tableName () /*: string */ {
     return 'Reader'
   }

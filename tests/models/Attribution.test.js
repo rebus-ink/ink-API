@@ -6,6 +6,7 @@ const { Attribution } = require('../../models/Attribution')
 const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
 const { urlToShortId } = require('../../routes/utils')
+const crypto = require('crypto')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -15,11 +16,9 @@ const test = async app => {
   const reader = {
     name: 'J. Random Reader'
   }
+  const random = crypto.randomBytes(13).toString('hex')
 
-  const createdReader = await Reader.createReader(
-    'auth0|foo1545149538931',
-    reader
-  )
+  const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
   const simplePublication = {
     type: 'reader:Publication',
@@ -125,7 +124,7 @@ const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
-  // await destroyDB(app)
+  await destroyDB(app)
 }
 
 module.exports = test
