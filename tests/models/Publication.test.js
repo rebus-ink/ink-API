@@ -2,10 +2,11 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
-const { Publications_Tags } = require('../../models/Publications_Tags')
+const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
 const { urlToShortId } = require('../../routes/utils')
 const { Attribution } = require('../../models/Attribution')
+const { Tag } = require('../../models/Tag')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -113,10 +114,10 @@ const test = async app => {
     ]
   }
 
-  // const createdTag = await Tag.createTag(createdReader.id, {
-  //   type: 'reader:Stack',
-  //   name: 'mystack'
-  // })
+  const createdTag = await Tag.createTag(createdReader.id, {
+    type: 'reader:Stack',
+    name: 'mystack'
+  })
 
   let publicationId
   let publication
@@ -161,68 +162,61 @@ const test = async app => {
     // asRef is broken. Will fix the test and the code in another PR
   })
 
-  // await tap.test('Publication addTag', async () => {
-  //   const res = await Publications_Tags.addTagToPub(
-  //     publication.url,
-  //     createdTag.id
-  //   )
+  await tap.test('Publication addTag', async () => {
+    const res = await Publication_Tag.addTagToPub(publication.id, createdTag.id)
+    await tap.ok(res.publicationId)
+    await tap.ok(res.tagId)
+    await tap.equal(res.publicationId, publication.id)
+    await tap.equal(res.tagId, createdTag.id)
+  })
 
-  //   await tap.ok(res.publicationId)
-  //   await tap.ok(res.tagId)
-  //   await tap.equal(res.publicationId, publication.id)
-  //   await tap.equal(res.tagId, createdTag.id)
-  // })
+  await tap.test('addTagToPub with invalid tag id ', async () => {
+    const res = await Publication_Tag.addTagToPub(
+      publication.id,
+      createdTag.id + '123'
+    )
 
-  // await tap.test('addTagToPub with invalid tag id ', async () => {
-  //   const res = await Publications_Tags.addTagToPub(
-  //     publication.url,
-  //     createdTag.id + '123'
-  //   )
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no tag')
+  })
 
-  //   await tap.ok(typeof res, Error)
-  //   await tap.equal(res.message, 'no tag')
-  // })
+  await tap.test('addTagToPub with invalid publication id ', async () => {
+    const res = await Publication_Tag.addTagToPub(undefined, createdTag.id)
 
-  // await tap.test('addTagToPub with invalid publication id ', async () => {
-  //   const res = await Publications_Tags.addTagToPub(undefined, createdTag.id)
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no publication')
+  })
 
-  //   await tap.ok(typeof res, Error)
-  //   await tap.equal(res.message, 'no publication')
-  // })
+  await tap.test('Publication remove tag', async () => {
+    const res = await Publication_Tag.removeTagFromPub(
+      publication.id,
+      createdTag.id
+    )
+    await tap.equal(res, 1)
+  })
 
-  // await tap.test('Publication remove tag', async () => {
-  //   const res = await Publications_Tags.removeTagFromPub(
-  //     publication.url,
-  //     createdTag.id
-  //   )
-  //   await tap.equal(res, 1)
-  // })
+  await tap.test('removeTagFromPub with invalid tag id ', async () => {
+    const res = await Publication_Tag.removeTagFromPub(
+      publication.id,
+      createdTag.id + '123'
+    )
 
-  // await tap.test('removeTagFromPub with invalid tag id ', async () => {
-  //   const res = await Publications_Tags.removeTagFromPub(
-  //     publication.url,
-  //     createdTag.id + '123'
-  //   )
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'not found')
+  })
 
-  //   await tap.ok(typeof res, Error)
-  //   await tap.equal(res.message, 'not found')
-  // })
+  await tap.test('removeTagFromPub with invalid publication id ', async () => {
+    const res = await Publication_Tag.removeTagFromPub(undefined, createdTag.id)
 
-  // await tap.test('removeTagFromPub with invalid publication id ', async () => {
-  //   const res = await Publications_Tags.removeTagFromPub(
-  //     undefined,
-  //     createdTag.id
-  //   )
-
-  //   await tap.ok(typeof res, Error)
-  //   await tap.equal(res.message, 'no publication')
-  // })
+    await tap.ok(typeof res, Error)
+    await tap.equal(res.message, 'no publication')
+  })
 
   // await tap.test('Try to assign same tag twice', async () => {
-  //   await Publications_Tags.addTagToPub(publication.url, createdTag.id)
+  //   await Publication_Tag.addTagToPub(publication.id, createdTag.id)
 
-  //   const res = await Publications_Tags.addTagToPub(
-  //     publication.url,
+  //   const res = await Publication_Tag.addTagToPub(
+  //     publication.id,
   //     createdTag.id
   //   )
 
