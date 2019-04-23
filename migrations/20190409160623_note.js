@@ -13,7 +13,7 @@ exports.up = function (knex, Promise) {
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('documentId')
+      .string('documentId')
       .references('id')
       .inTable('Document')
       .index()

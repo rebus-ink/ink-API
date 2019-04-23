@@ -6,6 +6,7 @@ const translator = short()
 const _ = require('lodash')
 const { Activity } = require('./Activity')
 const { Attribution } = require('./Attribution')
+const { createId } = require('./utils')
 
 const metadataProps = ['inLanguage', 'keywords']
 
@@ -137,6 +138,7 @@ class Publication extends BaseModel {
       'resources',
       'links'
     ])
+    props.id = createId('publication')
     props.readerId = reader.id
     props.metadata = metadata
     props.published = time
