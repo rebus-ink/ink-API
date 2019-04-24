@@ -24,14 +24,6 @@ class Note_Tag extends Model {
     // check tag
     if (!tagId) return new Error('no tag')
 
-    // // check if already exists - SKIPPED FOR NOW
-    // const result = await Publications_Tags.query().where({
-    //   publicationId: publication.id,
-    //   tagId
-    // })
-    // if (result.length > 0) {
-    //   return new Error('duplicate')
-
     try {
       return await Note_Tag.query().insert({
         noteId: noteId,
@@ -51,9 +43,6 @@ class Note_Tag extends Model {
     tagId /*: string */
   ) /*: number */ {
     // check publication
-
-    console.log('note and tag id: ' + noteId + ' and ' + tagId)
-
     if (!noteId) return new Error('no note')
 
     // check tag
@@ -65,8 +54,6 @@ class Note_Tag extends Model {
         noteId: noteId,
         tagId
       })
-
-    console.log('The result: ' + result)
 
     if (result === 0) {
       return new Error('not found')

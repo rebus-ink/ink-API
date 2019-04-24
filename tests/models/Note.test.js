@@ -166,13 +166,19 @@ const test = async app => {
   })
 
   await tap.test('Add a tag to a note with an invalid noteId', async () => {
-    const tagNote = await Note_Tag.addTagToNote(null, newTag.id)
+    const tagNote = await Note_Tag.addTagToNote(
+      newNote.id + 'Blah123',
+      newTag.id
+    )
 
     tap.ok(typeof tagNote, Error)
   })
 
   await tap.test('Add a tag to a note with an invalid tagId', async () => {
-    const tagNote = await Note_Tag.addTagToNote(newNote.id, null)
+    const tagNote = await Note_Tag.addTagToNote(
+      newNote.id,
+      newTag.id + 'Blah123'
+    )
 
     tap.ok(typeof tagNote, Error)
   })
@@ -201,18 +207,38 @@ const test = async app => {
       tagNote1.tagId
     )
 
+    // Check that the spcified entry has been removed
+    removed = await Note_Tag.query().where({
+      noteId: tagNote1.noteId,
+      tagId: tagNote1.tagId
+    })
+
+    // Check that the not specified entry has not been removed
+    notRemoved = await Note_Tag.query().where({
+      noteId: tagNote2.noteId,
+      tagId: tagNote2.tagId
+    })
+
     // Make sure only 1 is removed
     tap.equal(result, 1)
+    tap.ok(typeof removed, Error)
+    tap.ok(notRemoved[0] instanceof Note_Tag)
   })
 
   await tap.test('Remove a tag with an invalid noteId', async () => {
-    const result = await Note_Tag.removeTagFromNote(null, newTag.id)
+    const result = await Note_Tag.removeTagFromNote(
+      newNote.id + 'Blah123',
+      newTag.id
+    )
 
     tap.ok(typeof result, Error)
   })
 
   await tap.test('Remove a tag with an invalid tagId', async () => {
-    const result = await Note_Tag.removeTagFromNote(newNote.id, null)
+    const result = await Note_Tag.removeTagFromNote(
+      newNote.id,
+      newTag.id + 'Blah123'
+    )
 
     tap.ok(typeof result, Error)
   })
