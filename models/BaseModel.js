@@ -11,6 +11,9 @@ const lodash = require('lodash')
 const URL = require('url').URL
 const debug = require('debug')('hobb:model:base-model')
 const _ = require('lodash')
+const { urlToId } = require('../routes/utils')
+
+const domain = process.env.DOMAIN || ''
 
 /**
  * @property {string} url - the current object's url
@@ -20,7 +23,82 @@ const _ = require('lodash')
  *
  * The base model for most of the other models. Implements url, shortId, published, and updated.
  */
-class BaseModel extends guid(DbErrors(Model)) {
+class BaseModel extends Model {
+  /**
+   *
+   * @param {object} json
+   * @param {string?} type
+   */
+  formatIdsToUrl (json /*: any */, type /* :?string */) /*: any */ {
+    if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
+      json.id = `${domain}/${type}-${json.id}`
+    }
+    if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
+      json.readerId = `${domain}/reader-${json.readerId}`
+    }
+
+    if (
+      json.publicationId &&
+      !json.publicationId.startsWith(process.env.DOMAIN)
+    ) {
+      json.publicationId = `${domain}/publication-${json.publicationId}`
+    }
+
+    if (json.noteId && !json.noteId.startsWith(process.env.DOMAIN)) {
+      json.noteId = `${domain}/note-${json.noteId}`
+    }
+
+    return json
+  }
+
+  $afterGet (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc = doc.formatIdsToUrl(doc, doc.getType())
+    })
+  }
+
+  $afterInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc = doc.formatIdsToUrl(doc, doc.getType())
+    })
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.id = urlToId(doc.id)
+      doc.readerId = urlToId(doc.readerId)
+      doc.publicationId = urlToId(doc.publicationId)
+      doc.documentId = urlToId(doc.documentId)
+    })
+  }
+
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.id = urlToId(doc.id)
+      doc.readerId = urlToId(doc.readerId)
+      doc.publicationId = urlToId(doc.publicationId)
+      doc.documentId = urlToId(doc.documentId)
+    })
+  }
+
+  getType () /*: ?string */ {
+    const tables = ['Activity', 'Publication', 'Reader', 'Note', 'ReadActivity']
+
+    if (_.indexOf(tables, this.constructor.name) > -1) {
+      return this.constructor.name.toLowerCase()
+    } else {
+      return undefined
+    }
+  }
+
   //   static get jsonAttributes () /*: Array<string> */ {
   //     return ['json', 'properties']
   //   }

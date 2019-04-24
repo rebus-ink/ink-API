@@ -2,7 +2,7 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../integration/utils')
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 const _ = require('lodash')
 
 const { Storage } = require('@google-cloud/storage')
@@ -16,7 +16,7 @@ const test = async app => {
   const token = getToken()
   const userId = await createUser(app, token)
   const userUrl = urlparse(userId).path
-  const userShortId = urlToShortId(userUrl)
+  const userShortId = urlToId(userUrl)
   let file1Name, file2Name
 
   await tap.test('Upload file', async () => {
