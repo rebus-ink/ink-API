@@ -2,12 +2,15 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
+const { Tag } = require('../../models/Tag')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
+const { Note_Tag } = require('../../models/Note_Tag')
 const short = require('short-uuid')
 const translator = short()
 const { urlToShortId } = require('../../routes/utils')
 const crypto = require('crypto')
+const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -142,6 +145,60 @@ const test = async app => {
   await tap.test('Try to delete a note that does not exist', async () => {
     const res = await Note.delete('123')
     await tap.equal(res, null)
+  })
+
+  // Create a valid tag
+  const newTag = await Tag.createTag(createdReader.id, {
+    type: 'reader:Stack',
+    name: 'mystack'
+  })
+
+  // Create a valid note
+  const newNote = await Note.createNote(createdReader, noteObject)
+
+  await tap.test('Add a tag to a note', async () => {
+    const tagNote = await Note_Tag.addTagToNote(newNote.id, newTag.id)
+
+    tap.ok(tagNote.noteId)
+    tap.ok(tagNote.tagId)
+    tap.equal(tagNote.tagId, newTag.id)
+    tap.equal(tagNote.noteId, newNote.id)
+  })
+
+  await tap.test('Add a tag to a note with an invalid noteId', async () => {
+    const tagNote = await Note_Tag.addTagToNote(null, newTag.id)
+
+    tap.ok(typeof tagNote, Error)
+  })
+
+  await tap.test('Add a tag to a note with an invalid tagId', async () => {
+    const tagNote = await Note_Tag.addTagToNote(newNote.id, null)
+
+    tap.ok(typeof tagNote, Error)
+  })
+
+  await tap.test('Remote a valid tag from a valid note', async () => {
+    const tag1 = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'MyStack1'
+    })
+    const tag2 = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'MyStack2'
+    })
+
+    // Create a valid note
+    const note1 = await Note.createNote(createdReader, noteObject)
+    const note2 = await Note.createNote(createdReader, simpleNoteObject)
+
+    // Add tags to notes
+    const tagNote1 = await Note_Tag.addTagToNote(note1.id, tag1.id)
+    const tagNote2 = await Note_Tag.addTagToNote(note2.id, tag2.id)
+
+    result = await Note_Tag.removeTagFromNote(tagNote1.noteId, tagNote1.tagId)
+
+    // Make sure only 1 is removed
+    tap.equal(result, 1)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

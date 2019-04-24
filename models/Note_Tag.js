@@ -1,5 +1,8 @@
 const { Model } = require('objection')
 const { urlToId } = require('../routes/utils')
+const { BaseModel } = require('./BaseModel.js')
+const { Note } = require('./Note')
+const { Tag } = require('./Tag')
 
 class Note_Tag extends Model {
   static get tableName () {
@@ -10,12 +13,13 @@ class Note_Tag extends Model {
     return ['noteId', 'tagId']
   }
 
-  static async addTagToPub (
-    publicationId /*: string */,
+  static async addTagToNote (
+    noteId /*: string */,
     tagId /*: number */
   ) /*: any */ {
     // check publication
-    if (!publicationId) return new Error('no publication')
+
+    if (!noteId) return new Error('no note')
 
     // check tag
     if (!tagId) return new Error('no tag')
@@ -29,35 +33,40 @@ class Note_Tag extends Model {
     //   return new Error('duplicate')
 
     try {
-      return await Publication_Tag.query().insert({
-        publicationId: publicationId,
+      return await Note_Tag.query().insert({
+        noteId: noteId,
         tagId
       })
     } catch (err) {
-      if (err.constraint === 'publication_tag_tagid_foreign') {
+      if (err.constraint === 'note_tag_tagid_foreign') {
         return new Error('no tag')
-      } else if (err.constraint === 'publication_tag_publicationid_foreign') {
-        return new Error('no publication')
+      } else if (err.constraint === 'note_tag_noteid_foreign') {
+        return new Error('no note')
       }
     }
   }
 
-  static async removeTagFromPub (
-    publicationId /*: string */,
+  static async removeTagFromNote (
+    noteId /*: string */,
     tagId /*: string */
   ) /*: number */ {
     // check publication
-    if (!publicationId) return new Error('no publication')
+
+    console.log('note and tag id: ' + noteId + ' and ' + tagId)
+
+    if (!noteId) return new Error('no note')
 
     // check tag
     if (!tagId) return new Error('no tag')
 
-    const result = await Publication_Tag.query()
+    const result = await Note_Tag.query()
       .delete()
       .where({
-        publicationId: publicationId,
+        noteId: noteId,
         tagId
       })
+
+    console.log('The result: ' + result)
 
     if (result === 0) {
       return new Error('not found')
