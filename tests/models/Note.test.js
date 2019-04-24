@@ -178,6 +178,7 @@ const test = async app => {
   })
 
   await tap.test('Remote a valid tag from a valid note', async () => {
+    // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
       type: 'reader:Stack',
       name: 'MyStack1'
@@ -195,10 +196,25 @@ const test = async app => {
     const tagNote1 = await Note_Tag.addTagToNote(note1.id, tag1.id)
     const tagNote2 = await Note_Tag.addTagToNote(note2.id, tag2.id)
 
-    result = await Note_Tag.removeTagFromNote(tagNote1.noteId, tagNote1.tagId)
+    const result = await Note_Tag.removeTagFromNote(
+      tagNote1.noteId,
+      tagNote1.tagId
+    )
 
     // Make sure only 1 is removed
     tap.equal(result, 1)
+  })
+
+  await tap.test('Remove a tag with an invalid noteId', async () => {
+    const result = await Note_Tag.removeTagFromNote(null, newTag.id)
+
+    tap.ok(typeof result, Error)
+  })
+
+  await tap.test('Remove a tag with an invalid tagId', async () => {
+    const result = await Note_Tag.removeTagFromNote(newNote.id, null)
+
+    tap.ok(typeof result, Error)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
