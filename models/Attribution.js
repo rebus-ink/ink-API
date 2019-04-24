@@ -3,10 +3,15 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+const { Publication } = require('./Publication')
+const { urlToId } = require('../routes/utils')
 
 // TODO: add more valid roles
 const attributionRoles = ['author', 'editor']
 
+/**
+ * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
+ */
 class Attribution extends BaseModel {
   static get tableName () /*: string */ {
     return 'Attribution'
@@ -116,7 +121,27 @@ class Attribution extends BaseModel {
     return await Attribution.query().findById(id)
   }
 
-  // TODO: delete by publicationIdb
+  static async getAttributionByPubId (publicationId /*: string */) /*: any */ {
+    if (publicationId == null) {
+      throw Error(`Your publicationId cannot be null`)
+    }
+
+    return await Attribution.query().where('publicationId', publicationId)
+  }
+
+  static async deleteAttributionOfPub (
+    publicationId /*: string */,
+    role /*: string */
+  ) /*: any */ {
+    if (_.indexOf(attributionRoles, role.toLowerCase()) === -1) {
+      throw Error(`${role} is not a valid attribution role`)
+    }
+
+    return await Attribution.query(Attribution.knex())
+      .where('role', '=', role)
+      .andWhere('publicationId', '=', publicationId)
+      .del()
+  }
 }
 
 module.exports = { Attribution }
