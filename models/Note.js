@@ -94,7 +94,7 @@ class Note extends BaseModel {
       'publicationId'
     ])
 
-    props.id = createId('note')
+    props.id = createId()
     props.readerId = reader.id
     const time = new Date().toISOString()
     props.published = time
@@ -103,7 +103,7 @@ class Note extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    return Note.query()
+    return await Note.query()
       .findById(id)
       .eager('reader')
   }
@@ -122,13 +122,14 @@ class Note extends BaseModel {
   static async update (object /*: any */) /*: Promise<any> */ {
     // $FlowFixMe
     const modifications = _.pick(object, ['content', 'selector'])
-    let note = await Note.query().findById(object.id)
+    let note = await Note.query().findById(urlToId(object.id))
     if (!note) {
       return null
     }
     note = Object.assign(note, modifications)
     note.updated = new Date().toISOString()
-    return await Note.query().updateAndFetchById(object.id, note)
+
+    return await Note.query().updateAndFetchById(urlToId(object.id), note)
   }
 }
 

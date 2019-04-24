@@ -6,7 +6,7 @@ const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const short = require('short-uuid')
 const translator = short()
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -104,7 +104,7 @@ const test = async app => {
   })
 
   await tap.test('Get note by id', async () => {
-    note = await Note.byId(note.id)
+    note = await Note.byId(urlToId(note.id))
     await tap.type(note, 'object')
     await tap.equal(note.noteType, 'highlight')
     await tap.ok(note instanceof Note)
@@ -135,7 +135,7 @@ const test = async app => {
   })
 
   await tap.test('Delete Note', async () => {
-    const res = await Note.delete(note.id)
+    const res = await Note.delete(urlToId(note.id))
     await tap.ok(res.deleted)
   })
 

@@ -5,7 +5,7 @@ const { Document } = require('../../models/Document')
 const { Publication } = require('../../models/Publication')
 const short = require('short-uuid')
 const translator = short()
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -83,7 +83,7 @@ const test = async app => {
 
   await tap.test('Get redirect url', async () => {
     const url = await Document.getRedirectUrl(
-      publication.id,
+      urlToId(publication.id),
       document.documentPath
     )
 

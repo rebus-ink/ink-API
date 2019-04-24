@@ -4,7 +4,7 @@ const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
 const crypto = require('crypto')
@@ -114,7 +114,7 @@ const test = async app => {
     ]
   }
 
-  const createdTag = await Tag.createTag(createdReader.id, {
+  const createdTag = await Tag.createTag(urlToId(createdReader.id), {
     type: 'reader:Stack',
     name: 'mystack'
   })
@@ -145,7 +145,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Publication)
     await tap.equal(response.readerId, createdReader.id)
-    publicationId = response.id
+    publicationId = urlToId(response.id)
   })
 
   await tap.test('Get publication by id', async () => {
@@ -189,7 +189,7 @@ const test = async app => {
 
   await tap.test('Publication remove tag', async () => {
     const res = await Publication_Tag.removeTagFromPub(
-      publication.id,
+      urlToId(publication.id),
       createdTag.id
     )
     await tap.equal(res, 1)
@@ -197,7 +197,7 @@ const test = async app => {
 
   await tap.test('removeTagFromPub with invalid tag id ', async () => {
     const res = await Publication_Tag.removeTagFromPub(
-      publication.id,
+      urlToId(publication.id),
       createdTag.id + '123'
     )
 
