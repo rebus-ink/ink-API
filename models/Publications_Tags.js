@@ -1,7 +1,6 @@
-const { Model } = require('objection')
-const { urlToId } = require('../routes/utils')
+const { BaseModel } = require('./BaseModel')
 
-class Publication_Tag extends Model {
+class Publication_Tag extends BaseModel {
   static get tableName () {
     return 'publication_tag'
   }
@@ -29,7 +28,7 @@ class Publication_Tag extends Model {
     //   return new Error('duplicate')
 
     try {
-      return await Publication_Tag.query().insert({
+      return await Publication_Tag.query().insertAndFetch({
         publicationId: publicationId,
         tagId
       })

@@ -2,6 +2,7 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const crypto = require('crypto')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -53,7 +54,7 @@ const test = async app => {
   })
 
   await tap.test('Get reader by id', async () => {
-    const responseReader = await Reader.byId(createdReader.id)
+    const responseReader = await Reader.byId(urlToId(createdReader.id))
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
@@ -61,7 +62,10 @@ const test = async app => {
   })
 
   await tap.test('Get reader by id with eager loading', async () => {
-    const responseReader = await Reader.byId(createdReader.id, '[publications]')
+    const responseReader = await Reader.byId(
+      urlToId(createdReader.id),
+      '[publications]'
+    )
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)

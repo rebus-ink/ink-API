@@ -2,13 +2,13 @@ const { createActivityObject } = require('./utils')
 const { Publication } = require('../../models/Publication')
 const { Activity } = require('../../models/Activity')
 const { Note } = require('../../models/Note')
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 
 const handleDelete = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Publication':
-      const returned = await Publication.delete(urlToShortId(body.object.id))
+      const returned = await Publication.delete(urlToId(body.object.id))
       if (returned === null) {
         res
           .status(404)
@@ -38,7 +38,7 @@ const handleDelete = async (req, res, reader) => {
       break
 
     case 'Note':
-      const resultNote = await Note.delete(urlToShortId(body.object.id))
+      const resultNote = await Note.delete(urlToId(body.object.id))
       if (resultNote === null) {
         res
           .status(404)

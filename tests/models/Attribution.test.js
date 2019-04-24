@@ -5,7 +5,7 @@ const { Publication } = require('../../models/Publication')
 const { Attribution } = require('../../models/Attribution')
 const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
-const { urlToShortId } = require('../../routes/utils')
+const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
 const _ = require('lodash')
 
