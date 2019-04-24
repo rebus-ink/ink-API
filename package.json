@@ -7,14 +7,14 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test-unit": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/unit/*.test.js",
-    "test-integration": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/integration/index.js",
-    "test-google": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
-    "test-models": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
-    "test-performance": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R min tests/performance/index.js",
+    "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test tap -R classic --cov tests/unit/*.test.js",
+    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/integration/index.js",
+    "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
+    "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
+    "test-performance": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R min tests/performance/index.js",
     "test": "npm run test-unit && npm run test-integration && npm run test-models && npm run test-google",
     "start": "node index.js",
-    "dev-server": "SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
+    "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint . && npm run flow-check",
     "flow": "flow",
     "flow-check": "npm run flow check",
@@ -38,7 +38,7 @@
     "documentation": "^8.1.2",
     "eslint": "^5.12.0",
     "flow-bin": "^0.80.0",
-    "flow-coverage-report": "^0.6.0",
+    "flow-coverage-report": "^0.6.1",
     "husky": "^1.0.0-rc.14",
     "jsonwebtoken": "^8.3.0",
     "knex-cleaner": "^1.1.4",
@@ -50,11 +50,11 @@
     "prettier-standard": "^8.0.1",
     "proxyquire": "^2.1.0",
     "sinon": "^6.3.3",
-    "spectacle-docs": "^1.0.6",
+    "spectacle-docs": "^1.0.7",
     "sqlite3": "^4.0.4",
     "standard": "^11.0.1",
     "supertest": "^3.3.0",
-    "tap": "^12.0.1"
+    "tap": "^12.6.3"
   },
   "dependencies": {
     "@google-cloud/storage": "^2.3.1",
@@ -63,6 +63,7 @@
     "compression": "^1.7.3",
     "connect-ensure-login": "^0.1.1",
     "cookie-session": "^2.0.0-beta.3",
+    "cross-env": "^5.2.0",
     "debug": "^4.1.0",
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
@@ -79,7 +80,7 @@
     "pg": "^7.4.3",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0",
-    "swagger-jsdoc": "^3.2.6"
+    "swagger-jsdoc": "^3.2.9"
   },
   "standard": {
     "ignore": [
