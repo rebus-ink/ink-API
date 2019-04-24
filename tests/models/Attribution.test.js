@@ -7,6 +7,7 @@ const { Publications_Tags } = require('../../models/Publications_Tags')
 const { Document } = require('../../models/Document')
 const { urlToShortId } = require('../../routes/utils')
 const crypto = require('crypto')
+const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -130,12 +131,21 @@ const test = async app => {
 
     let attributions = await Attribution.getAttributionByPubId(publication.id)
 
+    var isSonyaFound = false
+    var isJaneFound = false
+    for (var i = 0; i < attributions.length; i++) {
+      if (attributions[i].name === 'Sonya Rabhi') {
+        isSonyaFound = true
+      } else if (attributions[i].name === 'Jane Doe') {
+        isJaneFound = true
+      }
+    }
+
     await tap.ok(attributions)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions[0].name, 'Sonya Rabhi')
-    await tap.equal(attributions[0].role, 'editor')
-    await tap.equal(attributions[1].name, 'Jane Doe')
     await tap.equal(attributions.length, 3)
+    await tap.ok(isSonyaFound)
+    await tap.ok(isJaneFound)
   })
 
   await tap.test(
@@ -160,11 +170,19 @@ const test = async app => {
 
       let attributions = await Attribution.getAttributionByPubId(publication.id)
 
+      var isBunnyFound = false
+      var isJohnFound = false
+      for (var i = 0; i < attributions.length; i++) {
+        if (attributions[i].name === 'Bugs Bunny') {
+          isBunnyFound = true
+        } else if (attributions[i].name === 'John Doe') {
+          isJohnFound = true
+        }
+      }
+
       await tap.equal(numDeleted, 2)
-      await tap.equal(attributions[0].name, 'Bugs Bunny')
-      await tap.equal(attributions[0].role, 'editor')
-      await tap.equal(attributions[1].name, 'Sonya Rabhi')
-      await tap.equal(attributions[1].role, 'editor')
+      await tap.ok(isBunnyFound)
+      await tap.ok(!isJohnFound)
     }
   )
 
