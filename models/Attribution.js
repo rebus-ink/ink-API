@@ -126,7 +126,7 @@ class Attribution extends BaseModel {
       throw Error(`Your publicationId cannot be null`)
     }
 
-    return Attribution.query().where('publicationId', publicationId)
+    return await Attribution.query().where('publicationId', publicationId)
   }
 
   static async deleteAttributionOfPub (
