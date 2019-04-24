@@ -1,28 +1,22 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Attribution', function (table) {
-    table.uuid('id').primary()
-    table.string('canonicalId').index()
-    table.string('role').index()
+    table.string('id').primary()
+    table.string('role').notNullable().index()
     table
       .boolean('isContributor')
       .defaultTo(false)
-      .index()
-    table.jsonb('json')
+    table.string('name').notNullable().index() // index this or only normalized name?
+    table.string('normalizedName').notNullable().index()
+    table.string('type').defaultTo('Person')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('documentId')
-      .references('id')
-      .inTable('Document')
-      .nullable()
-      .index()
-    table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
       .nullable()
@@ -32,12 +26,6 @@ exports.up = function (knex, Promise) {
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()
-    table
-      .timestamp('updated')
-      .defaultTo(knex.fn.now())
-      .notNullable()
-    table
-      .timestamp('deleted')
   })
 }
 

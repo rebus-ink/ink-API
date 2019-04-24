@@ -2,9 +2,11 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
+const { Publication } = require('../../models/Publication')
 const short = require('short-uuid')
 const translator = short()
 const { urlToShortId } = require('../../routes/utils')
+const crypto = require('crypto')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -12,75 +14,81 @@ const test = async app => {
   }
 
   const reader = {
-    name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868963'
+    name: 'J. Random Reader'
   }
 
-  const documentObject = {
-    type: 'Document',
-    name: 'Chapter 1',
-    content: 'Sample document content 1',
-    position: 0
-  }
+  const random = crypto.randomBytes(13).toString('hex')
 
-  const publicationObject = {
+  const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
+
+  const simplePublication = {
     type: 'reader:Publication',
     name: 'Publication A',
-    attributedTo: [{ type: 'Person', name: 'Sample Author' }],
-    attachment: [{ type: 'Document', content: 'content of document' }]
+    readingOrder: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        type: 'Link',
+        href: 'http://example.org/abc2',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link2'
+      }
+    ]
   }
 
-  const createdReader = await Reader.createReader(
-    'auth0|foo1545149868963',
-    reader
-  )
-
-  let publication = await Reader.addPublication(
+  const publication = await Publication.createPublication(
     createdReader,
-    publicationObject
+    simplePublication
   )
 
-  let publicationShortId = translator.fromUUID(publication.id)
-  documentObject.context = `http://localhost:8080/publication-${publicationShortId}`
+  const documentObject = {
+    mediaType: 'txt',
+    url: 'http://google-bucket/somewhere/file1234.txt',
+    documentPath: '/inside/the/book.txt',
+    json: { property1: 'value1' }
+  }
+
   let documentId
-  let document
 
   await tap.test('Create Document', async () => {
-    let response = await Reader.addDocument(createdReader, documentObject)
+    let response = await Document.createDocument(
+      createdReader,
+      publication.id,
+      documentObject
+    )
     await tap.ok(response)
     await tap.ok(response instanceof Document)
     await tap.equal(response.readerId, createdReader.id)
 
-    documentId = urlToShortId(response.url)
+    documentId = response.id
   })
 
-  await tap.test(
-    'Try to create Document with no publication context',
-    async () => {
-      let badDocument = Object.assign(documentObject, { context: undefined })
-      const response = await Reader.addDocument(createdReader, badDocument)
-
-      await tap.ok(typeof response, Error)
-      await tap.equal(response.message, 'no publication')
-    }
-  )
-
-  await tap.test('Get document by short id', async () => {
-    document = await Document.byShortId(documentId)
+  await tap.test('Get document by id', async () => {
+    document = await Document.byId(documentId)
     await tap.type(document, 'object')
-    await tap.equal(document.type, 'text/html')
+    await tap.equal(document.mediaType, 'txt')
     await tap.ok(document instanceof Document)
     // eager: reader
     await tap.type(document.reader, 'object')
     await tap.ok(document.reader instanceof Reader)
   })
 
-  await tap.test('Document asRef', async () => {
-    // make it clearer what asRef should keep and what it should remove
-    const refDocument = document.asRef()
-    await tap.ok(refDocument)
-    await tap.equal(refDocument.type, 'Document')
-    await tap.notOk(refDocument.attachment)
+  await tap.test('Get redirect url', async () => {
+    const url = await Document.getRedirectUrl(
+      publication.id,
+      document.documentPath
+    )
+
+    await tap.type(url, 'string')
+    await tap.equal(url, documentObject.url)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

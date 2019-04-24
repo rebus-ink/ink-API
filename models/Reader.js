@@ -1,43 +1,24 @@
-const assert = require('assert')
 const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
-const short = require('short-uuid')
-const translator = short()
 const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { urlToId } = require('../routes/utils')
+const { createId } = require('./utils')
 
-const personAttrs = [
-  'attachment',
-  'attributedTo',
-  'audience',
-  'content',
-  'context',
-  'contentMap',
-  'name',
-  'nameMap',
-  'endTime',
-  'generator',
-  'icon',
-  'image',
-  'inReplyTo',
-  'location',
-  'preview',
-  'published',
-  'replies',
-  'startTime',
-  'summary',
-  'summaryMap',
-  'tags',
-  'updated',
-  'url',
-  'to',
-  'bto',
-  'cc',
-  'bcc',
-  'mediaType',
-  'duration'
-]
+const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
+
+/*::
+type ReaderType = {
+  id: string,
+  authId: string,
+  name?: string,
+  json?: object,
+  profile?: object,
+  preferences?: object,
+  published: Date,
+  updated: Date
+};
+*/
 
 /**
  * @property {User} user - Returns the user (with auth info) associated with this reader.
@@ -51,77 +32,55 @@ const personAttrs = [
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
 class Reader extends BaseModel {
-  static async byUserId (
-    userId /*: string */,
-    namespace = 'auth0' /*: string */
-  ) /*: any */ {
+  static async byAuthId (authId /*: string */) /*: Promise<ReaderType> */ {
     const readers = await Reader.query(Reader.knex()).where(
-      'userId',
+      'authId',
       '=',
-      `${namespace}|${userId}`
+      authId
     )
-
-    if (readers.length === 0) {
-      return null
-    } else if (readers.length > 1) {
-      throw new Error(`Too many readers for user ${userId}`)
-    } else {
-      assert(readers.length === 1)
-      return readers[0]
-    }
+    return readers[0]
   }
 
-  static async byShortId (
-    shortId /*: string */,
+  static async byId (
+    id /*: string */,
     eager /*: string */
-  ) /*: any */ {
-    const id = translator.toUUID(shortId)
+  ) /*: Promise<ReaderType> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb.eager(eager)
-    if (readers.length === 0) {
-      return null
-    } else if (readers.length > 1) {
-      throw new Error(`Too many readers for id ${shortId}`)
-    } else {
-      assert(readers.length === 1)
-      return readers[0]
-    }
+    return readers[0]
   }
 
-  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
-    const userId = `auth0|${id}`
-    const qb = Reader.query(Reader.knex()).where('userId', '=', userId)
-    const readers = await qb
+  static async checkIfExistsByAuthId (
+    authId /*: string */
+  ) /*: Promise<boolean> */ {
+    const readers = await Reader.query(Reader.knex()).where(
+      'authId',
+      '=',
+      authId
+    )
     return readers.length > 0
   }
 
   static async createReader (
-    userId /*: string */,
+    authId,
     person /*: any */
-  ) /*: Promise<any> */ {
-    let props = _.pick(person, personAttrs)
-    props.userId = `auth0|${userId}`
+  ) /*: Promise<ReaderType> */ {
+    const props = _.pick(person, attributes)
+    props.id = createId('reader')
+
+    const date = new Date().toISOString()
+    props.published = date
+    props.updated = date
+    props.authId = authId
     const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
       props
     )
     return createdReader
   }
 
-  static async addPublication (
-    reader /*: any */,
-    publication /*: any */
-  ) /*: any */ {
-    const related = {
-      bto: reader.url,
-      attachment: publication.orderedItems
-    }
-    const graph = Object.assign(
-      related,
-      _.omit(publication, ['orderedItems', 'totalItems'])
-    )
-    return reader.$relatedQuery('publications').insertGraph(graph)
-  }
+  // TODO: update this method when I update publication
 
+  // TODO: update this method when I update document
   static async addDocument (
     reader /*: any */,
     document /*: any */
@@ -140,30 +99,6 @@ class Reader extends BaseModel {
     }
   }
 
-  static async addNote (reader /*: any */, note /*: any */) /*: Promise<any> */ {
-    try {
-      return await reader.$relatedQuery('replies').insert(note)
-    } catch (err) {
-      if (err.nativeError.constraint === 'note_publicationid_foreign') {
-        return new Error('no publication')
-      } else if (err.nativeError.constraint === 'note_documentid_foreign') {
-        return new Error('no document')
-      }
-    }
-  }
-
-  static async addTag (
-    reader /*: any */,
-    tag /*: {type: string, name: string} */
-  ) /*: Promise<{
-    json: {type: string, name: string},
-    readerId: string,
-    id: string,
-    published: string
-  }> */ {
-    return reader.$relatedQuery('tags').insert(tag)
-  }
-
   static get tableName () /*: string */ {
     return 'Reader'
   }
@@ -173,21 +108,27 @@ class Reader extends BaseModel {
   static get jsonSchema () /*: any */ {
     return {
       type: 'object',
-      title: 'User Profile',
+      title: 'Reader Profile',
       properties: {
-        id: { type: 'string', format: 'uuid' },
-        userId: { type: 'string' },
+        id: { type: 'string' },
+        authId: { type: 'string' },
+        type: { const: 'Person' },
+        profile: {
+          type: 'object',
+          additionalProperties: true
+        },
+        preferences: {
+          type: 'object',
+          additionalProperties: true
+        },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' },
         json: {
           type: 'object',
-          properties: {
-            type: { const: 'Person' }
-          },
           additionalProperties: true
         }
       },
-      required: ['userId'],
+      // required: ['authId'],
       additionalProperties: true
     }
   }
@@ -215,6 +156,14 @@ class Reader extends BaseModel {
           to: 'Activity.readerId'
         }
       },
+      // readActivities: {
+      //   relation: Model.HasManyRelation,
+      //   modelClass: ReadActivity,
+      //   join: {
+      //     from: 'Reader.id',
+      //     to: 'ReadActivity.readerId'
+      //   }
+      // },
       replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
@@ -250,6 +199,7 @@ class Reader extends BaseModel {
     }
   }
 
+  // TODO: find out when this is used.
   $formatJson (json /*: any */) /*: any */ {
     const original = super.$formatJson(json)
     json = original.json || {}
@@ -258,26 +208,11 @@ class Reader extends BaseModel {
       summaryMap: {
         en: `User with id ${this.id}`
       },
-      id: this.url,
-      inbox: `${this.url}/inbox`,
-      outbox: `${this.url}/activity`,
-      streams: {
-        id: `${this.url}/streams`,
-        type: 'Collection',
-        summaryMap: {
-          en: `Collections for user with id ${this.id}`
-        },
-        totalItems: 1,
-        items: [
-          {
-            summaryMap: {
-              en: `Library for user with id ${this.id}`
-            },
-            id: `${this.url}/library`,
-            type: 'Collection'
-          }
-        ]
-      },
+      inbox: `${this.id}/inbox`,
+      outbox: `${this.id}/activity`,
+      preferences: this.preferences,
+      profile: this.profile,
+      json: this.json,
       published: this.published,
       updated: this.updated
     })
@@ -285,13 +220,11 @@ class Reader extends BaseModel {
   }
 
   asRef () /*: {name: string, nameMap: any, summary: any, summaryMap: any, id: string, type: string} */ {
-    return Object.assign(
-      _.pick(this.json, ['name', 'nameMap', 'summary', 'summaryMap']),
-      {
-        id: this.url,
-        type: 'Person'
-      }
-    )
+    return {
+      id: this.id,
+      type: 'Person',
+      name: this.name
+    }
   }
 }
 

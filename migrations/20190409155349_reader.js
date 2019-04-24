@@ -1,8 +1,12 @@
+
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Reader', function (table) {
-    table.uuid('id').primary()
+    table.string('id').primary()
+    table.string('authId').index().notNullable()
+    table.jsonb('profile')
+    table.string('name')
+    table.jsonb('preferences')
     table.jsonb('json')
-    table.string('userId').index()
     table
       .timestamp('published')
       .defaultTo(knex.fn.now())
@@ -13,6 +17,7 @@ exports.up = function (knex, Promise) {
       .notNullable()
     table
       .timestamp('deleted')
+    table.unique('authId')
   })
 }
 
