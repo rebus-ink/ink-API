@@ -17,11 +17,8 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: number */
   ) /*: any */ {
-    // check publication
-
     if (!noteId) return new Error('no note')
 
-    // check tag
     if (!tagId) return new Error('no tag')
 
     try {
@@ -42,10 +39,8 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: string */
   ) /*: number */ {
-    // check publication
     if (!noteId) return new Error('no note')
 
-    // check tag
     if (!tagId) return new Error('no tag')
 
     const result = await Note_Tag.query()

@@ -172,18 +172,20 @@ const test = async app => {
     )
 
     tap.ok(typeof tagNote, Error)
+    tap.ok(tagNote.message, 'no note')
   })
 
   await tap.test('Add a tag to a note with an invalid tagId', async () => {
     const tagNote = await Note_Tag.addTagToNote(
       newNote.id,
-      newTag.id + 'Blah123'
+      newTag.id + 1222222223
     )
 
     tap.ok(typeof tagNote, Error)
+    tap.equal(tagNote.message, 'no tag')
   })
 
-  await tap.test('Remote a valid tag from a valid note', async () => {
+  await tap.test('Remove a valid tag from a valid note', async () => {
     // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
       type: 'reader:Stack',
@@ -227,20 +229,20 @@ const test = async app => {
 
   await tap.test('Remove a tag with an invalid noteId', async () => {
     const result = await Note_Tag.removeTagFromNote(
-      newNote.id + 'Blah123',
+      newNote.id + 'Blah1233333333333',
       newTag.id
     )
 
+    console.log('Error message ' + result)
     tap.ok(typeof result, Error)
+    tap.equal(result.message, 'not found')
   })
 
   await tap.test('Remove a tag with an invalid tagId', async () => {
-    const result = await Note_Tag.removeTagFromNote(
-      newNote.id,
-      newTag.id + 'Blah123'
-    )
+    const result = await Note_Tag.removeTagFromNote(newNote.id, newTag.id + 123)
 
     tap.ok(typeof result, Error)
+    tap.equal(result.message, 'not found')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
