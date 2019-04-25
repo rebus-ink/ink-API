@@ -6,6 +6,7 @@ const translator = short()
 const _ = require('lodash')
 const { Activity } = require('./Activity')
 const { Attribution } = require('./Attribution')
+const { ReadActivity } = require('./ReadActivity')
 const { createId } = require('./utils')
 
 const metadataProps = ['inLanguage', 'keywords']
@@ -107,6 +108,14 @@ class Publication extends BaseModel {
             to: 'publication_tag.tagId'
           },
           to: 'Tag.id'
+        }
+      },
+      readActivities: {
+        relation: Model.HasManyRelation,
+        modelClass: ReadActivity,
+        join: {
+          from: 'Publication.id',
+          to: 'readActivity.publicationId'
         }
       }
     }
