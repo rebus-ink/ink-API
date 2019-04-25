@@ -7,7 +7,6 @@ const translator = short()
 const { Activity } = require('./Activity')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
-const { createId } = require('./utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -94,7 +93,6 @@ class Note extends BaseModel {
       'publicationId'
     ])
 
-    props.id = createId()
     props.readerId = reader.id
     const time = new Date().toISOString()
     props.published = time

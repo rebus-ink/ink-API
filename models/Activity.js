@@ -6,7 +6,6 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
-const { createId, idToUrl } = require('./utils')
 
 /*::
 type activity = {
@@ -145,7 +144,6 @@ class Activity extends BaseModel {
       'json',
       'readerId'
     ])
-    props.id = createId()
     props.published = new Date().toISOString()
 
     return await Activity.query()
