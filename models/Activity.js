@@ -6,20 +6,17 @@ const { BaseModel } = require('./BaseModel.js')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
+const { createId, idToUrl } = require('./utils')
 
 /*::
 type activity = {
     id: string,
     type: string,
-    json: {
-      '@context': Array<string | {reader: string}>,
-      type: string,
-      location: any,
-      summaryMap: { en: string }
-    },
+    json: {},
+    object: {},
+    target: {},
     readerId: string,
     published: string,
-    updated: string,
     reader: {id: string, json: any, userId: string, published: string, updated: string}
   }
 */
@@ -50,23 +47,17 @@ class Activity extends BaseModel {
     return {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid', maxLength: 255 },
+        id: { type: 'string' },
         type: { type: 'string', maxLength: 255 },
-        readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        publicationId: { type: 'string', format: 'uuid', maxLength: 255 },
-        documentId: { type: 'string', format: 'uuid', maxLength: 255 },
-        noteId: { type: 'string', format: 'uuid', maxLength: 255 },
-        tagId: { type: 'integer' },
+        readerId: { type: 'string' },
+        object: { type: 'object' },
+        target: { type: 'object' },
         json: {
-          type: 'object',
-          additionalProperties: true,
-          default: {}
+          type: 'object'
         },
-        updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' }
       },
-      additionalProperties: true,
-      required: ['json']
+      required: ['id', 'type', 'readerId']
     }
   }
   static get relationMappings () /*: any */ {
@@ -91,47 +82,13 @@ class Activity extends BaseModel {
           from: 'Activity.readerId',
           to: 'Reader.id'
         }
-      },
-      document: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Document,
-        join: {
-          from: 'Activity.documentId',
-          to: 'Document.id'
-        }
-      },
-      note: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Note,
-        join: {
-          from: 'Activity.noteId',
-          to: 'Note.id'
-        }
-      },
-      publication: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Publication,
-        join: {
-          from: 'Activity.publicationId',
-          to: 'Publication.id'
-        }
-      },
-      tag: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Activity.tagId',
-          to: 'Tag.id'
-        }
       }
     }
   }
 
   summarize () /*: string */ {
     const past = this.pastTense
-    const actor = this.reader
-      ? this.reader.json.name || this.reader.json.nameMap.en
-      : 'someone'
+    const actor = this.reader ? this.reader.name : 'someone'
     let summary = `${actor} ${past}`
     if (this.json.location) {
       const place =
@@ -147,8 +104,6 @@ class Activity extends BaseModel {
     let type /*: string */
     if (_.isString(this.type)) {
       type = this.type
-    } else if (_.isString(this.json.type)) {
-      type = this.json.type
     } else {
       type = 'Activity'
     }
@@ -176,22 +131,26 @@ class Activity extends BaseModel {
     }
   }
 
-  static async byShortId (shortId /*: string */) /*: Promise<activity> */ {
-    return Activity.query()
-      .findById(translator.toUUID(shortId))
-      .eager('[reader, publication, document, note]')
+  static async byId (id /*: string */) /*: Promise<activity> */ {
+    return await Activity.query()
+      .findById(id)
+      .eager('reader')
   }
 
   static async createActivity (activity /*: any */) /*: Promise<activity> */ {
-    return Activity.query().insert(activity)
-  }
+    const props = _.pick(activity, [
+      'type',
+      'object',
+      'target',
+      'json',
+      'readerId'
+    ])
+    props.id = createId()
+    props.published = new Date().toISOString()
 
-  $parseJson (json /*: any */, opt /*: any */) /*: any */ {
-    json = super.$parseJson(json, opt)
-    const type = json.json.type
-    return Object.assign(json, {
-      type
-    })
+    return await Activity.query()
+      .insert(props)
+      .returning('*')
   }
 }
 

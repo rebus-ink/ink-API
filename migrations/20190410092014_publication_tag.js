@@ -1,9 +1,9 @@
 
 exports.up = function(knex, Promise) {
-  return knex.schema.createTable('publications_tags', function(table){
+  return knex.schema.createTable('publication_tag', function(table){
     table.increments('id')
     table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
       .notNullable()
@@ -14,5 +14,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.dropTable('publications_tags')
+  return knex.schema.dropTable('publication_tag')
 };
