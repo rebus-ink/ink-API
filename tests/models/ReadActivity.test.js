@@ -68,18 +68,48 @@ const test = async app => {
     await tap.ok(readActivity)
     await tap.equal(readActivity.readerId, createdReader.id)
     await tap.equal(readActivity.publicationId, publication.id)
-    /*
-    await tap.type(response, 'object')
-    await tap.ok(response.id.startsWith('http'))
-    await tap.type(response.type, 'string')
-    await tap.equal(response.type, 'Arrive')
-    await tap.equal(response.readerId, createdReader.id)
-    await tap.equal(response.json.property, 'value')
-    await tap.equal(response.object.type, 'Document')
-    await tap.equal(response.target.property, 'something')
-    id = urlToId(response.id)
-    */
+    await tap.equal(readActivity.selector.property, 'value')
+    await tap.equal(readActivity.json.anotherProperty, 88)
   })
+
+  await tap.test('Create ReadActivity with selector only', async () => {
+    let readActivity = await ReadActivity.createReadActivity(
+      createdReader.id,
+      publication.id,
+      selectorObject
+    )
+
+    await tap.ok(readActivity)
+    await tap.equal(readActivity.readerId, createdReader.id)
+    await tap.equal(readActivity.publicationId, publication.id)
+    await tap.equal(readActivity.selector.property, 'someValue')
+    await tap.equal(readActivity.json, null)
+  })
+
+  await tap.test('Create ReadActivity with non-existent readerId', async () => {
+    let readActivity = await ReadActivity.createReadActivity(
+      createdReader.id + 'RandomString',
+      publication.id,
+      selectorObject
+    )
+
+    await tap.ok(typeof readActivity, Error)
+    await tap.equal(readActivity.message, 'no reader')
+  })
+
+  await tap.test(
+    'Create ReadActivity with non-existent publicationId',
+    async () => {
+      let readActivity = await ReadActivity.createReadActivity(
+        createdReader.id,
+        publication.id + 'AnotherRandomString',
+        selectorObject
+      )
+
+      await tap.ok(typeof readActivity, Error)
+      await tap.equal(readActivity.message, 'no publication')
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

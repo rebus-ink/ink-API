@@ -105,18 +105,30 @@ class ReadActivity extends BaseModel {
     publicationId /*: string */,
     object /*: any */
   ) {
-    const props = _.pick(object, ['selector', 'json'])
+    if (!readerId) return new Error('wrong readerId')
 
-    console.log('What props contains: ' + props)
+    if (!publicationId) return new Error('wrong publicationId')
+
+    if (!object) return new Error('wrong object')
+
+    const props = _.pick(object, ['selector', 'json'])
 
     props.id = createId()
     props.readerId = readerId
     props.publicationId = publicationId
     props.published = new Date().toISOString()
 
-    return await ReadActivity.query()
-      .insert(props)
-      .returning('*')
+    try {
+      return await ReadActivity.query()
+        .insert(props)
+        .returning('*')
+    } catch (err) {
+      if (err.constraint === 'readactivity_readerid_foreign') {
+        return new Error('no reader')
+      } else if (err.constraint === 'readactivity_publicationid_foreign') {
+        return new Error('no publication')
+      }
+    }
   }
 
   static async getLatestReadActivity (publicationId /*: string */) {}
