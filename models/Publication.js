@@ -124,8 +124,6 @@ class Publication extends BaseModel {
       metadata[property] = publication[property]
     })
 
-    const time = new Date().toISOString()
-
     const props = _.pick(publication, [
       'id',
       'name',
@@ -138,8 +136,6 @@ class Publication extends BaseModel {
     ])
     props.readerId = reader.id
     props.metadata = metadata
-    props.published = time
-    props.updated = time
     props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }

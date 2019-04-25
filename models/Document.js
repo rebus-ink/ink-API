@@ -81,9 +81,6 @@ class Document extends BaseModel {
     const props = _.pick(document, ['mediaType', 'url', 'documentPath', 'json'])
     props.readerId = reader.id
     props.publicationId = publicationId
-    const time = new Date().toISOString()
-    props.published = time
-    props.updated = time
     return await Document.query().insertAndFetch(props)
   }
 

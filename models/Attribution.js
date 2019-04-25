@@ -109,9 +109,7 @@ class Attribution extends BaseModel {
       props.publicationId = publication.id
     }
 
-    const time = new Date().toISOString()
     props.normalizedName = props.name.toLowerCase() // todo: remove accents, etc.
-    props.published = time
 
     return await Attribution.query(Attribution.knex()).insertAndFetch(props)
   }

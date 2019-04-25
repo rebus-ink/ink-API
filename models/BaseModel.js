@@ -77,6 +77,9 @@ class BaseModel extends Model {
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc.id = crypto.randomBytes(16).toString('hex')
+      const time = new Date().toISOString()
+      doc.published = time
+      doc.updated = time
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)
@@ -89,6 +92,7 @@ class BaseModel extends Model {
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc.id = urlToId(doc.id)
+      doc.updated = new Date().toISOString()
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)

@@ -65,9 +65,6 @@ class Reader extends BaseModel {
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
 
-    const date = new Date().toISOString()
-    props.published = date
-    props.updated = date
     props.authId = authId
     return await Reader.query(Reader.knex())
       .insert(props)

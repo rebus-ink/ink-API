@@ -144,7 +144,6 @@ class Activity extends BaseModel {
       'json',
       'readerId'
     ])
-    props.published = new Date().toISOString()
 
     return await Activity.query()
       .insert(props)

@@ -44,7 +44,7 @@ class Note extends BaseModel {
         deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['id', 'noteType', 'readerId', 'published', 'updated']
+      required: ['noteType', 'readerId']
     }
   }
 
@@ -94,9 +94,6 @@ class Note extends BaseModel {
     ])
 
     props.readerId = reader.id
-    const time = new Date().toISOString()
-    props.published = time
-    props.updated = time
     return await Note.query().insertAndFetch(props)
   }
 
@@ -125,7 +122,6 @@ class Note extends BaseModel {
       return null
     }
     note = Object.assign(note, modifications)
-    note.updated = new Date().toISOString()
 
     return await Note.query().updateAndFetchById(urlToId(object.id), note)
   }
