@@ -1,6 +1,6 @@
 // @flow
 'use strict'
-const { Model } = require('objection')
+const { BaseModel } = require('./BaseModel')
 const _ = require('lodash')
 
 /*::
@@ -23,7 +23,7 @@ type TagType = {
  * This is a slightly generic link model. Conceptually, this is a link from the document or publication to a URL. These links can have types such as as:HashTag, reader:Stack, or Mention. (Mentions are used to list out characters and people who are mentioned in the text.)
  *
  */
-class Tag extends Model {
+class Tag extends BaseModel {
   static get tableName () /*: string */ {
     return 'Tag'
   }

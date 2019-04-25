@@ -157,12 +157,12 @@ const test = async app => {
   const newNote = await Note.createNote(createdReader, noteObject)
 
   await tap.test('Add a tag to a note', async () => {
-    const tagNote = await Note_Tag.addTagToNote(newNote.id, newTag.id)
+    const tagNote = await Note_Tag.addTagToNote(urlToId(newNote.id), newTag.id)
 
     tap.ok(tagNote.noteId)
     tap.ok(tagNote.tagId)
     tap.equal(tagNote.tagId, newTag.id)
-    tap.equal(tagNote.noteId, newNote.id)
+    tap.equal(tagNote.noteId, urlToId(newNote.id))
   })
 
   await tap.test('Add a tag to a note with an invalid noteId', async () => {
@@ -177,7 +177,7 @@ const test = async app => {
 
   await tap.test('Add a tag to a note with an invalid tagId', async () => {
     const tagNote = await Note_Tag.addTagToNote(
-      newNote.id,
+      urlToId(newNote.id),
       newTag.id + 1222222223
     )
 
@@ -201,11 +201,11 @@ const test = async app => {
     const note2 = await Note.createNote(createdReader, simpleNoteObject)
 
     // Add tags to notes
-    const tagNote1 = await Note_Tag.addTagToNote(note1.id, tag1.id)
-    const tagNote2 = await Note_Tag.addTagToNote(note2.id, tag2.id)
+    const tagNote1 = await Note_Tag.addTagToNote(urlToId(note1.id), tag1.id)
+    const tagNote2 = await Note_Tag.addTagToNote(urlToId(note2.id), tag2.id)
 
     const result = await Note_Tag.removeTagFromNote(
-      tagNote1.noteId,
+      urlToId(tagNote1.noteId),
       tagNote1.tagId
     )
 
