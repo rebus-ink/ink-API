@@ -131,7 +131,13 @@ class ReadActivity extends BaseModel {
     }
   }
 
-  static async getLatestReadActivity (publicationId /*: string */) {}
+  static async getLatestReadActivity (publicationId /*: string */) {
+    /*
+    return await ReadActivity.query(ReadActivity.knex())
+      .max('published')
+      .where('publicationId', '=', publicationId)
+    */
+  }
 }
 
 module.exports = { ReadActivity }

@@ -111,6 +111,34 @@ const test = async app => {
     }
   )
 
+  await tap.test('Get latests ReadActivity of a publication', async () => {
+    const newReader = {
+      name: 'Latest Reader'
+    }
+    const random = crypto.randomBytes(13).toString('hex')
+    const latestReader = await Reader.createReader(
+      `auth0|foo${random}`,
+      newReader
+    )
+
+    const lastReadActivity = await ReadActivity.createReadActivity(
+      latestReader.id,
+      publication.id,
+      selectorJsonObject
+    )
+
+    console.log('lastReadActivity readerId: ' + lastReadActivity.readerId)
+
+    let readActivity = await ReadActivity.getLatestReadActivity(publication.id)
+
+    console.log('is it an array ' + readActivity[0].readerId)
+
+    console.log('readActivity readerId ' + readActivity.readerId)
+
+    await tap.ok(readActivity)
+    await tap.equal(readActivity.readerId, lastReadActivity.readerId)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
