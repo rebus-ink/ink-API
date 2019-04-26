@@ -12,7 +12,7 @@ const URL = require('url').URL
 const debug = require('debug')('hobb:model:base-model')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
-const { createId } = require('./utils')
+const crypto = require('crypto')
 
 const domain = process.env.DOMAIN || ''
 
@@ -76,7 +76,10 @@ class BaseModel extends Model {
     const parent = super.$beforeUpdate(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
-      // doc.id = createId()
+      doc.id = crypto.randomBytes(16).toString('hex')
+      const time = new Date().toISOString()
+      doc.published = time
+      doc.updated = time
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)
@@ -89,6 +92,7 @@ class BaseModel extends Model {
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc.id = urlToId(doc.id)
+      doc.updated = new Date().toISOString()
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)
