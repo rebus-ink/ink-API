@@ -8,19 +8,6 @@ const translator = short()
 const _ = require('lodash')
 const { createId, idToUrl } = require('./utils')
 
-/*::
-type activity = {
-    id: string,
-    type: string,
-    json: {},
-    object: {},
-    target: {},
-    readerId: string,
-    published: string,
-    reader: {id: string, json: any, userId: string, published: string, updated: string}
-  }
-*/
-
 /**
  *
  * @property {Reader} reader - returns the reader that owns this activity. This is the 'actor' in the activity streams sense
@@ -62,9 +49,6 @@ class ReadActivity extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
-    const { Document } = require('./Document.js')
-    const { Note } = require('./Note.js')
-    const { Tag } = require('./Tag.js')
 
     /*
     assert.ok(Model)
@@ -94,22 +78,16 @@ class ReadActivity extends BaseModel {
     }
   }
 
-  // static async byId (id /*: string */) /*: Promise<activity> */ {
-  //   return await ReaderActivity.query()
-  //     .findById(id)
-  //     .eager('readerActivity')
-  // }
-
   static async createReadActivity (
     readerId /*: string */,
     publicationId /*: string */,
     object /*: any */
   ) /*: any */ {
-    if (!readerId) return new Error('wrong readerId')
+    if (!readerId) return new Error('missing readerId')
 
-    if (!publicationId) return new Error('wrong publicationId')
+    if (!publicationId) return new Error('missing publicationId')
 
-    if (!object) return new Error('wrong object')
+    if (!object) return new Error('missing object')
 
     const props = _.pick(object, ['selector', 'json'])
 
@@ -119,13 +97,9 @@ class ReadActivity extends BaseModel {
     props.published = new Date().toISOString()
 
     try {
-      var activity = await ReadActivity.query()
+      return await ReadActivity.query()
         .insert(props)
         .returning('*')
-
-      console.log('LAST ACTIVITY INSERTED: ' + activity.id)
-
-      return activity
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
         return new Error('no reader')
@@ -136,13 +110,38 @@ class ReadActivity extends BaseModel {
   }
 
   static async getLatestReadActivity (publicationId /*: string */) /*: any */ {
-    if (!publicationId) return new Error('wrong publicationId')
+    if (!publicationId) return new Error('missing publicationId')
 
     const readActivities = await ReadActivity.query()
       .where('publicationId', '=', publicationId)
-      .orderBy('published')
+      .orderBy('published', 'desc')
+      .limit(1)
 
-    return readActivities[readActivities.length - 1]
+    /*
+    const readActivities = await ReadActivity.query()
+      .max('published')
+      .select('*')
+      .where('publicationId', '=', publicationId)
+      .groupBy('publicationId')
+      .groupBy('id')
+    */
+
+    for (var i = 0; i < readActivities.length; i++) {
+      console.log('pub date: ' + readActivities[i].published)
+    }
+
+    /*
+      .column(['readActivity.id', 'readerId', 'publicationId', 'selector', 'json' ])
+      .where('publicationId', '=', publicationId)
+      .groupBy('publicationId')
+      .groupBy('readActivity.id')
+    */
+
+    console.log('readActivities is array: ' + readActivities.length)
+    console.log('PUBDATE : ' + readActivities[0].published)
+    console.log('ID: ' + readActivities[0].id)
+    console.log('READER ID: ' + readActivities[0].id)
+    return readActivities[0]
   }
 }
 
