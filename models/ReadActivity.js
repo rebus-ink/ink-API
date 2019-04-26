@@ -8,20 +8,6 @@ const translator = short()
 const _ = require('lodash')
 const { createId, idToUrl } = require('./utils')
 
-/**
- *
- * @property {Reader} reader - returns the reader that owns this activity. This is the 'actor' in the activity streams sense
- *
- * @property {Document} document - Returns the document, if any, that was acted upon.
- *
- * @property {Note} note - Returns the note, if any, that was acted upon.
- *
- * @property {Publication} publication - Returns the publication, if any, that was acted upon.
- *
- * `Activity` models the stored activities themselves. `Add`, `Create`, `Remove`, `Undo`, `Redo`, `Update`, and `Read` activities are all stored. `Read` is unique in that it models a _client-side_ not servers side activity. (May add `View` at a later date if needed.)
- *
- * The document, note, and publication fields on the `relationMappings` property are not exclusive. You can have an activity on a document, with no note or publication. And you can have an activity that is the addition of a note to a document in the context of a publication.
- */
 class ReadActivity extends BaseModel {
   static get tableName () /*: string */ {
     return 'readActivity'
@@ -42,7 +28,7 @@ class ReadActivity extends BaseModel {
         publicationIn: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
-      required: ['readerId', 'publicationId']
+      required: ['readerId', 'publicationId', 'selector']
     }
   }
 
@@ -50,14 +36,6 @@ class ReadActivity extends BaseModel {
     const { Publication } = require('./Publication.js')
     const { Reader } = require('./Reader.js')
 
-    /*
-    assert.ok(Model)
-    assert.ok(Model.BelongsToOneRelation)
-    assert.ok(Reader)
-    assert.ok(Document)
-    assert.ok(Note)
-    assert.ok(Publication)
-    */
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -91,7 +69,6 @@ class ReadActivity extends BaseModel {
 
     const props = _.pick(object, ['selector', 'json'])
 
-    // props.id = '1163'
     props.readerId = readerId
     props.publicationId = publicationId
     props.published = new Date().toISOString()
