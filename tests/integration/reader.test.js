@@ -22,11 +22,10 @@ const test = async app => {
       .send(
         JSON.stringify({
           '@context': 'https://www.w3.org/ns/activitystreams',
-          type: 'Person',
-          name: 'Jane Doe'
+          name: 'Jane Doe',
+          profile: { property: 'value' }
         })
       )
-
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     readerUrl = res.get('Location')
@@ -52,7 +51,6 @@ const test = async app => {
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.inbox, 'string')
     await tap.type(body.outbox, 'string')
-    await tap.type(body.streams, 'object')
   })
 
   await tap.test('get user by userid', async () => {
@@ -65,7 +63,6 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 200)
-
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
@@ -75,7 +72,6 @@ const test = async app => {
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.inbox, 'string')
     await tap.type(body.outbox, 'string')
-    await tap.type(body.streams, 'object')
   })
 
   await tap.test('Get Reader that does not exist', async () => {

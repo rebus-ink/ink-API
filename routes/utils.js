@@ -1,7 +1,7 @@
 const parseurl = require('url').parse
 
 const checkReader = (req, reader) => {
-  return `auth0|${req.user}` === reader.userId
+  return req.user === reader.authId
 }
 
 const urlToId = url => {

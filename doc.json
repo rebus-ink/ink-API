@@ -13,10 +13,6 @@
     }
   },
   "openapi": "3.0.0",
-  "apis": [
-    "server.js",
-    "./routes/*.js"
-  ],
   "paths": {
     "/": {
       "get": {
@@ -48,79 +44,16 @@
         }
       }
     },
-    "/swagger.json": {
-      "get": {
-        "tags": [
-          "general"
-        ],
-        "description": "GET /swagger.json!!!",
-        "produces": [
-          {
-            "application/json": null
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "this documentation in json format",
-            "content": {
-              "application/json": {
-                "properties": {
-                  "info": {
-                    "type": "object"
-                  },
-                  "components": {
-                    "type": "object"
-                  },
-                  "openapi": {
-                    "type": "string",
-                    "enum": [
-                      "3.0.0!!!"
-                    ]
-                  },
-                  "paths": {
-                    "type": "object"
-                  },
-                  "definitions": {
-                    "type": "object"
-                  },
-                  "tags": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/docs": {
-      "get": {
-        "tags": [
-          "general"
-        ],
-        "description": "GET /docs",
-        "produces": [
-          {
-            "text/html": null
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "this documenation in html format"
-          }
-        }
-      }
-    },
-    "/activity-{shortId}": {
+    "/activity-{id}": {
       "get": {
         "tags": [
           "activities"
         ],
-        "description": "GET /activity-:shortId",
+        "description": "GET /activity-:id",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
@@ -148,10 +81,10 @@
             }
           },
           "403": {
-            "description": "Access to activity {shortId} disallowed"
+            "description": "Access to activity {id} disallowed"
           },
           "404": {
-            "description": "No Activity with ID {shortId}"
+            "description": "No Activity with ID {id}"
           }
         }
       }
@@ -321,13 +254,13 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Successfully completed the activity"
           },
           "403": {
             "description": "Access to reader {shortId} disallowed"
           },
           "404": {
-            "description": "No Reader with ID {shortId}"
+            "description": "No Reader / Publication / Note with ID {shortId}"
           }
         }
       }
@@ -452,21 +385,21 @@
         }
       }
     },
-    "/reader-{shortId}": {
+    "/reader-{id}": {
       "get": {
         "tags": [
           "readers"
         ],
-        "description": "GET /reader-:shortId",
+        "description": "GET /reader-:id",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
             "required": true,
-            "description": "the short id of the reader"
+            "description": "the id of the reader"
           }
         ],
         "security": [
@@ -489,10 +422,10 @@
             }
           },
           "403": {
-            "description": "Access to reader {shortId} disallowed"
+            "description": "Access to reader {id} disallowed"
           },
           "404": {
-            "description": "No Reader with ID {shortId}"
+            "description": "No Reader with ID {id}"
           }
         }
       }
@@ -542,7 +475,11 @@
         "type": {
           "type": "string",
           "enum": [
-            "Create"
+            "Create",
+            "Add",
+            "Remove",
+            "Delete",
+            "Update"
           ]
         },
         "object": {
@@ -553,7 +490,8 @@
               "enum": [
                 "reader:Publication",
                 "Document",
-                "Note"
+                "Note",
+                "reader:Stack"
               ]
             },
             "id": {
@@ -593,10 +531,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "deleted": {
-          "type": "string",
-          "format": "date-time"
-        },
         "attributedTo": {
           "type": "array"
         }
@@ -631,10 +565,6 @@
           "type": "string",
           "format": "date-time"
         },
-        "deleted": {
-          "type": "string",
-          "format": "date-time"
-        },
         "attributedTo": {
           "type": "array"
         },
@@ -643,6 +573,9 @@
           "items": {
             "$ref": "#/definitions/note"
           }
+        },
+        "position": {
+          "type": "string"
         }
       }
     },
@@ -672,10 +605,6 @@
           "format": "date-time"
         },
         "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deleted": {
           "type": "string",
           "format": "date-time"
         },
@@ -730,7 +659,12 @@
         "type": {
           "type": "string",
           "enum": [
-            "Create"
+            "Create",
+            "Add",
+            "Remove",
+            "Delete",
+            "Update",
+            "Read"
           ]
         },
         "object": {
@@ -741,7 +675,8 @@
               "enum": [
                 "reader:Publication",
                 "Document",
-                "Note"
+                "Note",
+                "reader:Tag"
               ]
             }
           },
@@ -772,10 +707,6 @@
           "format": "date-time"
         },
         "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deleted": {
           "type": "string",
           "format": "date-time"
         },
@@ -833,17 +764,20 @@
     },
     "readers-request": {
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Person"
-          ]
-        },
         "name": {
           "type": "string"
         },
         "@context": {
           "type": "array"
+        },
+        "profile?": {
+          "type": "object"
+        },
+        "preferences?": {
+          "type": "object,"
+        },
+        "json?": {
+          "type": "object"
         }
       }
     },
@@ -932,7 +866,16 @@
           "type": "string",
           "format": "url"
         },
-        "streams": {
+        "name": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "object"
+        },
+        "preferences": {
+          "type": "object"
+        },
+        "json": {
           "type": "object"
         },
         "published": {
@@ -940,10 +883,6 @@
           "format": "date-time"
         },
         "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "deleted": {
           "type": "string",
           "format": "date-time"
         }
