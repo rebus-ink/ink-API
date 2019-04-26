@@ -2,6 +2,8 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
+const { ReadActivity } = require('./ReadActivity')
+const { createId } = require('./utils')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -128,14 +130,14 @@ class Reader extends BaseModel {
           to: 'Activity.readerId'
         }
       },
-      // readActivities: {
-      //   relation: Model.HasManyRelation,
-      //   modelClass: ReadActivity,
-      //   join: {
-      //     from: 'Reader.id',
-      //     to: 'ReadActivity.readerId'
-      //   }
-      // },
+      readActivities: {
+        relation: Model.HasManyRelation,
+        modelClass: ReadActivity,
+        join: {
+          from: 'Reader.id',
+          to: 'readActivity.readerId'
+        }
+      },
       replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
