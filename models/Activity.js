@@ -56,7 +56,7 @@ class Activity extends BaseModel {
         },
         published: { type: 'string', format: 'date-time' }
       },
-      required: ['id', 'type', 'readerId']
+      required: ['type', 'readerId']
     }
   }
   static get relationMappings () /*: any */ {

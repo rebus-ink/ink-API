@@ -145,6 +145,9 @@ class Publication extends BaseModel {
     ).insertAndFetch(props)
     // create attributions
     if (publication.author) {
+      if (_.isString(publication.author)) {
+        publication.author = [{ type: 'Person', name: publication.author }]
+      }
       createdPublication.author = []
       for (const author of publication.author) {
         const createdAuthor = await Attribution.createAttribution(
@@ -157,6 +160,9 @@ class Publication extends BaseModel {
     }
 
     if (publication.editor) {
+      if (_.isString(publication.editor)) {
+        publication.editor = [{ type: 'Person', name: publication.editor }]
+      }
       createdPublication.editor = []
       for (const editor of publication.editor) {
         const createdEditor = await Attribution.createAttribution(

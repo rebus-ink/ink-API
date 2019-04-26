@@ -79,7 +79,12 @@ class BaseModel extends Model {
       doc.id = crypto.randomBytes(16).toString('hex')
       const time = new Date().toISOString()
       doc.published = time
-      doc.updated = time
+      if (
+        doc.constructor.name !== 'Attribution' &&
+        doc.constructor.name !== 'Activity'
+      ) {
+        doc.updated = time
+      }
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)

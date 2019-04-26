@@ -25,7 +25,7 @@ const allTests = async () => {
   // await documentTests(app)
   // await libraryTests(app)
   // await outboxTests(app)
-  // await publicationTests(app)
+  await publicationTests(app)
   await readerTests(app)
   // await noteTests(app)
   // await tagTests(app)
