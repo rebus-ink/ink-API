@@ -40,9 +40,9 @@ class ReadActivity extends BaseModel {
     return 'readActivity'
   }
 
-  // get path () /*: string */ {
-  //   return 'activity'
-  // }
+  get path () /*: string */ {
+    return 'readActivity'
+  }
 
   static get jsonSchema () /*: any */ {
     return {
@@ -55,7 +55,7 @@ class ReadActivity extends BaseModel {
         publicationIn: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
-      required: ['id', 'readerId', 'publicationId']
+      required: ['readerId', 'publicationId']
     }
   }
 
@@ -104,7 +104,7 @@ class ReadActivity extends BaseModel {
     readerId /*: string */,
     publicationId /*: string */,
     object /*: any */
-  ) {
+  ) /*: any */ {
     if (!readerId) return new Error('wrong readerId')
 
     if (!publicationId) return new Error('wrong publicationId')
@@ -119,9 +119,13 @@ class ReadActivity extends BaseModel {
     props.published = new Date().toISOString()
 
     try {
-      return await ReadActivity.query()
+      var activity = await ReadActivity.query()
         .insert(props)
         .returning('*')
+
+      console.log('LAST ACTIVITY INSERTED: ' + activity.id)
+
+      return activity
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
         return new Error('no reader')
@@ -131,12 +135,14 @@ class ReadActivity extends BaseModel {
     }
   }
 
-  static async getLatestReadActivity (publicationId /*: string */) {
-    /*
-    return await ReadActivity.query(ReadActivity.knex())
-      .max('published')
+  static async getLatestReadActivity (publicationId /*: string */) /*: any */ {
+    if (!publicationId) return new Error('wrong publicationId')
+
+    const readActivities = await ReadActivity.query()
       .where('publicationId', '=', publicationId)
-    */
+      .orderBy('published')
+
+    return readActivities[readActivities.length - 1]
   }
 }
 
