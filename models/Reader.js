@@ -2,7 +2,6 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
-const { createId } = require('./utils')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -65,11 +64,7 @@ class Reader extends BaseModel {
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-    props.id = createId()
 
-    const date = new Date().toISOString()
-    props.published = date
-    props.updated = date
     props.authId = authId
     return await Reader.query(Reader.knex())
       .insert(props)

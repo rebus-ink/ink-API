@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
       .notNullable()
       .onDelete('CASCADE')
       .index()
-    table.integer('tagId').references('id').inTable('Tag').notNullable().onDelete('CASCADE').index();
+    table.string('tagId').references('id').inTable('Tag').notNullable().onDelete('CASCADE').index();
   })
 };
 
