@@ -40,7 +40,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get User profile', async () => {
-    ReaderStub.Reader.byUserId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byAuthId = async () => Promise.resolve(reader)
 
     const res = await request
       .get('/whoami')
@@ -66,7 +66,7 @@ const test = async () => {
   await tap.test(
     'Try to get user profile for user that does not exist',
     async () => {
-      ReaderStub.Reader.byUserId = async () => Promise.resolve(null)
+      ReaderStub.Reader.byAuthId = async () => Promise.resolve(null)
 
       const res = await request
         .get('/whoami')

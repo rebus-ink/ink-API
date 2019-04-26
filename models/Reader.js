@@ -171,11 +171,11 @@ class Reader extends BaseModel {
     }
   }
 
-  // TODO: find out when this is used.
   $formatJson (json /*: any */) /*: any */ {
     const original = super.$formatJson(json)
     json = original.json || {}
     Object.assign(json, {
+      id: this.id,
       type: 'Person',
       summaryMap: {
         en: `User with id ${this.id}`
