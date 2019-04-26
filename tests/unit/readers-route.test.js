@@ -33,14 +33,19 @@ app.use(
 
 const requestObject = {
   '@context': 'https://www.w3.org/ns/activitystream',
-  type: 'Person',
-  name: 'J. Random Reader'
+  name: 'J. Random Reader',
+  profile: { property: 'value' },
+  preferences: { color: 'pink' },
+  json: { property1: 2 }
 }
 
 const reader = Object.assign(new Reader(), {
-  id: '0dad66d5-670f-41e1-886a-b2e25b510b2d',
-  json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868968' },
-  userId: 'auth0|foo1545149868968',
+  id: '0dad66d5670f41e1',
+  name: 'J. Random Reader',
+  profile: { property: 'value' },
+  preferences: { color: 'pink' },
+  json: { property1: 2 },
+  authId: 'auth0|foo1545149868968',
   published: '2018-12-18T16:17:49.077Z',
   updated: '2018-12-18 16:17:49'
 })
