@@ -208,6 +208,20 @@ class Publication extends BaseModel {
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = new Date().toISOString()
+    })
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.id = json.id + '/'
+    return json
+  }
 }
 
 module.exports = { Publication }

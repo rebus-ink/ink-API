@@ -57,7 +57,7 @@ class BaseModel extends Model {
   }
 
   $afterGet (queryOptions /*: any */, context /*: any */) /*: any */ {
-    const parent = super.$beforeUpdate(queryOptions, context)
+    const parent = super.$afterGet(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc = doc.formatIdsToUrl(doc, doc.getType())
@@ -65,7 +65,7 @@ class BaseModel extends Model {
   }
 
   $afterInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
-    const parent = super.$beforeUpdate(queryOptions, context)
+    const parent = super.$afterInsert(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc = doc.formatIdsToUrl(doc, doc.getType())
@@ -73,18 +73,12 @@ class BaseModel extends Model {
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
-    const parent = super.$beforeUpdate(queryOptions, context)
+    const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
       doc.id = crypto.randomBytes(16).toString('hex')
       const time = new Date().toISOString()
       doc.published = time
-      if (
-        doc.constructor.name !== 'Attribution' &&
-        doc.constructor.name !== 'Activity'
-      ) {
-        doc.updated = time
-      }
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)

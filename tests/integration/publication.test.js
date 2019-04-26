@@ -7,7 +7,6 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
-const { urlToId } = require('../../routes/utils')
 const _ = require('lodash')
 
 const test = async app => {
@@ -18,7 +17,6 @@ const test = async app => {
   const token = getToken()
   const userCompleteUrl = await createUser(app, token)
   const userUrl = urlparse(userCompleteUrl).path
-  const userId = urlToId(userUrl)
   let publicationUrl
   let activityUrl
   let documentUrl
@@ -75,6 +73,7 @@ const test = async app => {
 
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.ok(body.id.endsWith('/'))
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')

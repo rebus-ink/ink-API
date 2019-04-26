@@ -125,6 +125,14 @@ class Note extends BaseModel {
 
     return await Note.query().updateAndFetchById(urlToId(object.id), note)
   }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = new Date().toISOString()
+    })
+  }
 }
 
 module.exports = { Note }
