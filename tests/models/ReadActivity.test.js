@@ -60,8 +60,8 @@ const test = async app => {
 
   await tap.test('Create ReadActivity with selector and json', async () => {
     let readActivity = await ReadActivity.createReadActivity(
-      urlToId(createdReader.id),
-      urlToId(publication.id),
+      createdReader.id,
+      publication.id,
       selectorJsonObject
     )
 

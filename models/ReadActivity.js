@@ -91,7 +91,7 @@ class ReadActivity extends BaseModel {
 
     const props = _.pick(object, ['selector', 'json'])
 
-    props.id = createId()
+    // props.id = '1163'
     props.readerId = readerId
     props.publicationId = publicationId
     props.published = new Date().toISOString()
@@ -117,30 +117,6 @@ class ReadActivity extends BaseModel {
       .orderBy('published', 'desc')
       .limit(1)
 
-    /*
-    const readActivities = await ReadActivity.query()
-      .max('published')
-      .select('*')
-      .where('publicationId', '=', publicationId)
-      .groupBy('publicationId')
-      .groupBy('id')
-    */
-
-    for (var i = 0; i < readActivities.length; i++) {
-      console.log('pub date: ' + readActivities[i].published)
-    }
-
-    /*
-      .column(['readActivity.id', 'readerId', 'publicationId', 'selector', 'json' ])
-      .where('publicationId', '=', publicationId)
-      .groupBy('publicationId')
-      .groupBy('readActivity.id')
-    */
-
-    console.log('readActivities is array: ' + readActivities.length)
-    console.log('PUBDATE : ' + readActivities[0].published)
-    console.log('ID: ' + readActivities[0].id)
-    console.log('READER ID: ' + readActivities[0].id)
     return readActivities[0]
   }
 }
