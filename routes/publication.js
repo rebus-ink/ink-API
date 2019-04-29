@@ -117,14 +117,7 @@ module.exports = function (app) {
                     ? publication.replies
                       .filter(note => !note.deleted)
                       .map(note => note.asRef())
-                    : [],
-                  tags: publication.tags,
-                  author: publication.author.filter(
-                    attribution => attribution.role === 'author'
-                  ),
-                  editor: publication.editor.filter(
-                    attribution => attribution.role === 'editor'
-                  )
+                    : []
                 })
               )
             )
