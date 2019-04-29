@@ -10,6 +10,7 @@ const { ReadActivity } = require('./ReadActivity')
 const { createId } = require('./utils')
 
 const metadataProps = ['inLanguage', 'keywords']
+const attributionTypes = ['author', 'editor']
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -66,15 +67,7 @@ class Publication extends BaseModel {
           to: 'Reader.id'
         }
       },
-      author: {
-        relation: Model.HasManyRelation,
-        modelClass: Attribution,
-        join: {
-          from: 'Publication.id',
-          to: 'Attribution.publicationId'
-        }
-      },
-      editor: {
+      attributions: {
         relation: Model.HasManyRelation,
         modelClass: Attribution,
         join: {
@@ -122,7 +115,7 @@ class Publication extends BaseModel {
   }
 
   asRef () /*: any */ {
-    return this
+    return _.omit(this.toJSON(), ['resources', 'readingOrder', 'links', 'json'])
   }
 
   static async createPublication (
@@ -153,34 +146,22 @@ class Publication extends BaseModel {
     const createdPublication = await Publication.query(
       Publication.knex()
     ).insertAndFetch(props)
-    // create attributions
-    if (publication.author) {
-      if (_.isString(publication.author)) {
-        publication.author = [{ type: 'Person', name: publication.author }]
-      }
-      createdPublication.author = []
-      for (const author of publication.author) {
-        const createdAuthor = await Attribution.createAttribution(
-          author,
-          'author',
-          createdPublication
-        )
-        createdPublication.author.push(createdAuthor)
-      }
-    }
 
-    if (publication.editor) {
-      if (_.isString(publication.editor)) {
-        publication.editor = [{ type: 'Person', name: publication.editor }]
-      }
-      createdPublication.editor = []
-      for (const editor of publication.editor) {
-        const createdEditor = await Attribution.createAttribution(
-          editor,
-          'editor',
-          createdPublication
-        )
-        createdPublication.editor.push(createdEditor)
+    // create attributions
+    for (const type of attributionTypes) {
+      if (publication[type]) {
+        if (_.isString(publication[type])) {
+          publication[type] = [{ type: 'Person', name: publication[type] }]
+        }
+        createdPublication[type] = []
+        for (const instance of publication[type]) {
+          const createdAttribution = await Attribution.createAttribution(
+            instance,
+            type,
+            createdPublication
+          )
+          createdPublication[type].push(createdAttribution)
+        }
       }
     }
 
@@ -190,7 +171,7 @@ class Publication extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const pub = await Publication.query()
       .findById(id)
-      .eager('[reader, replies, tags, author, editor]')
+      .eager('[reader, replies, tags, attributions]')
 
     if (!pub || pub.deleted) return null
 
@@ -205,8 +186,6 @@ class Publication extends BaseModel {
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
 
-    // TODO: missing authors and editors
-    // Need a way to retrieve attribution by pubId and role
     return pub
   }
 
@@ -229,7 +208,17 @@ class Publication extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
+    json = _.omitBy(json, _.isNil)
     json.id = json.id + '/'
+    json.type = 'Publication'
+    if (json.attributions) {
+      attributionTypes.forEach(type => {
+        json[type] = json.attributions.filter(
+          attribution => attribution.role === type
+        )
+      })
+    }
+
     return json
   }
 }

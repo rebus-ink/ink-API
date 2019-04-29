@@ -46,14 +46,14 @@ const _ = require('lodash')
 module.exports = app => {
   /**
    * @swagger
-   * /reader-{shortId}/library:
+   * /reader-{id}/library:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /reader-:shortId/library
+   *     description: GET /reader-:id/library
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -70,22 +70,22 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/library'
    *       404:
-   *         description: 'No Reader with ID {shortId}'
+   *         description: 'No Reader with ID {id}'
    *       403:
-   *         description: 'Access to reader {shortId} disallowed'
+   *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
   router.get(
-    '/reader-:shortId/library',
+    '/reader-:id/library',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Reader.byShortId(shortId, '[tags, publications.[attributedTo, tags]]')
+      const id = req.params.id
+      Reader.byId(id, '[tags, publications.[tags, attributions]]')
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${shortId}`)
+            res.status(404).send(`No reader with ID ${id}`)
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${shortId} disallowed`)
+            res.status(403).send(`Access to reader ${id} disallowed`)
           } else {
             res.setHeader(
               'Content-Type',
@@ -106,10 +106,10 @@ module.exports = app => {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Streams for user with id ${shortId}`
+                  en: `Streams for user with id ${id}`
                 },
                 type: 'Collection',
-                id: getId(`/reader-${shortId}/library`),
+                id: getId(`/reader-${id}/library`),
                 totalItems: publications.length,
                 items: publications.map(pub => pub.asRef()),
                 tags: reader.tags
