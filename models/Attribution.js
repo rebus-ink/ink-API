@@ -6,9 +6,6 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { urlToId } = require('../routes/utils')
 
-// TODO: add more valid roles
-const attributionRoles = ['author', 'editor']
-
 /**
  * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
  */
@@ -70,10 +67,6 @@ class Attribution extends BaseModel {
     role /*: string */,
     publication /*: any */
   ) {
-    if (_.indexOf(attributionRoles, role.toLowerCase()) === -1) {
-      throw Error(`${role} is not a valid attribution role`)
-    }
-
     let props
 
     if (_.isString(attribution)) {
@@ -124,10 +117,6 @@ class Attribution extends BaseModel {
     publicationId /*: string */,
     role /*: string */
   ) /*: any */ {
-    if (_.indexOf(attributionRoles, role.toLowerCase()) === -1) {
-      throw Error(`${role} is not a valid attribution role`)
-    }
-
     return await Attribution.query(Attribution.knex())
       .where('role', '=', role)
       .andWhere('publicationId', '=', publicationId)

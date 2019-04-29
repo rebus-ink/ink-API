@@ -69,7 +69,6 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(res.statusCode, 200)
 
     const body = res.body

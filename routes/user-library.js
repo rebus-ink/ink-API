@@ -46,14 +46,14 @@ const _ = require('lodash')
 module.exports = app => {
   /**
    * @swagger
-   * /reader-{shortId}/library:
+   * /reader-{id}/library:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /reader-:shortId/library
+   *     description: GET /reader-:id/library
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -70,9 +70,9 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/library'
    *       404:
-   *         description: 'No Reader with ID {shortId}'
+   *         description: 'No Reader with ID {id}'
    *       403:
-   *         description: 'Access to reader {shortId} disallowed'
+   *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
   router.get(
@@ -80,7 +80,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
-      Reader.byId(id, '[tags, publications.[attributedTo, tags]]')
+      Reader.byId(id, '[tags, publications.[tags, attributions]]')
         .then(reader => {
           console.log('Found reader')
           if (!reader) {
@@ -110,7 +110,7 @@ module.exports = app => {
                   en: `Streams for user with id ${id}`
                 },
                 type: 'Collection',
-                id: getId(`/reader-${idd}/library`),
+                id: getId(`/reader-${id}/library`),
                 totalItems: publications.length,
                 items: publications.map(pub => pub.asRef()),
                 tags: reader.tags
