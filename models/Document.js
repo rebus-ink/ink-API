@@ -8,7 +8,6 @@ const { Reader } = require('./Reader.js')
 const short = require('short-uuid')
 const translator = short()
 const _ = require('lodash')
-const { createId } = require('./utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
@@ -80,12 +79,8 @@ class Document extends BaseModel {
     document /* :any */
   ) /*: any */ {
     const props = _.pick(document, ['mediaType', 'url', 'documentPath', 'json'])
-    props.id = createId()
     props.readerId = reader.id
     props.publicationId = publicationId
-    const time = new Date().toISOString()
-    props.published = time
-    props.updated = time
     return await Document.query().insertAndFetch(props)
   }
 

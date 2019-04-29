@@ -233,7 +233,6 @@ const test = async app => {
       newTag.id
     )
 
-    console.log('Error message ' + result)
     tap.ok(typeof result, Error)
     tap.equal(result.message, 'not found')
   })

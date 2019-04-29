@@ -2,6 +2,7 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
+const { ReadActivity } = require('./ReadActivity')
 const { createId } = require('./utils')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
@@ -65,11 +66,7 @@ class Reader extends BaseModel {
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-    props.id = createId()
 
-    const date = new Date().toISOString()
-    props.published = date
-    props.updated = date
     props.authId = authId
     return await Reader.query(Reader.knex())
       .insert(props)
@@ -133,14 +130,14 @@ class Reader extends BaseModel {
           to: 'Activity.readerId'
         }
       },
-      // readActivities: {
-      //   relation: Model.HasManyRelation,
-      //   modelClass: ReadActivity,
-      //   join: {
-      //     from: 'Reader.id',
-      //     to: 'ReadActivity.readerId'
-      //   }
-      // },
+      readActivities: {
+        relation: Model.HasManyRelation,
+        modelClass: ReadActivity,
+        join: {
+          from: 'Reader.id',
+          to: 'readActivity.readerId'
+        }
+      },
       replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
@@ -176,11 +173,11 @@ class Reader extends BaseModel {
     }
   }
 
-  // TODO: find out when this is used.
   $formatJson (json /*: any */) /*: any */ {
     const original = super.$formatJson(json)
     json = original.json || {}
     Object.assign(json, {
+      id: this.id,
       type: 'Person',
       summaryMap: {
         en: `User with id ${this.id}`
@@ -202,6 +199,14 @@ class Reader extends BaseModel {
       type: 'Person',
       name: this.name
     }
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = new Date().toISOString()
+    })
   }
 }
 

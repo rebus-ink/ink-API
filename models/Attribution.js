@@ -5,7 +5,6 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { urlToId } = require('../routes/utils')
-const { createId } = require('./utils')
 
 // TODO: add more valid roles
 const attributionRoles = ['author', 'editor']
@@ -35,18 +34,12 @@ class Attribution extends BaseModel {
         published: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: [
-        'role',
-        'name',
-        'normalizedName',
-        'readerId',
-        'publicationId',
-        'published'
-      ]
+      required: ['role', 'name', 'normalizedName', 'readerId', 'publicationId']
     }
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
+    const { Publication } = require('./Publication')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -85,7 +78,6 @@ class Attribution extends BaseModel {
 
     if (_.isString(attribution)) {
       props = {
-        id: createId(),
         name: attribution,
         type: 'Person',
         published: undefined,
@@ -107,14 +99,11 @@ class Attribution extends BaseModel {
       }
       props = _.pick(attribution, ['name', 'type', 'isContributor'])
       props.role = role
-      props.id = createId()
       props.readerId = publication.readerId
       props.publicationId = publication.id
     }
 
-    const time = new Date().toISOString()
     props.normalizedName = props.name.toLowerCase() // todo: remove accents, etc.
-    props.published = time
 
     return await Attribution.query(Attribution.knex()).insertAndFetch(props)
   }
