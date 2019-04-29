@@ -3,6 +3,7 @@ const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
+const { urlToId } = require('../../routes/utils')
 
 const getToken = () => {
   const options = {
@@ -22,7 +23,6 @@ const createUser = async (app, token) => {
     .send(
       JSON.stringify({
         '@context': 'https://www.w3.org/ns/activitystreams',
-        type: 'Person',
         name: 'J. Random Reader'
       })
     )
