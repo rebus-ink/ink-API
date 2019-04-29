@@ -1,15 +1,17 @@
 const { createActivityObject } = require('./utils')
-const { Publications_Tags } = require('../../models/Publications_Tags')
+const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Activity } = require('../../models/Activity')
+// const { urlToId } = require('./utils')
 
 const handleAdd = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
-      const resultStack = await Publications_Tags.addTagToPub(
+      const resultStack = await Publication_Tag.addTagToPub(
         body.target.id,
         body.object.id
       )
+
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
           case 'duplicate':
@@ -37,6 +39,8 @@ const handleAdd = async (req, res, reader) => {
             break
         }
         break
+      } else if (typeof resultStack === 'undefined') {
+        res.status(404).send(`add tag to publication error: ${err.message}`)
       }
 
       const activityObjStack = createActivityObject(body, resultStack, reader)

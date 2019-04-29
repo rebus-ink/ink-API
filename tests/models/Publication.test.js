@@ -163,16 +163,25 @@ const test = async app => {
   })
 
   await tap.test('Publication addTag', async () => {
-    const res = await Publication_Tag.addTagToPub(publication.id, createdTag.id)
+    const pub = Publication.byId(urlToId(publication.id))
+    console.log('Publication id: ' + pub.id)
+    console.log('Tag id: ' + createdTag.id)
+
+    const res = await Publication_Tag.addTagToPub(
+      urlToId(publication.id),
+      createdTag.id
+    )
     await tap.ok(res.publicationId)
     await tap.ok(res.tagId)
     await tap.equal(res.publicationId, publication.id)
-    await tap.equal(res.tagId, createdTag.id)
+    console.log('createdTagId: ' + createdTag.id)
+    console.log('new tag id: ' + urlToId(res.tagId))
+    await tap.equal(urlToId(res.tagId), createdTag.id)
   })
 
   await tap.test('addTagToPub with invalid tag id ', async () => {
     const res = await Publication_Tag.addTagToPub(
-      publication.id,
+      urlToId(publication.id),
       createdTag.id + '123'
     )
 
@@ -236,7 +245,7 @@ const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
-  await destroyDB(app)
+  // await destroyDB(app)
 }
 
 module.exports = test
