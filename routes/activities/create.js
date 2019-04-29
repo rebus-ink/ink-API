@@ -1,13 +1,14 @@
 const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
+const { Publication } = require('../../models/Publication')
 const { createActivityObject } = require('./utils')
 
 const handleCreate = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
-    case 'reader:Publication':
-      const resultPub = await Reader.addPublication(reader, body.object)
+    case 'Publication':
+      const resultPub = await Publication.createPublication(reader, body.object)
       if (resultPub instanceof Error || !resultPub) {
         const message = resultPub
           ? resultPub.message
@@ -18,7 +19,7 @@ const handleCreate = async (req, res, reader) => {
       Activity.createActivity(activityObjPub)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {

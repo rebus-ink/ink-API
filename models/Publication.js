@@ -155,6 +155,9 @@ class Publication extends BaseModel {
     ).insertAndFetch(props)
     // create attributions
     if (publication.author) {
+      if (_.isString(publication.author)) {
+        publication.author = [{ type: 'Person', name: publication.author }]
+      }
       createdPublication.author = []
       for (const author of publication.author) {
         const createdAuthor = await Attribution.createAttribution(
@@ -167,6 +170,9 @@ class Publication extends BaseModel {
     }
 
     if (publication.editor) {
+      if (_.isString(publication.editor)) {
+        publication.editor = [{ type: 'Person', name: publication.editor }]
+      }
       createdPublication.editor = []
       for (const editor of publication.editor) {
         const createdEditor = await Attribution.createAttribution(
@@ -211,6 +217,20 @@ class Publication extends BaseModel {
     }
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = new Date().toISOString()
+    })
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.id = json.id + '/'
+    return json
   }
 }
 

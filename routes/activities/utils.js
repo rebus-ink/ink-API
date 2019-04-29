@@ -1,15 +1,18 @@
+const { urlToId } = require('../../routes/utils')
+
 const createActivityObject = (body, result, reader) => {
   let props = Object.assign(body, {
     actor: {
       type: 'Person',
-      id: reader.url
-    }
+      id: urlToId(reader.id)
+    },
+    readerId: urlToId(reader.id)
   })
   if (result) {
     props = Object.assign(props, {
       object: {
-        type: result.json ? result.json.type : result.type,
-        id: result.url || result.id
+        type: result.type,
+        id: result.id
       }
     })
   }

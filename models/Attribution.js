@@ -34,18 +34,12 @@ class Attribution extends BaseModel {
         published: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: [
-        'role',
-        'name',
-        'normalizedName',
-        'readerId',
-        'publicationId',
-        'published'
-      ]
+      required: ['role', 'name', 'normalizedName', 'readerId', 'publicationId']
     }
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
+    const { Publication } = require('./Publication')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
