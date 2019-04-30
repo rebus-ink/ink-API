@@ -37,32 +37,71 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Publication',
+          type: 'Publication',
           name: 'Publication A',
-          attributedTo: [
+          description: 'description of publication A',
+          author: [
+            { type: 'Person', name: 'Sample Author' },
+            { type: 'Organization', name: 'Org inc.' }
+          ],
+          editor: ['Sample editor'],
+          inLanguage: ['English'],
+          keywords: ['key', 'words'],
+          json: {
+            property1: 'value1'
+          },
+          readingOrder: [
             {
-              type: 'Person',
-              name: 'Sample Author'
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link'
+            },
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc2',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link2'
             }
           ],
-          totalItems: 2,
-          attachment: [
+          links: [
             {
-              type: 'Document',
-              name: 'Chapter 2',
-              content: 'Sample document content 2',
-              position: 1
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc3',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link3'
             },
             {
-              type: 'Document',
-              name: 'Chapter 1',
-              content: 'Sample document content 1',
-              position: 0
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc4',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link4'
+            }
+          ],
+          resources: [
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc5',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link5'
             },
             {
-              type: 'Document',
-              name: 'Not a Chapter',
-              content: 'not a chapter: does not have a position!'
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc6',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link6'
             }
           ]
         }
@@ -79,6 +118,9 @@ const test = async app => {
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
+
+  console.log('res Publication:   -------------')
+  console.log(resPublication.body)
 
   const documentUrl = resPublication.body.orderedItems[0].id
   // create Note for user 1

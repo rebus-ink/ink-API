@@ -2,6 +2,8 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('./utils')
+const { Activity } = require('../../models/Activity')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -27,16 +29,73 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             name: 'Publication A',
-            attributedTo: [
+            description: 'description of publication A',
+            author: [
+              { type: 'Person', name: 'Sample Author' },
+              { type: 'Organization', name: 'Org inc.' }
+            ],
+            editor: ['Sample editor'],
+            inLanguage: ['English'],
+            keywords: ['key', 'words'],
+            json: {
+              property1: 'value1'
+            },
+            readingOrder: [
               {
-                type: 'Person',
-                name: 'Sample Author'
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc2',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link2'
               }
             ],
-            totalItems: 0,
-            orderedItems: []
+            links: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc3',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link3'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc4',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link4'
+              }
+            ],
+            resources: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc5',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link5'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                type: 'Link',
+                href: 'http://example.org/abc6',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link6'
+              }
+            ]
           }
         })
       )
@@ -56,6 +115,15 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 200)
 
+    console.log('WHAT is in body --------')
+    console.log(res.body)
+
+    // Select activity:
+    console.log('is id defined')
+    console.log(res.body.orderedItems[0].id)
+    const activity = await Activity.byId(urlToId(res.body.orderedItems[0].id))
+    console.log(activity)
+
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
@@ -65,11 +133,12 @@ const test = async app => {
     await tap.ok(Array.isArray(body.orderedItems))
     await tap.type(body.orderedItems[0], 'object')
     await tap.type(body.orderedItems[0].type, 'string')
-    await tap.equal(body.orderedItems[0].object.type, 'reader:Publication')
+    // await tap.equal(activity.target, 'Publication') // No target inserted into table
     await tap.equal(body.orderedItems[0].type, 'Create')
-    await tap.type(body.orderedItems[0].actor, 'object')
-    await tap.equal(body.orderedItems[0].actor.type, 'Person')
-    await tap.type(body.orderedItems[0].summaryMap, 'object')
+    // await tap.type(body.orderedItems[0].actor, 'object')
+    // await tap.equal(body.orderedItems[0].actor.type, 'Person')
+    await tap.equal(urlToId(body.orderedItems[0].readerId), urlToId(userId))
+    await tap.type(body.summaryMap, 'object')
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
