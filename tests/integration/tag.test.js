@@ -77,30 +77,30 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
-  // await tap.test('Try to create a duplicate Tag', async () => {
-  //   const res = await request(app)
-  //     .post(`${userUrl}/activity`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-  //     .send(
-  //       JSON.stringify({
-  //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
-  //           { reader: 'https://rebus.foundation/ns/reader' }
-  //         ],
-  //         type: 'Create',
-  //         object: {
-  //           type: 'reader:Stack',
-  //           name: 'mystack'
-  //         }
-  //       })
-  //     )
-  //   await tap.equal(res.status, 400)
-  //   await tap.ok(res.error.text.startsWith('duplicate error:'))
-  // })
+  await tap.test('Try to create a duplicate Tag', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Stack',
+            name: 'mystack'
+          }
+        })
+      )
+    await tap.equal(res.status, 400)
+    await tap.ok(res.error.text.startsWith('duplicate error:'))
+  })
 
   await tap.test('Get tag when fetching library', async () => {
     const res = await request(app)
@@ -307,62 +307,65 @@ const test = async app => {
 
   // error disabled for now
 
-  // await tap.test('Try to assign publication to tag twice', async () => {
-  //   await request(app)
-  //     .post(`${userUrl}/activity`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-  //     .send(
-  //       JSON.stringify({
-  //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
-  //           { reader: 'https://rebus.foundation/ns/reader' }
-  //         ],
-  //         type: 'Add',
-  //         object: stack,
-  //         target: publication
-  //       })
-  //     )
+  await tap.test('Try to assign publication to tag twice', async () => {
+    await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: stack,
+          target: publication
+        })
+      )
 
-  //   const res = await request(app)
-  //     .post(`${userUrl}/activity`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-  //     .send(
-  //       JSON.stringify({
-  //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
-  //           { reader: 'https://rebus.foundation/ns/reader' }
-  //         ],
-  //         type: 'Add',
-  //         object: stack,
-  //         target: publication
-  //       })
-  //     )
-  //   await tap.equal(res.status, 400)
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: stack,
+          target: publication
+        })
+      )
+    await tap.equal(res.status, 400)
+    await tap.ok(res.error.text.startsWith('duplicate publication:'))
 
-  //   // doesn't affect the publication
-  //   const pubres = await request(app)
-  //     .get(urlparse(publication.id).path)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+    /*
+    // doesn't affect the publication
+    const pubres = await request(app)
+      .get(urlparse(publication.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-  //   await tap.equal(pubres.status, 200)
-  //   const body = pubres.body
-  //   await tap.ok(Array.isArray(body.tags))
-  //   await tap.equal(body.tags.length, 1)
-  //   await tap.equal(body.tags[0].type, 'reader:Stack')
-  //   await tap.equal(body.tags[0].name, 'mystack')
-  // })
+    await tap.equal(pubres.status, 200)
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 1)
+    await tap.equal(body.tags[0].type, 'reader:Stack')
+    await tap.equal(body.tags[0].name, 'mystack')
+    */
+  })
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

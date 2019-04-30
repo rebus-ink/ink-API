@@ -44,14 +44,14 @@ module.exports = app => {
 
   /**
    * @swagger
-   * /note-{shortId}:
+   * /note-{id}:
    *   get:
    *     tags:
    *       - notes
-   *     description: GET /note-:shortId
+   *     description: GET /note-:id
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -68,22 +68,22 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/note'
    *       404:
-   *         description: 'No Note with ID {shortId}'
+   *         description: 'No Note with ID {id}'
    *       403:
-   *         description: 'Access to note {shortId} disallowed'
+   *         description: 'Access to note {id} disallowed'
    */
 
   router.get(
-    '/note-:shortId',
+    '/note-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Note.byShortId(shortId)
+      const id = req.params.id
+      Note.byId(id)
         .then(note => {
           if (!note || note.deleted) {
-            res.status(404).send(`No note with ID ${shortId}`)
+            res.status(404).send(`No note with ID ${id}`)
           } else if (!utils.checkReader(req, note.reader)) {
-            res.status(403).send(`Access to note ${shortId} disallowed`)
+            res.status(403).send(`Access to note ${id} disallowed`)
           } else {
             debug(note)
             res.setHeader(
@@ -96,9 +96,7 @@ module.exports = app => {
                   '@context': [
                     'https://www.w3.org/ns/activitystreams',
                     { reader: 'https://rebus.foundation/ns/reader' }
-                  ],
-                  // not sure why context disapears when .toJSON is run
-                  context: note.json.context
+                  ]
                 })
               )
             )

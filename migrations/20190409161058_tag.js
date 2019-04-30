@@ -21,6 +21,7 @@ exports.up = function (knex, Promise) {
       .notNullable()
     table
       .timestamp('deleted')
+    table.unique(['readerId', 'name', 'type'])
   })
 }
 
