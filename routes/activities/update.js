@@ -15,7 +15,7 @@ const handleUpdate = async (req, res, reader) => {
       Activity.createActivity(activityObjNote)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {

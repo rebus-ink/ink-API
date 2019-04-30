@@ -2,6 +2,7 @@ const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
+const { Note } = require('../../models/Note')
 const { createActivityObject } = require('./utils')
 
 const handleCreate = async (req, res, reader) => {
@@ -62,7 +63,7 @@ const handleCreate = async (req, res, reader) => {
       break
 
     case 'Note':
-      const resultNote = await Reader.addNote(reader, body.object)
+      const resultNote = await Note.createNote(reader, body.object)
       if (!resultNote) res.status.send('create note error')
       if (resultNote instanceof Error) {
         switch (resultNote.message) {
@@ -110,7 +111,7 @@ const handleCreate = async (req, res, reader) => {
       Activity.createActivity(activityObjNote)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {

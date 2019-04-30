@@ -7,7 +7,8 @@ const checkReader = (req, reader) => {
 const urlToId = url => {
   if (!url) return undefined
   if (!url.startsWith('http')) return url
-  const path = parseurl(url).path
+  let path = parseurl(url).path
+  if (path.endsWith('/')) path = path.substring(0, path.length - 1)
   return path.substring(path.indexOf('-') + 1)
 }
 

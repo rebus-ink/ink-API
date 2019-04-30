@@ -102,6 +102,19 @@ class Document extends BaseModel {
       .eager('[reader, replies]')
   }
 
+  // TODO: add tests
+  static async byPath (
+    publicationId /* :string */,
+    documentPath /* :string */
+  ) /* :Promise<any> */ {
+    const document = await Document.query().findOne({
+      documentPath,
+      publicationId
+    })
+    if (!document) return null
+    return document
+  }
+
   static async getRedirectUrl (
     publicationId /* :string */,
     documentPath /* :string */

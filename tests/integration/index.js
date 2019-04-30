@@ -27,7 +27,7 @@ const allTests = async () => {
   // await outboxTests(app)
   // await publicationTests(app)
   // await readerTests(app)
-  // await noteTests(app)
+  await noteTests(app)
   await tagTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
