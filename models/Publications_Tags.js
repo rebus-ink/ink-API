@@ -22,6 +22,8 @@ class Publication_Tag extends BaseModel {
     // check tag
     if (!tagId) return new Error('no tag')
 
+    const newTag = await Tag.byId(tagId)
+
     // // check if already exists - SKIPPED FOR NOW
     // const result = await Publications_Tags.query().where({
     //   publicationId: publication.id,
@@ -40,6 +42,10 @@ class Publication_Tag extends BaseModel {
         return new Error('no tag')
       } else if (err.constraint === 'publication_tag_publicationid_foreign') {
         return new Error('no publication')
+      } else if (
+        err.constraint === 'publication_tag_publicationid_tagid_unique'
+      ) {
+        return new Error('duplicate')
       }
     }
   }

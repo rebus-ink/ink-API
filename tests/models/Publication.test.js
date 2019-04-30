@@ -241,6 +241,7 @@ const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
+
   await destroyDB(app)
 }
 
