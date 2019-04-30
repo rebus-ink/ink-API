@@ -49,10 +49,6 @@ class BaseModel extends Model {
       json.noteId = `${domain}/note-${json.noteId}`
     }
 
-    if (json.tagId && !json.tagId.startsWith(process.env.DOMAIN)) {
-      json.tagId = `{domain}/tag-${json.tagId}`
-    }
-
     return json
   }
 

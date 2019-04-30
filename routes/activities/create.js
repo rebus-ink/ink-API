@@ -120,6 +120,7 @@ const handleCreate = async (req, res, reader) => {
 
     case 'reader:Stack':
       const resultStack = await Tag.createTag(reader.id, body.object)
+
       if (resultStack instanceof Error && resultStack.message === 'duplicate') {
         res
           .status(400)
@@ -132,6 +133,7 @@ const handleCreate = async (req, res, reader) => {
         res.status(400).send(`create stack error: ${message}`)
       }
       const activityObjStack = createActivityObject(body, resultStack, reader)
+
       Activity.createActivity(activityObjStack)
         .then(activity => {
           res.status(201)
@@ -141,6 +143,7 @@ const handleCreate = async (req, res, reader) => {
         .catch(err => {
           res.status(400).send(`create activity error: ${err.message}`)
         })
+
       break
 
     default:

@@ -7,6 +7,7 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -33,23 +34,15 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Publication',
+          type: 'Publication',
           name: 'Publication A',
-          attributedTo: [
-            {
-              type: 'Person',
-              name: 'Sample Author'
-            }
-          ],
-          totalItems: 2,
-          attachment: [
-            {
-              type: 'Document',
-              name: 'Chapter 1',
-              content: 'Sample document content 1',
-              position: 0
-            }
-          ]
+          author: ['John Smith'],
+          editor: 'Jane Doe',
+          description: 'this is a description!!',
+          links: [{ property: 'value' }],
+          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+          resources: [{ property: 'value' }],
+          json: { property: 'value' }
         }
       })
     )
@@ -117,6 +110,7 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.ok(Array.isArray(body.tags))
@@ -140,9 +134,10 @@ const test = async app => {
           ],
           type: 'Add',
           object: { id: stack.id, type: stack.type },
-          target: { id: publication.id }
+          target: { id: urlToId(publication.id) }
         })
       )
+
     await tap.equal(res.status, 201)
 
     const pubres = await request(app)
@@ -179,7 +174,7 @@ const test = async app => {
             ],
             type: 'Add',
             object: { id: 999, type: stack.type },
-            target: { id: publication.id }
+            target: { id: urlToId(publication.id) }
           })
         )
       await tap.equal(res.status, 404)
