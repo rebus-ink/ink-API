@@ -82,7 +82,6 @@ module.exports = app => {
       const id = req.params.id
       Reader.byId(id, '[tags, publications.[tags, attributions]]')
         .then(reader => {
-          console.log('Found reader')
           if (!reader) {
             res.status(404).send(`No reader with ID ${id}`)
           } else if (!utils.checkReader(req, reader)) {
