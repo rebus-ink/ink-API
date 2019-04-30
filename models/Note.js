@@ -7,6 +7,7 @@ const translator = short()
 const { Activity } = require('./Activity')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
+const urlparse = require('url').parse
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -50,8 +51,8 @@ class Note extends BaseModel {
 
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
-    const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
+    const { Reader } = require('./Reader.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -84,23 +85,34 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<any> */ {
-    const props = _.pick(note, [
-      'noteType',
-      'content',
-      'selector',
-      'json',
-      'documentId',
-      'publicationId'
-    ])
+    const { Document } = require('./Document')
 
+    const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
+
+    // $FlowFixMe
+    const path = urlparse(note.inReplyTo).path.substr(45)
+    props.selector = note['oa:hasSelector']
+    const document = await Document.byPath(urlToId(note.context), path)
+    props.documentId = urlToId(document.id)
+    props.publicationId = note.context.id || note.context
     props.readerId = reader.id
     return await Note.query().insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    return await Note.query()
+    const { Document } = require('./Document')
+
+    const note = await Note.query()
       .findById(id)
       .eager('reader')
+    if (!note) return undefined
+
+    const document = await Document.byId(urlToId(note.documentId))
+    // $FlowFixMe
+    note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
+      document.documentPath
+    }`
+    return note
   }
 
   asRef () /*: string */ {
@@ -116,14 +128,22 @@ class Note extends BaseModel {
 
   static async update (object /*: any */) /*: Promise<any> */ {
     // $FlowFixMe
+    object.selector = object['oa:hasSelector']
     const modifications = _.pick(object, ['content', 'selector'])
     let note = await Note.query().findById(urlToId(object.id))
     if (!note) {
       return null
     }
     note = Object.assign(note, modifications)
-
     return await Note.query().updateAndFetchById(urlToId(object.id), note)
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.type = 'Note'
+    json['oa:hasSelector'] = json.selector
+    json.context = json.publicationId
+    return json
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
