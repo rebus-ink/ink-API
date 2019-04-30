@@ -41,7 +41,7 @@ const handleAdd = async (req, res, reader) => {
             break
         }
         break
-      } else if (typeof resultStack === 'undefined') {
+      } else if (!resultStack) {
         res.status(404).send(`add tag to publication error: ${err.message}`)
       }
 

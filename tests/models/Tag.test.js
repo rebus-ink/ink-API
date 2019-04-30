@@ -23,6 +23,7 @@ const test = async app => {
 
   await tap.test('Create Stack', async () => {
     let response = await Tag.createTag(createdReader.id, tagObject)
+
     await tap.ok(response)
     await tap.ok(response instanceof Tag)
     await tap.equal(response.readerId, createdReader.id)

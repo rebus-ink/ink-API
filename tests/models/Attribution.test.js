@@ -88,18 +88,6 @@ const test = async app => {
     await tap.equal(response.readerId, createdReader.id)
   })
 
-  await tap.test('Create Attribution with invalid role', async () => {
-    try {
-      await Attribution.createAttribution(
-        attributionObject,
-        'authooor',
-        publication
-      )
-    } catch (err) {
-      await tap.equal(err.message, 'authooor is not a valid attribution role')
-    }
-  })
-
   await tap.test('Create Attribution with invalid type', async () => {
     try {
       await Attribution.createAttribution(
@@ -129,7 +117,9 @@ const test = async app => {
       publication
     )
 
-    let attributions = await Attribution.getAttributionByPubId(publication.id)
+    let attributions = await Attribution.getAttributionByPubId(
+      urlToId(publication.id)
+    )
 
     var isSonyaFound = false
     var isJaneFound = false
@@ -164,11 +154,13 @@ const test = async app => {
       )
 
       let numDeleted = await Attribution.deleteAttributionOfPub(
-        publication.id,
+        urlToId(publication.id),
         'author'
       )
 
-      let attributions = await Attribution.getAttributionByPubId(publication.id)
+      let attributions = await Attribution.getAttributionByPubId(
+        urlToId(publication.id)
+      )
 
       var isBunnyFound = false
       var isJohnFound = false

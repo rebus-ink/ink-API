@@ -90,6 +90,7 @@ class Attribution extends BaseModel {
           } is not a valid attribution type. Only 'Person' and 'Organization' are accepted.`
         )
       }
+
       props = _.pick(attribution, ['name', 'type', 'isContributor'])
       props.role = role
       props.readerId = publication.readerId
@@ -110,7 +111,11 @@ class Attribution extends BaseModel {
       throw Error(`Your publicationId cannot be null`)
     }
 
-    return await Attribution.query().where('publicationId', publicationId)
+    return await Attribution.query(Attribution.knex()).where(
+      'publicationId',
+      '=',
+      publicationId
+    )
   }
 
   static async deleteAttributionOfPub (
