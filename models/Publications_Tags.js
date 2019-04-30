@@ -22,8 +22,6 @@ class Publication_Tag extends BaseModel {
     // check tag
     if (!tagId) return new Error('no tag')
 
-    const newTag = await Tag.byId(tagId)
-
     // // check if already exists - SKIPPED FOR NOW
     // const result = await Publications_Tags.query().where({
     //   publicationId: publication.id,
