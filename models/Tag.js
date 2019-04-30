@@ -47,7 +47,13 @@ class Tag extends BaseModel {
 
     const props = _.pick(tag, ['name', 'type', 'json', 'readerId'])
 
-    return await Tag.query().insert(props)
+    try {
+      return await Tag.query().insert(props)
+    } catch (err) {
+      if (err.constraint === 'tag_readerid_name_type_unique') {
+        return new Error('duplicate')
+      }
+    }
   }
 
   static async byId (id /*: string */) /*: Promise<TagType> */ {
