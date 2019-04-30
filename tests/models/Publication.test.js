@@ -164,8 +164,6 @@ const test = async app => {
 
   await tap.test('Publication addTag', async () => {
     const pub = Publication.byId(urlToId(publication.id))
-    console.log('Publication id: ' + pub.id)
-    console.log('Tag id: ' + createdTag.id)
 
     const res = await Publication_Tag.addTagToPub(
       urlToId(publication.id),
@@ -174,8 +172,6 @@ const test = async app => {
     await tap.ok(res.publicationId)
     await tap.ok(res.tagId)
     await tap.equal(res.publicationId, publication.id)
-    console.log('createdTagId: ' + createdTag.id)
-    console.log('new tag id: ' + urlToId(res.tagId))
     await tap.equal(urlToId(res.tagId), createdTag.id)
   })
 

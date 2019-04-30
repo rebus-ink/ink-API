@@ -50,9 +50,6 @@ const test = async app => {
         })
       )
 
-    console.log('We have a res')
-    console.log(res)
-
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
