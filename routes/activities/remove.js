@@ -1,15 +1,16 @@
 const { createActivityObject } = require('./utils')
-const { Publications_Tags } = require('../../models/Publications_Tags')
+const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Activity } = require('../../models/Activity')
 
 const handleRemove = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
-      const resultStack = await Publications_Tags.removeTagFromPub(
+      const resultStack = await Publication_Tag.removeTagFromPub(
         body.target.id,
         body.object.id
       )
+
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
           case 'no publication':

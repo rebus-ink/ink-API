@@ -1,4 +1,7 @@
 const { BaseModel } = require('./BaseModel')
+const { Publication } = require('./Publication')
+const { Tag } = require('./Tag')
+const { urlToId } = require('../routes/utils')
 
 class Publication_Tag extends BaseModel {
   static get tableName () {
@@ -54,7 +57,7 @@ class Publication_Tag extends BaseModel {
     const result = await Publication_Tag.query()
       .delete()
       .where({
-        publicationId: publicationId,
+        publicationId: urlToId(publicationId),
         tagId
       })
 
@@ -63,6 +66,15 @@ class Publication_Tag extends BaseModel {
     } else {
       return result
     }
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.published = undefined
+      doc.id = undefined
+    })
   }
 }
 
