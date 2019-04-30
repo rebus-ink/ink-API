@@ -18,9 +18,11 @@ const handleAdd = async (req, res, reader) => {
             res
               .status(400)
               .send(
-                `publication ${body.target.id} already asssociated with tag ${
-                  body.object.id
-                } (${body.object.name})`
+                `duplicate publication: ${
+                  body.target.id
+                } already asssociated with tag ${body.object.id} (${
+                  body.object.name
+                })`
               )
             break
 
