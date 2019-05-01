@@ -21,10 +21,10 @@ const allTests = async () => {
     }
   }
   // await activityTests(app)
-  // await authErrorTests(app)
+  await authErrorTests(app)
   // await documentTests(app)
   // await libraryTests(app)
-  await outboxTests(app)
+  // await outboxTests(app)
   // await publicationTests(app)
   // await readerTests(app)
   // await noteTests(app)

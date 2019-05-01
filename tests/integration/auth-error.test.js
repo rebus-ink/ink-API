@@ -122,7 +122,7 @@ const test = async app => {
   console.log('res Publication:   -------------')
   console.log(resPublication.body)
 
-  const documentUrl = resPublication.body.orderedItems[0].id
+  // const documentUrl = resPublication.body.orderedItems[0].id
   // create Note for user 1
 
   const noteActivity = await request(app)
