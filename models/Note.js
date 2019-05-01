@@ -85,13 +85,9 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<any> */ {
-    console.log('Note obj')
-    console.log(note)
     const { Document } = require('./Document')
 
     const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
-    console.log('props contain')
-    console.log(props)
 
     // $FlowFixMe
     // const path = urlparse(note.inReplyTo).path.substr(45)
