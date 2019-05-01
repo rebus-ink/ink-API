@@ -115,14 +115,8 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 200)
 
-    console.log('WHAT is in body --------')
-    console.log(res.body)
-
     // Select activity:
-    console.log('is id defined')
-    console.log(res.body.orderedItems[0].id)
     const activity = await Activity.byId(urlToId(res.body.orderedItems[0].id))
-    console.log(activity)
 
     const body = res.body
     await tap.type(body, 'object')

@@ -61,12 +61,6 @@ const test = async app => {
 
     const body = res.body
 
-    console.log('What is in body')
-    console.log(body)
-
-    console.log('reader summaryMap: ')
-    console.log(body.reader.summaryMap)
-
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.type(body['@context'], 'object')

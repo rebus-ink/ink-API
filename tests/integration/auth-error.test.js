@@ -143,12 +143,8 @@ const test = async app => {
     resPublication.body.id,
     documentObject
   )
-  console.log('Document')
-  console.log(document)
 
   const documentUrl = document.id
-
-  console.log('doc id in resp: ' + idToUrl(document.id, 'document'))
 
   // create Note for user 1
   const noteActivity = await request(app)
@@ -184,8 +180,7 @@ const test = async app => {
     noteActivityUrl,
     token
   )
-  console.log('note activity obj')
-  console.log(noteActivityObject)
+
   const noteUrl = noteActivityObject.object.id
 
   await tap.test('Try to get activity belonging to another user', async () => {
