@@ -98,7 +98,6 @@ module.exports = function (app) {
       const id = req.params.id
       Publication.byId(id)
         .then(publication => {
-          console.log('GETTING A PUBLICATION')
           if (!publication || publication.deleted) {
             res.status(404).send(`No publication with ID ${id}`)
           } else if (!utils.checkReader(req, publication.reader)) {

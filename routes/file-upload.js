@@ -19,7 +19,7 @@ module.exports = app => {
     m.array('files'),
     async function (req, res) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId).then(async reader => {
+      Reader.byId(shortId).then(async reader => {
         if (!reader) {
           res.status(404).send(`No reader with ID ${shortId}`)
         } else if (!utils.checkReader(req, reader)) {

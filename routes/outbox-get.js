@@ -72,11 +72,21 @@ module.exports = function (app) {
     .get(jwtAuth, function (req, res, next) {
       console.log('IN OUTBOX GET')
       const id = req.params.shortId
+      console.log('REQ Params')
+      console.log(req.params)
       Reader.byId(id, '[outbox]')
         .then(reader => {
+          console.log('Reader found')
+          console.log(reader)
           if (!reader) {
             res.status(404).send(`No reader with ID ${id}`)
           } else if (!utils.checkReader(req, reader)) {
+            console.log('RES obj')
+            console.log(res.body)
+
+            console.log('not right reader')
+            console.log('Reader id: ' + id)
+
             res.status(403).send(`Access to reader ${id} disallowed`)
           } else {
             res.setHeader(

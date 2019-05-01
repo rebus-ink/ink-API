@@ -20,11 +20,11 @@ const allTests = async () => {
       await app.knex.migrate.latest()
     }
   }
-  // await activityTests(app)
+  await activityTests(app)
   await authErrorTests(app)
   // await documentTests(app)
   // await libraryTests(app)
-  // await outboxTests(app)
+  await outboxTests(app)
   // await publicationTests(app)
   // await readerTests(app)
   // await noteTests(app)

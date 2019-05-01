@@ -7,6 +7,10 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
+const { urlToId } = require('../../routes/utils')
+const { Document } = require('../../models/Document')
+const { Reader } = require('../../models/Reader')
+const { idToUrl } = require('../../models/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -17,6 +21,14 @@ const test = async app => {
   const token = getToken()
   const userId = await createUser(app, token)
   const userUrl = urlparse(userId).path
+
+  // Create Reader object
+  const person = {
+    name: 'J. Random Reader',
+    authId: userId
+  }
+
+  const reader1 = await Reader.createReader(userId, person)
 
   // user2
   const token2 = getToken()
@@ -119,12 +131,26 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  console.log('res Publication:   -------------')
-  console.log(resPublication.body)
+  // // Create a Document for that publication
+  const documentObject = {
+    mediaType: 'txt',
+    url: 'http://google-bucket/somewhere/file1234.txt',
+    documentPath: '/inside/the/book.txt',
+    json: { property1: 'value1' }
+  }
+  const document = await Document.createDocument(
+    reader1,
+    resPublication.body.id,
+    documentObject
+  )
+  console.log('Document')
+  console.log(document)
 
-  // const documentUrl = resPublication.body.orderedItems[0].id
+  const documentUrl = document.id
+
+  console.log('doc id in resp: ' + idToUrl(document.id, 'document'))
+
   // create Note for user 1
-
   const noteActivity = await request(app)
     .post(`${userUrl}/activity`)
     .set('Host', 'reader-api.test')
@@ -142,9 +168,10 @@ const test = async app => {
         object: {
           type: 'Note',
           content: 'This is the content of note A.',
-          'oa:hasSelector': {},
-          context: publicationUrl,
-          inReplyTo: documentUrl
+          selector: { property: 'value' },
+          json: { anotherProperty: 3 },
+          documentId: idToUrl(document.id, 'document'),
+          publicationId: resPublication.body.id
         }
       })
     )
@@ -157,6 +184,8 @@ const test = async app => {
     noteActivityUrl,
     token
   )
+  console.log('note activity obj')
+  console.log(noteActivityObject)
   const noteUrl = noteActivityObject.object.id
 
   await tap.test('Try to get activity belonging to another user', async () => {
@@ -188,7 +217,7 @@ const test = async app => {
 
   await tap.test('Try to get document belonging to another user', async () => {
     const res = await request(app)
-      .get(urlparse(documentUrl).path)
+      .get(urlparse(idToUrl(documentUrl, 'document')).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -260,6 +289,7 @@ const test = async app => {
         .type(
           'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
         )
+
       await tap.equal(res.statusCode, 403)
     }
   )
@@ -302,7 +332,7 @@ const test = async app => {
 
     // document
     const res5 = await request(app)
-      .get(urlparse(documentUrl).path)
+      .get(urlparse(idToUrl(documentUrl, 'document')).path)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
