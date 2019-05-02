@@ -144,7 +144,8 @@ const test = async app => {
     documentObject
   )
 
-  const documentUrl = document.id
+  // const documentUrl = document.id
+  const documentUrl = `${publicationUrl}${document.documentPath}`
 
   // create Note for user 1
   const noteActivity = await request(app)
@@ -164,10 +165,10 @@ const test = async app => {
         object: {
           type: 'Note',
           content: 'This is the content of note A.',
-          selector: { property: 'value' },
-          json: { anotherProperty: 3 },
-          documentId: idToUrl(document.id, 'document'),
-          publicationId: resPublication.body.id
+          'oa:hasSelector': {},
+          context: publicationUrl,
+          inReplyTo: documentUrl,
+          noteType: 'test'
         }
       })
     )
@@ -212,7 +213,7 @@ const test = async app => {
 
   await tap.test('Try to get document belonging to another user', async () => {
     const res = await request(app)
-      .get(urlparse(idToUrl(documentUrl, 'document')).path)
+      .get(urlparse(idToUrl(document.id, 'document')).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -327,7 +328,7 @@ const test = async app => {
 
     // document
     const res5 = await request(app)
-      .get(urlparse(idToUrl(documentUrl, 'document')).path)
+      .get(urlparse(idToUrl(document.id, 'document')).path)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
