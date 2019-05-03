@@ -92,7 +92,6 @@ class Note extends BaseModel {
     // $FlowFixMe
     const path = urlparse(note.inReplyTo).path.substr(45)
     props.selector = note['oa:hasSelector']
-    // const document = await Document.byPath(note.context, path)
     const document = await Document.byPath(urlToId(note.context), path)
     props.documentId = urlToId(document.id)
     props.publicationId = note.context.id || note.context
@@ -109,13 +108,13 @@ class Note extends BaseModel {
       .eager('reader')
     if (!note) return undefined
 
-    /*
     const document = await Document.byId(urlToId(note.documentId))
+    console.log('document in note byId')
+    console.log(document)
     // $FlowFixMe
     note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
       document.documentPath
     }`
-    */
     return note
   }
 
