@@ -211,18 +211,6 @@ const test = async app => {
     }
   )
 
-  await tap.test('Try to get document belonging to another user', async () => {
-    const res = await request(app)
-      .get(urlparse(idToUrl(document.id, 'document')).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-
-    await tap.equal(res.statusCode, 403)
-  })
-
   await tap.test('Try to get note belonging to another user', async () => {
     const res = await request(app)
       .get(urlparse(noteUrl).path)
@@ -325,15 +313,6 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res4.statusCode, 401)
-
-    // document
-    const res5 = await request(app)
-      .get(urlparse(idToUrl(document.id, 'document')).path)
-      .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(res5.statusCode, 401)
 
     // activity
     const res6 = await request(app)
