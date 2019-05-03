@@ -1,8 +1,4 @@
 const { Model } = require('objection')
-const { urlToId } = require('../routes/utils')
-const { BaseModel } = require('./BaseModel.js')
-const { Note } = require('./Note')
-const { Tag } = require('./Tag')
 
 class Note_Tag extends Model {
   static get tableName () {

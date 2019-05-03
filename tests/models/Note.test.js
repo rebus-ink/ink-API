@@ -6,11 +6,8 @@ const { Tag } = require('../../models/Tag')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const { Note_Tag } = require('../../models/Note_Tag')
-const short = require('short-uuid')
-const translator = short()
 const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
-const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

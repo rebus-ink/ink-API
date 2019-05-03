@@ -2,7 +2,6 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('./utils')
-const { Activity } = require('../../models/Activity')
 const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
@@ -114,9 +113,6 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 200)
-
-    // Select activity:
-    const activity = await Activity.byId(urlToId(res.body.orderedItems[0].id))
 
     const body = res.body
     await tap.type(body, 'object')

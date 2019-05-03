@@ -7,10 +7,8 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
-const { urlToId } = require('../../routes/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
-const { idToUrl } = require('../../models/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

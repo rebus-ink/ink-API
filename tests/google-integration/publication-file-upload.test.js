@@ -23,7 +23,7 @@ const test = async app => {
   const userCompleteUrl = await createUser(app, token)
   const userUrl = urlparse(userCompleteUrl).path
   const userId = urlToId(userCompleteUrl)
-  let file1Name, file2Name
+  let file1Name
 
   // create publication
   const resActivity = await request(app)
