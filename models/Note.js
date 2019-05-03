@@ -110,6 +110,7 @@ class Note extends BaseModel {
     note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
       document.documentPath
     }`
+    note.context = note.publicationId
     return note
   }
 
