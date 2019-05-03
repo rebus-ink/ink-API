@@ -109,8 +109,6 @@ class Note extends BaseModel {
     if (!note) return undefined
 
     const document = await Document.byId(urlToId(note.documentId))
-    console.log('document in note byId')
-    console.log(document)
     // $FlowFixMe
     note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
       document.documentPath
