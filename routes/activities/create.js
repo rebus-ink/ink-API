@@ -63,16 +63,17 @@ const handleCreate = async (req, res, reader) => {
       break
 
     case 'Note':
-      const noteObj = {
-        noteType: 'Note',
-        content: body.object.content,
-        selector: body.object.selector,
-        json: body.object.json,
-        context: body.object.context,
-        inReplyTo: body.object.inReplyTo,
-        noteType: body.object.noteType
-      }
-      const resultNote = await Note.createNote(reader, noteObj)
+      // const noteObj = {
+      //   noteType: 'Note',
+      //   content: body.object.content,
+      //   selector: body.object.selector,
+      //   json: body.object.json,
+      //   context: body.object.context,
+      //   inReplyTo: body.object.inReplyTo,
+      //   noteType: body.object.noteType
+      // }
+
+      const resultNote = await Note.createNote(reader, body.object)
 
       if (!resultNote) res.status.send('create note error')
       if (resultNote instanceof Error) {
