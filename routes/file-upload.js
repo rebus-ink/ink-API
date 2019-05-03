@@ -14,21 +14,21 @@ const m = multer({ storage: multer.memoryStorage() })
 module.exports = app => {
   app.use('/', router)
   router.post(
-    '/reader-:shortId/file-upload',
+    '/reader-:id/file-upload',
     passport.authenticate('jwt', { session: false }),
     m.array('files'),
     async function (req, res) {
-      const shortId = req.params.shortId
-      Reader.byId(shortId).then(async reader => {
+      const id = req.params.id
+      Reader.byId(id).then(async reader => {
         if (!reader) {
-          res.status(404).send(`No reader with ID ${shortId}`)
+          res.status(404).send(`No reader with ID ${id}`)
         } else if (!utils.checkReader(req, reader)) {
-          res.status(403).send(`Access to reader ${shortId} disallowed`)
+          res.status(403).send(`Access to reader ${id} disallowed`)
         } else {
           let prefix =
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
 
-          const bucketName = prefix + req.params.shortId.toLowerCase()
+          const bucketName = prefix + req.params.id.toLowerCase()
 
           // TODO: check what happens if the bucket already exists
           let bucket = storage.bucket(bucketName)
