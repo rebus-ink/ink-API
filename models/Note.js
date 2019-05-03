@@ -96,6 +96,7 @@ class Note extends BaseModel {
     props.documentId = urlToId(document.id)
     props.publicationId = note.context.id || note.context
     props.readerId = reader.id
+
     return await Note.query().insertAndFetch(props)
   }
 

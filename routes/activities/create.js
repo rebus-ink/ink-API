@@ -64,6 +64,7 @@ const handleCreate = async (req, res, reader) => {
 
     case 'Note':
       const resultNote = await Note.createNote(reader, body.object)
+
       if (!resultNote) res.status.send('create note error')
       if (resultNote instanceof Error) {
         switch (resultNote.message) {

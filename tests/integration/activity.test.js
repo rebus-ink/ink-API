@@ -29,7 +29,7 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             name: 'Publication A',
             attributedTo: [
               {
@@ -60,14 +60,14 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
+
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))
     await tap.type(body.type, 'string')
-    await tap.type(body.actor, 'object')
-    await tap.ok(Array.isArray(body.attributedTo))
-    await tap.type(body.summaryMap.en, 'string')
+    await tap.equal(body.reader.id, userId)
+    await tap.type(body.reader.summaryMap.en, 'string')
   })
 
   await tap.test('Get Activity that does not exist', async () => {
