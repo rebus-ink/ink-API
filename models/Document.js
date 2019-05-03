@@ -92,6 +92,7 @@ class Document extends BaseModel {
     json?: {},
     readerId: string,
     publicationId: string,
+    documentPath: string,
     published: string,
     updated: string,
     reader: {id: string, json: any, userId: string, published: string, updated: string},

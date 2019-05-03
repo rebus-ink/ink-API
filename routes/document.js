@@ -79,7 +79,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const shortId = req.params.shortId
-      Document.byShortId(shortId)
+      Document.byId(shortId)
         .then(document => {
           if (!document) {
             res.status(404).send(`No document with ID ${shortId}`)
