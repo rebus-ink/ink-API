@@ -21,7 +21,7 @@ class ReadActivity extends BaseModel {
         selector: { type: 'object' },
         json: { type: 'object' },
         readerId: { type: 'string' },
-        publicationIn: { type: 'string' },
+        publicationId: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
       required: ['readerId', 'publicationId', 'selector']
@@ -69,14 +69,21 @@ class ReadActivity extends BaseModel {
     props.publicationId = publicationId
     props.published = new Date().toISOString()
 
+    console.log('PROPS IN CREATE READ ACTIITY')
+    console.log(props)
+
     try {
       return await ReadActivity.query()
         .insert(props)
         .returning('*')
     } catch (err) {
+      console.log('error occured')
+      console.log(err)
       if (err.constraint === 'readactivity_readerid_foreign') {
+        console.log('wrong redader id')
         return new Error('no reader')
       } else if (err.constraint === 'readactivity_publicationid_foreign') {
+        console.log('wrong redader id')
         return new Error('no publication')
       }
     }
