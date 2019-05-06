@@ -65,27 +65,9 @@ const note = Object.assign(new Note(), {
 
 const activity = Object.assign(new Activity(), {
   id: 'dc9794fa-4806-4b56-90b9-6fd444fc1485',
-  type: 'Activity',
-  json: {
-    '@context': [
-      'https://www.w3.org/ns/activitystreams',
-      { reader: 'https://rebus.foundation/ns/reader' }
-    ],
-    type: 'Update',
-    object: {
-      type: 'Note',
-      id: 'https://reader-api.test/note-m1vGaFVCQTzVBkdLFaxbSm'
-    },
-    actor: {
-      type: 'Person',
-      id: 'https://reader-api.test/reader-nS5zw1btwDYT5S6DdvL9yj'
-    },
-    summaryMap: { en: 'someone udated' }
-  },
+  type: 'Arrive',
+  object: { property: 'something ' },
   readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-  documentId: null,
-  publicationId: null,
-  noteId: '123',
   published: '2018-12-18T14:56:53.173Z',
   updated: '2018-12-18 14:56:53',
   reader: {
@@ -94,8 +76,7 @@ const activity = Object.assign(new Activity(), {
     userId: 'auth0|foo1545145012840',
     published: '2018-12-18T14:56:52.924Z',
     updated: '2018-12-18 14:56:52'
-  },
-  note: note
+  }
 })
 
 const test = async () => {
@@ -125,7 +106,7 @@ const test = async () => {
   await tap.test('Update a note', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
     NoteStub.Note.update = async () => Promise.resolve(note)
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const updateSpy = sinon.spy(NoteStub.Note, 'update')
@@ -146,7 +127,7 @@ const test = async () => {
 
   await tap.test('Try to update a note that does not exist', async () => {
     NoteStub.Note.update = async () => Promise.resolve(null)
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const updateSpy = sinon.spy(NoteStub.Note, 'update')

@@ -6,11 +6,8 @@ const { Tag } = require('../../models/Tag')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const { Note_Tag } = require('../../models/Note_Tag')
-const short = require('short-uuid')
-const translator = short()
 const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
-const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -53,18 +50,17 @@ const test = async app => {
     simplePublication
   )
 
-  const documentObject = {
-    mediaType: 'txt',
-    url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: '/inside/the/book.txt',
-    json: { property1: 'value1' }
-  }
-
-  const document = await Document.createDocument(
+  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  const createdDocument = await Document.createDocument(
     createdReader,
-    publication.id,
-    documentObject
+    urlToId(publication.id),
+    {
+      documentPath: '/path/1',
+      mediaType: 'text/html',
+      url: 'http://something/123'
+    }
   )
+  const documentUrl = `${publication.id}${createdDocument.documentPath}`
 
   const noteObject = {
     noteType: 'highlight',
@@ -79,13 +75,15 @@ const test = async app => {
     Gravida quis blandit turpis cursus in. Metus aliquam eleifend mi in. Lacus sed viverra tellus in hac habitasse platea dictumst vestibulum. Feugiat in fermentum posuere urna nec tincidunt praesent semper. Sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec pretium. Nec ullamcorper sit amet risus nullam eget felis. Hac habitasse platea dictumst quisque sagittis purus sit. Tellus orci ac auctor augue mauris augue neque. Donec ac odio tempor orci dapibus. Amet mattis vulputate enim nulla. Ut sem viverra aliquet eget sit amet tellus cras. Pellentesque habitant morbi tristique senectus et netus. Mauris commodo quis imperdiet massa tincidunt nunc pulvinar.`,
     selector: { property: 'value' },
     json: { anotherProperty: 3 },
-    documentId: document.id,
-    publicationId: publication.id
+    inReplyTo: documentUrl,
+    context: publication.id
   }
 
   const simpleNoteObject = {
     noteType: 'something',
-    selector: { property: 'value' }
+    selector: { property: 'value' },
+    inReplyTo: documentUrl,
+    context: publication.id
   }
 
   let note

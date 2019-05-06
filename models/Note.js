@@ -2,9 +2,6 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const short = require('short-uuid')
-const translator = short()
-const { Activity } = require('./Activity')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
 const urlparse = require('url').parse
@@ -114,6 +111,7 @@ class Note extends BaseModel {
     note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
       document.documentPath
     }`
+    note.context = note.publicationId
     */
     return note
   }

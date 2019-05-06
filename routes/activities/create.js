@@ -1,4 +1,3 @@
-const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')

@@ -39,17 +39,14 @@ const activity = Object.assign(new Activity(), {
     summaryMap: { en: 'someone arrived at Rebus Foundation Office' }
   },
   readerId: '7441db0a-c14b-4925-a7dc-4b7ff5d0c8cc',
-  documentId: null,
-  publicationId: null,
-  noteId: null,
   published: '2018-12-19T14:14:38.124Z',
   updated: '2018-12-19 14:14:38'
 })
 
 const reader = Object.assign(new Reader(), {
   id: '7441db0a-c14b-4925-a7dc-4b7ff5d0c8cc',
-  json: { name: 'J. Random Reader', userId: 'auth0|foo1545228877880' },
-  userId: 'auth0|foo1545228877880',
+  name: 'J. Random Reader',
+  authId: 'auth0|foo1545228877880',
   published: '2018-12-19T14:14:37.965Z',
   updated: '2018-12-19 14:14:37',
   outbox: [activity]
@@ -72,7 +69,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get Outbox', async () => {
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const res = await request
@@ -93,13 +90,11 @@ const test = async () => {
     await tap.ok(Array.isArray(body.orderedItems))
     await tap.type(body.orderedItems[0], 'object')
     await tap.type(body.orderedItems[0].type, 'string')
-    await tap.type(body.orderedItems[0].actor, 'object')
-    await tap.type(body.orderedItems[0].summaryMap, 'object')
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
   await tap.test('Get outbox for user that does not exist', async () => {
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(null)
+    ReaderStub.Reader.byId = async () => Promise.resolve(null)
 
     const res = await request
       .get('/reader-123/activity')
@@ -112,7 +107,7 @@ const test = async () => {
   })
 
   await tap.test('Get Outbox that belongs to another reader', async () => {
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(false)
 
     const res = await request

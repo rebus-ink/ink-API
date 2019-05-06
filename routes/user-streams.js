@@ -14,7 +14,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const shortId = req.params.shortId
-      Reader.byShortId(shortId)
+      Reader.byId(shortId)
         .then(reader => {
           debug(reader)
           debug(req.user)

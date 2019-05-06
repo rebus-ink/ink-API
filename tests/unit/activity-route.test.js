@@ -30,9 +30,9 @@ const activity = Object.assign(new Activity(), {
       'https://www.w3.org/ns/activitystreams',
       { reader: 'https://rebus.foundation/ns/reader' }
     ],
-    type: 'Create',
+    type: 'Arrive',
     object: {
-      type: 'reader:Publication',
+      type: 'Publication',
       id: 'https://reader-api.test/publication-m1vGaFVCQTzVBkdLFaxbSm'
     },
     actor: {
@@ -42,9 +42,6 @@ const activity = Object.assign(new Activity(), {
     summaryMap: { en: 'someone created' }
   },
   readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-  documentId: null,
-  publicationId: 'a2091266-624b-4c46-9066-ce1c642b1898',
-  noteId: null,
   published: '2018-12-18T14:56:53.173Z',
   updated: '2018-12-18 14:56:53',
   reader: {
@@ -53,35 +50,7 @@ const activity = Object.assign(new Activity(), {
     userId: 'auth0|foo1545145012840',
     published: '2018-12-18T14:56:52.924Z',
     updated: '2018-12-18 14:56:52'
-  },
-  publication: {
-    id: 'a2091266-624b-4c46-9066-ce1c642b1898',
-    description: null,
-    json: {
-      attachment: [
-        {
-          type: 'Document',
-          name: 'Chapter 2',
-          content: 'Sample document content 2',
-          position: 1
-        },
-        {
-          type: 'Document',
-          name: 'Chapter 1',
-          content: 'Sample document content 1',
-          position: 0
-        }
-      ],
-      type: 'reader:Publication',
-      name: 'Publication A',
-      attributedTo: [{ type: 'Person', name: 'Sample Author' }]
-    },
-    readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-    published: '2018-12-18T14:56:53.149Z',
-    updated: '2018-12-18 14:56:53'
-  },
-  document: null,
-  note: null
+  }
 })
 
 const test = async () => {
@@ -99,7 +68,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get Activity', async () => {
-    ActivityStub.Activity.byShortId = async () => Promise.resolve(activity)
+    ActivityStub.Activity.byId = async () => Promise.resolve(activity)
     checkReaderStub.returns(true)
 
     const res = await request
@@ -117,14 +86,11 @@ const test = async () => {
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))
     await tap.type(body.type, 'string')
-    await tap.type(body.actor, 'object')
-    await tap.ok(Array.isArray(body.attributedTo))
-    await tap.type(body.summaryMap.en, 'string')
   })
 
   await tap.test('Get Activity that does not exist', async () => {
     // does Activity return undefined or null?
-    ActivityStub.Activity.byShortId = async () => Promise.resolve(null)
+    ActivityStub.Activity.byId = async () => Promise.resolve(null)
 
     const res = await request
       .get('/activity-123')
@@ -137,7 +103,7 @@ const test = async () => {
   })
 
   await tap.test('Get Activity that belongs to another reader', async () => {
-    ActivityStub.Activity.byShortId = async () => Promise.resolve(activity)
+    ActivityStub.Activity.byId = async () => Promise.resolve(activity)
     checkReaderStub.returns(false)
 
     const res = await request
