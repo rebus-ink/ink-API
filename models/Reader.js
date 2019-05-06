@@ -3,7 +3,6 @@ const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
-const { createId } = require('./utils')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 

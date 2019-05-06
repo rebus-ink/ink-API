@@ -1,15 +1,6 @@
 // @flow
 'use strict'
 const { Model } = require('objection')
-const { DbErrors } = require('objection-db-errors')
-const guid = require('objection-guid')()
-const short = require('short-uuid')
-const translator = short()
-const { getId } = require('../utils/get-id.js')
-const arrify = require('arrify')
-const lodash = require('lodash')
-const URL = require('url').URL
-const debug = require('debug')('hobb:model:base-model')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
 const crypto = require('crypto')

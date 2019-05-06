@@ -3,8 +3,6 @@
 const assert = require('assert')
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const short = require('short-uuid')
-const translator = short()
 const _ = require('lodash')
 
 /*::
@@ -64,7 +62,6 @@ class Activity extends BaseModel {
     const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
     const { Note } = require('./Note.js')
-    const { Tag } = require('./Tag.js')
 
     assert.ok(Model)
     assert.ok(Model.BelongsToOneRelation)

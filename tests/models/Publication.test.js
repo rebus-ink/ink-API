@@ -3,7 +3,6 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Publication_Tag } = require('../../models/Publications_Tags')
-const { Document } = require('../../models/Document')
 const { urlToId } = require('../../routes/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
@@ -163,8 +162,6 @@ const test = async app => {
   })
 
   await tap.test('Publication addTag', async () => {
-    const pub = Publication.byId(urlToId(publication.id))
-
     const res = await Publication_Tag.addTagToPub(
       urlToId(publication.id),
       createdTag.id

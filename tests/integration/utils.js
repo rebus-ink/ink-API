@@ -3,7 +3,6 @@ const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
-const { urlToId } = require('../../routes/utils')
 
 const getToken = () => {
   const options = {

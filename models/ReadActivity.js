@@ -1,12 +1,8 @@
 /* @flow */
 'use strict'
-const assert = require('assert')
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const short = require('short-uuid')
-const translator = short()
 const _ = require('lodash')
-const { createId, idToUrl } = require('./utils')
 
 class ReadActivity extends BaseModel {
   static get tableName () /*: string */ {

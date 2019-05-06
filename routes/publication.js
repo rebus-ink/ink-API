@@ -4,7 +4,7 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const debug = require('debug')('hobb:routes:publication')
 const utils = require('./utils')
-const _ = require('lodash')
+
 /**
  * @swagger
  * definition:
