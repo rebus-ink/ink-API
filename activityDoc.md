@@ -28,28 +28,15 @@ Example:
     ],
     "type": "Create",
     "object": {
-      "type": "reader:Publication",
+      "type": "Publication",
       "name": "Publication A",
-      "attributedTo": [
-        {
-          "type": "Person",
-          "name": "Sample Author"
-        }
-      ],
-      "attachment": [
-        {
-          "type": "Document",
-          "name": "Chapter 9",
-          "position": 1,
-          "content": "Sample document content 1"
-        },
-        {
-          "type": "Document",
-          "name": "Chapter 2",
-          "position": 0,
-          "content": "Sample document content 2"
-        }
-      ]
+      "author": ['John Smith'],
+      "editor": 'Jane Doe',
+      "description": 'Some description here',
+      links: [{ property: 'value' }],
+      readingOrder: [{ name: 'one' }, { name: 'two' }],
+      resources: [{ property: 'value' }],
+      json: { property: 'value' }
     }
   }
 ```
@@ -63,12 +50,13 @@ Required properties:
   ],
   "type": "Create",
 "object": {
-  "type": "reader:Publication",
-  "name": <string>
+  "type": "Publication",
+  "name": <string>,
+  "readingOrder": <object>
 }
 ```
 
-Documents attached to a publication will also be created and will belong to the publication. Alternatively, they can be created separately through the Create Document activity (see below)
+Documents attached to a publication will be created through an upload endpoint and will belong to the publication. ****\*\*****Alternatively, they can be created separately through the Create Document activity (see below)
 
 Possible errors:
 
