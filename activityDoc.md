@@ -56,7 +56,7 @@ Required properties:
 }
 ```
 
-Documents attached to a publication will be created through an upload endpoint and will belong to the publication. ****\*\*****Alternatively, they can be created separately through the Create Document activity (see below)
+Documents attached to a publication will be created through an upload endpoint and will belong to the publication.
 
 Possible errors:
 
@@ -172,7 +172,8 @@ Example:
     content: <string>,
     'oa:hasSelector': {},
     context: <publicationUrl>,
-    inReplyTo: <documentUrl>
+    inReplyTo: <documentUrl>,
+    noteType: <string>
   }
 }
 ```
