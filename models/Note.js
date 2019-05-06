@@ -105,14 +105,13 @@ class Note extends BaseModel {
       .eager('reader')
     if (!note) return undefined
 
-    /*
     const document = await Document.byId(urlToId(note.documentId))
     // $FlowFixMe
     note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
       document.documentPath
     }`
     note.context = note.publicationId
-    */
+
     return note
   }
 
