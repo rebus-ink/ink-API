@@ -92,16 +92,43 @@ const test = async app => {
           object: {
             type: 'Note',
             content: 'This is the content of note A.',
-            'oa:hasSelector': {},
+            'oa:hasSelector': { propety: 'value' },
             context: publicationUrl,
             inReplyTo: documentUrl,
-            noteType: 'test'
+            noteType: 'test',
+            json: { property1: 'value1' }
           }
         })
       )
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
+  })
+
+  await tap.test('Create Simple Note', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Note',
+            'oa:hasSelector': { propety: 'value' },
+            noteType: 'test'
+          }
+        })
+      )
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
   })
 
   // TODO: migrate
@@ -185,10 +212,14 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')
+    await tap.type(body.content, 'string')
     await tap.type(body.inReplyTo, 'string')
     await tap.type(body.context, 'string')
     await tap.type(body['oa:hasSelector'], 'object')
     await tap.type(body['@context'], 'object')
+    await tap.type(body.json, 'object')
+    await tap.ok(body.published)
+    await tap.ok(body.updated)
     await tap.ok(Array.isArray(body['@context']))
   })
 
