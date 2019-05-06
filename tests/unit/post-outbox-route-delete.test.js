@@ -37,7 +37,7 @@ const deletePublicationRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Delete',
   object: {
-    type: 'reader:Publication',
+    type: 'Publication',
     id: 'https://localhost:8080/publication-123'
   }
 }
