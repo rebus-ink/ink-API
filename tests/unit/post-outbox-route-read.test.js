@@ -50,27 +50,9 @@ const readActivityRequest = {
 
 const activity = Object.assign(new Activity(), {
   id: 'dc9794fa-4806-4b56-90b9-6fd444fc1485',
-  type: 'Read',
-  json: {
-    '@context': [
-      'https://www.w3.org/ns/activitystreams',
-      { reader: 'https://rebus.foundation/ns/reader' }
-    ],
-    type: 'Create',
-    object: {
-      type: 'Document',
-      id: 'https://reader-api.test/document-m1vGaFVCQTzVBkdLFaxbSm'
-    },
-    actor: {
-      type: 'Person',
-      id: 'https://reader-api.test/reader-nS5zw1btwDYT5S6DdvL9yj'
-    },
-    summaryMap: { en: 'someone created' }
-  },
+  type: 'Arrive',
+  object: { property: 'something ' },
   readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-  documentId: null,
-  publicationId: 'a2091266-624b-4c46-9066-ce1c642b1898',
-  noteId: null,
   published: '2018-12-18T14:56:53.173Z',
   updated: '2018-12-18 14:56:53',
   reader: {
@@ -79,35 +61,7 @@ const activity = Object.assign(new Activity(), {
     userId: 'auth0|foo1545145012840',
     published: '2018-12-18T14:56:52.924Z',
     updated: '2018-12-18 14:56:52'
-  },
-  publication: {
-    id: 'a2091266-624b-4c46-9066-ce1c642b1898',
-    description: null,
-    json: {
-      attachment: [
-        {
-          type: 'Document',
-          name: 'Chapter 2',
-          content: 'Sample document content 2',
-          position: 1
-        },
-        {
-          type: 'Document',
-          name: 'Chapter 1',
-          content: 'Sample document content 1',
-          position: 0
-        }
-      ],
-      type: 'reader:Publication',
-      name: 'Publication A',
-      attributedTo: [{ type: 'Person', name: 'Sample Author' }]
-    },
-    readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
-    published: '2018-12-18T14:56:53.149Z',
-    updated: '2018-12-18 14:56:53'
-  },
-  document: null,
-  note: null
+  }
 })
 
 const document = Object.assign(new Document(), {
@@ -159,8 +113,8 @@ const test = async () => {
 
   await tap.test('Read activity', async () => {
     ActivityStub.Activity.createActivity = async () => Promise.resolve(activity)
-    ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
-    DocumentStub.Document.byShortId = async () => Promise.resolve(document)
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
+    DocumentStub.Document.byId = async () => Promise.resolve(document)
     checkReaderStub.returns(true)
 
     const createActivitySpy = sinon.spy(ActivityStub.Activity, 'createActivity')
@@ -180,8 +134,8 @@ const test = async () => {
   await tap.test(
     'Read activity on a document that does not exist',
     async () => {
-      ReaderStub.Reader.byShortId = async () => Promise.resolve(reader)
-      DocumentStub.Document.byShortId = async () => Promise.resolve(null)
+      ReaderStub.Reader.byId = async () => Promise.resolve(reader)
+      DocumentStub.Document.byId = async () => Promise.resolve(null)
       checkReaderStub.returns(true)
 
       const res = await request

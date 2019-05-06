@@ -5,8 +5,6 @@ const { BaseModel } = require('./BaseModel.js')
 const { Publication } = require('./Publication.js')
 const { Note } = require('./Note')
 const { Reader } = require('./Reader.js')
-const short = require('short-uuid')
-const translator = short()
 const _ = require('lodash')
 
 /**
@@ -43,8 +41,6 @@ class Document extends BaseModel {
     }
   }
   static get relationMappings () /*: any */ {
-    const { Activity } = require('./Activity.js')
-    const { Attribution } = require('./Attribution.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,

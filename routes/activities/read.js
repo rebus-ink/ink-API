@@ -7,7 +7,7 @@ const handleRead = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'Document':
-      const resultDoc = await Document.byShortId(urlToId(body.object.id))
+      const resultDoc = await Document.byId(urlToId(body.object.id))
       if (!resultDoc) {
         res.status(404).send(`document with id ${body.object.id} not found`)
         break

@@ -1,13 +1,9 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const short = require('short-uuid')
-const translator = short()
 const _ = require('lodash')
-const { Activity } = require('./Activity')
 const { Attribution } = require('./Attribution')
 const { ReadActivity } = require('./ReadActivity')
-const { createId } = require('./utils')
 
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']

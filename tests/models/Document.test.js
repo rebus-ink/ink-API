@@ -3,8 +3,6 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Document } = require('../../models/Document')
 const { Publication } = require('../../models/Publication')
-const short = require('short-uuid')
-const translator = short()
 const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
 
