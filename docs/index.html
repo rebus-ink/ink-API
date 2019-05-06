@@ -1553,7 +1553,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
               <ul class="toc-list-h2">
                 
                   <li>
-                    <a href="#get__note--shortid-" class="toc-h2 toc-link" data-title="get__note-{shortId}">get__note-{shortId}</a>
+                    <a href="#get__note--id-" class="toc-h2 toc-link" data-title="get__note-{id}">get__note-{id}</a>
                     
                   </li>
                 
@@ -1572,7 +1572,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
                   </li>
                 
                   <li>
-                    <a href="#post__reader--shortid-_activity" class="toc-h2 toc-link" data-title="post__reader-{shortId}_activity">post__reader-{shortId}_activity</a>
+                    <a href="#post__reader--id-_activity" class="toc-h2 toc-link" data-title="post__reader-{id}_activity">post__reader-{id}_activity</a>
                     
                   </li>
                 
@@ -1582,7 +1582,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
                   </li>
                 
                   <li>
-                    <a href="#get__reader--shortid-_library" class="toc-h2 toc-link" data-title="get__reader-{shortId}_library">get__reader-{shortId}_library</a>
+                    <a href="#get__reader--id-_library" class="toc-h2 toc-link" data-title="get__reader-{id}_library">get__reader-{id}_library</a>
                     
                   </li>
                 
@@ -1606,7 +1606,7 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
               <ul class="toc-list-h2">
                 
                   <li>
-                    <a href="#get__publication--shortid-" class="toc-h2 toc-link" data-title="get__publication-{shortId}">get__publication-{shortId}</a>
+                    <a href="#get__publication--id-" class="toc-h2 toc-link" data-title="get__publication-{id}">get__publication-{id}</a>
                     
                   </li>
                 
@@ -1756,8 +1756,8 @@ fetch(<span class="hljs-string">'/activity-{id}'</span>,
   <span class="hljs-attr">"summaryMap"</span>: {
     <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
   },
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
   <span class="hljs-attr">"attributedTo"</span>: []
 }
 </code></pre>
@@ -2021,8 +2021,8 @@ fetch(<span class="hljs-string">'/document-{shortId}'</span>,
   <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"@context"</span>: [],
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
   <span class="hljs-attr">"attributedTo"</span>: [],
   <span class="hljs-attr">"replies"</span>: [
     {
@@ -2031,8 +2031,8 @@ fetch(<span class="hljs-string">'/document-{shortId}'</span>,
       <span class="hljs-attr">"oa:hasSelector"</span>: {},
       <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"@context"</span>: [],
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
+      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
       <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>
     }
@@ -2243,7 +2243,7 @@ To perform this operation, you must be authenticated by means of one of the foll
 Bearer
 </aside>
 <h1 id="reader-api-notes">notes</h1>
-<h2 id="get__note--shortid-">get__note-{shortId}</h2>
+<h2 id="get__note--id-">get__note-{id}</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
@@ -2255,7 +2255,7 @@ Bearer
 
 };
 
-fetch(<span class="hljs-string">'/note-{shortId}'</span>,
+fetch(<span class="hljs-string">'/note-{id}'</span>,
 {
   <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
 
@@ -2268,9 +2268,9 @@ fetch(<span class="hljs-string">'/note-{shortId}'</span>,
 });
 
 </code></pre>
-<p><code>GET /note-{shortId}</code></p>
-<p>GET /note-:shortId</p>
-<h3 id="get__note-{shortid}-parameters">Parameters</h3>
+<p><code>GET /note-{id}</code></p>
+<p>GET /note-:id</p>
+<h3 id="get__note-{id}-parameters">Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -2283,7 +2283,7 @@ fetch(<span class="hljs-string">'/note-{shortId}'</span>,
 </thead>
 <tbody>
 <tr>
-<td>shortId</td>
+<td>id</td>
 <td>path</td>
 <td>string</td>
 <td>true</td>
@@ -2303,13 +2303,13 @@ fetch(<span class="hljs-string">'/note-{shortId}'</span>,
   <span class="hljs-attr">"oa:hasSelector"</span>: {},
   <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"@context"</span>: [],
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
   <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>
 }
 </code></pre>
-<h3 id="get__note-{shortid}-responses">Responses</h3>
+<h3 id="get__note-{id}-responses">Responses</h3>
 <table>
 <thead>
 <tr>
@@ -2329,18 +2329,18 @@ fetch(<span class="hljs-string">'/note-{shortId}'</span>,
 <tr>
 <td>403</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
-<td>Access to note {shortId} disallowed</td>
+<td>Access to note {id} disallowed</td>
 <td>None</td>
 </tr>
 <tr>
 <td>404</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
-<td>No Note with ID {shortId}</td>
+<td>No Note with ID {id}</td>
 <td>None</td>
 </tr>
 </tbody>
 </table>
-<h3 id="get__note-{shortid}-responseschema">Response Schema</h3>
+<h3 id="get__note-{id}-responseschema">Response Schema</h3>
 <p>Status Code <strong>200</strong></p>
 <table>
 <thead>
@@ -2516,8 +2516,8 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
       <span class="hljs-attr">"summaryMap"</span>: {
         <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
       },
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
+      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
       <span class="hljs-attr">"attributedTo"</span>: []
     }
   ]
@@ -2775,7 +2775,7 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
 To perform this operation, you must be authenticated by means of one of the following methods:
 Bearer
 </aside>
-<h2 id="post__reader--shortid-_activity">post__reader-{shortId}_activity</h2>
+<h2 id="post__reader--id-_activity">post__reader-{id}_activity</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
@@ -2783,7 +2783,7 @@ Bearer
 <span class="hljs-keyword">const</span> inputBody = <span class="hljs-string">'{
   "type": "Create",
   "object": {
-    "type": "reader:Publication"
+    "type": "Publication"
   },
   "@context": []
 }'</span>;
@@ -2793,7 +2793,7 @@ Bearer
 
 };
 
-fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
+fetch(<span class="hljs-string">'/reader-{id}/activity'</span>,
 {
   <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
   <span class="hljs-attr">body</span>: inputBody,
@@ -2806,20 +2806,20 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
 });
 
 </code></pre>
-<p><code>POST /reader-{shortId}/activity</code></p>
-<p>POST /reader-:shortId/activity</p>
+<p><code>POST /reader-{id}/activity</code></p>
+<p>POST /reader-:id/activity</p>
 <blockquote>
 <p>Body parameter</p>
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Create"</span>,
   <span class="hljs-attr">"object"</span>: {
-    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"reader:Publication"</span>
+    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Publication"</span>
   },
   <span class="hljs-attr">"@context"</span>: []
 }
 </code></pre>
-<h3 id="post__reader-{shortid}_activity-parameters">Parameters</h3>
+<h3 id="post__reader-{id}_activity-parameters">Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -2832,7 +2832,7 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
 </thead>
 <tbody>
 <tr>
-<td>shortId</td>
+<td>id</td>
 <td>path</td>
 <td>string</td>
 <td>true</td>
@@ -2847,7 +2847,7 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
 </tr>
 </tbody>
 </table>
-<h3 id="post__reader-{shortid}_activity-responses">Responses</h3>
+<h3 id="post__reader-{id}_activity-responses">Responses</h3>
 <table>
 <thead>
 <tr>
@@ -2867,13 +2867,13 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
 <tr>
 <td>403</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
-<td>Access to reader {shortId} disallowed</td>
+<td>Access to reader {id} disallowed</td>
 <td>None</td>
 </tr>
 <tr>
 <td>404</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
-<td>No Reader / Publication / Note with ID {shortId}</td>
+<td>No Reader / Publication / Note with ID {id}</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -2976,7 +2976,7 @@ fetch(<span class="hljs-string">'/readers'</span>,
 To perform this operation, you must be authenticated by means of one of the following methods:
 Bearer
 </aside>
-<h2 id="get__reader--shortid-_library">get__reader-{shortId}_library</h2>
+<h2 id="get__reader--id-_library">get__reader-{id}_library</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
@@ -2988,7 +2988,7 @@ Bearer
 
 };
 
-fetch(<span class="hljs-string">'/reader-{shortId}/library'</span>,
+fetch(<span class="hljs-string">'/reader-{id}/library'</span>,
 {
   <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
 
@@ -3001,9 +3001,9 @@ fetch(<span class="hljs-string">'/reader-{shortId}/library'</span>,
 });
 
 </code></pre>
-<p><code>GET /reader-{shortId}/library</code></p>
-<p>GET /reader-:shortId/library</p>
-<h3 id="get__reader-{shortid}_library-parameters">Parameters</h3>
+<p><code>GET /reader-{id}/library</code></p>
+<p>GET /reader-:id/library</p>
+<h3 id="get__reader-{id}_library-parameters">Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -3016,7 +3016,7 @@ fetch(<span class="hljs-string">'/reader-{shortId}/library'</span>,
 </thead>
 <tbody>
 <tr>
-<td>shortId</td>
+<td>id</td>
 <td>path</td>
 <td>string</td>
 <td>true</td>
@@ -3048,7 +3048,7 @@ fetch(<span class="hljs-string">'/reader-{shortId}/library'</span>,
   ]
 }
 </code></pre>
-<h3 id="get__reader-{shortid}_library-responses">Responses</h3>
+<h3 id="get__reader-{id}_library-responses">Responses</h3>
 <table>
 <thead>
 <tr>
@@ -3068,18 +3068,18 @@ fetch(<span class="hljs-string">'/reader-{shortId}/library'</span>,
 <tr>
 <td>403</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
-<td>Access to reader {shortId} disallowed</td>
+<td>Access to reader {id} disallowed</td>
 <td>None</td>
 </tr>
 <tr>
 <td>404</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
-<td>No Reader with ID {shortId}</td>
+<td>No Reader with ID {id}</td>
 <td>None</td>
 </tr>
 </tbody>
 </table>
-<h3 id="get__reader-{shortid}_library-responseschema">Response Schema</h3>
+<h3 id="get__reader-{id}_library-responseschema">Response Schema</h3>
 <p>Status Code <strong>200</strong></p>
 <table>
 <thead>
@@ -3261,8 +3261,8 @@ fetch(<span class="hljs-string">'/reader-{id}'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>
 }
 </code></pre>
 <h3 id="get__reader-{id}-responses">Responses</h3>
@@ -3467,8 +3467,8 @@ fetch(<span class="hljs-string">'/whoami'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-06T17:57:36Z"</span>
 }
 </code></pre>
 <h3 id="get__whoami-responses">Responses</h3>
@@ -3622,7 +3622,7 @@ To perform this operation, you must be authenticated by means of one of the foll
 Bearer
 </aside>
 <h1 id="reader-api-publications">publications</h1>
-<h2 id="get__publication--shortid-">get__publication-{shortId}</h2>
+<h2 id="get__publication--id-">get__publication-{id}</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
@@ -3634,7 +3634,7 @@ Bearer
 
 };
 
-fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
+fetch(<span class="hljs-string">'/publication-{id}'</span>,
 {
   <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
 
@@ -3647,9 +3647,9 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 });
 
 </code></pre>
-<p><code>GET /publication-{shortId}</code></p>
-<p>GET /publication-:shortId</p>
-<h3 id="get__publication-{shortid}-parameters">Parameters</h3>
+<p><code>GET /publication-{id}</code></p>
+<p>GET /publication-:id</p>
+<h3 id="get__publication-{id}-parameters">Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -3662,7 +3662,7 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 </thead>
 <tbody>
 <tr>
-<td>shortId</td>
+<td>id</td>
 <td>path</td>
 <td>string</td>
 <td>true</td>
@@ -3678,38 +3678,68 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 </blockquote>
 <pre class="highlight tab tab-json"><code>{
   <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"reader:Publication"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Publication"</span>,
   <span class="hljs-attr">"summaryMap"</span>: {
     <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
   },
   <span class="hljs-attr">"@context"</span>: [],
-  <span class="hljs-attr">"totalItems"</span>: <span class="hljs-number">0</span>,
-  <span class="hljs-attr">"orderedItems"</span>: [
+  <span class="hljs-attr">"author"</span>: [
     {
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Document"</span>,
       <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
-      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"attributedTo"</span>: []
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Person"</span>
     }
   ],
-  <span class="hljs-attr">"attachment"</span>: [
+  <span class="hljs-attr">"editor"</span>: [
     {
-      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Document"</span>,
       <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
-      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-04-26T14:05:54Z"</span>,
-      <span class="hljs-attr">"attributedTo"</span>: []
+      <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Person"</span>
     }
   ],
   <span class="hljs-attr">"replies"</span>: [
     <span class="hljs-string">"string"</span>
-  ]
+  ],
+  <span class="hljs-attr">"description"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"datePublished"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"readingOrder"</span>: [
+    {
+      <span class="hljs-attr">"href"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"mediaType"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"rel"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"hreflang"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"height"</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">"width"</span>: <span class="hljs-number">0</span>
+    }
+  ],
+  <span class="hljs-attr">"resources"</span>: [
+    {
+      <span class="hljs-attr">"href"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"mediaType"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"rel"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"hreflang"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"height"</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">"width"</span>: <span class="hljs-number">0</span>
+    }
+  ],
+  <span class="hljs-attr">"links"</span>: [
+    {
+      <span class="hljs-attr">"href"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"mediaType"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"rel"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"hreflang"</span>: <span class="hljs-string">"string"</span>,
+      <span class="hljs-attr">"height"</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">"width"</span>: <span class="hljs-number">0</span>
+    }
+  ],
+  <span class="hljs-attr">"json"</span>: {},
+  <span class="hljs-attr">"readerId"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"string"</span>
 }
 </code></pre>
-<h3 id="get__publication-{shortid}-responses">Responses</h3>
+<h3 id="get__publication-{id}-responses">Responses</h3>
 <table>
 <thead>
 <tr>
@@ -3729,18 +3759,18 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 <tr>
 <td>403</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
-<td>Access to publication {shortId} disallowed</td>
+<td>Access to publication {id} disallowed</td>
 <td>None</td>
 </tr>
 <tr>
 <td>404</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
-<td>No Publication with ID {shortId}</td>
+<td>No Publication with ID {id}</td>
 <td>None</td>
 </tr>
 </tbody>
 </table>
-<h3 id="get__publication-{shortid}-responseschema">Response Schema</h3>
+<h3 id="get__publication-{id}-responseschema">Response Schema</h3>
 <p>Status Code <strong>200</strong></p>
 <table>
 <thead>
@@ -3789,21 +3819,77 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 <td>none</td>
 </tr>
 <tr>
-<td>» totalItems</td>
-<td>integer</td>
+<td>» author</td>
+<td>[<a href="#schema#/definitions/annotation">#/definitions/annotation</a>]</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
 </tr>
 <tr>
-<td>» orderedItems</td>
-<td>[<a href="#schema#/definitions/document-ref">#/definitions/document-ref</a>]</td>
+<td>»» name</td>
+<td>string</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
 </tr>
 <tr>
 <td>»» type</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» editor</td>
+<td>[<a href="#schema#/definitions/annotation">#/definitions/annotation</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» replies</td>
+<td>[string]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» description</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» datePublished</td>
+<td>string(timestamp)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» readingOrder</td>
+<td>[<a href="#schema#/definitions/link">#/definitions/link</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» href</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» mediaType</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» rel</td>
 <td>string</td>
 <td>false</td>
 <td>none</td>
@@ -3817,43 +3903,64 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 <td>none</td>
 </tr>
 <tr>
-<td>»» id</td>
+<td>»» hreflang</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» height</td>
+<td>integer</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» width</td>
+<td>integer</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» resources</td>
+<td>[<a href="#schema#/definitions/link">#/definitions/link</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» links</td>
+<td>[<a href="#schema#/definitions/link">#/definitions/link</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» json</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» readerId</td>
 <td>string(url)</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
 </tr>
 <tr>
-<td>»» published</td>
-<td>string(date-time)</td>
+<td>» published</td>
+<td>string(timestamp)</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
 </tr>
 <tr>
-<td>»» updated</td>
-<td>string(date-time)</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>»» attributedTo</td>
-<td>array</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» attachment</td>
-<td>[<a href="#schema#/definitions/document-ref">#/definitions/document-ref</a>]</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» replies</td>
-<td>[string]</td>
+<td>» updated</td>
+<td>string(timestamp)</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
@@ -3871,11 +3978,15 @@ fetch(<span class="hljs-string">'/publication-{shortId}'</span>,
 <tbody>
 <tr>
 <td>type</td>
-<td>reader:Publication</td>
+<td>Publication</td>
 </tr>
 <tr>
 <td>type</td>
-<td>Document</td>
+<td>Person</td>
+</tr>
+<tr>
+<td>type</td>
+<td>Organization</td>
 </tr>
 </tbody>
 </table>

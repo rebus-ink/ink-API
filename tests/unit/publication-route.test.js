@@ -7,7 +7,6 @@ const passport = require('passport')
 const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Publication } = require('../../models/Publication')
-const { Document } = require('../../models/Document')
 
 const setupPassport = () => {
   var opts = {}

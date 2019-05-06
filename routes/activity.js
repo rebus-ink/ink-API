@@ -24,7 +24,7 @@ const utils = require('./utils')
  *         properties:
  *           type:
  *             type: string
- *             enum: ['reader:Publication', 'Document', 'Note', 'reader:Stack']
+ *             enum: ['Publication', 'Document', 'Note', 'reader:Stack']
  *           id:
  *             type: string
  *             format: url

@@ -113,7 +113,7 @@ const test = async () => {
   //         ],
   //         type: 'Create',
   //         object: {
-  //           type: 'reader:Publication',
+  //           type: 'Publication',
   //           name: 'Publication B',
   //           attributedTo: [
   //             {
@@ -158,7 +158,7 @@ const test = async () => {
   //         ],
   //         type: 'Create',
   //         object: {
-  //           type: 'reader:Publication',
+  //           type: 'Publication',
   //           name: 'Publication C',
   //           attributedTo: [
   //             {

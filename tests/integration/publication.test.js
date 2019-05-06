@@ -20,6 +20,8 @@ const test = async app => {
   let publicationUrl
   let activityUrl
 
+  const now = new Date().toISOString()
+
   await tap.test('Create Publication', async () => {
     const res = await request(app)
       .post(`${userUrl}/activity`)
@@ -41,9 +43,49 @@ const test = async app => {
             author: ['John Smith'],
             editor: 'Jane Doe',
             description: 'this is a description!!',
-            links: [{ property: 'value' }],
-            readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-            resources: [{ property: 'value' }],
+            inLanguage: 'English',
+            datePublished: now,
+            links: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link'
+              }
+            ],
+            readingOrder: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object1'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object2'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object3'
+              }
+            ],
+            resources: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example resource'
+              }
+            ],
             json: { property: 'value' }
           }
         })
@@ -52,6 +94,55 @@ const test = async app => {
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
+  })
+
+  await tap.test('Create Simple Publication', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Publication',
+            name: 'Publication A',
+            readingOrder: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object2'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object3'
+              }
+            ]
+          }
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
   })
 
   await tap.test('Get Publication', async () => {
@@ -72,15 +163,24 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.ok(body.id.endsWith('/'))
+    await tap.equal(body.type, 'Publication')
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
     await tap.equal(body.editor[0].name, 'Jane Doe')
     await tap.equal(body.description, 'this is a description!!')
-    await tap.equal(body.links[0].property, 'value')
-    await tap.equal(body.readingOrder[1].name, 'two')
-    await tap.equal(body.resources[0].property, 'value')
+    await tap.ok(body.datePublished)
+    await tap.equal(body.links[0].name, 'An example link')
+    await tap.equal(
+      body.readingOrder[1].name,
+      'An example reading order object2'
+    )
+    await tap.equal(body.resources[0].name, 'An example resource')
     await tap.equal(body.json.property, 'value')
+    await tap.ok(body.readerId)
+    await tap.ok(body.published)
+    await tap.ok(body.updated)
+    await tap.equal(body.inLanguage, 'English')
   })
 
   // await tap.test('Read activity should appear on the publication', async () => {
@@ -168,6 +268,16 @@ const test = async app => {
   })
 
   await tap.test('Delete Publication', async () => {
+    // before
+    const before = await request(app)
+      .get(`${userUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(before.body.items.length, 2)
+
     const res = await request(app)
       .post(`${userUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -183,7 +293,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl
           }
         })
@@ -202,30 +312,18 @@ const test = async app => {
     await tap.equal(getres.statusCode, 404)
 
     // publication should no longer be in the reader library
-    // const libraryres = await request(app)
-    //   .get(`${userUrl}/library`)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type(
-    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    //   )
+    const libraryres = await request(app)
+      .get(`${userUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-    // await tap.equal(libraryres.status, 200)
-    // const body = libraryres.body
-    // await tap.ok(Array.isArray(body.items))
-    // await tap.equal(body.items.length, 0)
-    // await tap.equal(body.totalItems, 0)
-
-    // TODO: should eventually delete the documents as well. And the notes.
-    // const docres = await request(app)
-    //   .get(urlparse(documentUrl).path)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type(
-    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    //   )
-
-    // await tap.equal(docres.statusCode, 404)
+    await tap.equal(libraryres.status, 200)
+    const body = libraryres.body
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 1)
   })
 
   await tap.test('delete publication that does not exist', async () => {
@@ -245,7 +343,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl
           }
         })
@@ -268,7 +366,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl + '123'
           }
         })
