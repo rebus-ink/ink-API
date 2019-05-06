@@ -41,6 +41,7 @@ const requestObject = {
 
 const reader = Object.assign(new Reader(), {
   id: '0dad66d5670f41e1',
+  type: 'Person',
   name: 'J. Random Reader',
   profile: { property: 'value' },
   preferences: { color: 'pink' },
