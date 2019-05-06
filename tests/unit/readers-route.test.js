@@ -61,7 +61,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Create user', async () => {
-    ReaderStub.Reader.checkIfExists = async () => Promise.resolve(false)
+    ReaderStub.Reader.checkIfExistsByAuthId = async () => Promise.resolve(false)
     ReaderStub.Reader.createReader = async () => Promise.resolve(reader)
 
     const res = await request
@@ -78,7 +78,8 @@ const test = async () => {
   await tap.test(
     'Try to create a user with an id that already exists',
     async () => {
-      ReaderStub.Reader.checkIfExists = async () => Promise.resolve(true)
+      ReaderStub.Reader.checkIfExistsByAuthId = async () =>
+        Promise.resolve(true)
 
       const res = await request
         .post('/readers')

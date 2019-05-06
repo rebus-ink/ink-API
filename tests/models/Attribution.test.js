@@ -3,11 +3,8 @@ const { destroyDB } = require('../integration/utils')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Attribution } = require('../../models/Attribution')
-const { Publications_Tags } = require('../../models/Publications_Tags')
-const { Document } = require('../../models/Document')
 const { urlToId } = require('../../routes/utils')
 const crypto = require('crypto')
-const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -111,19 +108,15 @@ const test = async app => {
   })
 
   await tap.test('Get all attributions by publicationId', async () => {
-    let newContributor = await Attribution.createAttribution(
-      'Sonya Rabhi',
-      'editor',
-      publication
-    )
+    await Attribution.createAttribution('Sonya Rabhi', 'editor', publication)
 
     let attributions = await Attribution.getAttributionByPubId(
       urlToId(publication.id)
     )
 
-    var isSonyaFound = false
-    var isJaneFound = false
-    for (var i = 0; i < attributions.length; i++) {
+    let isSonyaFound = false
+    let isJaneFound = false
+    for (let i = 0; i < attributions.length; i++) {
       if (attributions[i].name === 'Sonya Rabhi') {
         isSonyaFound = true
       } else if (attributions[i].name === 'Jane Doe') {
@@ -141,17 +134,9 @@ const test = async app => {
   await tap.test(
     'Delete attributions with a certain role of a given publication',
     async () => {
-      let newAuthor = await Attribution.createAttribution(
-        'John Doe',
-        'author',
-        publication
-      )
+      await Attribution.createAttribution('John Doe', 'author', publication)
 
-      let newEditor = await Attribution.createAttribution(
-        'Bugs Bunny',
-        'editor',
-        publication
-      )
+      await Attribution.createAttribution('Bugs Bunny', 'editor', publication)
 
       let numDeleted = await Attribution.deleteAttributionOfPub(
         urlToId(publication.id),
@@ -162,9 +147,9 @@ const test = async app => {
         urlToId(publication.id)
       )
 
-      var isBunnyFound = false
-      var isJohnFound = false
-      for (var i = 0; i < attributions.length; i++) {
+      let isBunnyFound = false
+      let isJohnFound = false
+      for (let i = 0; i < attributions.length; i++) {
         if (attributions[i].name === 'Bugs Bunny') {
           isBunnyFound = true
         } else if (attributions[i].name === 'John Doe') {

@@ -1,6 +1,5 @@
 const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
-const { Activity } = require('../../models/Activity')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
@@ -55,8 +54,6 @@ const test = async app => {
   const selectorObject = {
     selector: { property: 'someValue' }
   }
-
-  let id
 
   await tap.test('Create ReadActivity with selector and json', async () => {
     let readActivity = await ReadActivity.createReadActivity(
@@ -120,13 +117,13 @@ const test = async app => {
     const newReader = {
       name: 'Latest Reader'
     }
-    const random = crypto.randomBytes(13).toString('hex')
+    const random1 = crypto.randomBytes(13).toString('hex')
     const latestReader = await Reader.createReader(
-      `auth0|foo${random}`,
+      `auth0|foo${random1}`,
       newReader
     )
 
-    const secondToLastReadActivity = await ReadActivity.createReadActivity(
+    await ReadActivity.createReadActivity(
       urlToId(latestReader.id),
       urlToId(publication.id),
       selectorObject
