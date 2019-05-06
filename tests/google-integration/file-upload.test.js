@@ -14,9 +14,9 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
-  const userShortId = urlToId(userUrl)
+  const userCompleteUrl = await createUser(app, token)
+  const userUrl = urlparse(userCompleteUrl).path
+  const userId = urlToId(userCompleteUrl)
   let file1Name, file2Name
 
   await tap.test('Upload file', async () => {
@@ -39,23 +39,20 @@ const test = async app => {
     await tap.type(body['test-file2.html'], 'string')
 
     // check bucket
-    const bucket = await storage.bucket(
-      `reader-test-${userShortId.toLowerCase()}`
-    )
+    const bucket = await storage.bucket(`reader-test-${userId.toLowerCase()}`)
+
     const exists = await bucket.exists()
     await tap.ok(exists[0])
 
     // check files
     const [files] = await bucket.getFiles()
     await tap.equal(files.length, 2)
-    file1Name = urlparse(body['test-file1.txt']).path.substr(
-      userShortId.length + 14
-    )
+    file1Name = urlparse(body['test-file1.txt']).path.substr(userId.length + 14)
     const file1Exists = _.find(files, file => file.name === file1Name)
     await tap.ok(file1Exists)
 
     file2Name = urlparse(body['test-file2.html']).path.substr(
-      userShortId.length + 14
+      userId.length + 14
     )
     const file2Exists = _.find(files, file => file.name === file2Name)
     await tap.ok(file2Exists)
@@ -79,9 +76,7 @@ const test = async app => {
     )
 
     // check bucket
-    const bucket = await storage.bucket(
-      `reader-test-${userShortId.toLowerCase()}`
-    )
+    const bucket = await storage.bucket(`reader-test-${userId.toLowerCase()}`)
     const exists = await bucket.exists()
     await tap.ok(exists)
 
@@ -95,7 +90,7 @@ const test = async app => {
     await tap.ok(file2Exists)
 
     let file3Name = urlparse(body['test-file3.txt']).path.substr(
-      userShortId.length + 14
+      userId.length + 14
     )
     const file3Exists = _.find(files, file => file.name === file3Name)
     await tap.ok(file3Exists)

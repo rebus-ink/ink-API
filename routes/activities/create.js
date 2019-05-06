@@ -28,42 +28,9 @@ const handleCreate = async (req, res, reader) => {
         })
       break
 
-    case 'Document':
-      const resultDoc = await Reader.addDocument(reader, body.object)
-      if (
-        resultDoc instanceof Error &&
-        resultDoc.message === 'no publication'
-      ) {
-        res
-          .status(404)
-          .send(
-            `no publication found for ${
-              body.object.context
-            }. Document must belong to an existing publication.`
-          )
-        break
-      }
-      if (resultDoc instanceof Error || !resultDoc) {
-        const message = resultDoc
-          ? resultDoc.message
-          : 'document creation failed'
-        res.status(400).send(`create document error: ${message}`)
-        break
-      }
-      const activityObjDoc = createActivityObject(body, resultDoc, reader)
-      Activity.createActivity(activityObjDoc)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
-      break
-
     case 'Note':
       const resultNote = await Note.createNote(reader, body.object)
+
       if (!resultNote) res.status.send('create note error')
       if (resultNote instanceof Error) {
         switch (resultNote.message) {

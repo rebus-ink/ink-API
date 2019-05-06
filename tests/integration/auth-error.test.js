@@ -7,6 +7,10 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
+const { urlToId } = require('../../routes/utils')
+const { Document } = require('../../models/Document')
+const { Reader } = require('../../models/Reader')
+const { idToUrl } = require('../../models/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -17,6 +21,14 @@ const test = async app => {
   const token = getToken()
   const userId = await createUser(app, token)
   const userUrl = urlparse(userId).path
+
+  // Create Reader object
+  const person = {
+    name: 'J. Random Reader',
+    authId: userId
+  }
+
+  const reader1 = await Reader.createReader(userId, person)
 
   // user2
   const token2 = getToken()
@@ -37,32 +49,71 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Publication',
+          type: 'Publication',
           name: 'Publication A',
-          attributedTo: [
+          description: 'description of publication A',
+          author: [
+            { type: 'Person', name: 'Sample Author' },
+            { type: 'Organization', name: 'Org inc.' }
+          ],
+          editor: ['Sample editor'],
+          inLanguage: ['English'],
+          keywords: ['key', 'words'],
+          json: {
+            property1: 'value1'
+          },
+          readingOrder: [
             {
-              type: 'Person',
-              name: 'Sample Author'
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link'
+            },
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc2',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link2'
             }
           ],
-          totalItems: 2,
-          attachment: [
+          links: [
             {
-              type: 'Document',
-              name: 'Chapter 2',
-              content: 'Sample document content 2',
-              position: 1
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc3',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link3'
             },
             {
-              type: 'Document',
-              name: 'Chapter 1',
-              content: 'Sample document content 1',
-              position: 0
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc4',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link4'
+            }
+          ],
+          resources: [
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc5',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link5'
             },
             {
-              type: 'Document',
-              name: 'Not a Chapter',
-              content: 'not a chapter: does not have a position!'
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              type: 'Link',
+              href: 'http://example.org/abc6',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link6'
             }
           ]
         }
@@ -80,9 +131,23 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  const documentUrl = resPublication.body.orderedItems[0].id
-  // create Note for user 1
+  // // Create a Document for that publication
+  const documentObject = {
+    mediaType: 'txt',
+    url: 'http://google-bucket/somewhere/file1234.txt',
+    documentPath: '/inside/the/book.txt',
+    json: { property1: 'value1' }
+  }
+  const document = await Document.createDocument(
+    reader1,
+    resPublication.body.id,
+    documentObject
+  )
 
+  // const documentUrl = document.id
+  const documentUrl = `${publicationUrl}${document.documentPath}`
+
+  // create Note for user 1
   const noteActivity = await request(app)
     .post(`${userUrl}/activity`)
     .set('Host', 'reader-api.test')
@@ -102,7 +167,8 @@ const test = async app => {
           content: 'This is the content of note A.',
           'oa:hasSelector': {},
           context: publicationUrl,
-          inReplyTo: documentUrl
+          inReplyTo: documentUrl,
+          noteType: 'test'
         }
       })
     )
@@ -115,6 +181,7 @@ const test = async app => {
     noteActivityUrl,
     token
   )
+
   const noteUrl = noteActivityObject.object.id
 
   await tap.test('Try to get activity belonging to another user', async () => {
@@ -146,7 +213,7 @@ const test = async app => {
 
   await tap.test('Try to get document belonging to another user', async () => {
     const res = await request(app)
-      .get(urlparse(documentUrl).path)
+      .get(urlparse(idToUrl(document.id, 'document')).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -218,6 +285,7 @@ const test = async app => {
         .type(
           'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
         )
+
       await tap.equal(res.statusCode, 403)
     }
   )
@@ -260,7 +328,7 @@ const test = async app => {
 
     // document
     const res5 = await request(app)
-      .get(urlparse(documentUrl).path)
+      .get(urlparse(idToUrl(document.id, 'document')).path)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
