@@ -37,7 +37,7 @@ const deletePublicationRequest = {
   '@context': 'https://www.w3.org/ns/activitystreams',
   type: 'Delete',
   object: {
-    type: 'reader:Publication',
+    type: 'Publication',
     id: 'https://localhost:8080/publication-123'
   }
 }
@@ -113,7 +113,6 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
       .send(JSON.stringify(deletePublicationRequest))
-
     await tap.equal(res.statusCode, 201)
   })
 

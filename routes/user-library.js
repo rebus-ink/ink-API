@@ -15,7 +15,7 @@ const _ = require('lodash')
  *         format: url
  *       type:
  *         type: string
- *         enum: ['reader:Publication']
+ *         enum: ['Publication']
  *       name:
  *         type: string
  *       attributedTo:

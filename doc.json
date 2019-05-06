@@ -134,16 +134,16 @@
         }
       }
     },
-    "/note-{shortId}": {
+    "/note-{id}": {
       "get": {
         "tags": [
           "notes"
         ],
-        "description": "GET /note-:shortId",
+        "description": "GET /note-:id",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
@@ -171,10 +171,10 @@
             }
           },
           "403": {
-            "description": "Access to note {shortId} disallowed"
+            "description": "Access to note {id} disallowed"
           },
           "404": {
-            "description": "No Note with ID {shortId}"
+            "description": "No Note with ID {id}"
           }
         }
       }
@@ -222,16 +222,18 @@
             "description": "No Reader with ID {shortId}"
           }
         }
-      },
+      }
+    },
+    "/reader-{id}/activity": {
       "post": {
         "tags": [
           "readers"
         ],
-        "description": "POST /reader-:shortId/activity",
+        "description": "POST /reader-:id/activity",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
@@ -257,24 +259,24 @@
             "description": "Successfully completed the activity"
           },
           "403": {
-            "description": "Access to reader {shortId} disallowed"
+            "description": "Access to reader {id} disallowed"
           },
           "404": {
-            "description": "No Reader / Publication / Note with ID {shortId}"
+            "description": "No Reader / Publication / Note with ID {id}"
           }
         }
       }
     },
-    "/publication-{shortId}": {
+    "/publication-{id}": {
       "get": {
         "tags": [
           "publications"
         ],
-        "description": "GET /publication-:shortId",
+        "description": "GET /publication-:id",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
@@ -302,10 +304,10 @@
             }
           },
           "403": {
-            "description": "Access to publication {shortId} disallowed"
+            "description": "Access to publication {id} disallowed"
           },
           "404": {
-            "description": "No Publication with ID {shortId}"
+            "description": "No Publication with ID {id}"
           }
         }
       }
@@ -340,16 +342,16 @@
         }
       }
     },
-    "/reader-{shortId}/library": {
+    "/reader-{id}/library": {
       "get": {
         "tags": [
           "readers"
         ],
-        "description": "GET /reader-:shortId/library",
+        "description": "GET /reader-:id/library",
         "parameters": [
           {
             "in": "path",
-            "name": "shortId",
+            "name": "id",
             "schema": {
               "type": "string"
             },
@@ -377,10 +379,10 @@
             }
           },
           "403": {
-            "description": "Access to reader {shortId} disallowed"
+            "description": "Access to reader {id} disallowed"
           },
           "404": {
-            "description": "No Reader with ID {shortId}"
+            "description": "No Reader with ID {id}"
           }
         }
       }
@@ -673,8 +675,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "reader:Publication",
-                "Document",
+                "Publication",
                 "Note",
                 "reader:Tag"
               ]
@@ -687,31 +688,42 @@
         }
       }
     },
-    "document-ref": {
+    "annotation": {
       "properties": {
+        "name": {
+          "type": "string"
+        },
         "type": {
           "type": "string",
           "enum": [
-            "Document"
+            "Person",
+            "Organization"
           ]
+        }
+      }
+    },
+    "link": {
+      "properties": {
+        "href": {
+          "type": "string"
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "rel": {
+          "type": "string"
         },
         "name": {
           "type": "string"
         },
-        "id": {
-          "type": "string",
-          "format": "url"
+        "hreflang": {
+          "type": "string"
         },
-        "published": {
-          "type": "string",
-          "format": "date-time"
+        "height": {
+          "type": "integer"
         },
-        "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "attributedTo": {
-          "type": "array"
+        "width": {
+          "type": "integer"
         }
       }
     },
@@ -724,7 +736,7 @@
         "type": {
           "type": "string",
           "enum": [
-            "reader:Publication"
+            "Publication"
           ]
         },
         "summaryMap": {
@@ -738,19 +750,16 @@
         "@context": {
           "type": "array"
         },
-        "totalItems": {
-          "type": "integer"
-        },
-        "orderedItems": {
+        "author": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/document-ref"
+            "$ref": "#/definitions/annotation"
           }
         },
-        "attachment": {
+        "editor": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/document-ref"
+            "$ref": "#/definitions/annotation"
           }
         },
         "replies": {
@@ -759,16 +768,58 @@
             "type": "string",
             "format": "url"
           }
+        },
+        "description": {
+          "type": "string"
+        },
+        "datePublished": {
+          "type": "string",
+          "format": "timestamp"
+        },
+        "readingOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
+          }
+        },
+        "json": {
+          "type": "object"
+        },
+        "readerId": {
+          "type": "string",
+          "format": "url"
+        },
+        "published": {
+          "type": "string",
+          "format": "timestamp"
+        },
+        "updated": {
+          "type": "string",
+          "format": "timestamp"
         }
       }
     },
     "readers-request": {
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "required": true
         },
         "@context": {
-          "type": "array"
+          "type": "array",
+          "required": true
         },
         "profile?": {
           "type": "object"

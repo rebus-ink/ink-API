@@ -9,6 +9,8 @@ const test = async app => {
   }
 
   const token = getToken()
+  // to avoid duplicate tokens:
+  await new Promise(_func => setTimeout(_func, 50))
   const token2 = getToken()
   let readerUrl
 
