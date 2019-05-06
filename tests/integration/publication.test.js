@@ -293,7 +293,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl
           }
         })
@@ -343,7 +343,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl
           }
         })
@@ -366,7 +366,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'reader:Publication',
+            type: 'Publication',
             id: publicationUrl + '123'
           }
         })
