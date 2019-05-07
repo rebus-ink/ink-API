@@ -81,6 +81,8 @@ const utils = require('./utils')
  *       readerId:
  *         type: string
  *         format: url
+ *       reader:
+ *         $ref: '#/definitions/reader'
  *       published:
  *         type: string
  *         format: timestamp
@@ -140,7 +142,6 @@ module.exports = function (app) {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             const publicationJson = publication.toJSON()
-
             res.end(
               JSON.stringify(
                 Object.assign(publicationJson, {

@@ -39,9 +39,47 @@ const test = async app => {
           author: ['John Smith'],
           editor: 'Jane Doe',
           description: 'this is a description!!',
-          links: [{ property: 'value' }],
-          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-          resources: [{ property: 'value' }],
+          links: [
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example link'
+            }
+          ],
+          readingOrder: [
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example reading order object1'
+            },
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example reading order object2'
+            },
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example reading order object3'
+            }
+          ],
+          resources: [
+            {
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              href: 'http://example.org/abc',
+              hreflang: 'en',
+              mediaType: 'text/html',
+              name: 'An example resource'
+            }
+          ],
           json: { property: 'value' }
         }
       })
@@ -68,7 +106,8 @@ const test = async app => {
           type: 'Create',
           object: {
             type: 'reader:Stack',
-            name: 'mystack'
+            name: 'mystack',
+            json: { property: 'value' }
           }
         })
       )
@@ -115,6 +154,7 @@ const test = async app => {
     const body = res.body
     await tap.ok(Array.isArray(body.tags))
     await tap.type(body.tags[0].name, 'string')
+    await tap.type(body.tags[0].json, 'object')
     stack = body.tags[0]
   })
 
