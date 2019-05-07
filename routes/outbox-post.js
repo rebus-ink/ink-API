@@ -20,6 +20,7 @@ const utils = require('./utils')
  *       type:
  *         type: string
  *         enum: ['Create', 'Add', 'Remove', 'Delete', 'Update', 'Read']
+ *         required: true
  *       object:
  *         type: object
  *         properties:
@@ -27,8 +28,18 @@ const utils = require('./utils')
  *             type: string
  *             enum: ['Publication', 'Note', 'reader:Tag']
  *         additionalProperties: true
+ *       target:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *             enum: ['Publication', 'Note', 'reader:Tag']
+ *         additionalProperties: true
+ *       json:
+ *         type: object
  *       '@context':
  *         type: array
+ *         required: true
  *
  */
 module.exports = function (app) {

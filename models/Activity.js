@@ -146,6 +146,14 @@ class Activity extends BaseModel {
       .insert(props)
       .returning('*')
   }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.actor = { id: json.readerId, type: 'Person' }
+    json = _.omitBy(json, _.isNil)
+
+    return json
+  }
 }
 
 module.exports = { Activity }

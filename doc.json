@@ -89,51 +89,6 @@
         }
       }
     },
-    "/document-{shortId}": {
-      "get": {
-        "tags": [
-          "documents"
-        ],
-        "description": "GET /document-:shortId",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "shortId",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "the short id of the document"
-          }
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "A Document Object",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/definitions/document"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Access to document {shortId} disallowed"
-          },
-          "404": {
-            "description": "No Document with ID {shortId}"
-          }
-        }
-      }
-    },
     "/note-{id}": {
       "get": {
         "tags": [
@@ -491,9 +446,27 @@
               "type": "string",
               "enum": [
                 "Publication",
-                "Document",
-                "Note",
-                "reader:Stack"
+                "Note'",
+                "reader:Stack",
+                "Tag"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "format": "url"
+            }
+          }
+        },
+        "target": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Publication",
+                "Note'",
+                "reader:Stack",
+                "Tag"
               ]
             },
             "id": {
@@ -517,6 +490,16 @@
             }
           }
         },
+        "json": {
+          "type": "object"
+        },
+        "readerId": {
+          "type": "string",
+          "format": "url"
+        },
+        "reader": {
+          "$ref": "#/definitions/reader"
+        },
         "summaryMap": {
           "type": "object",
           "properties": {
@@ -528,56 +511,6 @@
         "published": {
           "type": "string",
           "format": "date-time"
-        },
-        "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "attributedTo": {
-          "type": "array"
-        }
-      }
-    },
-    "document": {
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "url"
-        },
-        "type": {
-          "type": "string",
-          "enum": [
-            "Document"
-          ]
-        },
-        "name": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        },
-        "@context": {
-          "type": "array"
-        },
-        "published": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updated": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "attributedTo": {
-          "type": "array"
-        },
-        "replies": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/note"
-          }
-        },
-        "position": {
-          "type": "string"
         }
       }
     },
@@ -673,7 +606,8 @@
             "Delete",
             "Update",
             "Read"
-          ]
+          ],
+          "required": true
         },
         "object": {
           "type": "object",
@@ -689,8 +623,26 @@
           },
           "additionalProperties": true
         },
+        "target": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Publication",
+                "Note",
+                "reader:Tag"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "json": {
+          "type": "object"
+        },
         "@context": {
-          "type": "array"
+          "type": "array",
+          "required": true
         }
       }
     },
@@ -830,13 +782,13 @@
           "type": "array",
           "required": true
         },
-        "profile?": {
+        "profile": {
           "type": "object"
         },
-        "preferences?": {
+        "preferences": {
           "type": "object,"
         },
-        "json?": {
+        "json": {
           "type": "object"
         }
       }
