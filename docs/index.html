@@ -1534,23 +1534,14 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
           </li>
         
           <li>
-            <a href="#reader-api-notes" class="toc-h1 toc-link" data-title="notes">notes</a>
+            <a href="#reader-api-readers" class="toc-h1 toc-link" data-title="readers">readers</a>
             
               <ul class="toc-list-h2">
                 
                   <li>
-                    <a href="#get__note--id-" class="toc-h2 toc-link" data-title="get__note-{id}">get__note-{id}</a>
+                    <a href="#post__reader--id-_file-upload" class="toc-h2 toc-link" data-title="post__reader-{id}_file-upload">post__reader-{id}_file-upload</a>
                     
                   </li>
-                
-              </ul>
-            
-          </li>
-        
-          <li>
-            <a href="#reader-api-readers" class="toc-h1 toc-link" data-title="readers">readers</a>
-            
-              <ul class="toc-list-h2">
                 
                   <li>
                     <a href="#get__reader--shortid-_activity" class="toc-h2 toc-link" data-title="get__reader-{shortId}_activity">get__reader-{shortId}_activity</a>
@@ -1587,9 +1578,33 @@ var n=this.pipeline.run(e.tokenizer(t)),r=new e.Vector,i=[],o=this._fields.reduc
           </li>
         
           <li>
+            <a href="#reader-api-notes" class="toc-h1 toc-link" data-title="notes">notes</a>
+            
+              <ul class="toc-list-h2">
+                
+                  <li>
+                    <a href="#get__note--id-" class="toc-h2 toc-link" data-title="get__note-{id}">get__note-{id}</a>
+                    
+                  </li>
+                
+              </ul>
+            
+          </li>
+        
+          <li>
             <a href="#reader-api-publications" class="toc-h1 toc-link" data-title="publications">publications</a>
             
               <ul class="toc-list-h2">
+                
+                  <li>
+                    <a href="#get__publication--id-_-path-" class="toc-h2 toc-link" data-title="get__publication-{id}_{path}">get__publication-{id}_{path}</a>
+                    
+                  </li>
+                
+                  <li>
+                    <a href="#post__publication--id-_file-upload" class="toc-h2 toc-link" data-title="post__publication-{id}_file-upload">post__publication-{id}_file-upload</a>
+                    
+                  </li>
                 
                   <li>
                     <a href="#get__publication--id-" class="toc-h2 toc-link" data-title="get__publication-{id}">get__publication-{id}</a>
@@ -1758,13 +1773,13 @@ fetch(<span class="hljs-string">'/activity-{id}'</span>,
     <span class="hljs-attr">"profile"</span>: {},
     <span class="hljs-attr">"preferences"</span>: {},
     <span class="hljs-attr">"json"</span>: {},
-    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
   },
   <span class="hljs-attr">"summaryMap"</span>: {
     <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
   },
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
 }
 </code></pre>
 <h3 id="get__activity-{id}-responses">Responses</h3>
@@ -2105,23 +2120,27 @@ fetch(<span class="hljs-string">'/activity-{id}'</span>,
 To perform this operation, you must be authenticated by means of one of the following methods:
 Bearer
 </aside>
-<h1 id="reader-api-notes">notes</h1>
-<h2 id="get__note--id-">get__note-{id}</h2>
+<h1 id="reader-api-readers">readers</h1>
+<h2 id="post__reader--id-_file-upload">post__reader-{id}_file-upload</h2>
 <blockquote>
 <p>Code samples</p>
 </blockquote>
 <pre class="highlight tab tab-javascript--nodejs"><code><span class="hljs-keyword">const</span> fetch = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-fetch'</span>);
-
+<span class="hljs-keyword">const</span> inputBody = <span class="hljs-string">'{
+  "files": [
+    null
+  ]
+}'</span>;
 <span class="hljs-keyword">const</span> headers = {
-  <span class="hljs-string">'Accept'</span>:<span class="hljs-string">'application/json'</span>,
+  <span class="hljs-string">'Content-Type'</span>:<span class="hljs-string">'multipart/form-data'</span>,
   <span class="hljs-string">'Authorization'</span>:<span class="hljs-string">'Bearer {access-token}'</span>
 
 };
 
-fetch(<span class="hljs-string">'/note-{id}'</span>,
+fetch(<span class="hljs-string">'/reader-{id}/file-upload'</span>,
 {
-  <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
-
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-attr">body</span>: inputBody,
   <span class="hljs-attr">headers</span>: headers
 })
 .then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
@@ -2131,9 +2150,16 @@ fetch(<span class="hljs-string">'/note-{id}'</span>,
 });
 
 </code></pre>
-<p><code>GET /note-{id}</code></p>
-<p>GET /note-:id</p>
-<h3 id="get__note-{id}-parameters">Parameters</h3>
+<p><code>POST /reader-{id}/file-upload</code></p>
+<p>POST /reader-:id/file-upload</p>
+<blockquote>
+<p>Body parameter</p>
+</blockquote>
+<pre class="highlight tab tab-yaml"><code><span class="hljs-attr">files:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-literal">null</span>
+
+</code></pre>
+<h3 id="post__reader-{id}_file-upload-parameters">Parameters</h3>
 <table>
 <thead>
 <tr>
@@ -2150,31 +2176,25 @@ fetch(<span class="hljs-string">'/note-{id}'</span>,
 <td>path</td>
 <td>string</td>
 <td>true</td>
-<td>the short id of the note</td>
+<td>the id of the reader</td>
+</tr>
+<tr>
+<td>body</td>
+<td>body</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» files</td>
+<td>body</td>
+<td>[binary]</td>
+<td>false</td>
+<td>none</td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>Example responses</p>
-</blockquote>
-<blockquote>
-<p>200 Response</p>
-</blockquote>
-<pre class="highlight tab tab-json"><code>{
-  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Note"</span>,
-  <span class="hljs-attr">"noteType"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"oa:hasSelector"</span>: {},
-  <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"@context"</span>: [],
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-  <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"json"</span>: {}
-}
-</code></pre>
-<h3 id="get__note-{id}-responses">Responses</h3>
+<h3 id="post__reader-{id}_file-upload-responses">Responses</h3>
 <table>
 <thead>
 <tr>
@@ -2188,127 +2208,26 @@ fetch(<span class="hljs-string">'/note-{id}'</span>,
 <tr>
 <td>200</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.3.1">OK</a></td>
-<td>A Note Object</td>
-<td>Inline</td>
+<td>file created</td>
+<td>None</td>
+</tr>
+<tr>
+<td>400</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.1">Bad Request</a></td>
+<td>No file was included with upload OR Error connecting to google bucket</td>
+<td>None</td>
 </tr>
 <tr>
 <td>403</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
-<td>Access to note {id} disallowed</td>
+<td>Access to reader {id} disallowed</td>
 <td>None</td>
 </tr>
 <tr>
 <td>404</td>
 <td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
-<td>No Note with ID {id}</td>
+<td>No reader with ID {id}</td>
 <td>None</td>
-</tr>
-</tbody>
-</table>
-<h3 id="get__note-{id}-responseschema">Response Schema</h3>
-<p>Status Code <strong>200</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Required</th>
-<th>Restrictions</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>» id</td>
-<td>string(url)</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» type</td>
-<td>string</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» noteType</td>
-<td>string</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» oa:hasSelector</td>
-<td>object</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» content</td>
-<td>string</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» @context</td>
-<td>array</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» published</td>
-<td>string(date-time)</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» updated</td>
-<td>string(date-time)</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-<tr>
-<td>» inReplyTo</td>
-<td>string(url)</td>
-<td>false</td>
-<td>none</td>
-<td>The url of the document</td>
-</tr>
-<tr>
-<td>» context</td>
-<td>string(url)</td>
-<td>false</td>
-<td>none</td>
-<td>The url of the publication</td>
-</tr>
-<tr>
-<td>» json</td>
-<td>object</td>
-<td>false</td>
-<td>none</td>
-<td>none</td>
-</tr>
-</tbody>
-</table>
-<h4 id="enumerated-values">Enumerated Values</h4>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>type</td>
-<td>Note</td>
 </tr>
 </tbody>
 </table>
@@ -2316,7 +2235,6 @@ fetch(<span class="hljs-string">'/note-{id}'</span>,
 To perform this operation, you must be authenticated by means of one of the following methods:
 Bearer
 </aside>
-<h1 id="reader-api-readers">readers</h1>
 <h2 id="get__reader--shortid-_activity">get__reader-{shortId}_activity</h2>
 <blockquote>
 <p>Code samples</p>
@@ -2411,13 +2329,13 @@ fetch(<span class="hljs-string">'/reader-{shortId}/activity'</span>,
         <span class="hljs-attr">"profile"</span>: {},
         <span class="hljs-attr">"preferences"</span>: {},
         <span class="hljs-attr">"json"</span>: {},
-        <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-        <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+        <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+        <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
       },
       <span class="hljs-attr">"summaryMap"</span>: {
         <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
       },
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
     }
   ]
 }
@@ -3307,8 +3225,8 @@ fetch(<span class="hljs-string">'/reader-{id}'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
 }
 </code></pre>
 <h3 id="get__reader-{id}-responses">Responses</h3>
@@ -3513,8 +3431,8 @@ fetch(<span class="hljs-string">'/whoami'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
 }
 </code></pre>
 <h3 id="get__whoami-responses">Responses</h3>
@@ -3667,7 +3585,426 @@ fetch(<span class="hljs-string">'/whoami'</span>,
 To perform this operation, you must be authenticated by means of one of the following methods:
 Bearer
 </aside>
+<h1 id="reader-api-notes">notes</h1>
+<h2 id="get__note--id-">get__note-{id}</h2>
+<blockquote>
+<p>Code samples</p>
+</blockquote>
+<pre class="highlight tab tab-javascript--nodejs"><code><span class="hljs-keyword">const</span> fetch = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-fetch'</span>);
+
+<span class="hljs-keyword">const</span> headers = {
+  <span class="hljs-string">'Accept'</span>:<span class="hljs-string">'application/json'</span>,
+  <span class="hljs-string">'Authorization'</span>:<span class="hljs-string">'Bearer {access-token}'</span>
+
+};
+
+fetch(<span class="hljs-string">'/note-{id}'</span>,
+{
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
+
+  <span class="hljs-attr">headers</span>: headers
+})
+.then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+    <span class="hljs-keyword">return</span> res.json();
+}).then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">body</span>) </span>{
+    <span class="hljs-built_in">console</span>.log(body);
+});
+
+</code></pre>
+<p><code>GET /note-{id}</code></p>
+<p>GET /note-:id</p>
+<h3 id="get__note-{id}-parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>In</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>path</td>
+<td>string</td>
+<td>true</td>
+<td>the short id of the note</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Example responses</p>
+</blockquote>
+<blockquote>
+<p>200 Response</p>
+</blockquote>
+<pre class="highlight tab tab-json"><code>{
+  <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Note"</span>,
+  <span class="hljs-attr">"noteType"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"oa:hasSelector"</span>: {},
+  <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"@context"</span>: [],
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+  <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>,
+  <span class="hljs-attr">"json"</span>: {}
+}
+</code></pre>
+<h3 id="get__note-{id}-responses">Responses</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>Description</th>
+<th>Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.3.1">OK</a></td>
+<td>A Note Object</td>
+<td>Inline</td>
+</tr>
+<tr>
+<td>403</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
+<td>Access to note {id} disallowed</td>
+<td>None</td>
+</tr>
+<tr>
+<td>404</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
+<td>No Note with ID {id}</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get__note-{id}-responseschema">Response Schema</h3>
+<p>Status Code <strong>200</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Restrictions</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>» id</td>
+<td>string(url)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» type</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» noteType</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» oa:hasSelector</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» content</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» @context</td>
+<td>array</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» published</td>
+<td>string(date-time)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» updated</td>
+<td>string(date-time)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» inReplyTo</td>
+<td>string(url)</td>
+<td>false</td>
+<td>none</td>
+<td>The url of the document</td>
+</tr>
+<tr>
+<td>» context</td>
+<td>string(url)</td>
+<td>false</td>
+<td>none</td>
+<td>The url of the publication</td>
+</tr>
+<tr>
+<td>» json</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h4 id="enumerated-values">Enumerated Values</h4>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type</td>
+<td>Note</td>
+</tr>
+</tbody>
+</table>
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+Bearer
+</aside>
 <h1 id="reader-api-publications">publications</h1>
+<h2 id="get__publication--id-_-path-">get__publication-{id}_{path}</h2>
+<blockquote>
+<p>Code samples</p>
+</blockquote>
+<pre class="highlight tab tab-javascript--nodejs"><code><span class="hljs-keyword">const</span> fetch = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-fetch'</span>);
+
+<span class="hljs-keyword">const</span> headers = {
+  <span class="hljs-string">'Authorization'</span>:<span class="hljs-string">'Bearer {access-token}'</span>
+
+};
+
+fetch(<span class="hljs-string">'/publication-{id}/{path}'</span>,
+{
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'GET'</span>,
+
+  <span class="hljs-attr">headers</span>: headers
+})
+.then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+    <span class="hljs-keyword">return</span> res.json();
+}).then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">body</span>) </span>{
+    <span class="hljs-built_in">console</span>.log(body);
+});
+
+</code></pre>
+<p><code>GET /publication-{id}/{path}</code></p>
+<p>GET /publication-:id/:path</p>
+<h3 id="get__publication-{id}_{path}-parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>In</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>path</td>
+<td>string</td>
+<td>true</td>
+<td>the short id of the publication</td>
+</tr>
+<tr>
+<td>path</td>
+<td>path</td>
+<td>string</td>
+<td>true</td>
+<td>the relative path to the document within the publication</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get__publication-{id}_{path}-responses">Responses</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>Description</th>
+<th>Schema</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+Bearer
+</aside>
+<h2 id="post__publication--id-_file-upload">post__publication-{id}_file-upload</h2>
+<blockquote>
+<p>Code samples</p>
+</blockquote>
+<pre class="highlight tab tab-javascript--nodejs"><code><span class="hljs-keyword">const</span> fetch = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-fetch'</span>);
+<span class="hljs-keyword">const</span> inputBody = <span class="hljs-string">'{
+  "file": null,
+  "documentPath": "string",
+  "mediaType": "string",
+  "json": "string"
+}'</span>;
+<span class="hljs-keyword">const</span> headers = {
+  <span class="hljs-string">'Content-Type'</span>:<span class="hljs-string">'multipart/form-data'</span>,
+  <span class="hljs-string">'Authorization'</span>:<span class="hljs-string">'Bearer {access-token}'</span>
+
+};
+
+fetch(<span class="hljs-string">'/publication-{id}/file-upload'</span>,
+{
+  <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-attr">body</span>: inputBody,
+  <span class="hljs-attr">headers</span>: headers
+})
+.then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">res</span>) </span>{
+    <span class="hljs-keyword">return</span> res.json();
+}).then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">body</span>) </span>{
+    <span class="hljs-built_in">console</span>.log(body);
+});
+
+</code></pre>
+<p><code>POST /publication-{id}/file-upload</code></p>
+<p>POST /publication-:id/file-upload</p>
+<blockquote>
+<p>Body parameter</p>
+</blockquote>
+<pre class="highlight tab tab-yaml"><code><span class="hljs-attr">file:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">documentPath:</span> <span class="hljs-string">string</span>
+<span class="hljs-attr">mediaType:</span> <span class="hljs-string">string</span>
+<span class="hljs-attr">json:</span> <span class="hljs-string">string</span>
+
+</code></pre>
+<h3 id="post__publication-{id}_file-upload-parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>In</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>path</td>
+<td>string</td>
+<td>true</td>
+<td>the id of the publication</td>
+</tr>
+<tr>
+<td>body</td>
+<td>body</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» file</td>
+<td>body</td>
+<td>binary</td>
+<td>false</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» documentPath</td>
+<td>body</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» mediaType</td>
+<td>body</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» json</td>
+<td>body</td>
+<td>string</td>
+<td>false</td>
+<td>stringified json data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="post__publication-{id}_file-upload-responses">Responses</h3>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>Description</th>
+<th>Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.3.1">OK</a></td>
+<td>file created</td>
+<td>None</td>
+</tr>
+<tr>
+<td>400</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.1">Bad Request</a></td>
+<td>No file was included with upload OR Error connecting to google bucket</td>
+<td>None</td>
+</tr>
+<tr>
+<td>403</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.3">Forbidden</a></td>
+<td>Access to publication {id} disallowed</td>
+<td>None</td>
+</tr>
+<tr>
+<td>404</td>
+<td><a href="https://tools.ietf.org/html/rfc7231#section-6.5.4">Not Found</a></td>
+<td>No publication with ID {id}</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+Bearer
+</aside>
 <h2 id="get__publication--id-">get__publication-{id}</h2>
 <blockquote>
 <p>Code samples</p>
@@ -3794,8 +4131,8 @@ fetch(<span class="hljs-string">'/publication-{id}'</span>,
     <span class="hljs-attr">"profile"</span>: {},
     <span class="hljs-attr">"preferences"</span>: {},
     <span class="hljs-attr">"json"</span>: {},
-    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>,
-    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T15:27:20Z"</span>
+    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>,
+    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-05-07T18:42:25Z"</span>
   },
   <span class="hljs-attr">"published"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"string"</span>

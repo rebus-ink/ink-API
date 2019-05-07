@@ -11,7 +11,47 @@ const utils = require('./utils')
 const storage = new Storage()
 
 const m = multer({ storage: multer.memoryStorage() })
-
+/**
+ * @swagger
+ * /publication-{id}/file-upload:
+ *   post:
+ *     tags:
+ *       - publications
+ *     description: POST /publication-:id/file-upload
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: the id of the publication
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: binary
+ *               documentPath:
+ *                 type: string
+ *               mediaType:
+ *                 type: string
+ *               json:
+ *                 type: string
+ *                 description: stringified json data
+ *     responses:
+ *       200:
+ *         description: file created
+ *       400:
+ *         description: No file was included with upload OR Error connecting to google bucket
+ *       404:
+ *         description: No publication with ID {id}
+ *       403:
+ *         description: Access to publication {id} disallowed
+ */
 module.exports = app => {
   app.use('/', router)
   router.post(
