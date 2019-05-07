@@ -89,6 +89,61 @@
         }
       }
     },
+    "/reader-{id}/file-upload": {
+      "post": {
+        "tags": [
+          "readers"
+        ],
+        "description": "POST /reader-:id/file-upload",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the id of the reader"
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "file created"
+          },
+          "400": {
+            "description": "No file was included with upload OR Error connecting to google bucket"
+          },
+          "403": {
+            "description": "Access to reader {id} disallowed"
+          },
+          "404": {
+            "description": "No reader with ID {id}"
+          }
+        }
+      }
+    },
     "/note-{id}": {
       "get": {
         "tags": [
@@ -218,6 +273,106 @@
           },
           "404": {
             "description": "No Reader / Publication / Note with ID {id}"
+          }
+        }
+      }
+    },
+    "/publication-{id}/{path}": {
+      "get": {
+        "tags": [
+          "publications"
+        ],
+        "description": "GET /publication-:id/:path",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the short id of the publication"
+          },
+          {
+            "in": "path",
+            "name": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the relative path to the document within the publication"
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "reponses": {
+          "302": "redirected to document",
+          "403": "Access to publication {id} disallowed",
+          "404": "Publication or Document not found"
+        }
+      }
+    },
+    "/publication-{id}/file-upload": {
+      "post": {
+        "tags": [
+          "publications"
+        ],
+        "description": "POST /publication-:id/file-upload",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the id of the publication"
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "binary"
+                  },
+                  "documentPath": {
+                    "type": "string"
+                  },
+                  "mediaType": {
+                    "type": "string"
+                  },
+                  "json": {
+                    "type": "string",
+                    "description": "stringified json data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "file created"
+          },
+          "400": {
+            "description": "No file was included with upload OR Error connecting to google bucket"
+          },
+          "403": {
+            "description": "Access to publication {id} disallowed"
+          },
+          "404": {
+            "description": "No publication with ID {id}"
           }
         }
       }
