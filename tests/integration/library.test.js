@@ -55,6 +55,7 @@ const test = async () => {
             author: ['John Smith'],
             editor: 'Jane Doe',
             description: 'this is a description!!',
+            keywords: 'one, two',
             links: [{ property: 'value' }],
             readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
             resources: [{ property: 'value' }],
@@ -88,6 +89,7 @@ const test = async () => {
     await tap.equal(body.items[0].name, 'Publication A')
     await tap.equal(body.items[0].author[0].name, 'John Smith')
     await tap.equal(body.items[0].editor[0].name, 'Jane Doe')
+    await tap.equal(body.items[0].keywords, 'one, two')
     // documents should NOT include:
     await tap.notOk(body.items[0].resources)
     await tap.notOk(body.items[0].readingOrder)
