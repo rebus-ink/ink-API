@@ -37,11 +37,11 @@ const insertNewReader = (userId, person) => {
  *       '@context':
  *         type: array
  *         required: true
- *       profile?:
+ *       profile:
  *         type: object
- *       preferences?:
+ *       preferences:
  *         type: object,
- *       json?:
+ *       json:
  *         type: object
  *
  */
