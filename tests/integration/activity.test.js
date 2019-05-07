@@ -63,11 +63,17 @@ const test = async app => {
 
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.equal(body.type, 'Create')
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))
-    await tap.type(body.type, 'string')
     await tap.equal(body.reader.id, userId)
+    await tap.type(body.readerId, 'string')
+    await tap.type(body.object, 'object')
+    await tap.type(body.object.id, 'string')
     await tap.type(body.reader.summaryMap.en, 'string')
+    await tap.type(body.actor, 'object')
+    await tap.type(body.actor.id, 'string')
+    await tap.equal(body.actor.type, 'Person')
   })
 
   await tap.test('Get Activity that does not exist', async () => {
