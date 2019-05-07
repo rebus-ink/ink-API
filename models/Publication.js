@@ -204,7 +204,6 @@ class Publication extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
-    json = _.omitBy(json, _.isNil)
     json.id = json.id + '/'
     json.type = 'Publication'
     if (json.attributions) {
@@ -213,7 +212,9 @@ class Publication extends BaseModel {
           attribution => attribution.role === type
         )
       })
+      json.attributions = undefined
     }
+    json = _.omitBy(json, _.isNil)
 
     return json
   }

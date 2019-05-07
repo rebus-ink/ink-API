@@ -490,7 +490,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "reader:Publication",
+                "Publication",
                 "Document",
                 "Note",
                 "reader:Stack"
@@ -593,6 +593,9 @@
             "Note"
           ]
         },
+        "noteType": {
+          "type": "string"
+        },
         "oa:hasSelector": {
           "type": "object"
         },
@@ -619,6 +622,9 @@
           "type": "string",
           "format": "url",
           "description": "The url of the publication"
+        },
+        "json": {
+          "type": "object"
         }
       }
     },
@@ -801,6 +807,9 @@
           "type": "string",
           "format": "url"
         },
+        "reader": {
+          "$ref": "#/definitions/reader"
+        },
         "published": {
           "type": "string",
           "format": "timestamp"
@@ -841,7 +850,7 @@
         "type": {
           "type": "string",
           "enum": [
-            "reader:Publication"
+            "Publication"
           ]
         },
         "name": {
