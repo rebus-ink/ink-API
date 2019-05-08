@@ -61,29 +61,20 @@ class ReadActivity extends BaseModel {
 
     if (!publicationId) return new Error('missing publicationId')
 
-    if (!object) return new Error('missing object')
-
     const props = _.pick(object, ['selector', 'json'])
 
     props.readerId = readerId
     props.publicationId = publicationId
     props.published = new Date().toISOString()
 
-    console.log('PROPS IN CREATE READ ACTIITY')
-    console.log(props)
-
     try {
       return await ReadActivity.query()
         .insert(props)
         .returning('*')
     } catch (err) {
-      console.log('error occured')
-      console.log(err)
       if (err.constraint === 'readactivity_readerid_foreign') {
-        console.log('wrong redader id')
         return new Error('no reader')
       } else if (err.constraint === 'readactivity_publicationid_foreign') {
-        console.log('wrong redader id')
         return new Error('no publication')
       }
     }

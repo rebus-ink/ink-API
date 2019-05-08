@@ -24,8 +24,7 @@ const test = async app => {
 
   // Create Reader object
   const person = {
-    name: 'J. Random Reader',
-    authId: userId
+    name: 'J. Random Reader'
   }
   const reader1 = await Reader.createReader(userId, person)
 
@@ -226,7 +225,6 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Read',
-          object: { type: 'Document', id: document.id },
           context: publicationUrl,
           'oa:hasSelector': {
             type: 'XPathSelector',
@@ -239,7 +237,6 @@ const test = async app => {
     const latestAct = await ReadActivity.getLatestReadActivity(
       urlToId(publicationUrl)
     )
-
     await tap.equal(readActivity.statusCode, 201)
     await tap.type(readActivity.get('Location'), 'string')
     await tap.equal(latestAct.id, readActivity.get('Location'))
