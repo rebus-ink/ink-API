@@ -22,8 +22,7 @@ const test = async app => {
 
   // Create Reader object
   const person = {
-    name: 'J. Random Reader',
-    authId: userId
+    name: 'J. Random Reader'
   }
 
   const reader1 = await Reader.createReader(userId, person)

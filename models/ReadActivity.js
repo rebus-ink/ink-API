@@ -21,7 +21,7 @@ class ReadActivity extends BaseModel {
         selector: { type: 'object' },
         json: { type: 'object' },
         readerId: { type: 'string' },
-        publicationIn: { type: 'string' },
+        publicationId: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
       required: ['readerId', 'publicationId', 'selector']
@@ -60,8 +60,6 @@ class ReadActivity extends BaseModel {
     if (!readerId) return new Error('missing readerId')
 
     if (!publicationId) return new Error('missing publicationId')
-
-    if (!object) return new Error('missing object')
 
     const props = _.pick(object, ['selector', 'json'])
 
