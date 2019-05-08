@@ -95,14 +95,18 @@ class Attribution extends BaseModel {
       props.publicationId = publication.id
     }
 
-    props.normalizedName = props.name
+    props.normalizedName = this.normalizeName(props.name)
+
+    return await Attribution.query(Attribution.knex()).insertAndFetch(props)
+  }
+
+  static normalizeName (name /*: string */) /*: string */ {
+    return name
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '') // remove accents
       .replace(/\s/g, '') // remove spaces
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '') // remove punctuation
-
-    return await Attribution.query(Attribution.knex()).insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
