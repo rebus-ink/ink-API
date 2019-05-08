@@ -9,6 +9,9 @@ const test = async app => {
   }
 
   const token = getToken()
+  // to avoid duplicate tokens:
+  await new Promise(_func => setTimeout(_func, 50))
+  const token2 = getToken()
   let readerUrl
 
   await tap.test('Create User', async () => {
@@ -23,13 +26,35 @@ const test = async app => {
         JSON.stringify({
           '@context': 'https://www.w3.org/ns/activitystreams',
           name: 'Jane Doe',
-          profile: { property: 'value' }
+          profile: { property: 'value' },
+          preferences: { favoriteColor: 'blueish brown' },
+          json: { something: '!!!!' }
         })
       )
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     readerUrl = res.get('Location')
   })
+
+  await tap.test('Create Simple User', async () => {
+    const res = await request(app)
+      .post('/readers')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': 'https://www.w3.org/ns/activitystreams',
+          name: 'Jane Doe'
+        })
+      )
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
+  })
+
+  // TODO: add test for incomplete user object (once incoming json is validated)
 
   await tap.test('Whoami route', async () => {
     const res = await request(app)
@@ -51,6 +76,13 @@ const test = async app => {
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.inbox, 'string')
     await tap.type(body.outbox, 'string')
+    await tap.equal(body.name, 'Jane Doe')
+    await tap.type(body.profile, 'object')
+    await tap.equal(body.profile.property, 'value')
+    await tap.type(body.preferences, 'object')
+    await tap.equal(body.preferences.favoriteColor, 'blueish brown')
+    await tap.type(body.json, 'object')
+    await tap.equal(body.json.something, '!!!!')
   })
 
   await tap.test('get user by userid', async () => {
@@ -72,6 +104,13 @@ const test = async app => {
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.inbox, 'string')
     await tap.type(body.outbox, 'string')
+    await tap.equal(body.name, 'Jane Doe')
+    await tap.type(body.profile, 'object')
+    await tap.equal(body.profile.property, 'value')
+    await tap.type(body.preferences, 'object')
+    await tap.equal(body.preferences.favoriteColor, 'blueish brown')
+    await tap.type(body.json, 'object')
+    await tap.equal(body.json.something, '!!!!')
   })
 
   await tap.test('Get Reader that does not exist', async () => {

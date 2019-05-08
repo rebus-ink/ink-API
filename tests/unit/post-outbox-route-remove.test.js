@@ -44,7 +44,7 @@ const removeTagFromStackRequest = {
     id: 'https://localhost:8080/tag-123'
   },
   target: {
-    type: 'reader:Publication',
+    type: 'Publication',
     id: 'https://localhost:8080/publication-123'
   }
 }

@@ -73,7 +73,7 @@ The server can handle the following activity types.
 #### Create Publication
 
 To upload a publication, use an activity with type `Create` and object type
-`reader:Publication`. The publication should include all of its `Document`
+`Publication`. The publication should include all of its `Document`
 members by value, with their full content.
 
 #### Read Document

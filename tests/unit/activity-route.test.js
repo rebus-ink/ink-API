@@ -24,26 +24,22 @@ const app = express()
 
 const activity = Object.assign(new Activity(), {
   id: 'dc9794fa-4806-4b56-90b9-6fd444fc1485',
-  type: 'Activity',
-  json: {
-    '@context': [
-      'https://www.w3.org/ns/activitystreams',
-      { reader: 'https://rebus.foundation/ns/reader' }
-    ],
-    type: 'Arrive',
-    object: {
-      type: 'Publication',
-      id: 'https://reader-api.test/publication-m1vGaFVCQTzVBkdLFaxbSm'
-    },
-    actor: {
-      type: 'Person',
-      id: 'https://reader-api.test/reader-nS5zw1btwDYT5S6DdvL9yj'
-    },
-    summaryMap: { en: 'someone created' }
+  type: 'Arrive',
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  object: {
+    type: 'Publication',
+    id: 'https://reader-api.test/publication-m1vGaFVCQTzVBkdLFaxbSm'
   },
+  actor: {
+    type: 'Person',
+    id: 'https://reader-api.test/reader-nS5zw1btwDYT5S6DdvL9yj'
+  },
+  summaryMap: { en: 'someone created' },
   readerId: 'b10debec-bfee-438f-a394-25e75457ff62',
   published: '2018-12-18T14:56:53.173Z',
-  updated: '2018-12-18 14:56:53',
   reader: {
     id: 'b10debec-bfee-438f-a394-25e75457ff62',
     json: { name: 'J. Random Reader', userId: 'auth0|foo1545145012840' },

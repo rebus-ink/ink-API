@@ -111,7 +111,8 @@ class Publication extends BaseModel {
   }
 
   asRef () /*: any */ {
-    return _.omit(this.toJSON(), ['resources', 'readingOrder', 'links', 'json'])
+    const pub = this.toJSON()
+    return _.omit(pub, ['resources', 'readingOrder', 'links', 'json'])
   }
 
   static async createPublication (
@@ -171,13 +172,6 @@ class Publication extends BaseModel {
 
     if (!pub || pub.deleted) return null
 
-    if (pub.metadata) {
-      metadataProps.forEach(prop => {
-        pub[prop] = pub.metadata[prop]
-      })
-      pub.metadata = undefined
-    }
-
     pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
@@ -204,7 +198,6 @@ class Publication extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
-    json = _.omitBy(json, _.isNil)
     json.id = json.id + '/'
     json.type = 'Publication'
     if (json.attributions) {
@@ -213,7 +206,16 @@ class Publication extends BaseModel {
           attribution => attribution.role === type
         )
       })
+      json.attributions = undefined
     }
+
+    if (json.metadata) {
+      metadataProps.forEach(prop => {
+        json[prop] = json.metadata[prop]
+      })
+      json.metadata = undefined
+    }
+    json = _.omitBy(json, _.isNil)
 
     return json
   }

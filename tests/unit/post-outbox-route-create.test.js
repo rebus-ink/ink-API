@@ -114,6 +114,7 @@ const publication = Object.assign(new Publication(), {
 
 const note = Object.assign(new Note(), {
   id: '12345',
+  noteType: 'something',
   content: 'some content',
   'oa:hasSelector': { object: 'with value' }
 })

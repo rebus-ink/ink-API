@@ -1,33 +1,22 @@
-const { createActivityObject } = require('./utils')
-const { Activity } = require('../../models/Activity')
-const { Document } = require('../../models/Document')
-const { urlToId } = require('../utils')
+const { ReadActivity } = require('../../models/ReadActivity')
 
 const handleRead = async (req, res, reader) => {
   const body = req.body
-  switch (body.object.type) {
-    case 'Document':
-      const resultDoc = await Document.byId(urlToId(body.object.id))
-      if (!resultDoc) {
-        res.status(404).send(`document with id ${body.object.id} not found`)
-        break
-      }
-      const activityObjStack = createActivityObject(body, resultDoc, reader)
-      Activity.createActivity(activityObjStack)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create read activity error: ${err.message}`)
-        })
-      break
 
-    default:
-      res.status(400).send(`cannot read ${body.object.type}`)
-      break
+  const object = {
+    selector: body['oa:hasSelector'],
+    json: body.json
   }
+
+  ReadActivity.createReadActivity(reader.id, body.context, object)
+    .then(activity => {
+      res.status(201)
+      res.set('Location', activity.id)
+      res.end()
+    })
+    .catch(err => {
+      res.status(400).send(`create read activity error: ${err.message}`)
+    })
 }
 
 module.exports = { handleRead }

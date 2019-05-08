@@ -86,12 +86,17 @@ class Note extends BaseModel {
 
     const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
 
-    // $FlowFixMe
-    const path = urlparse(note.inReplyTo).path.substr(45)
+    if (note.inReplyTo) {
+      // $FlowFixMe
+      const path = urlparse(note.inReplyTo).path.substr(45)
+      const document = await Document.byPath(urlToId(note.context), path)
+      props.documentId = urlToId(document.id)
+    }
     props.selector = note['oa:hasSelector']
-    const document = await Document.byPath(urlToId(note.context), path)
-    props.documentId = urlToId(document.id)
-    props.publicationId = note.context.id || note.context
+
+    if (note.context) {
+      props.publicationId = note.context.id || note.context
+    }
     props.readerId = reader.id
 
     return await Note.query().insertAndFetch(props)

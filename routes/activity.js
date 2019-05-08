@@ -24,7 +24,16 @@ const utils = require('./utils')
  *         properties:
  *           type:
  *             type: string
- *             enum: ['reader:Publication', 'Document', 'Note', 'reader:Stack']
+ *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
+ *           id:
+ *             type: string
+ *             format: url
+ *       target:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
  *           id:
  *             type: string
  *             format: url
@@ -37,6 +46,13 @@ const utils = require('./utils')
  *           id:
  *             type: string
  *             format: url
+ *       json:
+ *         type: object
+ *       readerId:
+ *         type: string
+ *         format: url
+ *       reader:
+ *         $ref: '#/definitions/reader'
  *       summaryMap:
  *         type: object
  *         properties:
@@ -45,11 +61,6 @@ const utils = require('./utils')
  *       published:
  *         type: string
  *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       attributedTo:
- *         type: array
  *
  */
 
