@@ -140,6 +140,8 @@ const test = async app => {
 
   // get the urls needed for the tests
   const noteActivityUrl = noteActivity.get('Location')
+  console.log('NOte Activity')
+  console.log(noteActivity.status)
 
   const noteActivityObject = await getActivityFromUrl(
     app,
@@ -489,16 +491,18 @@ const test = async app => {
     await tap.equal(res.status, 201)
     console.log('nOte url: ' + noteUrl + 'and pubid ' + publication.id)
 
-    const tagsForNotes = await request(app)
-      .get(urlparse(noteUrl).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+    // const tagsForNotes = await request(app)
+    //   .get(urlparse(noteUrl).path)
+    //   .set('Host', 'reader-api.test')
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .type(
+    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    //   )
 
-    await tap.equal(tagsForNotes.status, 200)
-    // const body = pubres.body
+    // await tap.equal(tagsForNotes.status, 200)
+    // const body = tagsForNotes.body
+    // console.log("What comes back: ")
+    // console.log(body)
     // await tap.ok(Array.isArray(body.tags))
     // await tap.equal(body.tags.length, 1)
     // await tap.equal(body.tags[0].type, 'reader:Stack')

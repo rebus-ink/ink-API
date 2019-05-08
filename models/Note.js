@@ -50,6 +50,7 @@ class Note extends BaseModel {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
+    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -74,6 +75,18 @@ class Note extends BaseModel {
           from: 'Note.publicationId',
           to: 'Publication.id'
         }
+      },
+      tags: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Note.id',
+          through: {
+            from: 'note_tag.noteId',
+            to: 'note_tag.tagId'
+          },
+          to: 'Tag.id'
+        }
       }
     }
   }
@@ -82,6 +95,7 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<any> */ {
+    console.log('TRY TO CREATE A NOTE')
     const { Document } = require('./Document')
 
     const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
@@ -99,6 +113,9 @@ class Note extends BaseModel {
     }
     props.readerId = reader.id
 
+    console.log('PROPS')
+    console.log(props)
+
     return await Note.query().insertAndFetch(props)
   }
 
@@ -107,7 +124,7 @@ class Note extends BaseModel {
 
     const note = await Note.query()
       .findById(id)
-      .eager('reader')
+      .eager('[reader, tags]')
     if (!note) return undefined
 
     const document = await Document.byId(urlToId(note.documentId))
