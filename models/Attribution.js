@@ -95,7 +95,12 @@ class Attribution extends BaseModel {
       props.publicationId = publication.id
     }
 
-    props.normalizedName = props.name.toLowerCase() // todo: remove accents, etc.
+    props.normalizedName = props.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove accents
+      .replace(/\s/g, '') // remove spaces
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '') // remove punctuation
 
     return await Attribution.query(Attribution.knex()).insertAndFetch(props)
   }

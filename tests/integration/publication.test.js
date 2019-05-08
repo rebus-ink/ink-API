@@ -41,7 +41,7 @@ const test = async app => {
             type: 'Publication',
             name: 'Publication A',
             author: ['John Smith'],
-            editor: 'Jane Doe',
+            editor: 'Jané S. Doe',
             description: 'this is a description!!',
             inLanguage: 'English',
             datePublished: now,
@@ -167,7 +167,7 @@ const test = async app => {
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
-    await tap.equal(body.editor[0].name, 'Jane Doe')
+    await tap.equal(body.editor[0].name, 'Jané S. Doe')
     await tap.equal(body.description, 'this is a description!!')
     await tap.ok(body.datePublished)
     await tap.equal(body.links[0].name, 'An example link')
