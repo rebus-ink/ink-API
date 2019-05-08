@@ -16,6 +16,8 @@ const utils = require('./utils')
  *       type:
  *         type: string
  *         enum: ['Note']
+ *       noteType:
+ *         type: string
  *       'oa:hasSelector':
  *         type: object
  *       content:
@@ -36,6 +38,8 @@ const utils = require('./utils')
  *         type: string
  *         format: url
  *         description: The url of the publication
+ *       json:
+ *         type: object
  *
  */
 

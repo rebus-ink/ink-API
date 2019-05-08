@@ -21,7 +21,6 @@ const test = async app => {
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
   const createPublicationObj = {
-    type: 'Publication',
     name: 'Publication A',
     description: 'description of publication A',
     author: [
@@ -91,7 +90,6 @@ const test = async app => {
   }
 
   const simplePublication = {
-    type: 'reader:Publication',
     name: 'Publication A',
     readingOrder: [
       {

@@ -16,7 +16,8 @@ const test = async app => {
 
   const tagObject = {
     type: 'reader:Stack',
-    name: 'mystack'
+    name: 'mystack',
+    json: { property: 1 }
   }
 
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
@@ -27,6 +28,12 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Tag)
     await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.type, 'reader:Stack')
+    await tap.equal(response.name, 'mystack')
+    await tap.type(response.id, 'string')
+    await tap.type(response.json, 'object')
+    await tap.equal(response.json.property, 1)
+    await tap.ok(response.published)
     tagId = response.id
   })
 
@@ -35,8 +42,6 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Tag)
   })
-
-  // tags probably don't need asRef
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

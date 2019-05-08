@@ -8,24 +8,29 @@ const utils = require('./utils')
 /**
  * @swagger
  * definition:
- *   document-ref:
+ *   annotation:
  *     properties:
- *       type:
- *         type: string
- *         enum: ['Document']
  *       name:
  *         type: string
- *       id:
+ *       type:
  *         type: string
- *         format: url
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       attributedTo:
- *         type: array
+ *         enum: ['Person', 'Organization']
+ *   link:
+ *     properties:
+ *      href:
+ *       type: string
+ *      mediaType:
+ *       type: string
+ *      rel:
+ *        type: string
+ *      name:
+ *        type: string
+ *      hreflang:
+ *        type: string
+ *      height:
+ *        type: integer
+ *      width:
+ *        type: integer
  *   publication:
  *     properties:
  *       id:
@@ -33,7 +38,7 @@ const utils = require('./utils')
  *         format: url
  *       type:
  *         type: string
- *         enum: ['reader:Publication']
+ *         enum: ['Publication']
  *       summaryMap:
  *         type: object
  *         properties:
@@ -41,21 +46,49 @@ const utils = require('./utils')
  *             type: string
  *       '@context':
  *         type: array
- *       totalItems:
- *         type: integer
- *       orderedItems:
+ *       author:
  *         type: array
  *         items:
- *           $ref: '#/definitions/document-ref'
- *       attachment:
+ *           $ref: '#/definitions/annotation'
+ *       editor:
  *         type: array
  *         items:
- *           $ref: '#/definitions/document-ref'
+ *           $ref: '#/definitions/annotation'
  *       replies:
  *         type: array
  *         items:
  *           type: string
  *           format: url
+ *       description:
+ *         type: string
+ *       datePublished:
+ *         type: string
+ *         format: timestamp
+ *       readingOrder:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       resources:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       links:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       json:
+ *         type: object
+ *       readerId:
+ *         type: string
+ *         format: url
+ *       reader:
+ *         $ref: '#/definitions/reader'
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *       updated:
+ *         type: string
+ *         format: timestamp
  *
  */
 
@@ -109,7 +142,6 @@ module.exports = function (app) {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             const publicationJson = publication.toJSON()
-
             res.end(
               JSON.stringify(
                 Object.assign(publicationJson, {

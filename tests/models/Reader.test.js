@@ -13,13 +13,12 @@ const test = async app => {
   const random2 = crypto.randomBytes(13).toString('hex')
 
   const reader = {
-    name: 'J. Random Reader',
-    authId: `auth0|foo${random1}`
+    name: 'J. Random Reader'
   }
+  const authId = `auth0|foo${random1}`
 
   const reader2 = {
     name: 'J. Random Reader',
-    authId: `auth0|foo${random2}`,
     json: {
       property1: 'value',
       property2: 4
@@ -32,18 +31,23 @@ const test = async app => {
     },
     extraProperty: 'this should not be saved'
   }
+  const authId2 = `auth0|foo${random2}`
 
   let createdReader, createdReader2
 
   await tap.test('Create Reader', async () => {
-    createdReader = await Reader.createReader(reader.authId, reader)
+    createdReader = await Reader.createReader(authId, reader)
 
     await tap.ok(createdReader)
     await tap.ok(createdReader instanceof Reader)
+    await tap.type(createdReader.id, 'string')
+    await tap.type(createdReader.name, 'string')
+    await tap.ok(createdReader.published)
+    await tap.ok(createdReader.updated)
   })
 
   await tap.test('Create Reader with additional properties', async () => {
-    createdReader2 = await Reader.createReader(reader2.authId, reader2)
+    createdReader2 = await Reader.createReader(authId2, reader2)
 
     await tap.ok(createdReader2)
     await tap.ok(createdReader2 instanceof Reader)
@@ -58,6 +62,7 @@ const test = async app => {
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
+    await tap.equal(responseReader.name, 'J. Random Reader')
     await tap.ok(responseReader.publications === undefined)
   })
 
@@ -73,16 +78,17 @@ const test = async app => {
   })
 
   await tap.test('Get reader by auth id', async () => {
-    const responseReader = await Reader.byAuthId(reader.authId)
+    const responseReader = await Reader.byAuthId(authId)
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
+    await tap.equal(responseReader.name, 'J. Random Reader')
   })
 
   await tap.test(
     'Check If Reader Exists - returns true if exists',
     async () => {
-      const response = await Reader.checkIfExistsByAuthId(reader.authId)
+      const response = await Reader.checkIfExistsByAuthId(authId)
 
       await tap.equal(response, true)
     }

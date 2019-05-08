@@ -70,6 +70,10 @@ class BaseModel extends Model {
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)
       doc.tagId = urlToId(doc.tagId)
+
+      Object.keys(doc).forEach(
+        key => (doc[key] === undefined ? delete doc[key] : '')
+      )
     })
   }
 
@@ -82,6 +86,10 @@ class BaseModel extends Model {
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
       doc.documentId = urlToId(doc.documentId)
+
+      Object.keys(doc).forEach(
+        key => (doc[key] === undefined ? delete doc[key] : '')
+      )
     })
   }
 

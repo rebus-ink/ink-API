@@ -7,7 +7,7 @@ const { urlToId } = require('../../routes/utils')
 const handleDelete = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
-    case 'reader:Publication':
+    case 'Publication':
       const returned = await Publication.delete(urlToId(body.object.id))
       if (returned === null) {
         res

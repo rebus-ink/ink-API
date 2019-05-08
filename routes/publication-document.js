@@ -5,6 +5,33 @@ const { Publication } = require('../models/Publication')
 const utils = require('./utils')
 const { Document } = require('../models/Document')
 
+/**
+ * @swagger
+ * /publication-{id}/{path}:
+ *   get:
+ *     tags:
+ *       - publications
+ *     description: GET /publication-:id/:path
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: the short id of the publication
+ *       - in: path
+ *         name: path
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: the relative path to the document within the publication
+ *     security:
+ *       - Bearer: []
+ *     reponses:
+ *       302: redirected to document
+ *       403: Access to publication {id} disallowed
+ *       404: Publication or Document not found
+ */
 module.exports = function (app) {
   app.use('/', router)
   router.get(
