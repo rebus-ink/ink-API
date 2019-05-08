@@ -135,7 +135,6 @@ Example:
     { oa: 'http://www.w3.org/ns/oa#' }
   ],
   type: 'Read',
-  object: { type: 'Document', id: <documentUrl> },
   context: <publicationUrl>,
   'oa:hasSelector': {
     type: 'XPathSelector',
@@ -175,6 +174,22 @@ Example:
     inReplyTo: <documentUrl>,
     noteType: <string>
   }
+}
+```
+
+Required Properties:
+
+```
+"@context": [
+    "https://www.w3.org/ns/activitystreams",
+    { "reader": "https://rebus.foundation/ns/reader" }
+  ],
+  "type": "Create",
+"object": {
+  "type": "Note",
+  "noteType": <string>,
+  context: <publicationUrl>,
+  inReplyTo: <documentUrl>
 }
 ```
 
