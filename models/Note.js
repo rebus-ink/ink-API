@@ -116,6 +116,7 @@ class Note extends BaseModel {
       document.documentPath
     }`
     note.context = note.publicationId
+
     return note
   }
 
