@@ -15,10 +15,17 @@ const handleRemove = async (req, res, reader) => {
           body.object.id
         )
       } else if (body.target.type === 'note') {
+        console.log('Removing a note')
+
+        console.log('note id ' + body.target.id)
+        console.log('tag id: ' + body.object.id)
         resultStack = await Note_Tag.removeTagFromNote(
           body.target.id,
           body.object.id
         )
+
+        console.log('resutl stack')
+        console.log(resultStack)
       }
 
       if (resultStack instanceof Error) {

@@ -140,8 +140,6 @@ const test = async app => {
 
   // get the urls needed for the tests
   const noteActivityUrl = noteActivity.get('Location')
-  console.log('NOte Activity')
-  console.log(noteActivity.status)
 
   const noteActivityObject = await getActivityFromUrl(
     app,
@@ -489,7 +487,6 @@ const test = async app => {
       )
 
     await tap.equal(res.status, 201)
-    console.log('nOte url: ' + noteUrl + 'and pubid ' + publication.id)
 
     const tagsForNotes = await request(app)
       .get(urlparse(noteUrl).path)
@@ -551,6 +548,55 @@ const test = async app => {
       )
     await tap.equal(res.status, 404)
     await tap.ok(res.error.text.startsWith('no note found'))
+  })
+
+  await tap.test('remove tag from note', async () => {
+    const note = await request(app)
+      .get(urlparse(noteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(note.status, 200)
+    const bodybefore = note.body
+    await tap.ok(Array.isArray(bodybefore.tags))
+    await tap.equal(bodybefore.tags.length, 1)
+
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Remove',
+          object: stack,
+          target: { id: urlToId(noteUrl), type: 'note' }
+        })
+      )
+
+    await tap.equal(res.status, 201)
+
+    // const pubres = await request(app)
+    //   .get(urlparse(publication.id).path)
+    //   .set('Host', 'reader-api.test')
+    //   .set('Authorization', `Bearer ${token}`)
+    //   .type(
+    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    //   )
+
+    // await tap.equal(pubres.status, 200)
+    // const body = pubres.body
+    // await tap.ok(Array.isArray(body.tags))
+    // await tap.equal(body.tags.length, 0)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
