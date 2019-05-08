@@ -336,7 +336,7 @@ const test = async app => {
           ],
           type: 'Remove',
           object: stack,
-          target: publication
+          target: { id: publication.id, type: 'publication' }
         })
       )
 
@@ -374,7 +374,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: 12345, type: stack.type },
-            target: { id: publication.id }
+            target: { id: publication.id, type: 'publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -399,7 +399,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: stack.id, type: stack.type },
-            target: { id: 'notanid' }
+            target: { id: 'notanid', type: 'publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -491,22 +491,66 @@ const test = async app => {
     await tap.equal(res.status, 201)
     console.log('nOte url: ' + noteUrl + 'and pubid ' + publication.id)
 
-    // const tagsForNotes = await request(app)
-    //   .get(urlparse(noteUrl).path)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type(
-    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    //   )
+    const tagsForNotes = await request(app)
+      .get(urlparse(noteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-    // await tap.equal(tagsForNotes.status, 200)
-    // const body = tagsForNotes.body
-    // console.log("What comes back: ")
-    // console.log(body)
-    // await tap.ok(Array.isArray(body.tags))
-    // await tap.equal(body.tags.length, 1)
-    // await tap.equal(body.tags[0].type, 'reader:Stack')
-    // await tap.equal(body.tags[0].name, 'mystack')
+    await tap.equal(tagsForNotes.status, 200)
+    const body = tagsForNotes.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 1)
+    await tap.equal(body.tags[0].type, 'reader:Stack')
+    await tap.equal(body.tags[0].name, 'mystack')
+  })
+
+  await tap.test('Try to assign note to tag with invalid tag', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: { id: 999, type: stack.type },
+          target: { id: urlToId(noteUrl), type: 'note' }
+        })
+      )
+    await tap.equal(res.status, 404)
+    await tap.ok(res.error.text.startsWith('no tag found with id'))
+  })
+
+  await tap.test('Try to assign note to tag with invalid note', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Add',
+          object: { id: stack.id, type: stack.type },
+          target: { id: 'notanid', type: 'note' }
+        })
+      )
+    await tap.equal(res.status, 404)
+    await tap.ok(res.error.text.startsWith('no note found'))
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

@@ -6,10 +6,20 @@ const handleRemove = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
-      const resultStack = await Publication_Tag.removeTagFromPub(
-        body.target.id,
-        body.object.id
-      )
+      let resultStack
+
+      // Determine where the Tag is removed from
+      if (body.target.type === 'publication') {
+        resultStack = await Publication_Tag.removeTagFromPub(
+          body.target.id,
+          body.object.id
+        )
+      } else if (body.target.type === 'note') {
+        resultStack = await Note_Tag.removeTagFromNote(
+          body.target.id,
+          body.object.id
+        )
+      }
 
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
@@ -19,6 +29,10 @@ const handleRemove = async (req, res, reader) => {
 
           case 'no tag':
             res.status(404).send(`no tag provided`)
+            break
+
+          case 'no note':
+            res.status(404).send(`no note provided`)
             break
 
           case 'not found':
@@ -34,11 +48,14 @@ const handleRemove = async (req, res, reader) => {
           default:
             res
               .status(400)
-              .send(`remove tag from publication error: ${err.message}`)
+              .send(
+                `remove tag from ` + body.target.type + ` error: ${err.message}`
+              )
             break
         }
         break
       }
+
       const activityObjStack = createActivityObject(body, resultStack, reader)
       Activity.createActivity(activityObjStack)
         .then(activity => {

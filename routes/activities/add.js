@@ -17,8 +17,6 @@ const handleAdd = async (req, res, reader) => {
           body.object.id
         )
       } else if (body.target.type === 'note') {
-        console.log('This is a note')
-
         resultStack = await Note_Tag.addTagToNote(
           body.target.id,
           body.object.id
@@ -39,17 +37,21 @@ const handleAdd = async (req, res, reader) => {
                   } (${body.object.name})`
               )
             break
+
           case 'no publication':
             res
               .status(404)
               .send(`no publication found with id ${body.target.id}`)
             break
+
           case 'no tag':
             res.status(404).send(`no tag found with id ${body.object.id}`)
             break
+
           case 'no note':
             res.status(404).send(`no note found with id ${body.target.id}`)
             break
+
           default:
             res.status(400).send(`add tag to publication error: ${err.message}`)
             break
