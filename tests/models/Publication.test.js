@@ -233,6 +233,22 @@ const test = async app => {
     await tap.notOk(res)
   })
 
+  await tap.test('Update publication name', async () => {
+    const newPubObj = {
+      id: urlToId(publication.id),
+      name: 'New name for pub A'
+    }
+    const newPub = await Publication.update(newPubObj)
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.equal(newPub.name, 'New name for pub A')
+    await tap.equal(
+      newPub.readingOrder.data[0].name,
+      publication.readingOrder[0].name
+    )
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

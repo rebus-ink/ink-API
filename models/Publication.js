@@ -189,6 +189,8 @@ class Publication extends BaseModel {
   }
 
   static async update (newPubObj /*: any */) /*: Promise<any> */ {
+    console.log('New pub obj')
+    console.log(newPubObj)
     // Create metadata
     const metadata = {}
     metadataProps.forEach(property => {
@@ -196,10 +198,13 @@ class Publication extends BaseModel {
     })
 
     // Fetch the Publication that will be modified
-    let publication = await Publication.query().findById(urlToId(newPubObj.id))
+    let publication = await Publication.query().findById(newPubObj.id)
     if (!publication) {
       return null
     }
+
+    console.log('pub fetched from db')
+    console.log(publication)
 
     const modifications = _.pick(newPubObj, [
       'id',
@@ -212,18 +217,28 @@ class Publication extends BaseModel {
       'links'
     ])
 
-    modifications.readerId = newPubObj.readerId
-    modifications.metadata = metadata
-    modifications.readingOrder = { data: modifications.readingOrder }
-    if (modifications.links) modifications.links = { data: modifications.links }
-    if (modifications.resources) { modifications.resources = { data: modifications.resources } }
+    // modifications.readerId = publication.readerId
+    // modifications.metadata = metadata
+    // modifications.readingOrder = { data: modifications.readingOrder }
+    // if (modifications.links) modifications.links = { data: modifications.links }
+    // if (modifications.resources) { modifications.resources = { data: modifications.resources } }
+
+    console.log("What's in modifications")
+    console.log(modifications)
 
     // Assign the modifications to the object and update
     publication = Object.assign(publication, modifications)
+
+    console.log('publication after assigned modifications')
+    console.log(publication)
+
     const newPub = await Publication.query().updateAndFetchById(
-      urlToId(newPubObj.id),
+      newPubObj.id,
       publication
     )
+
+    console.log('New publication after update')
+    console.log(newPub)
 
     // Update Attributions if necessary
     if (newPubObj.author) {
@@ -271,6 +286,8 @@ class Publication extends BaseModel {
         }
       }
     }
+
+    return newPub
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
