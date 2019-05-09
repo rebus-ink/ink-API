@@ -24,32 +24,57 @@ Example:
 {
     "@context": [
       "https://www.w3.org/ns/activitystreams",
-      { "reader": "https://rebus.foundation/ns/reader" }
+      { reader: "https://rebus.foundation/ns/reader" }
     ],
-    "type": "Create",
-    "object": {
-      "type": "reader:Publication",
-      "name": "Publication A",
-      "attributedTo": [
-        {
-          "type": "Person",
-          "name": "Sample Author"
-        }
-      ],
-      "attachment": [
-        {
-          "type": "Document",
-          "name": "Chapter 9",
-          "position": 1,
-          "content": "Sample document content 1"
-        },
-        {
-          "type": "Document",
-          "name": "Chapter 2",
-          "position": 0,
-          "content": "Sample document content 2"
-        }
-      ]
+    type: "Create",
+    object: {
+      type: "Publication",
+      name: "Publication A",
+      author: ['John Smith'],
+      editor: 'Jane Doe',
+      description: 'Some description here',
+      links: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link'
+              }
+            ],
+      readingOrder: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object1'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object2'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object3'
+              }
+            ],
+      resources: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example resource'
+              }
+            ],
+      json: { property: 'value' }
     }
   }
 ```
@@ -61,14 +86,13 @@ Required properties:
     "https://www.w3.org/ns/activitystreams",
     { "reader": "https://rebus.foundation/ns/reader" }
   ],
-  "type": "Create",
-"object": {
-  "type": "reader:Publication",
-  "name": <string>
+  type: "Create",
+object: {
+  type: "Publication",
+  name: <string>,
+  readingOrder: Array<LinkObjects>
 }
 ```
-
-Documents attached to a publication will also be created and will belong to the publication. Alternatively, they can be created separately through the Create Document activity (see below)
 
 Possible errors:
 
@@ -83,12 +107,12 @@ Example:
 {
   "@context": [
     "https://www.w3.org/ns/activitystreams",
-    { "reader": "https://rebus.foundation/ns/reader" }
+    { reader: "https://rebus.foundation/ns/reader" }
   ],
-  "type": "Delete",
-  "object": {
-    "type": "reader:Publication",
-    "id": <publicationUrl>
+  type: "Delete",
+  object: {
+    type: "Publication",
+    id: <publicationUrl>
   }
 }
 ```
@@ -147,7 +171,6 @@ Example:
     { oa: 'http://www.w3.org/ns/oa#' }
   ],
   type: 'Read',
-  object: { type: 'Document', id: <documentUrl> },
   context: <publicationUrl>,
   'oa:hasSelector': {
     type: 'XPathSelector',
@@ -156,12 +179,24 @@ Example:
 }
 ```
 
-Once read activity is attached to a document, getting that document will return the latest read activity for that document position in the 'position' property
-Similarly, getting the publication will return the latest read activity attached to any of its documents.
+Required properties:
+
+```
+{
+  "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      { "reader": "https://rebus.foundation/ns/reader" }
+    ],
+    type: "Read",
+    context: <publicationId>,
+    'oa:hasSelector': <object>
+}
+```
+
+A user will be able to select the latest Read Activities providing the ID of a publication
 
 Possible errors:
 
-* 404: 'document with id {id} not found'
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ## Notes
@@ -184,8 +219,23 @@ Example:
     content: <string>,
     'oa:hasSelector': {},
     context: <publicationUrl>,
-    inReplyTo: <documentUrl>
+    inReplyTo: <documentUrl>,
+    noteType: <string>
   }
+}
+```
+
+Required Properties:
+
+```
+"@context": [
+    "https://www.w3.org/ns/activitystreams",
+    { reader: "https://rebus.foundation/ns/reader" }
+  ],
+  type: "Create",
+  object: {
+    type: "Note",
+    noteType: <string>
 }
 ```
 
@@ -216,8 +266,7 @@ Example:
   object: {
     type: 'Note',
     id: <noteUrl>,
-    content: <string>,
-    'oa:hasSelector': {}
+    content: <string>
   }
 }
 ```
@@ -228,6 +277,7 @@ Possible errors:
 
 * 404: 'no note found with id {id}'
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+* 400 'cannot update {note} - generic default error.
 
 ### Delete a Note
 
@@ -278,6 +328,7 @@ Example:
 Possible errors:
 
 * 400: 'create stack error: {message}' - generic error that occured on createTag. Refer to message for more details.
+* 400: 'duplicate error: stack {message}' - generic error that occurs on createTag when you try to create a stack that already exists.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ### Assign a Tag to a Publication
@@ -297,13 +348,14 @@ Example:
   },
   target: {
     id: <publicationId>
+    type: 'Publication'
   }
 }
 ```
 
-object can contain the entire note object, as returned as a reply to the GET document route. But only the id and the type are required.
+object can contain the entire tag object, as returned as a reply to the GET document route. But only the id and the type are required.
 
-Similarly, target can contain the entire publication object, but only the id proeprty is required.
+target contains the id of the publication, as well as a property 'type' with value 'Publication' that indicates that the Tag is assigned to a Publication.
 
 Possible errors:
 
@@ -311,6 +363,40 @@ Possible errors:
 * 404 'no tag found with id {id}'
 * 400 'publication {publicationId} already associated with tag {tagId} ({tag name})'
 * 400: 'add tag to publication error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
+### Assign a Tag to a Note
+
+Example:
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Add',
+  object: {
+    id: <tagId>
+    type: 'reader:Stack'
+  },
+  target: {
+    id: <noteId>
+    type: 'Note'
+  }
+}
+```
+
+object can contain the entire tag object, as returned as a reply to the GET document route. But only the id and the type are required.
+
+target contains the id of the note, as well as a property 'type' with value 'Note' that indicates that the Tag is assigned to a Publication.
+
+Possible errors:
+
+* 404 'no note found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'note {noteid} already associated with tag {tagId} ({tag name})'
+* 400: 'add tag to note error: {message}' - generic error that occured on add tag to note. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ### Remove Tag from Publication
@@ -328,6 +414,7 @@ Possible errors:
   },
   target: {
     id: <publicationId>
+    type: 'Publication'
   }
 }
 ```
@@ -337,4 +424,31 @@ Possible errors:
 * 404 'no publication found with id {id}'
 * 404 'no tag found with id {id}'
 * 400 'remove tag from publication error: {message}' - generic error that occured on remove tag from publication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
+### Remove Tag from Note
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Remove',
+  object: {
+    id: <tagId>
+    type: 'reader:Stack'
+  },
+  target: {
+    id: <noteId>
+    type: 'Note'
+  }
+}
+```
+
+Possible errors:
+
+* 404 'no note found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'remove tag from note error: {message}' - generic error that occured on remove tag from note. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
