@@ -1,6 +1,5 @@
 const { createActivityObject } = require('./utils')
 const { Publication_Tag } = require('../../models/Publications_Tags')
-const { Publication } = require('../../models/Publication')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Activity } = require('../../models/Activity')
 // const { urlToId } = require('./utils')

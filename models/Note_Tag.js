@@ -35,7 +35,6 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: string */
   ) /*: number */ {
-    console.log('Enter remove tag from note method')
     if (!noteId) return new Error('no note')
 
     if (!tagId) return new Error('no tag')

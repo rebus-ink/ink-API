@@ -1,6 +1,7 @@
 const { createActivityObject } = require('./utils')
 const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Activity } = require('../../models/Activity')
+const { Note_Tag } = require('../../models/Note_Tag')
 
 const handleRemove = async (req, res, reader) => {
   const body = req.body
@@ -15,17 +16,10 @@ const handleRemove = async (req, res, reader) => {
           body.object.id
         )
       } else if (body.target.type === 'note') {
-        console.log('Removing a note')
-
-        console.log('note id ' + body.target.id)
-        console.log('tag id: ' + body.object.id)
         resultStack = await Note_Tag.removeTagFromNote(
           body.target.id,
           body.object.id
         )
-
-        console.log('resutl stack')
-        console.log(resultStack)
       }
 
       if (resultStack instanceof Error) {
@@ -46,9 +40,9 @@ const handleRemove = async (req, res, reader) => {
             res
               .status(404)
               .send(
-                `no relationship found between tag ${
-                  body.object.id
-                } and publication ${body.target.id}`
+                `no relationship found between tag ${body.object.id} and ` +
+                  body.target.type +
+                  ` ${body.target.id}`
               )
             break
 

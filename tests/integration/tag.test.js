@@ -585,19 +585,71 @@ const test = async app => {
 
     await tap.equal(res.status, 201)
 
-    // const pubres = await request(app)
-    //   .get(urlparse(publication.id).path)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type(
-    //     'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    //   )
+    const notes = await request(app)
+      .get(urlparse(noteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-    // await tap.equal(pubres.status, 200)
-    // const body = pubres.body
-    // await tap.ok(Array.isArray(body.tags))
-    // await tap.equal(body.tags.length, 0)
+    await tap.equal(notes.status, 200)
+    const body = notes.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 0)
   })
+
+  await tap.test(
+    'Try to remove a tag from a note with invalid tag',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: 'blahTagId', type: stack.type },
+            target: { id: urlToId(noteUrl), type: 'note' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      await tap.ok(res.error.text.startsWith('no relationship found'))
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a note with invalid note',
+    async () => {
+      const res = await request(app)
+        .post(`${userUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: stack.id, type: stack.type },
+            target: { id: 'notanid', type: 'note' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      await tap.ok(res.error.text.startsWith('no relationship found'))
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

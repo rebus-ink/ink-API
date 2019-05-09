@@ -95,7 +95,6 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<any> */ {
-    console.log('TRY TO CREATE A NOTE')
     const { Document } = require('./Document')
 
     const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
@@ -112,9 +111,6 @@ class Note extends BaseModel {
       props.publicationId = note.context.id || note.context
     }
     props.readerId = reader.id
-
-    console.log('PROPS')
-    console.log(props)
 
     return await Note.query().insertAndFetch(props)
   }
