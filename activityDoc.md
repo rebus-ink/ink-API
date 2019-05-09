@@ -33,9 +33,47 @@ Example:
       author: ['John Smith'],
       editor: 'Jane Doe',
       description: 'Some description here',
-      links: [{ property: 'value' }],
-      readingOrder: [{ name: 'one' }, { name: 'two' }],
-      resources: [{ property: 'value' }],
+      links: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example link'
+              }
+            ],
+      readingOrder: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object1'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object2'
+              },
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example reading order object3'
+              }
+            ],
+      resources: [
+              {
+                '@context': 'https://www.w3.org/ns/activitystreams',
+                href: 'http://example.org/abc',
+                hreflang: 'en',
+                mediaType: 'text/html',
+                name: 'An example resource'
+              }
+            ],
       json: { property: 'value' }
     }
   }
@@ -52,11 +90,9 @@ Required properties:
 object: {
   type: "Publication",
   name: <string>,
-  readingOrder: <object>
+  readingOrder: Array<LinkObjects>
 }
 ```
-
-Documents attached to a publication will be created through an upload endpoint and will belong to the publication.
 
 Possible errors:
 
@@ -199,9 +235,7 @@ Required Properties:
   type: "Create",
   object: {
     type: "Note",
-    noteType: <string>,
-    context: <publicationUrl>,
-    inReplyTo: <documentUrl>
+    noteType: <string>
 }
 ```
 
@@ -297,7 +331,7 @@ Possible errors:
 * 400: 'duplicate error: stack {message}' - generic error that occurs on createTag when you try to create a stack that already exists.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
-### Assign a Tag to a Publication or Note
+### Assign a Tag to a Publication
 
 Example:
 
@@ -314,25 +348,58 @@ Example:
   },
   target: {
     id: <publicationId>
-    type: <pubOrNote>
+    type: 'Publication'
   }
 }
 ```
 
-object can contain the entire note object, as returned as a reply to the GET document route. But only the id and the type are required.
+object can contain the entire tag object, as returned as a reply to the GET document route. But only the id and the type are required.
 
-target contains the id of the publication or the note, as well as a property 'type' that indicates whether the tag is assigned to a Publication or a Note.
+target contains the id of the publication, as well as a property 'type' with value 'Publication' that indicates that the Tag is assigned to a Publication.
 
 Possible errors:
 
 * 404 'no publiation found with id {id}'
 * 404 'no tag found with id {id}'
-* 404 'no note found with id {id}
-* 400 'publication {publicationId} or note {noteId} already associated with tag {tagId} ({tag name})'
-* 400: 'add tag to publication or note error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
+* 400 'publication {publicationId} already associated with tag {tagId} ({tag name})'
+* 400: 'add tag to publication error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
-### Remove Tag from Publication or Note
+### Assign a Tag to a Note
+
+Example:
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Add',
+  object: {
+    id: <tagId>
+    type: 'reader:Stack'
+  },
+  target: {
+    id: <noteId>
+    type: 'Note'
+  }
+}
+```
+
+object can contain the entire tag object, as returned as a reply to the GET document route. But only the id and the type are required.
+
+target contains the id of the note, as well as a property 'type' with value 'Note' that indicates that the Tag is assigned to a Publication.
+
+Possible errors:
+
+* 404 'no note found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'note {noteid} already associated with tag {tagId} ({tag name})'
+* 400: 'add tag to note error: {message}' - generic error that occured on add tag to note. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
+### Remove Tag from Publication
 
 ```
 {
@@ -347,7 +414,7 @@ Possible errors:
   },
   target: {
     id: <publicationId>
-    type: <pubOrNote>
+    type: 'Publication'
   }
 }
 ```
@@ -355,7 +422,33 @@ Possible errors:
 Possible errors:
 
 * 404 'no publication found with id {id}'
+* 404 'no tag found with id {id}'
+* 400 'remove tag from publication error: {message}' - generic error that occured on remove tag from publication. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
+### Remove Tag from Note
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Remove',
+  object: {
+    id: <tagId>
+    type: 'reader:Stack'
+  },
+  target: {
+    id: <noteId>
+    type: 'Note'
+  }
+}
+```
+
+Possible errors:
+
 * 404 'no note found with id {id}'
 * 404 'no tag found with id {id}'
-* 400 'remove tag from publication or note error: {message}' - generic error that occured on remove tag from publication or note. Refer to message for more details.
+* 400 'remove tag from note error: {message}' - generic error that occured on remove tag from note. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
