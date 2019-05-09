@@ -188,6 +188,91 @@ class Publication extends BaseModel {
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
 
+  static async update (newPubObj /*: any */) /*: Promise<any> */ {
+    // Create metadata
+    const metadata = {}
+    metadataProps.forEach(property => {
+      metadata[property] = newPubObj[property]
+    })
+
+    // Fetch the Publication that will be modified
+    let publication = await Publication.query().findById(urlToId(newPubObj.id))
+    if (!publication) {
+      return null
+    }
+
+    const modifications = _.pick(newPubObj, [
+      'id',
+      'name',
+      'description',
+      'datePublished',
+      'json',
+      'readingOrder',
+      'resources',
+      'links'
+    ])
+
+    modifications.readerId = newPubObj.readerId
+    modifications.metadata = metadata
+    modifications.readingOrder = { data: modifications.readingOrder }
+    if (modifications.links) modifications.links = { data: modifications.links }
+    if (modifications.resources) { modifications.resources = { data: modifications.resources } }
+
+    // Assign the modifications to the object and update
+    publication = Object.assign(publication, modifications)
+    const newPub = await Publication.query().updateAndFetchById(
+      urlToId(newPubObj.id),
+      publication
+    )
+
+    // Update Attributions if necessary
+    if (newPubObj.author) {
+      // Delete previous authors
+      const numDeleted = await Attribution.deleteAttributionOfPub(
+        newPubObj.id,
+        'author'
+      )
+
+      if (typeof newPubObj.author === 'string') {
+        const attribution = await Attribution.createAttribution(
+          newPubObj.author,
+          'author',
+          newPub
+        )
+      } else {
+        for (var i = 0; i < newPubObj.author.length; i++) {
+          const attribution = await Attribution.createAttribution(
+            newPubObj.author[i],
+            'author',
+            newPub
+          )
+        }
+      }
+    } else if (newPubObj.editor) {
+      // Delete previous editors
+      const numDeleted = await Attribution.deleteAttributionOfPub(
+        newPubObj.id,
+        'editor'
+      )
+
+      if (typeof newPubObj.editor === 'string') {
+        const attribution = await Attribution.createAttribution(
+          newPubObj.editor,
+          'editor',
+          newPub
+        )
+      } else {
+        for (var i = 0; i < newPubObj.editor.length; i++) {
+          const attribution = await Attribution.createAttribution(
+            newPubObj.editor[i],
+            'editor',
+            newPub
+          )
+        }
+      }
+    }
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
