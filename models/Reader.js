@@ -42,10 +42,20 @@ class Reader extends BaseModel {
 
   static async byId (
     id /*: string */,
-    eager /*: string */
+    eager /*: string */,
+    limit /*: number */,
+    offset = 0 /*: number */
   ) /*: Promise<ReaderType> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
-    const readers = await qb.eager(eager)
+    let readers
+    if (limit) {
+      readers = await qb.eager(eager).modifyEager('publications', builder => {
+        builder.limit(limit).offset(offset)
+      })
+    } else {
+      readers = await qb.eager(eager)
+    }
+
     return readers[0]
   }
 
