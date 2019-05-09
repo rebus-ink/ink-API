@@ -10,12 +10,12 @@ const handleRemove = async (req, res, reader) => {
       let resultStack
 
       // Determine where the Tag is removed from
-      if (body.target.type === 'publication') {
+      if (body.target.type === 'Publication') {
         resultStack = await Publication_Tag.removeTagFromPub(
           body.target.id,
           body.object.id
         )
-      } else if (body.target.type === 'note') {
+      } else if (body.target.type === 'Note') {
         resultStack = await Note_Tag.removeTagFromNote(
           body.target.id,
           body.object.id

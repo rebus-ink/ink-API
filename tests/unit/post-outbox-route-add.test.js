@@ -44,7 +44,7 @@ const addPubToStackRequest = {
     id: 'https://localhost:8080/tag-123'
   },
   target: {
-    type: 'publication',
+    type: 'Publication',
     id: 'https://localhost:8080/publication-123'
   }
 }

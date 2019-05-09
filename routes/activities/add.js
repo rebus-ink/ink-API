@@ -10,12 +10,12 @@ const handleAdd = async (req, res, reader) => {
     case 'reader:Stack':
       // Determine if the Tag is added to a Publication or a Note
       let resultStack
-      if (body.target.type === 'publication') {
+      if (body.target.type === 'Publication') {
         resultStack = await Publication_Tag.addTagToPub(
           body.target.id,
           body.object.id
         )
-      } else if (body.target.type === 'note') {
+      } else if (body.target.type === 'Note') {
         resultStack = await Note_Tag.addTagToNote(
           body.target.id,
           body.object.id

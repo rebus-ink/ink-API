@@ -233,7 +233,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: { id: stack.id, type: stack.type },
-          target: { id: urlToId(publication.id), type: 'publication' }
+          target: { id: urlToId(publication.id), type: 'Publication' }
         })
       )
 
@@ -273,7 +273,7 @@ const test = async app => {
             ],
             type: 'Add',
             object: { id: 999, type: stack.type },
-            target: { id: urlToId(publication.id), type: 'publication' }
+            target: { id: urlToId(publication.id), type: 'Publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -298,7 +298,7 @@ const test = async app => {
             ],
             type: 'Add',
             object: { id: stack.id, type: stack.type },
-            target: { id: 'notanid', type: 'publication' }
+            target: { id: 'notanid', type: 'Publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -334,7 +334,7 @@ const test = async app => {
           ],
           type: 'Remove',
           object: stack,
-          target: { id: publication.id, type: 'publication' }
+          target: { id: publication.id, type: 'Publication' }
         })
       )
 
@@ -372,7 +372,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: 12345, type: stack.type },
-            target: { id: publication.id, type: 'publication' }
+            target: { id: publication.id, type: 'Publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -397,7 +397,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: stack.id, type: stack.type },
-            target: { id: 'notanid', type: 'publication' }
+            target: { id: 'notanid', type: 'Publication' }
           })
         )
       await tap.equal(res.status, 404)
@@ -422,7 +422,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: stack,
-          target: { id: publication.id, type: 'publication' }
+          target: { id: publication.id, type: 'Publication' }
         })
       )
 
@@ -441,7 +441,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: stack,
-          target: { id: publication.id, type: 'publication' }
+          target: { id: publication.id, type: 'Publication' }
         })
       )
     await tap.equal(res.status, 400)
@@ -482,7 +482,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: { id: stack.id, type: stack.type },
-          target: { id: urlToId(noteUrl), type: 'note' }
+          target: { id: urlToId(noteUrl), type: 'Note' }
         })
       )
 
@@ -520,7 +520,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: { id: 999, type: stack.type },
-          target: { id: urlToId(noteUrl), type: 'note' }
+          target: { id: urlToId(noteUrl), type: 'Note' }
         })
       )
     await tap.equal(res.status, 404)
@@ -543,7 +543,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: { id: stack.id, type: stack.type },
-          target: { id: 'notanid', type: 'note' }
+          target: { id: 'notanid', type: 'Note' }
         })
       )
     await tap.equal(res.status, 404)
@@ -579,7 +579,7 @@ const test = async app => {
           ],
           type: 'Remove',
           object: stack,
-          target: { id: urlToId(noteUrl), type: 'note' }
+          target: { id: urlToId(noteUrl), type: 'Note' }
         })
       )
 
@@ -617,7 +617,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: 'blahTagId', type: stack.type },
-            target: { id: urlToId(noteUrl), type: 'note' }
+            target: { id: urlToId(noteUrl), type: 'Note' }
           })
         )
       await tap.equal(res.status, 404)
@@ -643,7 +643,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: { id: stack.id, type: stack.type },
-            target: { id: 'notanid', type: 'note' }
+            target: { id: 'notanid', type: 'Note' }
           })
         )
       await tap.equal(res.status, 404)
