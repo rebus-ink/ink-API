@@ -50,6 +50,7 @@ class Note extends BaseModel {
     const { Publication } = require('./Publication.js')
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
+    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -73,6 +74,18 @@ class Note extends BaseModel {
         join: {
           from: 'Note.publicationId',
           to: 'Publication.id'
+        }
+      },
+      tags: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Note.id',
+          through: {
+            from: 'note_tag.noteId',
+            to: 'note_tag.tagId'
+          },
+          to: 'Tag.id'
         }
       }
     }
@@ -107,7 +120,7 @@ class Note extends BaseModel {
 
     const note = await Note.query()
       .findById(id)
-      .eager('reader')
+      .eager('[reader, tags]')
     if (!note) return undefined
 
     const document = await Document.byId(urlToId(note.documentId))
