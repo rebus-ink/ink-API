@@ -24,15 +24,15 @@ Example:
 {
     "@context": [
       "https://www.w3.org/ns/activitystreams",
-      { "reader": "https://rebus.foundation/ns/reader" }
+      { reader: "https://rebus.foundation/ns/reader" }
     ],
-    "type": "Create",
-    "object": {
-      "type": "Publication",
-      "name": "Publication A",
-      "author": ['John Smith'],
-      "editor": 'Jane Doe',
-      "description": 'Some description here',
+    type: "Create",
+    object: {
+      type: "Publication",
+      name: "Publication A",
+      author: ['John Smith'],
+      editor: 'Jane Doe',
+      description: 'Some description here',
       links: [{ property: 'value' }],
       readingOrder: [{ name: 'one' }, { name: 'two' }],
       resources: [{ property: 'value' }],
@@ -48,11 +48,11 @@ Required properties:
     "https://www.w3.org/ns/activitystreams",
     { "reader": "https://rebus.foundation/ns/reader" }
   ],
-  "type": "Create",
-"object": {
-  "type": "Publication",
-  "name": <string>,
-  "readingOrder": <object>
+  type: "Create",
+object: {
+  type: "Publication",
+  name: <string>,
+  readingOrder: <object>
 }
 ```
 
@@ -71,12 +71,12 @@ Example:
 {
   "@context": [
     "https://www.w3.org/ns/activitystreams",
-    { "reader": "https://rebus.foundation/ns/reader" }
+    { reader: "https://rebus.foundation/ns/reader" }
   ],
-  "type": "Delete",
-  "object": {
-    "type": "reader:Publication",
-    "id": <publicationUrl>
+  type: "Delete",
+  object: {
+    type: "Publication",
+    id: <publicationUrl>
   }
 }
 ```
@@ -143,12 +143,24 @@ Example:
 }
 ```
 
-Once read activity is attached to a document, getting that document will return the latest read activity for that document position in the 'position' property
-Similarly, getting the publication will return the latest read activity attached to any of its documents.
+Required properties:
+
+```
+{
+  "@context": [
+      "https://www.w3.org/ns/activitystreams",
+      { "reader": "https://rebus.foundation/ns/reader" }
+    ],
+    type: "Read",
+    context: <publicationId>,
+    'oa:hasSelector': <object>
+}
+```
+
+A user will be able to select the latest Read Activities providing the ID of a publication
 
 Possible errors:
 
-* 404: 'document with id {id} not found'
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
 ## Notes
@@ -182,14 +194,14 @@ Required Properties:
 ```
 "@context": [
     "https://www.w3.org/ns/activitystreams",
-    { "reader": "https://rebus.foundation/ns/reader" }
+    { reader: "https://rebus.foundation/ns/reader" }
   ],
-  "type": "Create",
-"object": {
-  "type": "Note",
-  "noteType": <string>,
-  context: <publicationUrl>,
-  inReplyTo: <documentUrl>
+  type: "Create",
+  object: {
+    type: "Note",
+    noteType: <string>,
+    context: <publicationUrl>,
+    inReplyTo: <documentUrl>
 }
 ```
 
@@ -220,8 +232,7 @@ Example:
   object: {
     type: 'Note',
     id: <noteUrl>,
-    content: <string>,
-    'oa:hasSelector': {}
+    content: <string>
   }
 }
 ```
@@ -232,6 +243,7 @@ Possible errors:
 
 * 404: 'no note found with id {id}'
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+* 400 'cannot update {note} - generic default error.
 
 ### Delete a Note
 
@@ -282,9 +294,10 @@ Example:
 Possible errors:
 
 * 400: 'create stack error: {message}' - generic error that occured on createTag. Refer to message for more details.
+* 400: 'duplicate error: stack {message}' - generic error that occurs on createTag when you try to create a stack that already exists.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
-### Assign a Tag to a Publication
+### Assign a Tag to a Publication or Note
 
 Example:
 
@@ -301,23 +314,25 @@ Example:
   },
   target: {
     id: <publicationId>
+    type: <pubOrNote>
   }
 }
 ```
 
 object can contain the entire note object, as returned as a reply to the GET document route. But only the id and the type are required.
 
-Similarly, target can contain the entire publication object, but only the id proeprty is required.
+target contains the id of the publication or the note, as well as a property 'type' that indicates whether the tag is assigned to a Publication or a Note.
 
 Possible errors:
 
 * 404 'no publiation found with id {id}'
 * 404 'no tag found with id {id}'
-* 400 'publication {publicationId} already associated with tag {tagId} ({tag name})'
-* 400: 'add tag to publication error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
+* 404 'no note found with id {id}
+* 400 'publication {publicationId} or note {noteId} already associated with tag {tagId} ({tag name})'
+* 400: 'add tag to publication or note error: {message}' - generic error that occured on add tag to publication. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
-### Remove Tag from Publication
+### Remove Tag from Publication or Note
 
 ```
 {
@@ -332,6 +347,7 @@ Possible errors:
   },
   target: {
     id: <publicationId>
+    type: <pubOrNote>
   }
 }
 ```
@@ -339,6 +355,7 @@ Possible errors:
 Possible errors:
 
 * 404 'no publication found with id {id}'
+* 404 'no note found with id {id}'
 * 404 'no tag found with id {id}'
-* 400 'remove tag from publication error: {message}' - generic error that occured on remove tag from publication. Refer to message for more details.
+* 400 'remove tag from publication or note error: {message}' - generic error that occured on remove tag from publication or note. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
