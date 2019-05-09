@@ -128,7 +128,7 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  // // Create a Document for that publication
+  // Create a Document for that publication
   const documentObject = {
     mediaType: 'txt',
     url: 'http://google-bucket/somewhere/file1234.txt',
