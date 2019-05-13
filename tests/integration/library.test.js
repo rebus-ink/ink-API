@@ -332,8 +332,18 @@ const test = async () => {
 
     await tap.equal(res2.body.totalItems, 10)
 
-    // should return 0 items if none found
     const res3 = await request(app)
+      .get(`${userUrl}/library?title=publication&limit=11`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.totalItems, 11)
+
+    // should return 0 items if none found
+    const res4 = await request(app)
       .get(`${userUrl}/library?title=ansoiwereow`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
@@ -341,7 +351,7 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(res3.body.totalItems, 0)
+    await tap.equal(res4.body.totalItems, 0)
   })
 
   await tap.test('filter library by attribution', async () => {
@@ -379,6 +389,95 @@ const test = async () => {
     await tap.notOk(body.items[0].readingOrder)
     await tap.notOk(body.items[0].links)
     await tap.notOk(body.items[0].json)
+
+    // should work with partial match
+    const res1 = await request(app)
+      .get(`${userUrl}/library?attribution=John d`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res1.body.items.length, 3)
+
+    // should work with limit
+    await createPublication('new book 4', 'Jane Smith', 'John Doe')
+    await createPublication('new book 5', 'Jane Smith', 'John Doe')
+    await createPublication('new book 6', 'Jane Smith', 'John Doe')
+    await createPublication('new book 7', 'Jane Smith', 'John Doe')
+    await createPublication('new book 8', 'Jane Smith', 'John Doe')
+    await createPublication('new book 9', 'Jane Smith', 'John Doe')
+    await createPublication('new book 10', 'Jane Smith', 'John Doe')
+    await createPublication('new book 11', 'Jane Smith', 'John Doe')
+    await createPublication('new book 12', 'Jane Smith', 'John Doe')
+    await createPublication('new book 13', 'Jane Smith', 'John Doe')
+    await createPublication('new book 14', 'Jane Smith', 'John Doe')
+    await createPublication('new book 15', 'Jane Smith', 'John Doe')
+
+    const res2 = await request(app)
+      .get(`${userUrl}/library?attribution=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 10)
+
+    const res3 = await request(app)
+      .get(`${userUrl}/library?attribution=John%20Doe&limit=11`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 11)
+
+    const res4 = await request(app)
+      .get(`${userUrl}/library?attribution=John%20Doe&limit=11&page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res4.body.items.length, 4)
+  })
+
+  await tap.test('filter library by attribution with role', async () => {
+    const res = await request(app)
+      .get(`${userUrl}/library?attribution=John%20D&role=author`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 2)
+
+    // should work with editor and with pagination
+    const res2 = await request(app)
+      .get(`${userUrl}/library?attribution=John%20D&role=editor`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 10)
+
+    const res3 = await request(app)
+      .get(`${userUrl}/library?attribution=John%20D&role=editor&page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 3)
   })
 
   await tap.test('filter library by author', async () => {
@@ -412,6 +511,37 @@ const test = async () => {
     await tap.notOk(body.items[0].readingOrder)
     await tap.notOk(body.items[0].links)
     await tap.notOk(body.items[0].json)
+
+    // should work with limit
+    const res2 = await request(app)
+      .get(`${userUrl}/library?author=JaneSmith`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 10)
+
+    const res3 = await request(app)
+      .get(`${userUrl}/library?author=JaneSmith&limit=11`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 11)
+
+    const res4 = await request(app)
+      .get(`${userUrl}/library?author=JaneSmith&limit=11&page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res4.body.items.length, 1)
   })
 
   await tap.test(

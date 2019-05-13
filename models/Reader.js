@@ -58,7 +58,24 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
-    const eager = '[tags, publications.[tags, attributions]]'
+
+    if (filter.attribution && filter.role) {
+      const attribution = Attribution.normalizeName(filter.attribution)
+      const readers = await qb
+        .eager('[tags, publications]')
+        .modifyEager('publications', builder => {
+          builder
+            .joinRelation('attributions')
+            .where('attributions.normalizedName', 'like', `%${attribution}%`)
+            .andWhere('attributions.role', '=', filter.role)
+          builder
+            .eager('[tags, attributions]')
+            .limit(limit)
+            .offset(offset)
+        })
+
+      return readers[0]
+    }
 
     if (filter.attribution) {
       const attribution = Attribution.normalizeName(filter.attribution)
@@ -67,8 +84,11 @@ class Reader extends BaseModel {
         .modifyEager('publications', builder => {
           builder
             .joinRelation('attributions')
-            .where('attributions.normalizedName', '=', attribution)
-          builder.eager('[tags, attributions]')
+            .where('attributions.normalizedName', 'like', `%${attribution}%`)
+          builder
+            .eager('[tags, attributions]')
+            .limit(limit)
+            .offset(offset)
         })
 
       return readers[0]
@@ -83,14 +103,17 @@ class Reader extends BaseModel {
             .joinRelation('attributions')
             .where('attributions.normalizedName', '=', attribution)
             .andWhere('attributions.role', '=', 'author')
-          builder.eager('[tags, attributions]')
+          builder
+            .eager('[tags, attributions]')
+            .limit(limit)
+            .offset(offset)
         })
 
       return readers[0]
     }
 
     const readers = await qb
-      .eager(eager)
+      .eager('[tags, publications.[tags, attributions]]')
       .modifyEager('publications', builder => {
         if (filter.title) {
           builder.whereRaw(

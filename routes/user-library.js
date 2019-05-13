@@ -77,10 +77,18 @@ module.exports = app => {
    *         name: attribution
    *         schema:
    *           type: string
+   *         description: a search in the attribution field. Will also return partial matches.
+   *       - in: query
+   *         name: role
+   *         schema:
+   *           type: string
+   *           enum: ['author', 'editor']
+   *         description: a modifier for attribution to specify the type of attribution
    *       - in: query
    *         name: author
    *         schema:
    *           type: string
+   *         description: will return only exact matches.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -108,6 +116,7 @@ module.exports = app => {
       const filters = {
         author: req.query.author,
         attribution: req.query.attribution,
+        role: req.query.role,
         title: req.query.title
       }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
