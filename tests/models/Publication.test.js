@@ -251,7 +251,6 @@ const test = async app => {
   })
 
   await tap.test('Update publication datePublished', async () => {
-    // await tap.equal(publication.datePublished, null)
     const timestamp = new Date(2018, 01, 30)
     const newPubObj = {
       id: urlToId(publication.id),
@@ -327,7 +326,7 @@ const test = async app => {
     let newAuthor2Exists = false
     let newEditorExists = false
 
-    for (var i = 0; i < attributions.length; i++) {
+    for (let i = 0; i < attributions.length; i++) {
       if (
         attributions[i].role === 'author' &&
         attributions[i].name === 'New Sample Author' &&
@@ -379,7 +378,7 @@ const test = async app => {
     let editor1Exists = false
     let editor2Exists = false
 
-    for (var i = 0; i < attributions.length; i++) {
+    for (let i = 0; i < attributions.length; i++) {
       if (
         attributions[i].role === 'author' &&
         attributions[i].name === 'Sample String Author1'

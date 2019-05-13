@@ -229,15 +229,10 @@ class Publication extends BaseModel {
 
     // Update Attributions if necessary
     if (newPubObj.author) {
-      console.log('Enter author attributions')
-      // Delete previous authors
-      const numDeleted = await Attribution.deleteAttributionOfPub(
-        newPubObj.id,
-        'author'
-      )
+      await Attribution.deleteAttributionOfPub(newPubObj.id, 'author')
 
-      for (var i = 0; i < newPubObj.author.length; i++) {
-        const attribution = await Attribution.createAttribution(
+      for (let i = 0; i < newPubObj.author.length; i++) {
+        await Attribution.createAttribution(
           newPubObj.author[i],
           'author',
           publication
@@ -246,19 +241,10 @@ class Publication extends BaseModel {
     }
 
     if (newPubObj.editor) {
-      console.log('Enter editor attribution')
+      await Attribution.deleteAttributionOfPub(newPubObj.id, 'editor')
 
-      console.log('Deleting previous editors')
-      const numDeleted = await Attribution.deleteAttributionOfPub(
-        newPubObj.id,
-        'editor'
-      )
-
-      console.log(numDeleted)
-
-      for (var i = 0; i < newPubObj.editor.length; i++) {
-        console.log('Editor is not a string')
-        const attribution = await Attribution.createAttribution(
+      for (let i = 0; i < newPubObj.editor.length; i++) {
+        await Attribution.createAttribution(
           newPubObj.editor[i],
           'editor',
           publication
