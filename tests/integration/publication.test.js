@@ -8,6 +8,7 @@ const {
   getActivityFromUrl
 } = require('./utils')
 const _ = require('lodash')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -372,6 +373,32 @@ const test = async app => {
         })
       )
     await tap.equal(res1.statusCode, 404)
+  })
+
+  await tap.test('Update the name of a publication', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Publication',
+            id: urlToId(publicationUrl),
+            name: 'New name for pub A'
+          }
+        })
+      )
+
+    await tap.equal(res.status, 201)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
