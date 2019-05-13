@@ -3,6 +3,7 @@ const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
+const { Attribution } = require('./Attribution')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -58,6 +59,36 @@ class Reader extends BaseModel {
   ) {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     const eager = '[tags, publications.[tags, attributions]]'
+
+    if (filter.attribution) {
+      const attribution = Attribution.normalizeName(filter.attribution)
+      const readers = await qb
+        .eager('[tags, publications]')
+        .modifyEager('publications', builder => {
+          builder
+            .joinRelation('attributions')
+            .where('attributions.normalizedName', '=', attribution)
+          builder.eager('[tags, attributions]')
+        })
+
+      return readers[0]
+    }
+
+    if (filter.author) {
+      const attribution = Attribution.normalizeName(filter.author)
+      const readers = await qb
+        .eager('[tags, publications]')
+        .modifyEager('publications', builder => {
+          builder
+            .joinRelation('attributions')
+            .where('attributions.normalizedName', '=', attribution)
+            .andWhere('attributions.role', '=', 'author')
+          builder.eager('[tags, attributions]')
+        })
+
+      return readers[0]
+    }
+
     const readers = await qb
       .eager(eager)
       .modifyEager('publications', builder => {

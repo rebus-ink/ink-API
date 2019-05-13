@@ -73,6 +73,14 @@ module.exports = app => {
    *         schema:
    *           type: number
    *           default: 1
+   *       - in: query
+   *         name: attribution
+   *         schema:
+   *           type: string
+   *       - in: query
+   *         name: author
+   *         schema:
+   *           type: string
    *     security:
    *       - Bearer: []
    *     produces:

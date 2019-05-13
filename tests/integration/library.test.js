@@ -19,7 +19,11 @@ const test = async () => {
   const userCompleteUrl = await createUser(app, token)
   const userUrl = urlparse(userCompleteUrl).path
 
-  const createPublication = async title => {
+  const createPublication = async (
+    title,
+    author = ['John Smith'],
+    editor = 'Jane Doe'
+  ) => {
     return await request(app)
       .post(`${userUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -37,8 +41,8 @@ const test = async () => {
           object: {
             type: 'Publication',
             name: title,
-            author: ['John Smith'],
-            editor: 'Jane Doe',
+            author: author,
+            editor: editor,
             description: 'this is a description!!',
             keywords: 'one, two',
             links: [{ property: 'value' }],
@@ -338,6 +342,76 @@ const test = async () => {
       )
 
     await tap.equal(res3.body.totalItems, 0)
+  })
+
+  await tap.test('filter library by attribution', async () => {
+    await createPublication('new book 1', 'John Doe')
+    await createPublication('new book 2', `jo H. n'dOe`)
+    await createPublication('new book 3', 'John Smith', 'John doe')
+
+    const res = await request(app)
+      .get(`${userUrl}/library?attribution=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    // should @context be an object or a string?
+    await tap.type(body['@context'], 'string')
+    await tap.equal(body.type, 'Collection')
+    await tap.type(body.totalItems, 'number')
+    await tap.equal(body.totalItems, 3)
+    await tap.ok(Array.isArray(body.items))
+    // documents should include:
+    await tap.equal(body.items[0].type, 'Publication')
+    await tap.type(body.items[0].id, 'string')
+    await tap.type(body.items[0].name, 'string')
+    await tap.equal(body.items[0].name, 'new book 3')
+    await tap.equal(body.items[0].author[0].name, 'John Smith')
+    // documents should NOT include:
+    await tap.notOk(body.items[0].resources)
+    await tap.notOk(body.items[0].readingOrder)
+    await tap.notOk(body.items[0].links)
+    await tap.notOk(body.items[0].json)
+  })
+
+  await tap.test('filter library by author', async () => {
+    const res = await request(app)
+      .get(`${userUrl}/library?author=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    // should @context be an object or a string?
+    await tap.type(body['@context'], 'string')
+    await tap.equal(body.type, 'Collection')
+    await tap.type(body.totalItems, 'number')
+    await tap.equal(body.totalItems, 2)
+    await tap.ok(Array.isArray(body.items))
+    // documents should include:
+    await tap.equal(body.items[0].type, 'Publication')
+    await tap.type(body.items[0].id, 'string')
+    await tap.type(body.items[0].name, 'string')
+    await tap.equal(body.items[0].name, 'new book 2')
+    await tap.equal(body.items[0].author[0].name, `jo H. n'dOe`)
+    // documents should NOT include:
+    await tap.notOk(body.items[0].resources)
+    await tap.notOk(body.items[0].readingOrder)
+    await tap.notOk(body.items[0].links)
+    await tap.notOk(body.items[0].json)
   })
 
   await tap.test(
