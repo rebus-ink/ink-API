@@ -189,8 +189,6 @@ class Publication extends BaseModel {
   }
 
   static async update (newPubObj /*: any */) /*: Promise<any> */ {
-    console.log('New pub obj')
-    console.log(newPubObj)
     // Create metadata
     const metadata = {}
     metadataProps.forEach(property => {
@@ -203,9 +201,6 @@ class Publication extends BaseModel {
       return null
     }
 
-    console.log('pub fetched from db')
-    console.log(publication)
-
     const modifications = _.pick(newPubObj, [
       'id',
       'name',
@@ -217,78 +212,64 @@ class Publication extends BaseModel {
       'links'
     ])
 
-    // modifications.metadata = metadata
-    if (modifications.readingOrder) { modifcations.readingOrder = { data: modifications.readingOrder } }
+    if (metadata) {
+      modifications.metadata = metadata
+    }
+
+    if (modifications.readingOrder) {
+      modifcations.readingOrder = { data: modifications.readingOrder }
+    }
     if (modifications.links) modifications.links = { data: modifications.links }
     if (modifications.resources) {
       modifications.resources = { data: modifications.resources }
     }
 
-    console.log("What's in modifications")
-    console.log(modifications)
-
-    // Assign the modifications to the object and update
+    // Assign the modifications to the publication object
     publication = Object.assign(publication, modifications)
-
-    console.log('publication after assigned modifications')
-    console.log(publication)
-
-    const newPub = await Publication.query().updateAndFetchById(
-      newPubObj.id,
-      publication
-    )
-
-    console.log('New publication after update')
-    console.log(newPub)
 
     // Update Attributions if necessary
     if (newPubObj.author) {
+      console.log('Enter author attributions')
       // Delete previous authors
       const numDeleted = await Attribution.deleteAttributionOfPub(
         newPubObj.id,
         'author'
       )
 
-      if (typeof newPubObj.author === 'string') {
+      for (var i = 0; i < newPubObj.author.length; i++) {
         const attribution = await Attribution.createAttribution(
-          newPubObj.author,
+          newPubObj.author[i],
           'author',
-          newPub
+          publication
         )
-      } else {
-        for (var i = 0; i < newPubObj.author.length; i++) {
-          const attribution = await Attribution.createAttribution(
-            newPubObj.author[i],
-            'author',
-            newPub
-          )
-        }
       }
-    } else if (newPubObj.editor) {
-      // Delete previous editors
+    }
+
+    if (newPubObj.editor) {
+      console.log('Enter editor attribution')
+
+      console.log('Deleting previous editors')
       const numDeleted = await Attribution.deleteAttributionOfPub(
         newPubObj.id,
         'editor'
       )
 
-      if (typeof newPubObj.editor === 'string') {
+      console.log(numDeleted)
+
+      for (var i = 0; i < newPubObj.editor.length; i++) {
+        console.log('Editor is not a string')
         const attribution = await Attribution.createAttribution(
-          newPubObj.editor,
+          newPubObj.editor[i],
           'editor',
-          newPub
+          publication
         )
-      } else {
-        for (var i = 0; i < newPubObj.editor.length; i++) {
-          const attribution = await Attribution.createAttribution(
-            newPubObj.editor[i],
-            'editor',
-            newPub
-          )
-        }
       }
     }
 
-    return newPub
+    return await Publication.query().updateAndFetchById(
+      newPubObj.id,
+      publication
+    )
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
