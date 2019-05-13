@@ -73,7 +73,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get Reader Library', async () => {
-    ReaderStub.Reader.byId = async () => Promise.resolve(readerLibrary)
+    ReaderStub.Reader.getLibrary = async () => Promise.resolve(readerLibrary)
     checkReaderStub.returns(true)
 
     const res = await request
@@ -102,7 +102,7 @@ const test = async () => {
   })
 
   await tap.test('Get Reader Library, filtering by tag', async () => {
-    ReaderStub.Reader.byId = async () => Promise.resolve(readerLibrary)
+    ReaderStub.Reader.getLibrary = async () => Promise.resolve(readerLibrary)
     checkReaderStub.returns(true)
 
     const res = await request
@@ -134,7 +134,7 @@ const test = async () => {
   await tap.test(
     'Get Reader Library that belongs to another reader',
     async () => {
-      ReaderStub.Reader.byId = async () => Promise.resolve(readerLibrary)
+      ReaderStub.Reader.getLibrary = async () => Promise.resolve(readerLibrary)
       checkReaderStub.returns(false)
 
       const res = await request
@@ -151,7 +151,7 @@ const test = async () => {
   await tap.test(
     'Get Reader Library for a user that does not exist',
     async () => {
-      ReaderStub.Reader.byId = async () => Promise.resolve(null)
+      ReaderStub.Reader.getLibrary = async () => Promise.resolve(null)
       checkReaderStub.returns(true)
 
       const res = await request
