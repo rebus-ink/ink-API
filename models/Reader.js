@@ -187,7 +187,6 @@ class Reader extends BaseModel {
 
     const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
-    const { Attribution } = require('./Attribution.js')
     const { Tag } = require('./Tag.js')
     return {
       publications: {
