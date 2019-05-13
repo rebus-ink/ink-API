@@ -217,11 +217,12 @@ class Publication extends BaseModel {
       'links'
     ])
 
-    // modifications.readerId = publication.readerId
     // modifications.metadata = metadata
-    // modifications.readingOrder = { data: modifications.readingOrder }
-    // if (modifications.links) modifications.links = { data: modifications.links }
-    // if (modifications.resources) { modifications.resources = { data: modifications.resources } }
+    if (modifications.readingOrder) { modifcations.readingOrder = { data: modifications.readingOrder } }
+    if (modifications.links) modifications.links = { data: modifications.links }
+    if (modifications.resources) {
+      modifications.resources = { data: modifications.resources }
+    }
 
     console.log("What's in modifications")
     console.log(modifications)
