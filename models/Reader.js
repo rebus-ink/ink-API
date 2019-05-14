@@ -142,6 +142,21 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
+  static async getNotes (
+    readerId /*: string */,
+    limit /*: number */,
+    offset = 0 /*: number */
+  ) /*: Promise<array<any>> */ {
+    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+
+    const readers = await qb
+      .eager('replies')
+      .modifyEager('replies', builder => {
+        builder.limit(limit).offset(offset)
+      })
+    return readers[0]
+  }
+
   static async createReader (
     authId,
     person /*: any */
