@@ -73,6 +73,22 @@ module.exports = app => {
    *         schema:
    *           type: number
    *           default: 1
+   *       - in: query
+   *         name: attribution
+   *         schema:
+   *           type: string
+   *         description: a search in the attribution field. Will also return partial matches.
+   *       - in: query
+   *         name: role
+   *         schema:
+   *           type: string
+   *           enum: ['author', 'editor']
+   *         description: a modifier for attribution to specify the type of attribution
+   *       - in: query
+   *         name: author
+   *         schema:
+   *           type: string
+   *         description: will return only exact matches.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -97,13 +113,14 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
+      const filters = {
+        author: req.query.author,
+        attribution: req.query.attribution,
+        role: req.query.role,
+        title: req.query.title
+      }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
-      Reader.byId(
-        id,
-        '[tags, publications.[tags, attributions]]',
-        req.query.limit,
-        req.skip
-      )
+      Reader.getLibrary(id, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${id}`)
