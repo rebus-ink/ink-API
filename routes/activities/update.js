@@ -26,7 +26,7 @@ const handleUpdate = async (req, res, reader) => {
 
     case 'Publication':
       const resultPub = await Publication.update(body.object)
-      if (resultPub == null) {
+      if (resultPub === null) {
         res.status(404).send(`no publication found with id ${body.object.id}`)
         break
       }

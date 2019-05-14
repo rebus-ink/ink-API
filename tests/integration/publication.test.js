@@ -9,7 +9,6 @@ const {
 } = require('./utils')
 const _ = require('lodash')
 const { urlToId } = require('../../routes/utils')
-const { Publication } = require('../../models/Publication')
 const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
@@ -272,7 +271,6 @@ const test = async app => {
 
   await tap.test('Update the name of a publication', async () => {
     const timestamp = new Date(2018, 01, 30)
-    console.log('pub id before ' + publicationUrl)
     const res = await request(app)
       .post(`${userUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -324,9 +322,6 @@ const test = async app => {
     await tap.equal(resPub.statusCode, 200)
 
     const body = resPub.body
-    console.log('pub object')
-    console.log(body)
-    console.log('timestampt' + timestamp)
 
     const attributions = await Attribution.getAttributionByPubId(
       urlToId(body.id)
