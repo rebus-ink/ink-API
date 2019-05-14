@@ -270,6 +270,7 @@ const test = async app => {
   })
 
   await tap.test('Update the name of a publication', async () => {
+    const timestamp = new Date(2018, 01, 30)
     console.log('pub id before ' + publicationUrl)
     const res = await request(app)
       .post(`${userUrl}/activity`)
@@ -288,7 +289,12 @@ const test = async app => {
           object: {
             type: 'Publication',
             id: publicationUrl,
-            name: 'New name for pub A'
+            name: 'New name for pub A',
+            datePublished: timestamp,
+            description: 'New description for Publication',
+            json: { property: 'New value for json property' },
+            inLanguage: ['Swahili', 'French'],
+            keywords: ['newKeyWord1', 'newKeyWord2']
           }
         })
       )
@@ -310,6 +316,15 @@ const test = async app => {
       )
 
     await tap.equal(resPub.statusCode, 200)
+
+    const body = resPub.body
+    console.log('pub object')
+    console.log(body.datePublished)
+    console.log('timestampt' + timestamp)
+    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.description, 'New description for Publication')
+    // await tap.equal(body.datePublished, timestamp)
+    await tap.equal(body.json.property, 'New value for json property')
   })
 
   await tap.test('Delete Publication', async () => {

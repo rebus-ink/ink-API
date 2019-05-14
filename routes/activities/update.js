@@ -30,7 +30,6 @@ const handleUpdate = async (req, res, reader) => {
         res.status(404).send(`no publication found with id ${body.object.id}`)
         break
       }
-      console.log('Pub updated')
       const activityObjPub = createActivityObject(body, resultPub, reader)
       Activity.createActivity(activityObjPub)
         .then(activity => {
