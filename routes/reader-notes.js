@@ -4,26 +4,12 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('./utils')
-const _ = require('lodash')
 const paginate = require('express-paginate')
-const { Note } = require('../models/Note')
 
 /**
  * @swagger
  * definition:
- *   publication-ref:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *         enum: ['Publication']
- *       name:
- *         type: string
- *       attributedTo:
- *         type: array
- *   library:
+ *   notes:
  *     properties:
  *       id:
  *         type: string
@@ -43,7 +29,7 @@ const { Note } = require('../models/Note')
  *       items:
  *         type: array
  *         items:
- *           $ref: '#/definitions/publication-ref'
+ *           $ref: '#/definitions/note'
  *
  */
 module.exports = app => {
@@ -111,16 +97,7 @@ module.exports = app => {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             let replies = reader.replies.filter(reply => !reply.deleted)
-            // if (req.query.stack) {
-            //   publications = publications.filter(pub => {
-            //     const result = _.find(pub.tags, tag => {
-            //       return (
-            //         tag.type === 'reader:Stack' && tag.name === req.query.stack
-            //       )
-            //     })
-            //     return result
-            //   })
-            // }
+
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
@@ -131,7 +108,7 @@ module.exports = app => {
                 id: getId(`/reader-${id}/notes`),
                 totalItems: replies.length,
                 items: replies,
-                page: res.locals.paginate.page,
+                page: req.query.page,
                 pageSize: req.query.limit
               })
             )

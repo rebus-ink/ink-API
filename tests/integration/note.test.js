@@ -563,6 +563,7 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     const body = res.body
+    console.log(body)
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
     await tap.equal(body.items[0].type, 'Note')

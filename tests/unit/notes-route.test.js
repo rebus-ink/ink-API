@@ -7,6 +7,7 @@ const passport = require('passport')
 const { ExtractJwt } = require('passport-jwt')
 const MockStrategy = require('passport-mock-strategy')
 const { Note } = require('../../models/Note')
+const { Reader } = require('../../models/Reader')
 
 const setupPassport = () => {
   var opts = {}
@@ -50,12 +51,23 @@ const note2 = Object.assign(new Note(), {
   updated: '2018-12-18 15:54:12'
 })
 
+const readerNotes = Object.assign(new Reader(), {
+  id: '95256c7b-e613-4036-899b-d686708b12e0',
+  name: 'Joe Smith',
+  authId: 'auth0|foo1545149658018',
+  published: '2018-12-18T16:14:18.104Z',
+  updated: '2018-12-18 16:14:18',
+  replies: [note1, note2]
+})
+
 const test = async () => {
   const NoteStub = {}
+  const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const noteRoute = proxyquire('../../routes/notes', {
+  const noteRoute = proxyquire('../../routes/reader-notes', {
     '../models/Note.js': NoteStub,
+    '../models/Reader.js': ReaderStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
@@ -65,11 +77,11 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get Notes', async () => {
-    NoteStub.Note.byId = async () => Promise.resolve(note)
+    ReaderStub.Reader.getNotes = async () => Promise.resolve(readerNotes)
     checkReaderStub.returns(true)
 
     const res = await request
-      .get('/note-123')
+      .get('/reader-123/notes')
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -79,20 +91,17 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Note')
+    await tap.equal(body.type, 'Collection')
     await tap.type(body.id, 'string')
-    await tap.type(body.inReplyTo, 'string')
-    // await tap.type(body.context, 'string') not sure what is going on here!
-    // await tap.type(body['oa:hasSelector'], 'object')
-    await tap.type(body['@context'], 'object')
-    await tap.ok(Array.isArray(body['@context']))
+    await tap.equal(body.items.length, 2)
+    await tap.equal(body.items[0].type, 'Note')
   })
 
   await tap.test('Get Note that does not exist', async () => {
-    NoteStub.Note.byId = async () => Promise.resolve(undefined)
+    ReaderStub.Reader.getNotes = async () => Promise.resolve(null)
 
     const res = await request
-      .get('/note-123')
+      .get('/reader-123/notes')
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -102,11 +111,11 @@ const test = async () => {
   })
 
   await tap.test('Get Note that belongs to another reader', async () => {
-    NoteStub.Note.byId = async () => Promise.resolve(note)
+    ReaderStub.Reader.getNotes = async () => Promise.resolve(readerNotes)
     checkReaderStub.returns(false)
 
     const res = await request
-      .get('/note-123')
+      .get('/reader-123/notes')
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
