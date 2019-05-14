@@ -10,6 +10,7 @@ const {
 const _ = require('lodash')
 const { urlToId } = require('../../routes/utils')
 const { Publication } = require('../../models/Publication')
+const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -294,7 +295,12 @@ const test = async app => {
             description: 'New description for Publication',
             json: { property: 'New value for json property' },
             inLanguage: ['Swahili', 'French'],
-            keywords: ['newKeyWord1', 'newKeyWord2']
+            keywords: ['newKeyWord1', 'newKeyWord2'],
+            author: [
+              { type: 'Person', name: 'New Sample Author' },
+              { type: 'Organization', name: 'New Org inc.' }
+            ],
+            editor: [{ type: 'Person', name: 'New Sample Editor' }]
           }
         })
       )
@@ -319,12 +325,29 @@ const test = async app => {
 
     const body = resPub.body
     console.log('pub object')
-    console.log(body.datePublished)
+    console.log(body)
     console.log('timestampt' + timestamp)
+
+    const attributions = await Attribution.getAttributionByPubId(
+      urlToId(body.id)
+    )
+
     await tap.equal(body.name, 'New name for pub A')
     await tap.equal(body.description, 'New description for Publication')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
+    await tap.equal(body.inLanguage[0], 'Swahili')
+    await tap.equal(body.inLanguage[1], 'French')
+    await tap.equal(body.keywords[0], 'newKeyWord1')
+    await tap.equal(body.keywords[1], 'newKeyWord2')
+    await tap.ok(attributions)
+    await tap.ok(attributions[0] instanceof Attribution)
+    await tap.equal(attributions.length, 3)
+    await tap.ok(
+      attributions[0].name === 'New Sample Author' ||
+        attributions[0].name === 'New Org inc.' ||
+        attributions[0].name === 'New Sample Editor'
+    )
   })
 
   await tap.test('Delete Publication', async () => {
