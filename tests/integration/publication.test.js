@@ -9,6 +9,7 @@ const {
 } = require('./utils')
 const _ = require('lodash')
 const { urlToId } = require('../../routes/utils')
+const { Publication } = require('../../models/Publication')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -268,6 +269,49 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
   })
 
+  await tap.test('Update the name of a publication', async () => {
+    console.log('pub id before ' + publicationUrl)
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Publication',
+            id: publicationUrl,
+            name: 'New name for pub A'
+          }
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
+
+    activityUrl = res.get('Location')
+
+    const activityObject = await getActivityFromUrl(app, activityUrl, token)
+    const newPublicationUrl = activityObject.object.id
+
+    const resPub = await request(app)
+      .get(urlparse(newPublicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(resPub.statusCode, 200)
+  })
+
   await tap.test('Delete Publication', async () => {
     // before
     const before = await request(app)
@@ -373,32 +417,6 @@ const test = async app => {
         })
       )
     await tap.equal(res1.statusCode, 404)
-  })
-
-  await tap.test('Update the name of a publication', async () => {
-    const res = await request(app)
-      .post(`${userUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Update',
-          object: {
-            type: 'Publication',
-            id: urlToId(publicationUrl),
-            name: 'New name for pub A'
-          }
-        })
-      )
-
-    await tap.equal(res.status, 201)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

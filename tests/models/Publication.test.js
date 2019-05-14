@@ -223,93 +223,129 @@ const test = async app => {
 
   //   await tap.equal(res.message, 'duplicate')
   // })
-
-  await tap.test('Delete publication', async () => {
-    const res = await Publication.delete(publicationId)
-    await tap.ok(res.deleted)
-  })
-
-  await tap.test('Delete publication that does not exist', async () => {
-    const res = await Publication.delete('123')
-    await tap.notOk(res)
-  })
-
   await tap.test('Update publication name', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       name: 'New name for pub A'
     }
+
+    // Update the publication
     const newPub = await Publication.update(newPubObj)
+
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
 
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(newPub.name, 'New name for pub A')
+    await tap.equal(newPub.name, pubRetrieved.name)
     await tap.equal(
       newPub.readingOrder.data[0].name,
-      publication.readingOrder[0].name
+      pubRetrieved.readingOrder[0].name
     )
   })
+
+  await tap.test(
+    'Update publication with incorrect publicationId',
+    async () => {
+      const newPubObj = {
+        id: 'BlahID',
+        name: 'New name for pub A'
+      }
+
+      const newPub = await Publication.update(newPubObj)
+
+      await tap.ok(!newPub)
+      await tap.equal(newPub, null)
+    }
+  )
 
   await tap.test('Update publication datePublished', async () => {
     const timestamp = new Date(2018, 01, 30)
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       datePublished: timestamp
     }
 
     const newPub = await Publication.update(newPubObj)
 
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(newPub.datePublished.toString(), timestamp.toString())
+    await tap.equal(
+      newPub.datePublished.toString(),
+      pubRetrieved.datePublished.toString()
+    )
   })
 
   await tap.test('Update publication description', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       description: 'New description for Publication'
     }
 
     const newPub = await Publication.update(newPubObj)
 
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(newPub.description, newPubObj.description)
+    await tap.equal(newPub.description, pubRetrieved.description)
   })
 
   await tap.test('Update publication json object', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       json: { property: 'New value for json property' }
     }
 
     const newPub = await Publication.update(newPubObj)
 
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(newPub.json.property, newPubObj.json.property)
+    await tap.equal(newPub.json.property, pubRetrieved.json.property)
   })
 
   await tap.test('Update publication metadata', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       inLanguage: ['Swahili', 'French'],
       keywords: ['newKeyWord1', 'newKeyWord2']
     }
 
     const newPub = await Publication.update(newPubObj)
 
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(newPub.metadata.keywords[0], newPubObj.keywords[0])
-    await tap.equal(newPub.metadata.keywords[1], newPubObj.keywords[1])
-    await tap.equal(newPub.metadata.inLanguage[0], newPubObj.inLanguage[0])
-    await tap.equal(newPub.metadata.inLanguage[1], newPubObj.inLanguage[1])
+    await tap.equal(
+      newPub.metadata.keywords[0],
+      pubRetrieved.metadata.keywords[0]
+    )
+    await tap.equal(
+      newPub.metadata.keywords[1],
+      pubRetrieved.metadata.keywords[1]
+    )
+    await tap.equal(
+      newPub.metadata.inLanguage[0],
+      pubRetrieved.metadata.inLanguage[0]
+    )
+    await tap.equal(
+      newPub.metadata.inLanguage[1],
+      pubRetrieved.metadata.inLanguage[1]
+    )
   })
 
   await tap.test('Update publication attribution with objects', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       author: [
         { type: 'Person', name: 'New Sample Author' },
         { type: 'Organization', name: 'New Org inc.' }
@@ -363,7 +399,7 @@ const test = async app => {
 
   await tap.test('Update publication attribution with strings', async () => {
     const newPubObj = {
-      id: urlToId(publication.id),
+      id: publication.id,
       author: ['Sample String Author1', 'Sample String Author2'],
       editor: ['Sample String Editor1', 'Sample String Editor2']
     }
@@ -416,6 +452,16 @@ const test = async app => {
     await tap.ok(author2Exists)
     await tap.ok(editor1Exists)
     await tap.ok(editor2Exists)
+  })
+
+  await tap.test('Delete publication', async () => {
+    const res = await Publication.delete(publicationId)
+    await tap.ok(res.deleted)
+  })
+
+  await tap.test('Delete publication that does not exist', async () => {
+    const res = await Publication.delete('123')
+    await tap.notOk(res)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

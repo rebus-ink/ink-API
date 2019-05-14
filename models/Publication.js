@@ -7,6 +7,7 @@ const { ReadActivity } = require('./ReadActivity')
 
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
+const { urlToId } = require('../routes/utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -196,7 +197,7 @@ class Publication extends BaseModel {
     })
 
     // Fetch the Publication that will be modified
-    let publication = await Publication.query().findById(newPubObj.id)
+    let publication = await Publication.query().findById(urlToId(newPubObj.id))
     if (!publication) {
       return null
     }
@@ -229,7 +230,7 @@ class Publication extends BaseModel {
 
     // Update Attributions if necessary
     if (newPubObj.author) {
-      await Attribution.deleteAttributionOfPub(newPubObj.id, 'author')
+      await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), 'author')
 
       for (let i = 0; i < newPubObj.author.length; i++) {
         await Attribution.createAttribution(
@@ -241,7 +242,7 @@ class Publication extends BaseModel {
     }
 
     if (newPubObj.editor) {
-      await Attribution.deleteAttributionOfPub(newPubObj.id, 'editor')
+      await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), 'editor')
 
       for (let i = 0; i < newPubObj.editor.length; i++) {
         await Attribution.createAttribution(
@@ -252,10 +253,12 @@ class Publication extends BaseModel {
       }
     }
 
-    return await Publication.query().updateAndFetchById(
-      newPubObj.id,
+    const pub = await Publication.query().updateAndFetchById(
+      urlToId(newPubObj.id),
       publication
     )
+
+    return pub
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {

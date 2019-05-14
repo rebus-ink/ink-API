@@ -129,6 +129,7 @@ module.exports = function (app) {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
+      console.log('Id retrieved: ' + id)
       Publication.byId(id)
         .then(publication => {
           if (!publication || publication.deleted) {
