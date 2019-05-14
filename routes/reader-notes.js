@@ -94,11 +94,11 @@ module.exports = app => {
   app.use(paginate.middleware())
   router.get(
     '/reader-:id/notes',
-    paginate.middleware(10, 100),
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
+      if (req.query.limit > 100) req.query.limit = 100
       Reader.getNotes(id, req.query.limit, req.skip)
         .then(reader => {
           if (!reader) {

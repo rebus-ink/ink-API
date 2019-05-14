@@ -9,7 +9,6 @@ const {
 } = require('./utils')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../routes/utils')
-const { Note } = require('../../models/Note')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -74,6 +73,38 @@ const test = async app => {
   )
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+
+  const createNote = async (
+    pubId = publicationUrl,
+    docUrl = documentUrl,
+    type = 'test'
+  ) => {
+    return await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Note',
+            content: 'This is the content of note A.',
+            'oa:hasSelector': { propety: 'value' },
+            context: pubId,
+            inReplyTo: docUrl,
+            noteType: type,
+            json: { property1: 'value1' }
+          }
+        })
+      )
+  }
 
   await tap.test('Create Note', async () => {
     const res = await request(app)
@@ -519,57 +550,8 @@ const test = async app => {
 
   await tap.test('Get all notes for a reader', async () => {
     // create more notes
-    await request(app)
-      .post(`${userUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'Note',
-            content: 'This is the content of note X.',
-            'oa:hasSelector': { propety: 'value' },
-            context: publicationUrl,
-            inReplyTo: documentUrl,
-            noteType: 'test',
-            json: { property1: 'value1' }
-          }
-        })
-      )
-
-    await request(app)
-      .post(`${userUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'Note',
-            content: 'This is the content of note Y.',
-            'oa:hasSelector': { propety: 'value' },
-            context: publicationUrl,
-            inReplyTo: documentUrl,
-            noteType: 'test',
-            json: { property1: 'value1' }
-          }
-        })
-      )
+    await createNote()
+    await createNote()
 
     const res = await request(app)
       .get(`${userUrl}/notes`)
@@ -584,6 +566,55 @@ const test = async app => {
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
     await tap.equal(body.items[0].type, 'Note')
+
+    // should work with pagination
+
+    await createNote() // 4
+    await createNote() // 5
+    await createNote() // 6
+    await createNote() // 7
+    await createNote() // 8
+    await createNote() // 9
+    await createNote() // 10
+    await createNote() // 11
+    await createNote() // 12
+    await createNote() // 13
+
+    const res2 = await request(app)
+      .get(`${userUrl}/notes`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.status, 200)
+    await tap.equal(res2.body.totalItems, 10)
+    await tap.equal(res2.body.items.length, 10)
+
+    const res3 = await request(app)
+      .get(`${userUrl}/notes?page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.status, 200)
+    await tap.equal(res3.body.totalItems, 3)
+    await tap.equal(res3.body.items.length, 3)
+
+    const res4 = await request(app)
+      .get(`${userUrl}/notes?limit=11&page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res4.status, 200)
+    await tap.equal(res4.body.totalItems, 2)
+    await tap.equal(res4.body.items.length, 2)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
