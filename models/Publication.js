@@ -203,7 +203,6 @@ class Publication extends BaseModel {
     }
 
     const modifications = _.pick(newPubObj, [
-      'id',
       'name',
       'description',
       'datePublished',
@@ -228,43 +227,31 @@ class Publication extends BaseModel {
     // Assign the modifications to the publication object
     publication = Object.assign(publication, modifications)
 
-    // Update Attributions if necessary
-    if (newPubObj.author) {
-      await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), 'author')
-
-      for (let i = 0; i < newPubObj.author.length; i++) {
-        await Attribution.createAttribution(
-          newPubObj.author[i],
-          'author',
-          publication
-        )
-      }
-    }
-
-    if (newPubObj.editor) {
-      await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), 'editor')
-
-      for (let i = 0; i < newPubObj.editor.length; i++) {
-        await Attribution.createAttribution(
-          newPubObj.editor[i],
-          'editor',
-          publication
-        )
-      }
-    }
-
-    return await Publication.query().updateAndFetchById(
+    let updatedPub = await Publication.query().updateAndFetchById(
       urlToId(newPubObj.id),
       publication
     )
-  }
 
-  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
-    const parent = super.$beforeInsert(queryOptions, context)
-    let doc = this
-    return Promise.resolve(parent).then(function () {
-      doc.updated = new Date().toISOString()
-    })
+    // Update Attributions if necessary
+    for (const role of attributionTypes) {
+      if (newPubObj[role]) {
+        // Delete the previous attributions for this role
+        await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), role)
+
+        // Assign new attributions
+        updatedPub[role] = []
+        for (let i = 0; i < newPubObj[role].length; i++) {
+          const attribution = await Attribution.createAttribution(
+            newPubObj[role][i],
+            role,
+            publication
+          )
+          updatedPub[role].push(attribution)
+        }
+      }
+    }
+
+    return updatedPub
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {

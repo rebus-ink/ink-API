@@ -335,6 +335,15 @@ const test = async app => {
     await tap.equal(body.inLanguage[1], 'French')
     await tap.equal(body.keywords[0], 'newKeyWord1')
     await tap.equal(body.keywords[1], 'newKeyWord2')
+    await tap.ok(
+      body.author[0].name === 'New Org inc.' ||
+        body.author[0].name === 'New Sample Author'
+    )
+    await tap.ok(
+      body.author[1].name === 'New Org inc.' ||
+        body.author[1].name === 'New Sample Author'
+    )
+    await tap.equal(body.editor[0].name, 'New Sample Editor')
     await tap.ok(attributions)
     await tap.ok(attributions[0] instanceof Attribution)
     await tap.equal(attributions.length, 3)

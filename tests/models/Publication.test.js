@@ -389,6 +389,15 @@ const test = async app => {
 
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
+    await tap.ok(
+      newPub.author[0].name === 'New Sample Author' ||
+        newPub.author[0].name === 'New Org inc.'
+    )
+    await tap.ok(
+      newPub.author[1].name === 'New Sample Author' ||
+        newPub.author[1].name === 'New Org inc.'
+    )
+    await tap.equal(newPub.editor[0].name, 'New Sample Editor')
     await tap.ok(attributions[0] instanceof Attribution)
     await tap.equal(attributions.length, 3)
     await tap.ok(newAuthor1Exists)
