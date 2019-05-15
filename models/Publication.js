@@ -253,12 +253,10 @@ class Publication extends BaseModel {
       }
     }
 
-    const pub = await Publication.query().updateAndFetchById(
+    return await Publication.query().updateAndFetchById(
       urlToId(newPubObj.id),
       publication
     )
-
-    return pub
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {

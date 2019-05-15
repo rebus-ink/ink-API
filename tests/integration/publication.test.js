@@ -270,7 +270,7 @@ const test = async app => {
   })
 
   await tap.test('Update the name of a publication', async () => {
-    const timestamp = new Date(2018, 01, 30)
+    const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
       .post(`${userUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -329,7 +329,7 @@ const test = async app => {
 
     await tap.equal(body.name, 'New name for pub A')
     await tap.equal(body.description, 'New description for Publication')
-    // await tap.equal(body.datePublished, timestamp)
+    await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
     await tap.equal(body.inLanguage[0], 'Swahili')
     await tap.equal(body.inLanguage[1], 'French')
