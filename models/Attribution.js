@@ -106,7 +106,7 @@ class Attribution extends BaseModel {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '') // remove accents
       .replace(/\s/g, '') // remove spaces
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '') // remove punctuation
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\']/g, '') // remove punctuation
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
