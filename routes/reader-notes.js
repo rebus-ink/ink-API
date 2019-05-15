@@ -88,7 +88,8 @@ module.exports = app => {
       const filters = {
         publication: req.query.publication,
         document: req.query.document,
-        type: req.query.type
+        type: req.query.type,
+        search: req.query.search
       }
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {

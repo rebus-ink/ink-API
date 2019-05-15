@@ -132,7 +132,8 @@ const test = async app => {
   const createNote = async (
     pubId = publicationUrl,
     docUrl = documentUrl,
-    type = 'test'
+    type = 'test',
+    content = 'this is the content'
   ) => {
     return await request(app)
       .post(`${userUrl}/activity`)
@@ -150,7 +151,7 @@ const test = async app => {
           type: 'Create',
           object: {
             type: 'Note',
-            content: 'This is the content of note A.',
+            content: content,
             'oa:hasSelector': { propety: 'value' },
             context: pubId,
             inReplyTo: docUrl,
@@ -357,6 +358,65 @@ const test = async app => {
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
     await tap.equal(res2.body.items.length, 2)
+  })
+
+  await tap.test('search note content', async () => {
+    await createNote(
+      publicationUrl,
+      documentUrl,
+      'test',
+      'this string contains abc and other things'
+    )
+    await createNote(
+      publicationUrl,
+      documentUrl,
+      'test',
+      'this string contains ABCD and other things'
+    )
+    await createNote(
+      publicationUrl,
+      documentUrl,
+      'test2',
+      'this string contains XYABC and other things'
+    )
+    await createNote(publicationUrl2, documentUrl2, 'test', 'abc')
+
+    const res = await request(app)
+      .get(`${userUrl}/notes?search=abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 4)
+
+    // should combine with other filters:
+    const res2 = await request(app)
+      .get(`${userUrl}/notes?search=abc&type=test2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.equal(res2.body.items.length, 1)
+
+    const res3 = await request(app)
+      .get(`${userUrl}/notes?search=abc&document=${documentUrl}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.status, 200)
+    await tap.ok(res3.body)
+    await tap.equal(res3.body.items.length, 3)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

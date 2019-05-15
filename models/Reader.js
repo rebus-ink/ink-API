@@ -166,6 +166,12 @@ class Reader extends BaseModel {
         if (filters.type) {
           builder.where('noteType', '=', filters.type)
         }
+        if (filters.search) {
+          builder.whereRaw(
+            'LOWER(content) LIKE ?',
+            '%' + filters.search.toLowerCase() + '%'
+          )
+        }
         builder.limit(limit).offset(offset)
       })
     return readers[0]
