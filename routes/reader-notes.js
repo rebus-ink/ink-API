@@ -60,6 +60,26 @@ module.exports = app => {
    *         schema:
    *           type: number
    *           default: 1
+   *       - in: query
+   *         name: document
+   *         schema:
+   *           type: string
+   *         description: the url of the document the note is associated with
+   *       - in: query
+   *         name: publication
+   *         schema:
+   *           type: string
+   *         description: the id of the publication the note is associated with
+   *       - in: query
+   *         name: type
+   *         schema:
+   *           type: string
+   *         description: the type of note
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: keyword to search for in the content of notes. Not case sensitive.
    *     security:
    *       - Bearer: []
    *     produces:
