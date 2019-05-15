@@ -258,9 +258,7 @@ const test = async () => {
 
       await tap.equal(res.statusCode, 404)
       await tap.ok(
-        res.error.text.startsWith(
-          'note creation failed: no document found with id'
-        )
+        res.error.text.startsWith('note creation failed: no document found')
       )
       await tap.ok(addNoteSpy.calledOnce)
     }

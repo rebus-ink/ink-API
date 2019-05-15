@@ -136,7 +136,8 @@ const test = async app => {
     const readerWithNotes = await Reader.getNotes(
       urlToId(createdReader.id),
       10,
-      0
+      0,
+      {}
     )
     await tap.ok(readerWithNotes)
     await tap.type(readerWithNotes.id, 'string')
