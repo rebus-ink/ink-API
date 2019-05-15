@@ -7,7 +7,6 @@ const { urlToId } = require('../../routes/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
 const crypto = require('crypto')
-//const knex = require('knex')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
