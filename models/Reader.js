@@ -152,17 +152,19 @@ class Reader extends BaseModel {
       const path = urlparse(filters.document).path.substr(45)
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
-      if (!doc) throw new Error('no document')
     }
 
     const readers = await qb
       .eager('replies')
       .modifyEager('replies', builder => {
-        if (filters.publicationId) {
-          builder.where('publicationId', '=', urlToId(filters.publicationId))
+        if (filters.publication) {
+          builder.where('publicationId', '=', urlToId(filters.publication))
         }
         if (filters.document) {
           builder.where('documentId', '=', urlToId(doc.id))
+        }
+        if (filters.type) {
+          builder.where('noteType', '=', filters.type)
         }
         builder.limit(limit).offset(offset)
       })

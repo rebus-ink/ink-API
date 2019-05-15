@@ -237,7 +237,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2)
 
     const res = await request(app)
-      .get(`${userUrl}/notes?publicationId=${publicationUrl2}`)
+      .get(`${userUrl}/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -265,7 +265,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2) // 13
 
     const res2 = await request(app)
-      .get(`${userUrl}/notes?publicationId=${urlToId(publicationUrl2)}`)
+      .get(`${userUrl}/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -277,7 +277,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/notes?page=2&publicationId=${urlToId(publicationUrl2)}`)
+      .get(`${userUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -289,11 +289,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(
-        `${userUrl}/notes?limit=11&page=2&publicationId=${urlToId(
-          publicationUrl2
-        )}`
-      )
+      .get(`${userUrl}/notes?limit=11&page=2&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -329,6 +325,38 @@ const test = async app => {
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
     await tap.equal(res2.body.items.length, 3)
+  })
+
+  await tap.test('filter notes by noteType', async () => {
+    await createNote(publicationUrl2, documentUrl2, 'new')
+    await createNote(publicationUrl2, documentUrl2, 'new')
+
+    const res = await request(app)
+      .get(`${userUrl}/notes?type=new`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 2)
+
+    // combine with pubid filter
+    await createNote(publicationUrl, documentUrl, 'new')
+
+    const res2 = await request(app)
+      .get(`${userUrl}/notes?type=new&publication=${publicationUrl2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.equal(res2.body.items.length, 2)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

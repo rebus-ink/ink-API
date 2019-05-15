@@ -86,8 +86,9 @@ module.exports = app => {
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       if (req.query.limit > 100) req.query.limit = 100
       const filters = {
-        publicationId: req.query.publicationId,
-        document: req.query.document
+        publication: req.query.publication,
+        document: req.query.document,
+        type: req.query.type
       }
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {
