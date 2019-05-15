@@ -2,11 +2,9 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const short = require('short-uuid')
-const translator = short()
-const { Activity } = require('./Activity')
 const _ = require('lodash')
 const { urlToId } = require('../routes/utils')
+const urlparse = require('url').parse
 
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
@@ -31,28 +29,28 @@ class Note extends BaseModel {
     return {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid', maxLength: 255 },
-        readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        json: {
-          type: 'object',
-          properties: {
-            type: { const: 'Note' }
-          },
-          additionalProperties: true
-        },
+        id: { type: 'string' },
+        noteType: { type: 'string' },
+        content: { type: 'string' },
+        selector: { type: 'object' },
+        json: { type: 'object' },
+        readerId: { type: 'string' },
+        documentId: { type: 'string' },
+        publicationId: { type: 'string' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['json']
+      required: ['noteType', 'readerId']
     }
   }
 
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
-    const { Reader } = require('./Reader.js')
     const { Document } = require('./Document.js')
+    const { Reader } = require('./Reader.js')
+    const { Tag } = require('./Tag.js')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -60,14 +58,6 @@ class Note extends BaseModel {
         join: {
           from: 'Note.readerId',
           to: 'Reader.id'
-        }
-      },
-      outbox: {
-        relation: Model.HasManyRelation,
-        modelClass: Activity,
-        join: {
-          from: 'Note.id',
-          to: 'Activity.noteId'
         }
       },
       inReplyTo: {
@@ -85,59 +75,101 @@ class Note extends BaseModel {
           from: 'Note.publicationId',
           to: 'Publication.id'
         }
+      },
+      tags: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Note.id',
+          through: {
+            from: 'note_tag.noteId',
+            to: 'note_tag.tagId'
+          },
+          to: 'Tag.id'
+        }
       }
     }
   }
 
-  static async byShortId (
-    shortId /*: string */
-  ) /*: Promise<{
-    id: string,
-    type: string,
-    json: {
-      type: string,
-      content: string,
-      'oa:selector':any,
-      context: string,
-      inReplyTo: string,
-      summaryMap: { en: string },
-      readerId: string,
-      published: string,
-      updated: string,
-      reader: {id: string, json: any, userId: string, published: string, updated: string}
+  static async createNote (
+    reader /*: any */,
+    note /*: any */
+  ) /*: Promise<any> */ {
+    const { Document } = require('./Document')
+
+    const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
+
+    if (note.inReplyTo) {
+      // $FlowFixMe
+      const path = urlparse(note.inReplyTo).path.substr(45)
+      const document = await Document.byPath(urlToId(note.context), path)
+      props.documentId = urlToId(document.id)
     }
-  }> */ {
-    return Note.query()
-      .findById(translator.toUUID(shortId))
-      .eager('reader')
+    props.selector = note['oa:hasSelector']
+
+    if (note.context) {
+      props.publicationId = note.context.id || note.context
+    }
+    props.readerId = reader.id
+
+    return await Note.query().insertAndFetch(props)
+  }
+
+  static async byId (id /*: string */) /*: Promise<any> */ {
+    const { Document } = require('./Document')
+
+    const note = await Note.query()
+      .findById(id)
+      .eager('[reader, tags]')
+    if (!note) return undefined
+
+    const document = await Document.byId(urlToId(note.documentId))
+    // $FlowFixMe
+    note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
+      document.documentPath
+    }`
+    note.context = note.publicationId
+
+    return note
   }
 
   asRef () /*: string */ {
-    return this.toJSON().id
+    return this.id
   }
 
-  static async delete (shortId /*: string */) /*: Promise<any> */ {
-    const noteId = translator.toUUID(shortId)
-    let note = await Note.query().findById(noteId)
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    let note = await Note.query().findById(id)
     if (!note || note.deleted) return null
     note.deleted = new Date().toISOString()
-    return await Note.query().updateAndFetchById(noteId, note)
+    return await Note.query().updateAndFetchById(id, note)
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
     // $FlowFixMe
-    const noteId = urlToId(object.id)
-    const modifications = _.pick(object, [
-      'content',
-      'summary',
-      'oa:hasSelector'
-    ])
-    let note = await Note.query().findById(noteId)
+    object.selector = object['oa:hasSelector']
+    const modifications = _.pick(object, ['content', 'selector'])
+    let note = await Note.query().findById(urlToId(object.id))
     if (!note) {
       return null
     }
-    note.json = Object.assign(note.json, modifications)
-    return await Note.query().updateAndFetchById(noteId, note)
+    note = Object.assign(note, modifications)
+    return await Note.query().updateAndFetchById(urlToId(object.id), note)
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.type = 'Note'
+    json['oa:hasSelector'] = json.selector
+    json.context = json.publicationId
+    return json
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = new Date().toISOString()
+    })
   }
 }
 

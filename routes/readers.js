@@ -14,7 +14,7 @@ const insertNewReader = (userId, person) => {
   debug(`Inserting new reader for user ID ${userId}`)
   return new Promise((resolve, reject) => {
     debug(`Querying for user with ID ${userId}`)
-    Reader.checkIfExists(userId)
+    Reader.checkIfExistsByAuthId(userId)
       .then(response => {
         if (response) {
           reject(new ReaderExistsError(userId))
@@ -31,13 +31,18 @@ const insertNewReader = (userId, person) => {
  * definition:
  *   readers-request:
  *     properties:
- *       type:
- *         type: string
- *         enum: ['Person']
  *       name:
  *         type: string
+ *         required: true
  *       '@context':
  *         type: array
+ *         required: true
+ *       profile:
+ *         type: object
+ *       preferences:
+ *         type: object,
+ *       json:
+ *         type: object
  *
  */
 
@@ -74,8 +79,8 @@ module.exports = function (app) {
             'Content-Type',
             'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
           )
-          debug(`Setting location to ${reader.url}`)
-          res.setHeader('Location', reader.url)
+          debug(`Setting location to ${reader.id}`)
+          res.setHeader('Location', reader.id)
           res.sendStatus(201)
           res.end()
         })

@@ -1,28 +1,26 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('Note', function (table) {
-    table.uuid('id').primary()
-    table.string('type').defaultTo('text/html')
+  return knex.schema.createTable('Document', function (table) {
+    table.string('id').primary()
+    table.string('mediaType')
+      .defaultTo('text/html')
+      .index()
+    table.string('url').notNullable()
+    table.string('documentPath').notNullable().index()
     table.jsonb('json')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('documentId')
-      .references('id')
-      .inTable('Document')
-      .nullable()
-      //.notNullable() TODO: migrate
-      .index()
-    table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
       .nullable()
-      //.notNullable() TODO: migrate
+      .notNullable()
+      .onDelete('CASCADE')
       .index()
     table
       .timestamp('published')
@@ -38,5 +36,5 @@ exports.up = function (knex, Promise) {
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('Note')
+  return knex.schema.dropTable('Document')
 }

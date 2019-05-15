@@ -10,7 +10,6 @@ const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const activityRoute = require('./routes/activity')
-const documentRoute = require('./routes/document')
 const publicationRoute = require('./routes/publication')
 const readerLibraryRoute = require('./routes/user-library')
 const userStreamsRoute = require('./routes/user-streams')
@@ -21,7 +20,9 @@ const readersRoute = require('./routes/readers')
 const getOutboxRoute = require('./routes/outbox-get')
 const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
+const publicationFileUploadRoute = require('./routes/publication-file-upload')
 const noteRoute = require('./routes/note')
+const publicationDocumentRoute = require('./routes/publication-document')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -155,7 +156,6 @@ app.terminate = async () => {
 }
 
 activityRoute(app)
-documentRoute(app)
 publicationRoute(app)
 readerLibraryRoute(app)
 userStreamsRoute(app)
@@ -166,7 +166,9 @@ readersRoute(app)
 getOutboxRoute(app)
 postOutboxRoute(app)
 fileUploadRoute(app)
+publicationFileUploadRoute(app)
 noteRoute(app)
+publicationDocumentRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

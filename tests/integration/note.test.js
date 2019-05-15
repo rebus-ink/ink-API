@@ -7,6 +7,8 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('./utils')
+const { Document } = require('../../models/Document')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -34,23 +36,15 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Publication',
+          type: 'Publication',
           name: 'Publication A',
-          attributedTo: [
-            {
-              type: 'Person',
-              name: 'Sample Author'
-            }
-          ],
-          totalItems: 2,
-          attachment: [
-            {
-              type: 'Document',
-              name: 'Chapter 1',
-              content: 'Sample document content 1',
-              position: 0
-            }
-          ]
+          author: ['John Smith'],
+          editor: 'Jane Doe',
+          description: 'this is a description!!',
+          links: [{ property: 'value' }],
+          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+          resources: [{ property: 'value' }],
+          json: { property: 'value' }
         }
       })
     )
@@ -58,6 +52,7 @@ const test = async app => {
   const pubActivityUrl = resActivity.get('Location')
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
   const publicationUrl = pubActivityObject.object.id
+
   const resPublication = await request(app)
     .get(urlparse(publicationUrl).path)
     .set('Host', 'reader-api.test')
@@ -65,7 +60,19 @@ const test = async app => {
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
-  const documentUrl = resPublication.body.orderedItems[0].id
+
+  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  const createdDocument = await Document.createDocument(
+    { id: urlToId(userId) },
+    urlToId(resPublication.body.id),
+    {
+      documentPath: '/path/1',
+      mediaType: 'text/html',
+      url: 'http://something/123'
+    }
+  )
+
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   await tap.test('Create Note', async () => {
     const res = await request(app)
@@ -85,16 +92,43 @@ const test = async app => {
           object: {
             type: 'Note',
             content: 'This is the content of note A.',
-            'oa:hasSelector': {},
+            'oa:hasSelector': { propety: 'value' },
             context: publicationUrl,
-            inReplyTo: documentUrl
+            inReplyTo: documentUrl,
+            noteType: 'test',
+            json: { property1: 'value1' }
           }
         })
       )
-
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
+  })
+
+  await tap.test('Create Simple Note', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Note',
+            'oa:hasSelector': { propety: 'value' },
+            noteType: 'test'
+          }
+        })
+      )
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
   })
 
   // TODO: migrate
@@ -178,10 +212,14 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')
+    await tap.type(body.content, 'string')
     await tap.type(body.inReplyTo, 'string')
     await tap.type(body.context, 'string')
     await tap.type(body['oa:hasSelector'], 'object')
     await tap.type(body['@context'], 'object')
+    await tap.type(body.json, 'object')
+    await tap.ok(body.published)
+    await tap.ok(body.updated)
     await tap.ok(Array.isArray(body['@context']))
   })
 
@@ -193,26 +231,7 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(res.statusCode, 404)
-  })
-
-  await tap.test('Get Document with Note', async () => {
-    const res = await request(app)
-      .get(urlparse(documentUrl).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-
-    await tap.equal(res.statusCode, 200)
-
-    const body = res.body
-    await tap.ok(Array.isArray(body.replies))
-    await tap.equal(body.replies.length, 1)
-    await tap.equal(body.replies[0].type, 'Note')
-    await tap.type(body.replies[0].content, 'string')
   })
 
   await tap.test('Get Publication with reference to Notes', async () => {
@@ -232,81 +251,81 @@ const test = async app => {
     await tap.type(body.replies[0], 'string')
   })
 
-  await tap.test(
-    'Publication should include notes from different documents',
-    async () => {
-      // create another document for this publication
-      const documentRes = await request(app)
-        .post(`${userUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Create',
-            object: {
-              type: 'Document',
-              name: 'Document B',
-              content: 'This is the content of document B.',
-              context: publicationUrl
-            }
-          })
-        )
+  // await tap.test(
+  //   'Publication should include notes from different documents',
+  //   async () => {
+  //     // create another document for this publication
+  //     const documentRes = await request(app)
+  //       .post(`${userUrl}/activity`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
+  //       .send(
+  //         JSON.stringify({
+  //           '@context': [
+  //             'https://www.w3.org/ns/activitystreams',
+  //             { reader: 'https://rebus.foundation/ns/reader' }
+  //           ],
+  //           type: 'Create',
+  //           object: {
+  //             type: 'Document',
+  //             name: 'Document B',
+  //             content: 'This is the content of document B.',
+  //             context: publicationUrl
+  //           }
+  //         })
+  //       )
 
-      const pubActivityUrl2 = documentRes.get('Location')
-      const ActivityObject2 = await getActivityFromUrl(
-        app,
-        pubActivityUrl2,
-        token
-      )
-      const secondDocUrl = ActivityObject2.object.id
-      // create a note for that document
-      await request(app)
-        .post(`${userUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Create',
-            object: {
-              type: 'Note',
-              content: 'This is the content of note A.',
-              'oa:hasSelector': {},
-              context: publicationUrl,
-              inReplyTo: secondDocUrl
-            }
-          })
-        )
+  //     const pubActivityUrl2 = documentRes.get('Location')
+  //     const ActivityObject2 = await getActivityFromUrl(
+  //       app,
+  //       pubActivityUrl2,
+  //       token
+  //     )
+  //     const secondDocUrl = ActivityObject2.object.id
+  //     // create a note for that document
+  //     await request(app)
+  //       .post(`${userUrl}/activity`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
+  //       .send(
+  //         JSON.stringify({
+  //           '@context': [
+  //             'https://www.w3.org/ns/activitystreams',
+  //             { reader: 'https://rebus.foundation/ns/reader' }
+  //           ],
+  //           type: 'Create',
+  //           object: {
+  //             type: 'Note',
+  //             content: 'This is the content of note A.',
+  //             'oa:hasSelector': {},
+  //             context: publicationUrl,
+  //             inReplyTo: secondDocUrl
+  //           }
+  //         })
+  //       )
 
-      const res = await request(app)
-        .get(urlparse(publicationUrl).path)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+  //     const res = await request(app)
+  //       .get(urlparse(publicationUrl).path)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type(
+  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       )
 
-      await tap.equal(res.statusCode, 200)
+  //     await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.ok(Array.isArray(body.replies))
-      await tap.equal(body.replies.length, 2)
-      await tap.type(body.replies[1], 'string')
-    }
-  )
+  //     const body = res.body
+  //     await tap.ok(Array.isArray(body.replies))
+  //     await tap.equal(body.replies.length, 2)
+  //     await tap.type(body.replies[1], 'string')
+  //   }
+  // )
 
   await tap.test('Update a Note', async () => {
     const res = await request(app)
@@ -330,6 +349,7 @@ const test = async app => {
           }
         })
       )
+
     await tap.equal(res.statusCode, 201)
     await tap.type(res.get('Location'), 'string')
     activityUrl = res.get('Location')
@@ -395,17 +415,7 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-    await tap.equal(pubresbefore.body.replies.length, 2)
-
-    // before: document has one note attached
-    const docresbefore = await request(app)
-      .get(urlparse(documentUrl).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(docresbefore.body.replies.length, 1)
+    await tap.equal(pubresbefore.body.replies.length, 1) // should be 2 if previous test is re-enabled
 
     const res = await request(app)
       .post(`${userUrl}/activity`)
@@ -454,16 +464,7 @@ const test = async app => {
 
     const body = pubres.body
     await tap.ok(Array.isArray(body.replies))
-    await tap.equal(body.replies.length, 1)
-
-    const docres = await request(app)
-      .get(urlparse(documentUrl).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(docres.body.replies.length, 0)
+    await tap.equal(body.replies.length, 0)
   })
 
   await tap.test('Try to delete a Note that does not exist', async () => {

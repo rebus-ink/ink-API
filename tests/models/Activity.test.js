@@ -2,66 +2,80 @@ const tap = require('tap')
 const { destroyDB } = require('../integration/utils')
 const { Activity } = require('../../models/Activity')
 const { Reader } = require('../../models/Reader')
-const { urlToShortId } = require('../../routes/utils')
+const crypto = require('crypto')
+const { urlToId } = require('../../routes/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
 
-  const newActivity = Object.assign(new Activity(), {
-    type: 'Activity',
-    json: {
-      '@context': [
-        'https://www.w3.org/ns/activitystreams',
-        { reader: 'https://rebus.foundation/ns/reader' }
-      ],
-      type: 'Arrive',
-      location: {
-        id: 'https://places.test/rebus-foundation-office',
-        type: 'Place',
-        nameMap: {
-          en: 'Rebus Foundation Office'
-        }
-      },
-      summaryMap: { en: 'neutral activity' }
-    },
-    documentId: null,
-    noteId: null,
-    published: '2018-12-18T14:56:53.173Z',
-    updated: '2018-12-18 14:56:53',
-    publication: null,
-    document: null,
-    note: null
-  })
-
   const reader = {
-    name: 'J. Random Reader',
-    userId: 'auth0|foo1545149868961'
+    name: 'J. Random Reader'
+  }
+  const random = crypto.randomBytes(13).toString('hex')
+
+  const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
+
+  const activityObject = {
+    type: 'Arrive',
+    readerId: urlToId(createdReader.id),
+    object: {
+      type: 'Document'
+    },
+    target: {
+      type: 'Tag',
+      property: 'something'
+    },
+    json: { property: 'value' }
   }
 
-  const createdReader = await Reader.createReader(
-    'auth0|foo1545149868961',
-    reader
-  )
-
-  newActivity.reader = createdReader
-  newActivity.readerId = createdReader.id
+  const simpleActivityObject = {
+    type: 'Something',
+    readerId: urlToId(createdReader.id)
+  }
 
   let id
 
   await tap.test('Create Activity', async () => {
-    let response = await Activity.createActivity(newActivity)
+    let response = await Activity.createActivity(activityObject)
+
     await tap.ok(response)
     await tap.type(response, 'object')
-    await tap.equal(response.type, 'Activity')
-    id = urlToShortId(response.url)
+    await tap.ok(response.id.startsWith('http'))
+    await tap.type(response.type, 'string')
+    await tap.equal(response.type, 'Arrive')
+    await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.json.property, 'value')
+    await tap.equal(response.object.type, 'Document')
+    await tap.equal(response.target.property, 'something')
+    id = urlToId(response.id)
   })
 
-  await tap.test('Get activity by short id', async () => {
-    const activity = await Activity.byShortId(id)
-    await tap.type(activity, 'object')
-    await tap.equal(activity.type, 'Activity')
+  await tap.test('Create Simple Activity', async () => {
+    let response = await Activity.createActivity(simpleActivityObject)
+    await tap.ok(response)
+    await tap.type(response, 'object')
+    await tap.ok(response.id.startsWith('http'))
+    await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.type, 'Something')
+  })
+
+  await tap.test('Get activity by id', async () => {
+    const response = await Activity.byId(urlToId(id))
+    await tap.type(response, 'object')
+    await tap.ok(response.id.startsWith('http'))
+    await tap.type(response.type, 'string')
+    await tap.equal(response.type, 'Arrive')
+    await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.json.property, 'value')
+    await tap.equal(response.object.type, 'Document')
+    await tap.equal(response.target.property, 'something')
+    // eager loading reader:
+    await tap.type(response.reader, 'object')
+    await tap.equal(response.reader.id, createdReader.id)
+    await tap.ok(response.reader.id.startsWith('http'))
+    await tap.equal(response.reader.name, reader.name)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

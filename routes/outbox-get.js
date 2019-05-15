@@ -70,13 +70,13 @@ module.exports = function (app) {
      */
     .route('/reader-:shortId/activity')
     .get(jwtAuth, function (req, res, next) {
-      const shortId = req.params.shortId
-      Reader.byShortId(shortId, '[outbox]')
+      const id = req.params.shortId
+      Reader.byId(id, '[outbox]')
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${shortId}`)
+            res.status(404).send(`No reader with ID ${id}`)
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${shortId} disallowed`)
+            res.status(403).send(`Access to reader ${id} disallowed`)
           } else {
             res.setHeader(
               'Content-Type',
@@ -86,10 +86,10 @@ module.exports = function (app) {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Outbox for user with id ${shortId}`
+                  en: `Outbox for user with id ${id}`
                 },
                 type: 'OrderedCollection',
-                id: getId(`/reader-${shortId}/activity`),
+                id: getId(`/reader-${id}/activity`),
                 totalItems: reader.outbox.length,
                 orderedItems: reader.outbox.map(item => item.toJSON())
               })

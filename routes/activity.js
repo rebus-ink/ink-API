@@ -24,7 +24,16 @@ const utils = require('./utils')
  *         properties:
  *           type:
  *             type: string
- *             enum: ['reader:Publication', 'Document', 'Note', 'reader:Stack']
+ *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
+ *           id:
+ *             type: string
+ *             format: url
+ *       target:
+ *         type: object
+ *         properties:
+ *           type:
+ *             type: string
+ *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
  *           id:
  *             type: string
  *             format: url
@@ -37,6 +46,13 @@ const utils = require('./utils')
  *           id:
  *             type: string
  *             format: url
+ *       json:
+ *         type: object
+ *       readerId:
+ *         type: string
+ *         format: url
+ *       reader:
+ *         $ref: '#/definitions/reader'
  *       summaryMap:
  *         type: object
  *         properties:
@@ -45,11 +61,6 @@ const utils = require('./utils')
  *       published:
  *         type: string
  *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       attributedTo:
- *         type: array
  *
  */
 
@@ -58,14 +69,14 @@ module.exports = function (app) {
 
   /**
    * @swagger
-   * /activity-{shortId}:
+   * /activity-{id}:
    *   get:
    *     tags:
    *       - activities
-   *     description: GET /activity-:shortId
+   *     description: GET /activity-:id
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -82,21 +93,21 @@ module.exports = function (app) {
    *             schema:
    *               $ref: '#/definitions/activity'
    *       404:
-   *         description: 'No Activity with ID {shortId}'
+   *         description: 'No Activity with ID {id}'
    *       403:
-   *         description: 'Access to activity {shortId} disallowed'
+   *         description: 'Access to activity {id} disallowed'
    */
   router.get(
-    '/activity-:shortId',
+    '/activity-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Activity.byShortId(shortId)
+      const id = req.params.id
+      Activity.byId(id)
         .then(activity => {
           if (!activity) {
-            res.status(404).send(`No activity with ID ${shortId}`)
+            res.status(404).send(`No activity with ID ${id}`)
           } else if (!utils.checkReader(req, activity.reader)) {
-            res.status(403).send(`Access to activity ${shortId} disallowed`)
+            res.status(403).send(`Access to activity ${id} disallowed`)
           } else {
             debug(activity)
             res.setHeader(

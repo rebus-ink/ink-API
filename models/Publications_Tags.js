@@ -1,9 +1,9 @@
-const { Model } = require('objection')
+const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../routes/utils')
 
-class Publications_Tags extends Model {
+class Publication_Tag extends BaseModel {
   static get tableName () {
-    return 'publications_tags'
+    return 'publication_tag'
   }
 
   static get idColumn () {
@@ -11,12 +11,11 @@ class Publications_Tags extends Model {
   }
 
   static async addTagToPub (
-    publicationUrl /*: string */,
+    publicationId /*: string */,
     tagId /*: number */
   ) /*: any */ {
     // check publication
-    if (!publicationUrl) return new Error('no publication')
-    const publicationId = await urlToId(publicationUrl)
+    if (!publicationId) return new Error('no publication')
 
     // check tag
     if (!tagId) return new Error('no tag')
@@ -30,35 +29,37 @@ class Publications_Tags extends Model {
     //   return new Error('duplicate')
 
     try {
-      return await Publications_Tags.query().insert({
+      return await Publication_Tag.query().insertAndFetch({
         publicationId: publicationId,
         tagId
       })
     } catch (err) {
-      if (err.constraint === 'publications_tags_tagid_foreign') {
+      if (err.constraint === 'publication_tag_tagid_foreign') {
         return new Error('no tag')
-      } else if (err.constraint === 'publications_tags_publicationid_foreign') {
+      } else if (err.constraint === 'publication_tag_publicationid_foreign') {
         return new Error('no publication')
+      } else if (
+        err.constraint === 'publication_tag_publicationid_tagid_unique'
+      ) {
+        return new Error('duplicate')
       }
     }
   }
 
   static async removeTagFromPub (
-    publicationUrl /*: string */,
+    publicationId /*: string */,
     tagId /*: string */
   ) /*: number */ {
     // check publication
-    if (!publicationUrl) return new Error('no publication')
-
-    const publicationId = await urlToId(publicationUrl)
+    if (!publicationId) return new Error('no publication')
 
     // check tag
     if (!tagId) return new Error('no tag')
 
-    const result = await Publications_Tags.query()
+    const result = await Publication_Tag.query()
       .delete()
       .where({
-        publicationId: publicationId,
+        publicationId: urlToId(publicationId),
         tagId
       })
 
@@ -68,6 +69,15 @@ class Publications_Tags extends Model {
       return result
     }
   }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.published = undefined
+      doc.id = undefined
+    })
+  }
 }
 
-module.exports = { Publications_Tags }
+module.exports = { Publication_Tag }

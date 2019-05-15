@@ -38,7 +38,7 @@
     "documentation": "^8.1.2",
     "eslint": "^5.12.0",
     "flow-bin": "^0.80.0",
-    "flow-coverage-report": "^0.6.0",
+    "flow-coverage-report": "^0.6.1",
     "husky": "^1.0.0-rc.14",
     "jsonwebtoken": "^8.3.0",
     "knex-cleaner": "^1.1.4",
@@ -50,11 +50,11 @@
     "prettier-standard": "^8.0.1",
     "proxyquire": "^2.1.0",
     "sinon": "^6.3.3",
-    "spectacle-docs": "^1.0.6",
+    "spectacle-docs": "^1.0.7",
     "sqlite3": "^4.0.4",
     "standard": "^11.0.1",
     "supertest": "^3.3.0",
-    "tap": "^12.0.1"
+    "tap": "^12.6.3"
   },
   "dependencies": {
     "@google-cloud/storage": "^2.3.1",
@@ -67,8 +67,9 @@
     "debug": "^4.1.0",
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
+    "express-paginate": "^1.0.0",
     "helmet": "^3.13.0",
-    "knex": "^0.16.3",
+    "knex": "^0.16.5",
     "lodash": "^4.17.11",
     "morgan": "^1.9.1",
     "multer": "^1.4.1",
@@ -80,7 +81,7 @@
     "pg": "^7.4.3",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0",
-    "swagger-jsdoc": "^3.2.6"
+    "swagger-jsdoc": "^3.2.9"
   },
   "standard": {
     "ignore": [

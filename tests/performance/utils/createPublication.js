@@ -21,7 +21,7 @@ const createPublication = async (token, userUrl, number = 1) => {
             ],
             type: 'Create',
             object: {
-              type: 'reader:Publication',
+              type: 'Publication',
               name: 'Publication A',
               attributedTo: [
                 {

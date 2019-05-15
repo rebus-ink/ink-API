@@ -31,7 +31,7 @@ module.exports = app => {
     '/whoami',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      Reader.byUserId(req.user)
+      Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${req.user}`)
@@ -41,8 +41,8 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
-            debug(`Setting location to ${reader.url}`)
-            res.setHeader('Location', reader.url)
+            debug(`Setting location to ${reader.id}`)
+            res.setHeader('Location', reader.id)
             res.end(
               JSON.stringify(
                 Object.assign(

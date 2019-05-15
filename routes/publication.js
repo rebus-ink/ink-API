@@ -4,28 +4,33 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const debug = require('debug')('hobb:routes:publication')
 const utils = require('./utils')
-const _ = require('lodash')
+
 /**
  * @swagger
  * definition:
- *   document-ref:
+ *   annotation:
  *     properties:
- *       type:
- *         type: string
- *         enum: ['Document']
  *       name:
  *         type: string
- *       id:
+ *       type:
  *         type: string
- *         format: url
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       attributedTo:
- *         type: array
+ *         enum: ['Person', 'Organization']
+ *   link:
+ *     properties:
+ *      href:
+ *       type: string
+ *      mediaType:
+ *       type: string
+ *      rel:
+ *        type: string
+ *      name:
+ *        type: string
+ *      hreflang:
+ *        type: string
+ *      height:
+ *        type: integer
+ *      width:
+ *        type: integer
  *   publication:
  *     properties:
  *       id:
@@ -33,7 +38,7 @@ const _ = require('lodash')
  *         format: url
  *       type:
  *         type: string
- *         enum: ['reader:Publication']
+ *         enum: ['Publication']
  *       summaryMap:
  *         type: object
  *         properties:
@@ -41,35 +46,63 @@ const _ = require('lodash')
  *             type: string
  *       '@context':
  *         type: array
- *       totalItems:
- *         type: integer
- *       orderedItems:
+ *       author:
  *         type: array
  *         items:
- *           $ref: '#/definitions/document-ref'
- *       attachment:
+ *           $ref: '#/definitions/annotation'
+ *       editor:
  *         type: array
  *         items:
- *           $ref: '#/definitions/document-ref'
+ *           $ref: '#/definitions/annotation'
  *       replies:
  *         type: array
  *         items:
  *           type: string
  *           format: url
+ *       description:
+ *         type: string
+ *       datePublished:
+ *         type: string
+ *         format: timestamp
+ *       readingOrder:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       resources:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       links:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
+ *       json:
+ *         type: object
+ *       readerId:
+ *         type: string
+ *         format: url
+ *       reader:
+ *         $ref: '#/definitions/reader'
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *       updated:
+ *         type: string
+ *         format: timestamp
  *
  */
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /publication-{shortId}:
+   * /publication-{id}:
    *   get:
    *     tags:
    *       - publications
-   *     description: GET /publication-:shortId
+   *     description: GET /publication-:id
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -86,22 +119,22 @@ module.exports = function (app) {
    *             schema:
    *               $ref: '#/definitions/publication'
    *       404:
-   *         description: 'No Publication with ID {shortId}'
+   *         description: 'No Publication with ID {id}'
    *       403:
-   *         description: 'Access to publication {shortId} disallowed'
+   *         description: 'Access to publication {id} disallowed'
    */
   app.use('/', router)
   router.get(
-    '/publication-:shortId',
+    '/publication-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Publication.byShortId(shortId)
+      const id = req.params.id
+      Publication.byId(id)
         .then(publication => {
           if (!publication || publication.deleted) {
-            res.status(404).send(`No publication with ID ${shortId}`)
+            res.status(404).send(`No publication with ID ${id}`)
           } else if (!utils.checkReader(req, publication.reader)) {
-            res.status(403).send(`Access to publication ${shortId} disallowed`)
+            res.status(403).send(`Access to publication ${id} disallowed`)
           } else {
             debug(publication)
             res.setHeader(
@@ -109,43 +142,14 @@ module.exports = function (app) {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             const publicationJson = publication.toJSON()
-            // get latest read position from the attached documents
-            let positionObject = {}
-            const readActivities = []
-            publication.attachment.forEach(document => {
-              if (document.outbox && document.outbox.length > 0) {
-                document.outbox.forEach(act => {
-                  if (act.type === 'Read') readActivities.push(act)
-                })
-              }
-            })
-            if (readActivities.length > 0) {
-              let position = _.maxBy(readActivities, o => o.published)
-              positionObject = {
-                documentId: position.json.object.id,
-                value: position.json['oa:hasSelector'].value
-              }
-            }
-
             res.end(
               JSON.stringify(
                 Object.assign(publicationJson, {
-                  orderedItems: publicationJson.orderedItems.map(doc =>
-                    doc.asRef()
-                  ),
-                  attachment: publication.attachment.map(doc => doc.asRef()),
-                  '@context': [
-                    'https://www.w3.org/ns/activitystreams',
-                    { reader: 'https://rebus.foundation/ns/reader' },
-                    { schema: 'https://schema.org/' }
-                  ],
                   replies: publication.replies
                     ? publication.replies
                       .filter(note => !note.deleted)
                       .map(note => note.asRef())
-                    : [],
-                  tags: publication.tags,
-                  position: positionObject
+                    : []
                 })
               )
             )

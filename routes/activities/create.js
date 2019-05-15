@@ -1,13 +1,14 @@
-const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
+const { Publication } = require('../../models/Publication')
+const { Note } = require('../../models/Note')
 const { createActivityObject } = require('./utils')
 
 const handleCreate = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
-    case 'reader:Publication':
-      const resultPub = await Reader.addPublication(reader, body.object)
+    case 'Publication':
+      const resultPub = await Publication.createPublication(reader, body.object)
       if (resultPub instanceof Error || !resultPub) {
         const message = resultPub
           ? resultPub.message
@@ -18,41 +19,7 @@ const handleCreate = async (req, res, reader) => {
       Activity.createActivity(activityObjPub)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
-      break
-
-    case 'Document':
-      const resultDoc = await Reader.addDocument(reader, body.object)
-      if (
-        resultDoc instanceof Error &&
-        resultDoc.message === 'no publication'
-      ) {
-        res
-          .status(404)
-          .send(
-            `no publication found for ${
-              body.object.context
-            }. Document must belong to an existing publication.`
-          )
-        break
-      }
-      if (resultDoc instanceof Error || !resultDoc) {
-        const message = resultDoc
-          ? resultDoc.message
-          : 'document creation failed'
-        res.status(400).send(`create document error: ${message}`)
-        break
-      }
-      const activityObjDoc = createActivityObject(body, resultDoc, reader)
-      Activity.createActivity(activityObjDoc)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {
@@ -61,7 +28,8 @@ const handleCreate = async (req, res, reader) => {
       break
 
     case 'Note':
-      const resultNote = await Reader.addNote(reader, body.object)
+      const resultNote = await Note.createNote(reader, body.object)
+
       if (!resultNote) res.status.send('create note error')
       if (resultNote instanceof Error) {
         switch (resultNote.message) {
@@ -109,7 +77,7 @@ const handleCreate = async (req, res, reader) => {
       Activity.createActivity(activityObjNote)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {
@@ -119,6 +87,7 @@ const handleCreate = async (req, res, reader) => {
 
     case 'reader:Stack':
       const resultStack = await Tag.createTag(reader.id, body.object)
+
       if (resultStack instanceof Error && resultStack.message === 'duplicate') {
         res
           .status(400)
@@ -131,15 +100,17 @@ const handleCreate = async (req, res, reader) => {
         res.status(400).send(`create stack error: ${message}`)
       }
       const activityObjStack = createActivityObject(body, resultStack, reader)
+
       Activity.createActivity(activityObjStack)
         .then(activity => {
           res.status(201)
-          res.set('Location', activity.url)
+          res.set('Location', activity.id)
           res.end()
         })
         .catch(err => {
           res.status(400).send(`create activity error: ${err.message}`)
         })
+
       break
 
     default:

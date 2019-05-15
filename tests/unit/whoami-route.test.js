@@ -23,8 +23,8 @@ const app = express()
 
 const reader = Object.assign(new Reader(), {
   id: '0dad66d5-670f-41e1-886a-b2e25b510b2d',
-  json: { name: 'J. Random Reader', userId: 'auth0|foo1545149868933' },
-  userId: 'auth0|foo1545149868933',
+  name: 'J. Random Reader',
+  authId: 'auth0|foo1545149868933',
   published: '2018-12-18T16:17:49.077Z',
   updated: '2018-12-18 16:17:49'
 })
@@ -40,7 +40,7 @@ const test = async () => {
   const request = supertest(app)
 
   await tap.test('Get User profile', async () => {
-    ReaderStub.Reader.byUserId = async () => Promise.resolve(reader)
+    ReaderStub.Reader.byAuthId = async () => Promise.resolve(reader)
 
     const res = await request
       .get('/whoami')
@@ -60,13 +60,12 @@ const test = async () => {
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.inbox, 'string')
     await tap.type(body.outbox, 'string')
-    await tap.type(body.streams, 'object')
   })
 
   await tap.test(
     'Try to get user profile for user that does not exist',
     async () => {
-      ReaderStub.Reader.byUserId = async () => Promise.resolve(null)
+      ReaderStub.Reader.byAuthId = async () => Promise.resolve(null)
 
       const res = await request
         .get('/whoami')

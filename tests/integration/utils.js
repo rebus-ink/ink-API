@@ -22,7 +22,6 @@ const createUser = async (app, token) => {
     .send(
       JSON.stringify({
         '@context': 'https://www.w3.org/ns/activitystreams',
-        type: 'Person',
         name: 'J. Random Reader'
       })
     )

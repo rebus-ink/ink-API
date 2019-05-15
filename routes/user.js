@@ -28,7 +28,13 @@ const utils = require('./utils')
  *       outbox:
  *         type: string
  *         format: url
- *       streams:
+ *       name:
+ *         type: string
+ *       profile:
+ *         type: object
+ *       preferences:
+ *         type: object
+ *       json:
  *         type: object
  *       published:
  *         type: string
@@ -40,18 +46,18 @@ const utils = require('./utils')
 module.exports = app => {
   /**
    * @swagger
-   * /reader-{shortId}:
+   * /reader-{id}:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /reader-:shortId
+   *     description: GET /reader-:id
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
-   *         description: the short id of the reader
+   *         description: the id of the reader
    *     security:
    *       - Bearer: []
    *     produces:
@@ -64,23 +70,21 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/reader'
    *       404:
-   *         description: 'No Reader with ID {shortId}'
+   *         description: 'No Reader with ID {id}'
    *       403:
-   *         description: 'Access to reader {shortId} disallowed'
+   *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
   router.get(
-    '/reader-:shortId',
+    '/reader-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      Reader.byShortId(req.params.shortId)
+      Reader.byId(req.params.id)
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${req.params.shortId}`)
+            res.status(404).send(`No reader with ID ${req.params.id}`)
           } else if (!utils.checkReader(req, reader)) {
-            res
-              .status(403)
-              .send(`Access to reader ${req.params.shortId} disallowed`)
+            res.status(403).send(`Access to reader ${req.params.id} disallowed`)
           } else {
             res.setHeader(
               'Content-Type',

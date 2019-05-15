@@ -1,38 +1,26 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('Activity', function (table) {
-    table.uuid('id').primary()
-    table.string('type').defaultTo('Activity')
+  return knex.schema.createTable('Note', function (table) {
+    table.string('id').primary()
+    table.string('noteType').notNullable().index()
+    table.text('content')
+    table.jsonb('selector')
     table.jsonb('json')
     table
-      .uuid('readerId')
+      .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()
       .onDelete('CASCADE')
       .index()
     table
-      .uuid('documentId')
+      .string('documentId')
       .references('id')
       .inTable('Document')
-      .nullable()
       .index()
     table
-      .uuid('publicationId')
+      .string('publicationId')
       .references('id')
       .inTable('Publication')
-      .nullable()
-      .index()
-    table
-      .uuid('noteId')
-      .references('id')
-      .inTable('Note')
-      .nullable()
-      .index()
-    table
-      .integer('tagId')
-      .references('id')
-      .inTable('Tag')
-      .nullable()
       .index()
     table
       .timestamp('published')
@@ -48,5 +36,5 @@ exports.up = function (knex, Promise) {
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('Activity')
+  return knex.schema.dropTable('Note')
 }

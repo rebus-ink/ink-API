@@ -1,18 +1,11 @@
 // @flow
 'use strict'
 const { Model } = require('objection')
-const { DbErrors } = require('objection-db-errors')
-const guid = require('objection-guid')({
-  field: 'id'
-})
-const short = require('short-uuid')
-const translator = short()
-const { getId } = require('../utils/get-id.js')
-const arrify = require('arrify')
-const lodash = require('lodash')
-const URL = require('url').URL
-const debug = require('debug')('hobb:model:base-model')
 const _ = require('lodash')
+const { urlToId } = require('../routes/utils')
+const crypto = require('crypto')
+
+const domain = process.env.DOMAIN || ''
 
 /**
  * @property {string} url - the current object's url
@@ -22,203 +15,93 @@ const _ = require('lodash')
  *
  * The base model for most of the other models. Implements url, shortId, published, and updated.
  */
-class BaseModel extends guid(DbErrors(Model)) {
-  static get jsonAttributes () /*: Array<string> */ {
-    return ['json', 'properties']
+class BaseModel extends Model {
+  /**
+   *
+   * @param {object} json
+   * @param {string?} type
+   */
+  formatIdsToUrl (json /*: any */, type /* :?string */) /*: any */ {
+    if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
+      json.id = `${domain}/${type}-${json.id}`
+    }
+    if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
+      json.readerId = `${domain}/reader-${json.readerId}`
+    }
+
+    if (
+      json.publicationId &&
+      !json.publicationId.startsWith(process.env.DOMAIN)
+    ) {
+      json.publicationId = `${domain}/publication-${json.publicationId}`
+    }
+
+    if (json.noteId && !json.noteId.startsWith(process.env.DOMAIN)) {
+      json.noteId = `${domain}/note-${json.noteId}`
+    }
+
+    return json
   }
 
-  static get virtualAttributes () /*: Array<string> */ {
-    return ['url']
-  }
-
-  get url () /*: string */ {
-    return getId(`/${this.path}-${this.shortId}`)
-  }
-
-  get shortId () /*: string */ {
-    return translator.fromUUID(this.id)
-  }
-
-  $beforeInsert (context /*: any */) {
-    const parent = super.$beforeInsert(context)
-    const doc = this
+  $afterGet (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$afterGet(queryOptions, context)
+    let doc = this
     return Promise.resolve(parent).then(function () {
-      doc.published = new Date().toISOString()
-      if (!doc.hasName()) {
-        doc.json.summaryMap = {
-          en: doc.summarize()
-        }
-      }
+      doc = doc.formatIdsToUrl(doc, doc.getType())
     })
   }
 
-  hasName () /*: string */ {
-    return (
-      this.json.name ||
-      this.json.nameMap ||
-      this.json.summary ||
-      this.json.summaryMap
-    )
-  }
-
-  summarize () /*: string */ {
-    let type /*: string */
-    if (_.isString(this.type)) {
-      type = this.type.toLowerCase()
-    } else if (_.isString(this.json.type)) {
-      type = this.json.type.toLowerCase()
-    } else {
-      type = 'object'
-    }
-    return `${type} with id ${this.id}`
-  }
-
-  $beforeUpdate (
-    queryOptions /*: any */,
-    context /*: any */
-  ) /*: Promise<any> */ {
-    const parent = super.$beforeUpdate(queryOptions, context)
-    const doc = this
+  $afterInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$afterInsert(queryOptions, context)
+    let doc = this
     return Promise.resolve(parent).then(function () {
-      doc.updated = new Date().toISOString()
+      doc = doc.formatIdsToUrl(doc, doc.getType())
     })
   }
 
-  $parseJson (json /*: any */, opt /*: any */) /*: any */ {
-    json = super.$parseJson(json, opt)
-    // Need to discover id, readerId, canonicalId
-    const id = getUUID(json.id)
-    let readerId
-    if (json.bto) {
-      readerId = getUUID(json.bto)
-    } else {
-      readerId = getUUID(json.actor)
-      json.bto = json.actor
-    }
-    const canonicalId = getCanonical(json.url)
-    const { userId, inReplyTo, context, deleted } = json
-    // Should get the inReplyTo document id, much like context
-    const publicationId = getUUID(context)
-    const documentId = getUUID(inReplyTo)
-    const activityRelation = objectToId(json.object)
-    const { attachment, outbox, tag, replies, attributedTo } = addReaderToGraph(
-      json
-    )
-    delete json.bto
-    delete json.attachment
-    delete json.replies
-    delete json.attributedTo
-    return stripUndefined(
-      Object.assign(
-        {
-          id,
-          readerId,
-          canonicalId,
-          userId,
-          json,
-          attachment,
-          outbox,
-          tag,
-          replies,
-          attributedTo,
-          publicationId,
-          documentId,
-          deleted
-        },
-        activityRelation
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.id = crypto.randomBytes(16).toString('hex')
+      const time = new Date().toISOString()
+      doc.published = time
+      doc.readerId = urlToId(doc.readerId)
+      doc.publicationId = urlToId(doc.publicationId)
+      doc.documentId = urlToId(doc.documentId)
+      doc.tagId = urlToId(doc.tagId)
+
+      Object.keys(doc).forEach(
+        key => (doc[key] === undefined ? delete doc[key] : '')
       )
-    )
-  }
-
-  $formatJson (json /*: any */) {
-    const original = super.$formatJson(json)
-    json = original.json || {}
-    const {
-      url: id,
-      published,
-      updated,
-      attachment,
-      tags,
-      context = {},
-      attributedTo = []
-    } = original
-    json.context = context.id
-    return Object.assign(json, {
-      id,
-      published,
-      updated,
-      tags,
-      attachment,
-      attributedTo
     })
   }
-}
 
-function getUUID (prop /*: string */) /*: ?string */ {
-  try {
-    const id = getIdURL(prop)
-    const pathname = new URL(id).pathname
-    const shortId = pathname.split('-')[1]
-    return translator.toUUID(shortId)
-  } catch (err) {
-    /* should we throw? */
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.id = urlToId(doc.id)
+      doc.updated = new Date().toISOString()
+      doc.readerId = urlToId(doc.readerId)
+      doc.publicationId = urlToId(doc.publicationId)
+      doc.documentId = urlToId(doc.documentId)
+
+      Object.keys(doc).forEach(
+        key => (doc[key] === undefined ? delete doc[key] : '')
+      )
+    })
   }
-}
 
-function getCanonical (urls /*: Array<string> */ = []) /*: Array<string> */ {
-  urls = arrify(urls)
-  const link = urls.filter(item => item.rel === 'canonical')
-  return lodash.get(link, '0.href')
-}
+  getType () /*: ?string */ {
+    const tables = ['Activity', 'Publication', 'Reader', 'Note', 'ReadActivity']
 
-function stripUndefined (json /*: any */) /*: any */ {
-  return lodash.omitBy(json, lodash.isUndefined)
-}
-
-function getIdURL (idOrObject /*: any */) {
-  // not able to type the return value, but it will be a string
-  if (lodash.isObject(idOrObject)) {
-    return idOrObject.id
-  } else {
-    return idOrObject
-  }
-}
-
-function objectToId (obj /*: any */) /*: any */ {
-  const id = getUUID(obj)
-  const url = getIdURL(obj)
-  let type /*: string */
-  try {
-    const pathname = url.replace(process.env.DOMAIN, '')
-    type = pathname.split('-')[0].slice(1)
-  } catch (err) {
-    return undefined
-  }
-  return { [type + 'Id']: id }
-}
-
-function addReaderToGraph (
-  json /*: any */
-) /*: {
-  attachment: any,
-  outbox: any,
-  tag: any,
-  replies: any,
-  attributedTo: any
-} */ {
-  const bto = json.bto
-  const props = ['attachment', 'outbox', 'tag', 'replies', 'attributedTo']
-  const result = {}
-  props.forEach(prop => {
-    if (json[prop]) {
-      debug(prop)
-      result[prop] = json[prop].map(item => {
-        item.bto = bto
-        return item
-      })
+    if (_.indexOf(tables, this.constructor.name) > -1) {
+      return this.constructor.name.toLowerCase()
+    } else {
+      return undefined
     }
-  })
-  return result
+  }
 }
 
 module.exports = {

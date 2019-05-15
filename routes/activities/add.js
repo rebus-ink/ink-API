@@ -1,24 +1,39 @@
 const { createActivityObject } = require('./utils')
-const { Publications_Tags } = require('../../models/Publications_Tags')
+const { Publication_Tag } = require('../../models/Publications_Tags')
+const { Note_Tag } = require('../../models/Note_Tag')
 const { Activity } = require('../../models/Activity')
+// const { urlToId } = require('./utils')
 
 const handleAdd = async (req, res, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
-      const resultStack = await Publications_Tags.addTagToPub(
-        body.target.id,
-        body.object.id
-      )
+      // Determine if the Tag is added to a Publication or a Note
+      let resultStack
+      if (body.target.type === 'Publication') {
+        resultStack = await Publication_Tag.addTagToPub(
+          body.target.id,
+          body.object.id
+        )
+      } else if (body.target.type === 'Note') {
+        resultStack = await Note_Tag.addTagToNote(
+          body.target.id,
+          body.object.id
+        )
+      }
+
+      // Check for errors
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
           case 'duplicate':
             res
               .status(400)
               .send(
-                `publication ${body.target.id} already asssociated with tag ${
-                  body.object.id
-                } (${body.object.name})`
+                `duplicate` +
+                  body.target.type +
+                  `: ${body.target.id} already asssociated with tag ${
+                    body.object.id
+                  } (${body.object.name})`
               )
             break
 
@@ -32,11 +47,19 @@ const handleAdd = async (req, res, reader) => {
             res.status(404).send(`no tag found with id ${body.object.id}`)
             break
 
+          case 'no note':
+            res.status(404).send(`no note found with id ${body.target.id}`)
+            break
+
           default:
             res.status(400).send(`add tag to publication error: ${err.message}`)
             break
         }
         break
+      } else if (!resultStack) {
+        res
+          .status(404)
+          .send(`add tag to publication or to note error: ${err.message}`)
       }
 
       const activityObjStack = createActivityObject(body, resultStack, reader)
