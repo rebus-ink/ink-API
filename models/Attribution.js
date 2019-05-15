@@ -3,8 +3,6 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
-const { Publication } = require('./Publication')
-const { urlToId } = require('../routes/utils')
 
 /**
  * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
