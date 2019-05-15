@@ -5,7 +5,7 @@ const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../routes/utils')
-const { createId } = require('./utils')
+const urlparse = require('url').parse
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -145,13 +145,24 @@ class Reader extends BaseModel {
     offset = 0 /*: number */,
     filters /*: any */
   ) /*: Promise<array<any>> */ {
+    const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    let doc
+    if (filters.document) {
+      const path = urlparse(filters.document).path.substr(45)
+      const pubId = urlparse(filters.document).path.substr(13, 32)
+      doc = await Document.byPath(pubId, path)
+      if (!doc) throw new Error('no document')
+    }
 
     const readers = await qb
       .eager('replies')
       .modifyEager('replies', builder => {
         if (filters.publicationId) {
           builder.where('publicationId', '=', urlToId(filters.publicationId))
+        }
+        if (filters.document) {
+          builder.where('documentId', '=', urlToId(doc.id))
         }
         builder.limit(limit).offset(offset)
       })
