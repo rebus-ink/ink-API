@@ -47,7 +47,7 @@ const handleCreate = async (req, res, reader) => {
             res
               .status(404)
               .send(
-                `note creation failed: no document found with id ${
+                `note creation failed: no document found with url ${
                   body.object.inReplyTo
                 }`
               )

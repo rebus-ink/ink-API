@@ -2,13 +2,10 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
-<<<<<<< HEAD
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
-=======
 const { urlToId } = require('../routes/utils')
 const { createId } = require('./utils')
->>>>>>> implemented changes to publication (#222)
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -145,13 +142,17 @@ class Reader extends BaseModel {
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /*: number */
+    offset = 0 /*: number */,
+    filters /*: any */
   ) /*: Promise<array<any>> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
 
     const readers = await qb
       .eager('replies')
       .modifyEager('replies', builder => {
+        if (filters.publicationId) {
+          builder.where('publicationId', '=', urlToId(filters.publicationId))
+        }
         builder.limit(limit).offset(offset)
       })
     return readers[0]
@@ -162,41 +163,6 @@ class Reader extends BaseModel {
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-<<<<<<< HEAD
-=======
-    props.id = createId('reader')
-
-    const date = new Date().toISOString()
-    props.published = date
-    props.updated = date
-    props.authId = authId
-    const createdReader = await Reader.query(Reader.knex()).insertAndFetch(
-      props
-    )
-    return createdReader
-  }
-
-  // TODO: update this method when I update publication
-
-  // TODO: update this method when I update document
-  static async addDocument (
-    reader /*: any */,
-    document /*: any */
-  ) /*: Promise<any> */ {
-    if (!document.context) return new Error('no publication')
-
-    document.publicationId = urlToId(document.context)
-
-    try {
-      return await reader.$relatedQuery('documents').insert(document)
-    } catch (err) {
-      if (err.nativeError.code === '23502') {
-        // not nullable constraint violation for publicationId
-        return new Error('no publication')
-      }
-    }
-  }
->>>>>>> implemented changes to publication (#222)
 
     props.authId = authId
     return await Reader.query(Reader.knex())

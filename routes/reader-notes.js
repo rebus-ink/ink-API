@@ -85,7 +85,10 @@ module.exports = app => {
       const id = req.params.id
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       if (req.query.limit > 100) req.query.limit = 100
-      Reader.getNotes(id, req.query.limit, req.skip)
+      const filters = {
+        publicationId: req.query.publicationId
+      }
+      Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${id}`)
