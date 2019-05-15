@@ -5,6 +5,8 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('./utils')
 const _ = require('lodash')
+const paginate = require('express-paginate')
+
 /**
  * @swagger
  * definition:
@@ -58,6 +60,35 @@ module.exports = app => {
    *           type: string
    *         required: true
    *         description: the short id of the reader
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: number
+   *           default: 10
+   *           minimum: 10
+   *           maximum: 100
+   *         description: the number of library items to return
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: number
+   *           default: 1
+   *       - in: query
+   *         name: attribution
+   *         schema:
+   *           type: string
+   *         description: a search in the attribution field. Will also return partial matches.
+   *       - in: query
+   *         name: role
+   *         schema:
+   *           type: string
+   *           enum: ['author', 'editor']
+   *         description: a modifier for attribution to specify the type of attribution
+   *       - in: query
+   *         name: author
+   *         schema:
+   *           type: string
+   *         description: will return only exact matches.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -75,12 +106,21 @@ module.exports = app => {
    *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
+  app.use(paginate.middleware())
   router.get(
     '/reader-:id/library',
+    paginate.middleware(10, 100),
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
-      Reader.byId(id, '[tags, publications.[tags, attributions]]')
+      const filters = {
+        author: req.query.author,
+        attribution: req.query.attribution,
+        role: req.query.role,
+        title: req.query.title
+      }
+      if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
+      Reader.getLibrary(id, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
             res.status(404).send(`No reader with ID ${id}`)
@@ -112,7 +152,9 @@ module.exports = app => {
                 id: getId(`/reader-${id}/library`),
                 totalItems: publications.length,
                 items: publications.map(pub => pub.asRef()),
-                tags: reader.tags
+                tags: reader.tags,
+                page: res.locals.paginate.page,
+                pageSize: req.query.limit
               })
             )
           }
