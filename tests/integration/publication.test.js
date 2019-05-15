@@ -269,7 +269,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
   })
 
-  await tap.test('Update the name of a publication', async () => {
+  await tap.test('Update a publication', async () => {
     const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
       .post(`${userUrl}/activity`)
