@@ -4,6 +4,8 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
+const { urlToId } = require('../routes/utils')
+const urlparse = require('url').parse
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -135,6 +137,44 @@ class Reader extends BaseModel {
       authId
     )
     return readers.length > 0
+  }
+
+  static async getNotes (
+    readerId /*: string */,
+    limit /*: number */,
+    offset = 0 /*: number */,
+    filters /*: any */
+  ) /*: Promise<array<any>> */ {
+    const { Document } = require('./Document')
+    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    let doc
+    if (filters.document) {
+      const path = urlparse(filters.document).path.substr(45)
+      const pubId = urlparse(filters.document).path.substr(13, 32)
+      doc = await Document.byPath(pubId, path)
+    }
+
+    const readers = await qb
+      .eager('replies')
+      .modifyEager('replies', builder => {
+        if (filters.publication) {
+          builder.where('publicationId', '=', urlToId(filters.publication))
+        }
+        if (filters.document) {
+          builder.where('documentId', '=', urlToId(doc.id))
+        }
+        if (filters.type) {
+          builder.where('noteType', '=', filters.type)
+        }
+        if (filters.search) {
+          builder.whereRaw(
+            'LOWER(content) LIKE ?',
+            '%' + filters.search.toLowerCase() + '%'
+          )
+        }
+        builder.limit(limit).offset(offset)
+      })
+    return readers[0]
   }
 
   static async createReader (
