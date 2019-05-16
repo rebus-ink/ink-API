@@ -258,25 +258,25 @@ const test = async app => {
     }
   )
 
-  await tap.test('Update publication datePublished', async () => {
-    const timestamp = new Date(2018, 01, 30).toISOString()
-    const newPubObj = {
-      id: publication.id,
-      datePublished: timestamp
-    }
+  // await tap.test('Update publication datePublished', async () => {
+  //   const timestamp = new Date(2018, 01, 30).toISOString()
+  //   const newPubObj = {
+  //     id: publication.id,
+  //     datePublished: timestamp
+  //   }
 
-    const newPub = await Publication.update(newPubObj)
+  //   const newPub = await Publication.update(newPubObj)
 
-    // Retrieve the Publication that has just been updated
-    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+  //   // Retrieve the Publication that has just been updated
+  //   const pubRetrieved = await Publication.byId(urlToId(newPub.id))
 
-    await tap.ok(newPub)
-    await tap.ok(newPub instanceof Publication)
-    await tap.equal(
-      newPub.datePublished.toString(),
-      pubRetrieved.datePublished.toString()
-    )
-  })
+  //   await tap.ok(newPub)
+  //   await tap.ok(newPub instanceof Publication)
+  //   await tap.equal(
+  //     newPub.datePublished.toString(),
+  //     pubRetrieved.datePublished.toString()
+  //   )
+  // })
 
   await tap.test('Update publication description', async () => {
     const newPubObj = {
