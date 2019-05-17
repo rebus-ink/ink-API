@@ -91,7 +91,7 @@ class Document extends BaseModel {
     documentPath: string,
     published: string,
     updated: string,
-    reader: {id: string, json: any, userId: string, published: string, updated: string},
+    reader: {id: string, json: any, readerId: string, published: string, updated: string},
     replies: Array<any>
   }> */ {
     return await Document.query()

@@ -1,13 +1,13 @@
 const request = require('supertest')
 const app = require('../../../server').app
 
-const createDocument = async (token, userUrl, publicationUrl, number = 1) => {
+const createDocument = async (token, readerUrl, publicationUrl, number = 1) => {
   let promises = []
 
   for (let i = 0; i < number; i++) {
     promises.push(
       request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

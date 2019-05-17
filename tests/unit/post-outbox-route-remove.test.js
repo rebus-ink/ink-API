@@ -58,8 +58,8 @@ const activity = Object.assign(new Activity(), {
   updated: '2018-12-18 14:56:53',
   reader: {
     id: 'b10debec-bfee-438f-a394-25e75457ff62',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545145012840' },
-    userId: 'auth0|foo1545145012840',
+    json: { name: 'J. Random Reader', readerId: 'auth0|foo1545145012840' },
+    readerId: 'auth0|foo1545145012840',
     published: '2018-12-18T14:56:52.924Z',
     updated: '2018-12-18 14:56:52'
   }
@@ -67,8 +67,8 @@ const activity = Object.assign(new Activity(), {
 
 const reader = Object.assign(new Reader(), {
   id: '7441db0a-c14b-4925-a7dc-4b7ff5d0c8cc',
-  json: { name: 'J. Random Reader', userId: 'auth0|foo1545228877880' },
-  userId: 'auth0|foo1545228877880',
+  json: { name: 'J. Random Reader', readerId: 'auth0|foo1545228877880' },
+  readerId: 'auth0|foo1545228877880',
   published: '2018-12-19T14:14:37.965Z',
   updated: '2018-12-19 14:14:37'
 })

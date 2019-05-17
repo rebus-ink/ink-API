@@ -193,7 +193,7 @@ Required properties:
 }
 ```
 
-A user will be able to select the latest Read Activities providing the ID of a publication
+A reader will be able to select the latest Read Activities providing the ID of a publication
 
 Possible errors:
 

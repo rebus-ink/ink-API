@@ -50,7 +50,7 @@ Typically only the owner of a resource can access a resource.
 
 Requests without a JWT token will fail with a 401 status code.
 
-Requests with a valid JWT token for access to another user's resources will fail
+Requests with a valid JWT token for access to another reader's resources will fail
 with a 403 status code.
 
 ### Representation
@@ -78,7 +78,7 @@ members by value, with their full content.
 
 #### Read Document
 
-To note that a user has read a document, use an activity with type `Read` and
+To note that a reader has read a document, use an activity with type `Read` and
 object type `Document`.
 
 ## Administration

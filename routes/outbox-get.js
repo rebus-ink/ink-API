@@ -86,7 +86,7 @@ module.exports = function (app) {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Outbox for user with id ${id}`
+                  en: `Outbox for reader with id ${id}`
                 },
                 type: 'OrderedCollection',
                 id: getId(`/reader-${id}/activity`),

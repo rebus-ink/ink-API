@@ -12,12 +12,12 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   await tap.test('whoami route', async () => {
     const testName = 'whoami route'
-    await createPublication(token, userUrl, 100)
+    await createPublication(token, readerUrl, 100)
 
     console.time(testName)
     await request(app)

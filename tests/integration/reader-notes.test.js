@@ -16,11 +16,11 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   const resActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -61,7 +61,7 @@ const test = async app => {
 
   // create another publication
   const resActivity2 = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -104,9 +104,9 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
   const createdDocument = await Document.createDocument(
-    { id: urlToId(userId) },
+    { id: urlToId(readerId) },
     urlToId(resPublication.body.id),
     {
       documentPath: '/path/1',
@@ -117,7 +117,7 @@ const test = async app => {
 
   // creating a second document
   const createdDocument2 = await Document.createDocument(
-    { id: urlToId(userId) },
+    { id: urlToId(readerId) },
     urlToId(resPublication2.body.id),
     {
       documentPath: '/path/2',
@@ -136,7 +136,7 @@ const test = async app => {
     content = 'this is the content'
   ) => {
     return await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -169,7 +169,7 @@ const test = async app => {
     await createNote()
 
     const res = await request(app)
-      .get(`${userUrl}/notes`)
+      .get(`${readerUrl}/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -196,7 +196,7 @@ const test = async app => {
     await createNote() // 13
 
     const res2 = await request(app)
-      .get(`${userUrl}/notes`)
+      .get(`${readerUrl}/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -208,7 +208,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/notes?page=2`)
+      .get(`${readerUrl}/notes?page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -220,7 +220,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(`${userUrl}/notes?limit=11&page=2`)
+      .get(`${readerUrl}/notes?limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -238,7 +238,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2)
 
     const res = await request(app)
-      .get(`${userUrl}/notes?publication=${publicationUrl2}`)
+      .get(`${readerUrl}/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -266,7 +266,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2) // 13
 
     const res2 = await request(app)
-      .get(`${userUrl}/notes?publication=${urlToId(publicationUrl2)}`)
+      .get(`${readerUrl}/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -278,7 +278,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
+      .get(`${readerUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -290,7 +290,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(`${userUrl}/notes?limit=11&page=2&publication=${publicationUrl2}`)
+      .get(`${readerUrl}/notes?limit=11&page=2&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -304,7 +304,7 @@ const test = async app => {
 
   await tap.test('filter notes by documentUrl', async () => {
     const res = await request(app)
-      .get(`${userUrl}/notes?document=${documentUrl2}`)
+      .get(`${readerUrl}/notes?document=${documentUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -316,7 +316,7 @@ const test = async app => {
     await tap.equal(res.body.items.length, 10)
 
     const res2 = await request(app)
-      .get(`${userUrl}/notes?document=${documentUrl2}&page=2`)
+      .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -333,7 +333,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2, 'new')
 
     const res = await request(app)
-      .get(`${userUrl}/notes?type=new`)
+      .get(`${readerUrl}/notes?type=new`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -348,7 +348,7 @@ const test = async app => {
     await createNote(publicationUrl, documentUrl, 'new')
 
     const res2 = await request(app)
-      .get(`${userUrl}/notes?type=new&publication=${publicationUrl2}`)
+      .get(`${readerUrl}/notes?type=new&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -382,7 +382,7 @@ const test = async app => {
     await createNote(publicationUrl2, documentUrl2, 'test', 'abc')
 
     const res = await request(app)
-      .get(`${userUrl}/notes?search=abc`)
+      .get(`${readerUrl}/notes?search=abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -395,7 +395,7 @@ const test = async app => {
 
     // should combine with other filters:
     const res2 = await request(app)
-      .get(`${userUrl}/notes?search=abc&type=test2`)
+      .get(`${readerUrl}/notes?search=abc&type=test2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -407,7 +407,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 1)
 
     const res3 = await request(app)
-      .get(`${userUrl}/notes?search=abc&document=${documentUrl}`)
+      .get(`${readerUrl}/notes?search=abc&document=${documentUrl}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

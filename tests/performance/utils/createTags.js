@@ -2,13 +2,13 @@ const request = require('supertest')
 const app = require('../../../server').app
 const crypto = require('crypto')
 
-const createTags = async (token, userUrl, number = 1) => {
+const createTags = async (token, readerUrl, number = 1) => {
   let promises = []
 
   for (let i = 0; i < number; i++) {
     promises.push(
       request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

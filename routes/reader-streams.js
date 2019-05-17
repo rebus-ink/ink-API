@@ -31,7 +31,7 @@ module.exports = app => {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Streams for user with id ${shortId}`
+                  en: `Streams for reader with id ${shortId}`
                 },
                 type: 'Collection',
                 id: getId(`/reader-${shortId}/streams`),
@@ -41,7 +41,7 @@ module.exports = app => {
                     type: 'Collection',
                     id: getId(`/reader-${shortId}/library`),
                     summaryMap: {
-                      en: `Library for user with id ${shortId}`
+                      en: `Library for reader with id ${shortId}`
                     }
                   }
                 ]

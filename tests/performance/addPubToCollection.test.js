@@ -13,15 +13,15 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
-  await createPublication(token, userUrl, 100)
+  await createPublication(token, readerUrl, 100)
 
-  await createTags(token, userUrl, 100)
+  await createTags(token, readerUrl, 100)
 
   const res = await request(app)
-    .get(`${userUrl}/library`)
+    .get(`${readerUrl}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -35,7 +35,7 @@ const test = async () => {
     const testName = 'assign tag to publication'
     console.time(testName)
     const res1 = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -60,7 +60,7 @@ const test = async () => {
     const testName = 'remove tag from publication'
     console.time(testName)
     const res1 = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

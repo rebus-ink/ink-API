@@ -50,7 +50,7 @@ const test = async app => {
     simplePublication
   )
 
-  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
   const createdDocument = await Document.createDocument(
     createdReader,
     urlToId(publication.id),

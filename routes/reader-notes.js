@@ -128,7 +128,7 @@ module.exports = app => {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Replies for user with id ${id}`
+                  en: `Replies for reader with id ${id}`
                 },
                 type: 'Collection',
                 id: getId(`/reader-${id}/notes`),

@@ -84,8 +84,8 @@ const activity = Object.assign(new Activity(), {
   updated: '2018-12-18 14:56:53',
   reader: {
     id: 'b10debec-bfee-438f-a394-25e75457ff62',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545145012840' },
-    userId: 'auth0|foo1545145012840',
+    json: { name: 'J. Random Reader', readerId: 'auth0|foo1545145012840' },
+    readerId: 'auth0|foo1545145012840',
     published: '2018-12-18T14:56:52.924Z',
     updated: '2018-12-18 14:56:52'
   }
@@ -309,7 +309,7 @@ const test = async () => {
     await tap.ok(createActivitySpy.calledOnce)
   })
 
-  await tap.test('Try to create an activity for the wrong user', async () => {
+  await tap.test('Try to create an activity for the wrong reader', async () => {
     checkReaderStub.returns(false)
     ReaderStub.Reader.byId = async () => Promise.resolve(reader)
 
@@ -325,7 +325,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'Try to create an activity for a user that does not exist',
+    'Try to create an activity for a reader that does not exist',
     async () => {
       checkReaderStub.returns(true)
       ReaderStub.Reader.byId = async () => Promise.resolve(null)

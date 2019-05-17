@@ -13,13 +13,13 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
-  await createPublication(token, userUrl, 10)
+  await createPublication(token, readerUrl, 10)
 
   const res = await request(app)
-    .get(`${userUrl}/library`)
+    .get(`${readerUrl}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -37,7 +37,7 @@ const test = async () => {
     )
   const documentUrl = resPublication.body.orderedItems[0].id
 
-  await createNotes(token, userUrl, publicationUrl, documentUrl, 100)
+  await createNotes(token, readerUrl, publicationUrl, documentUrl, 100)
 
   await tap.test('Get document with 100 notes', async () => {
     const testName = 'get document with 100 notes'
@@ -55,7 +55,7 @@ const test = async () => {
 
   await tap.test('Get document with 1000 notes', async () => {
     const testName = 'get document with 1000 notes'
-    await createNotes(token, userUrl, publicationUrl, documentUrl, 900)
+    await createNotes(token, readerUrl, publicationUrl, documentUrl, 900)
     console.time(testName)
     await request(app)
       .get(urlparse(publicationUrl).path)

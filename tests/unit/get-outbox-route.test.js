@@ -93,7 +93,7 @@ const test = async () => {
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
-  await tap.test('Get outbox for user that does not exist', async () => {
+  await tap.test('Get outbox for reader that does not exist', async () => {
     ReaderStub.Reader.byId = async () => Promise.resolve(null)
 
     const res = await request

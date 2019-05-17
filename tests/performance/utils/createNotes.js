@@ -3,7 +3,7 @@ const app = require('../../../server').app
 
 const createNotes = async (
   token,
-  userUrl,
+  readerUrl,
   publicationUrl,
   documentUrl,
   number = 1
@@ -13,7 +13,7 @@ const createNotes = async (
   for (let i = 0; i < number; i++) {
     promises.push(
       request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

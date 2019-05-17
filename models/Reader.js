@@ -295,7 +295,7 @@ class Reader extends BaseModel {
       name: this.name,
       type: 'Person',
       summaryMap: {
-        en: `User with id ${this.id}`
+        en: `Reader with id ${this.id}`
       },
       inbox: `${this.id}/inbox`,
       outbox: `${this.id}/activity`,

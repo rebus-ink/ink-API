@@ -17,18 +17,18 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
   let stack
 
   // Create Reader object
   const person = {
     name: 'J. Random Reader'
   }
-  const reader1 = await Reader.createReader(userId, person)
+  const reader1 = await Reader.createReader(readerId, person)
 
   const resActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -112,9 +112,9 @@ const test = async app => {
 
   const documentUrl = `${publication.id}${document.documentPath}`
 
-  // create Note for user 1
+  // create Note for reader 1
   const noteActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -150,7 +150,7 @@ const test = async app => {
 
   await tap.test('Create Tag', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -177,7 +177,7 @@ const test = async app => {
 
   await tap.test('Try to create a duplicate Tag', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -202,7 +202,7 @@ const test = async app => {
 
   await tap.test('Get tag when fetching library', async () => {
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -219,7 +219,7 @@ const test = async app => {
 
   await tap.test('Assign publication to tag', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -259,7 +259,7 @@ const test = async app => {
     'Try to assign publication to tag with invalid tag',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -284,7 +284,7 @@ const test = async app => {
     'Try to assign publication to tag with invalid publication',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -320,7 +320,7 @@ const test = async app => {
     await tap.equal(bodybefore.tags.length, 1)
 
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -358,7 +358,7 @@ const test = async app => {
     'Try to remove a tag from a publication with invalid tag',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -383,7 +383,7 @@ const test = async app => {
     'Try to remove a tag from a publication with invalid publication',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -408,7 +408,7 @@ const test = async app => {
 
   await tap.test('Try to assign publication to tag twice', async () => {
     await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -427,7 +427,7 @@ const test = async app => {
       )
 
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -468,7 +468,7 @@ const test = async app => {
 
   await tap.test('Assign note to tag', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -506,7 +506,7 @@ const test = async app => {
 
   await tap.test('Try to assign note to tag with invalid tag', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -529,7 +529,7 @@ const test = async app => {
 
   await tap.test('Try to assign note to tag with invalid note', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -565,7 +565,7 @@ const test = async app => {
     await tap.equal(bodybefore.tags.length, 1)
 
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -603,7 +603,7 @@ const test = async app => {
     'Try to remove a tag from a note with invalid tag',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -629,7 +629,7 @@ const test = async app => {
     'Try to remove a tag from a note with invalid note',
     async () => {
       const res = await request(app)
-        .post(`${userUrl}/activity`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
