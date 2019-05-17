@@ -1,12 +1,12 @@
 const tap = require('tap')
-const { destroyDB } = require('../integration/utils')
+const { destroyDB } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const { Tag } = require('../../models/Tag')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const { Note_Tag } = require('../../models/Note_Tag')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -50,7 +50,7 @@ const test = async app => {
     simplePublication
   )
 
-  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
   const createdDocument = await Document.createDocument(
     createdReader,
     urlToId(publication.id),

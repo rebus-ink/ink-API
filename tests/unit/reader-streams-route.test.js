@@ -34,9 +34,9 @@ const test = async () => {
   const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const readerStreamsRoute = proxyquire('../../routes/user-streams', {
+  const readerStreamsRoute = proxyquire('../../routes/reader-streams', {
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

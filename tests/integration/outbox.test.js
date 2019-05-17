@@ -1,20 +1,20 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, createUser, destroyDB } = require('./utils')
-const { urlToId } = require('../../routes/utils')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
   }
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   await tap.test('Create Activity', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -105,7 +105,7 @@ const test = async app => {
 
   await tap.test('Get Outbox', async () => {
     const res = await request(app)
-      .get(`${userUrl}/activity`)
+      .get(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -127,7 +127,7 @@ const test = async app => {
     await tap.equal(body.orderedItems[0].type, 'Create')
     // await tap.type(body.orderedItems[0].actor, 'object')
     // await tap.equal(body.orderedItems[0].actor.type, 'Person')
-    await tap.equal(urlToId(body.orderedItems[0].readerId), urlToId(userId))
+    await tap.equal(urlToId(body.orderedItems[0].readerId), urlToId(readerId))
     await tap.type(body.summaryMap, 'object')
     await tap.type(body.orderedItems[0].id, 'string')
   })

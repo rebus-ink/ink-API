@@ -34,8 +34,8 @@ Object.assign(publication, {
   updated: '2018-12-18 16:11:05',
   reader: {
     id: '9d2f717f-54b2-4732-a045-e0419c94a1c4',
-    json: { name: 'J. Random Reader', userId: 'auth0|foo1545149465058' },
-    userId: 'auth0|foo1545149465058',
+    json: { name: 'J. Random Reader' },
+    readerId: 'auth0|foo1545149465058',
     published: '2018-12-18T16:11:05.153Z',
     updated: '2018-12-18 16:11:05'
   }
@@ -47,7 +47,7 @@ const test = async () => {
 
   const publicationRoute = proxyquire('../../routes/publication', {
     '../models/Publication.js': PublicationStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

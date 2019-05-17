@@ -6,7 +6,7 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const app = require('../../server').app
 
 const test = async () => {
@@ -15,8 +15,8 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userCompleteUrl = await createUser(app, token)
-  const userUrl = urlparse(userCompleteUrl).path
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
 
   const createPublication = async (
     title,
@@ -24,7 +24,7 @@ const test = async () => {
     editor = 'Jane Doe'
   ) => {
     return await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -55,7 +55,7 @@ const test = async () => {
 
   await tap.test('Get empty library', async () => {
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -76,7 +76,7 @@ const test = async () => {
 
   await tap.test('Add publication and get library', async () => {
     await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -105,7 +105,7 @@ const test = async () => {
       )
 
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -155,7 +155,7 @@ const test = async () => {
 
     // create a stack
     const stackRes = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -185,7 +185,7 @@ const test = async () => {
     const stack = stackActivityObject.object
     // assign mystack to publication B
     await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -205,7 +205,7 @@ const test = async () => {
 
     // get library with filter for collection
     const res = await request(app)
-      .get(`${userUrl}/library?stack=mystack`)
+      .get(`${readerUrl}/library?stack=mystack`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -237,7 +237,7 @@ const test = async () => {
 
     // get library with pagination
     const res = await request(app)
-      .get(`${userUrl}/library?limit=10`)
+      .get(`${readerUrl}/library?limit=10`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -259,7 +259,7 @@ const test = async () => {
 
     // get page 2
     const res2 = await request(app)
-      .get(`${userUrl}/library?page=2&limit=10`)
+      .get(`${readerUrl}/library?page=2&limit=10`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -281,7 +281,7 @@ const test = async () => {
 
     // testing limit
     const res3 = await request(app)
-      .get(`${userUrl}/library?page=2&limit=0`)
+      .get(`${readerUrl}/library?page=2&limit=0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -292,7 +292,7 @@ const test = async () => {
 
     // testing default
     const res4 = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -307,7 +307,7 @@ const test = async () => {
     await createPublication('Super great book!')
 
     const res = await request(app)
-      .get(`${userUrl}/library?title=super`)
+      .get(`${readerUrl}/library?title=super`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -322,7 +322,7 @@ const test = async () => {
 
     // should work with limit
     const res2 = await request(app)
-      .get(`${userUrl}/library?title=publication`)
+      .get(`${readerUrl}/library?title=publication`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -332,7 +332,7 @@ const test = async () => {
     await tap.equal(res2.body.totalItems, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/library?title=publication&limit=11`)
+      .get(`${readerUrl}/library?title=publication&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -343,7 +343,7 @@ const test = async () => {
 
     // should return 0 items if none found
     const res4 = await request(app)
-      .get(`${userUrl}/library?title=ansoiwereow`)
+      .get(`${readerUrl}/library?title=ansoiwereow`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -359,7 +359,7 @@ const test = async () => {
     await createPublication('new book 3', 'John Smith', 'John doe')
 
     const res = await request(app)
-      .get(`${userUrl}/library?attribution=John%20Doe`)
+      .get(`${readerUrl}/library?attribution=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -391,7 +391,7 @@ const test = async () => {
 
     // should work with partial match
     const res1 = await request(app)
-      .get(`${userUrl}/library?attribution=John d`)
+      .get(`${readerUrl}/library?attribution=John d`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -415,7 +415,7 @@ const test = async () => {
     await createPublication('new book 15', 'Jane Smith', 'John Doe')
 
     const res2 = await request(app)
-      .get(`${userUrl}/library?attribution=John%20Doe`)
+      .get(`${readerUrl}/library?attribution=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -425,7 +425,7 @@ const test = async () => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/library?attribution=John%20Doe&limit=11`)
+      .get(`${readerUrl}/library?attribution=John%20Doe&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -435,7 +435,7 @@ const test = async () => {
     await tap.equal(res3.body.items.length, 11)
 
     const res4 = await request(app)
-      .get(`${userUrl}/library?attribution=John%20Doe&limit=11&page=2`)
+      .get(`${readerUrl}/library?attribution=John%20Doe&limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -447,7 +447,7 @@ const test = async () => {
 
   await tap.test('filter library by attribution with role', async () => {
     const res = await request(app)
-      .get(`${userUrl}/library?attribution=John%20D&role=author`)
+      .get(`${readerUrl}/library?attribution=John%20D&role=author`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -459,7 +459,7 @@ const test = async () => {
 
     // should work with editor and with pagination
     const res2 = await request(app)
-      .get(`${userUrl}/library?attribution=John%20D&role=editor`)
+      .get(`${readerUrl}/library?attribution=John%20D&role=editor`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -469,7 +469,7 @@ const test = async () => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/library?attribution=John%20D&role=editor&page=2`)
+      .get(`${readerUrl}/library?attribution=John%20D&role=editor&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -481,7 +481,7 @@ const test = async () => {
 
   await tap.test('filter library by author', async () => {
     const res = await request(app)
-      .get(`${userUrl}/library?author=John%20Doe`)
+      .get(`${readerUrl}/library?author=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -513,7 +513,7 @@ const test = async () => {
 
     // should work with limit
     const res2 = await request(app)
-      .get(`${userUrl}/library?author=JaneSmith`)
+      .get(`${readerUrl}/library?author=JaneSmith`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -523,7 +523,7 @@ const test = async () => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`${userUrl}/library?author=JaneSmith&limit=11`)
+      .get(`${readerUrl}/library?author=JaneSmith&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -533,7 +533,7 @@ const test = async () => {
     await tap.equal(res3.body.items.length, 11)
 
     const res4 = await request(app)
-      .get(`${userUrl}/library?author=JaneSmith&limit=11&page=2`)
+      .get(`${readerUrl}/library?author=JaneSmith&limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -544,10 +544,10 @@ const test = async () => {
   })
 
   await tap.test(
-    'Try to get library for user that does not exist',
+    'Try to get library for reader that does not exist',
     async () => {
       const res = await request(app)
-        .get(`${userUrl}abc/library`)
+        .get(`${readerUrl}abc/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

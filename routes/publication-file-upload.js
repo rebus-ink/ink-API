@@ -6,7 +6,7 @@ const passport = require('passport')
 const crypto = require('crypto')
 const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
-const utils = require('./utils')
+const utils = require('../utils/utils')
 
 const storage = new Storage()
 

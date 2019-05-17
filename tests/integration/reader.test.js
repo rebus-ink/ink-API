@@ -1,7 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, destroyDB } = require('./utils')
+const { getToken, destroyDB } = require('../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -14,7 +14,7 @@ const test = async app => {
   const token2 = getToken()
   let readerUrl
 
-  await tap.test('Create User', async () => {
+  await tap.test('Create Reader', async () => {
     const res = await request(app)
       .post('/readers')
       .set('Host', 'reader-api.test')
@@ -36,7 +36,7 @@ const test = async app => {
     readerUrl = res.get('Location')
   })
 
-  await tap.test('Create Simple User', async () => {
+  await tap.test('Create Simple Reader', async () => {
     const res = await request(app)
       .post('/readers')
       .set('Host', 'reader-api.test')
@@ -54,7 +54,7 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
-  // TODO: add test for incomplete user object (once incoming json is validated)
+  // TODO: add test for incomplete reader object (once incoming json is validated)
 
   await tap.test('Whoami route', async () => {
     const res = await request(app)
@@ -85,7 +85,7 @@ const test = async app => {
     await tap.equal(body.json.something, '!!!!')
   })
 
-  await tap.test('get user by userid', async () => {
+  await tap.test('get reader by readerId', async () => {
     const res = await request(app)
       .get(urlparse(readerUrl).path)
       .set('Host', 'reader-api.test')

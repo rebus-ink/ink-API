@@ -11,13 +11,13 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   await tap.test('Create 10 tags', async () => {
     const testName = 'create 10 tags'
     console.time(testName)
-    await createTags(token, userUrl, 10)
+    await createTags(token, readerUrl, 10)
     console.timeEnd(testName)
   })
 

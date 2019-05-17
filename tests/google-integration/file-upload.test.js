@@ -2,7 +2,7 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../integration/utils')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 
 const { Storage } = require('@google-cloud/storage')

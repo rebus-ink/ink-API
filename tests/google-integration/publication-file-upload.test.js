@@ -7,7 +7,7 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('../integration/utils')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 const { Document } = require('../../models/Document')
 
@@ -20,14 +20,14 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userCompleteUrl = await createUser(app, token)
-  const userUrl = urlparse(userCompleteUrl).path
-  const userId = urlToId(userCompleteUrl)
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
   let file1Name
 
   // create publication
   const resActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -91,7 +91,7 @@ const test = async app => {
     // check files
     const [files] = await bucket.getFiles()
     await tap.equal(files.length, 1)
-    file1Name = urlparse(body.url).path.substr(userId.length + 14)
+    file1Name = urlparse(body.url).path.substr(readerId.length + 14)
     const file1Exists = _.find(files, file => file.name === file1Name)
     await tap.ok(file1Exists)
 

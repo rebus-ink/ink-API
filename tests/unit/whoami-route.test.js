@@ -32,14 +32,14 @@ const reader = Object.assign(new Reader(), {
 const test = async () => {
   const ReaderStub = {}
 
-  const userRoute = proxyquire('../../routes/whoami', {
+  const readerRoute = proxyquire('../../routes/whoami', {
     '../models/Reader.js': ReaderStub
   })
 
-  userRoute(app)
+  readerRoute(app)
   const request = supertest(app)
 
-  await tap.test('Get User profile', async () => {
+  await tap.test('Get Reader profile', async () => {
     ReaderStub.Reader.byAuthId = async () => Promise.resolve(reader)
 
     const res = await request
@@ -63,7 +63,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'Try to get user profile for user that does not exist',
+    'Try to get reader profile for reader that does not exist',
     async () => {
       ReaderStub.Reader.byAuthId = async () => Promise.resolve(null)
 

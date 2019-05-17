@@ -1,6 +1,6 @@
 const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
 
 const handleUpdate = async (req, res, reader) => {

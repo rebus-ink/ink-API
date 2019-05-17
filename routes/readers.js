@@ -5,21 +5,21 @@ const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:readers')
 
 class ReaderExistsError extends Error {
-  constructor (userId) {
-    super(`Reader already exists for user ${userId}`)
+  constructor (readerId) {
+    super(`Reader already exists for user ${readerId}`)
   }
 }
 
-const insertNewReader = (userId, person) => {
-  debug(`Inserting new reader for user ID ${userId}`)
+const insertNewReader = (readerId, person) => {
+  debug(`Inserting new reader for user ID ${readerId}`)
   return new Promise((resolve, reject) => {
-    debug(`Querying for user with ID ${userId}`)
-    Reader.checkIfExistsByAuthId(userId)
+    debug(`Querying for reader with ID ${readerId}`)
+    Reader.checkIfExistsByAuthId(readerId)
       .then(response => {
         if (response) {
-          reject(new ReaderExistsError(userId))
+          reject(new ReaderExistsError(readerId))
         } else {
-          return Reader.createReader(userId, person)
+          return Reader.createReader(readerId, person)
         }
       })
       .then(resolve)

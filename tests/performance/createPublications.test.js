@@ -11,20 +11,20 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   await tap.test('Create 10 publications', async () => {
     const testName = 'create 10 publications'
     console.time(testName)
-    await createPublication(token, userUrl, 10)
+    await createPublication(token, readerUrl, 10)
     console.timeEnd(testName)
   })
 
   await tap.test('Create 100 publications', async () => {
     const testName = 'create 100 publications'
     console.time(testName)
-    await createPublication(token, userUrl, 100)
+    await createPublication(token, readerUrl, 100)
     console.timeEnd(testName)
   })
 

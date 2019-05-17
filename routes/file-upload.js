@@ -5,7 +5,7 @@ const { Storage } = require('@google-cloud/storage')
 const passport = require('passport')
 const crypto = require('crypto')
 const { Reader } = require('../models/Reader')
-const utils = require('./utils')
+const utils = require('../utils/utils')
 
 const storage = new Storage()
 

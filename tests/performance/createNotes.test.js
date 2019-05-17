@@ -13,13 +13,13 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
-  await createPublication(token, userUrl, 10)
+  await createPublication(token, readerUrl, 10)
 
   const res = await request(app)
-    .get(`${userUrl}/library`)
+    .get(`${readerUrl}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -40,14 +40,14 @@ const test = async () => {
   await tap.test('Create 10 notes', async () => {
     const testName = 'create 10 notes'
     console.time(testName)
-    await createNotes(token, userUrl, publicationUrl, documentUrl, 10)
+    await createNotes(token, readerUrl, publicationUrl, documentUrl, 10)
     console.timeEnd(testName)
   })
 
   await tap.test('Create 100 notes', async () => {
     const testName = 'create 100 notes'
     console.time(testName)
-    await createNotes(token, userUrl, publicationUrl, documentUrl, 100)
+    await createNotes(token, readerUrl, publicationUrl, documentUrl, 100)
     console.timeEnd(testName)
   })
 

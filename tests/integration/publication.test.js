@@ -6,9 +6,9 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const _ = require('lodash')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
@@ -17,8 +17,8 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userCompleteUrl = await createUser(app, token)
-  const userUrl = urlparse(userCompleteUrl).path
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
   let publicationUrl
   let activityUrl
 
@@ -26,7 +26,7 @@ const test = async app => {
 
   await tap.test('Create Publication', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -100,7 +100,7 @@ const test = async app => {
 
   await tap.test('Create Simple Publication', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -187,7 +187,7 @@ const test = async app => {
 
   // await tap.test('Read activity should appear on the publication', async () => {
   //   await request(app)
-  //     .post(`${userUrl}/activity`)
+  //     .post(`${readerUrl}/activity`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
@@ -211,7 +211,7 @@ const test = async app => {
   //     )
 
   //   await request(app)
-  //     .post(`${userUrl}/activity`)
+  //     .post(`${readerUrl}/activity`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
@@ -272,7 +272,7 @@ const test = async app => {
   await tap.test('Update a publication', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -357,7 +357,7 @@ const test = async app => {
   await tap.test('Delete Publication', async () => {
     // before
     const before = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -366,7 +366,7 @@ const test = async app => {
     await tap.equal(before.body.items.length, 2)
 
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -400,7 +400,7 @@ const test = async app => {
 
     // publication should no longer be in the reader library
     const libraryres = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -416,7 +416,7 @@ const test = async app => {
   await tap.test('delete publication that does not exist', async () => {
     // already deleted
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -439,7 +439,7 @@ const test = async app => {
 
     // never existed
     const res1 = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

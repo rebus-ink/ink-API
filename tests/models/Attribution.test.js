@@ -1,9 +1,9 @@
 const tap = require('tap')
-const { destroyDB } = require('../integration/utils')
+const { destroyDB } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
 const { Publication } = require('../../models/Publication')
 const { Attribution } = require('../../models/Attribution')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 
 const test = async app => {

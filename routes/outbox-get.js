@@ -6,7 +6,7 @@ const { getId } = require('../utils/get-id.js')
 // const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 
-const utils = require('./utils')
+const utils = require('../utils/utils')
 /**
  * @swagger
  * definition:
@@ -86,7 +86,7 @@ module.exports = function (app) {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Outbox for user with id ${id}`
+                  en: `Outbox for reader with id ${id}`
                 },
                 type: 'OrderedCollection',
                 id: getId(`/reader-${id}/activity`),

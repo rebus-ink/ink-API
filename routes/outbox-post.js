@@ -11,7 +11,7 @@ const { handleArrive } = require('./activities/arrive')
 const { handleUpdate } = require('./activities/update')
 const { handleRead } = require('./activities/read')
 
-const utils = require('./utils')
+const utils = require('../utils/utils')
 /**
  * @swagger
  * definition:

@@ -3,7 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
-const utils = require('./utils')
+const utils = require('../utils/utils')
 const _ = require('lodash')
 const paginate = require('express-paginate')
 
@@ -146,7 +146,7 @@ module.exports = app => {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Streams for user with id ${id}`
+                  en: `Streams for reader with id ${id}`
                 },
                 type: 'Collection',
                 id: getId(`/reader-${id}/library`),

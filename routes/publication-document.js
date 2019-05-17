@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Publication } = require('../models/Publication')
-const utils = require('./utils')
+const utils = require('../utils/utils')
 const { Document } = require('../models/Document')
 
 /**

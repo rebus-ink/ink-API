@@ -6,11 +6,11 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 const { ReadActivity } = require('../../models/ReadActivity')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -18,19 +18,19 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
   let activityUrl
 
   // Create Reader object
   const person = {
     name: 'J. Random Reader'
   }
-  const reader1 = await Reader.createReader(userId, person)
+  const reader1 = await Reader.createReader(readerId, person)
 
   // Create Publication
   const resActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -143,7 +143,7 @@ const test = async app => {
 
   await tap.test('Create Activity', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -194,7 +194,7 @@ const test = async app => {
     await tap.equal(body.type, 'Create')
     await tap.type(body['@context'], 'object')
     await tap.ok(Array.isArray(body['@context']))
-    await tap.equal(body.reader.id, userId)
+    await tap.equal(body.reader.id, readerId)
     await tap.type(body.readerId, 'string')
     await tap.type(body.object, 'object')
     await tap.type(body.object.id, 'string')
@@ -218,7 +218,7 @@ const test = async app => {
 
   await tap.test('Create Read activity with only a selector', async () => {
     const readActivity = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -252,7 +252,7 @@ const test = async app => {
 
   await tap.test('Create a ReadActivity with json', async () => {
     const readActivity = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

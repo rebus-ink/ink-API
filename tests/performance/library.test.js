@@ -12,16 +12,16 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
   await tap.test('Get library with 10 publications', async () => {
     const testName = 'get library with 10 publications'
-    await createPublication(token, userUrl, 10)
+    await createPublication(token, readerUrl, 10)
 
     console.time(testName)
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -39,11 +39,11 @@ const test = async () => {
 
   await tap.test('Get library with 100 publications', async () => {
     const testName = 'get library with 100 publications'
-    await createPublication(token, userUrl, 90) // adding to the 10 already there
+    await createPublication(token, readerUrl, 90) // adding to the 10 already there
 
     console.time(testName)
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -61,11 +61,11 @@ const test = async () => {
 
   await tap.test('Get library with 500 publications', async () => {
     const testName = 'get library with 500 publications'
-    await createPublication(token, userUrl, 400) // adding to the 100 already there
+    await createPublication(token, readerUrl, 400) // adding to the 100 already there
 
     console.time(testName)
     const res = await request(app)
-      .get(`${userUrl}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

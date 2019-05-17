@@ -34,17 +34,17 @@ const test = async () => {
   const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const userRoute = proxyquire('../../routes/user', {
+  const readerRoute = proxyquire('../../routes/reader', {
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })
 
-  userRoute(app)
+  readerRoute(app)
   const request = supertest(app)
 
-  await tap.test('Get User profile', async () => {
+  await tap.test('Get Reader profile', async () => {
     ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
@@ -68,7 +68,7 @@ const test = async () => {
     await tap.type(body.outbox, 'string')
   })
 
-  await tap.test('Get User profile for another user', async () => {
+  await tap.test('Get Reader profile for another reader', async () => {
     ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(false)
 
@@ -82,7 +82,7 @@ const test = async () => {
     await tap.equal(res.statusCode, 403)
   })
 
-  await tap.test('Get User profile that does not exist', async () => {
+  await tap.test('Get Reader profile that does not exist', async () => {
     ReaderStub.Reader.byId = async () => Promise.resolve(null)
     checkReaderStub.returns(true)
 

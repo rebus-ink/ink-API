@@ -6,9 +6,9 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const { Document } = require('../../models/Document')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -16,13 +16,13 @@ const test = async app => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
   let noteUrl
   let activityUrl
 
   const resActivity = await request(app)
-    .post(`${userUrl}/activity`)
+    .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -61,9 +61,9 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  // creating a document - this will not be exposed to the users. It will be done as part of the upload
+  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
   const createdDocument = await Document.createDocument(
-    { id: urlToId(userId) },
+    { id: urlToId(readerId) },
     urlToId(resPublication.body.id),
     {
       documentPath: '/path/1',
@@ -76,7 +76,7 @@ const test = async app => {
 
   await tap.test('Create Note', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -107,7 +107,7 @@ const test = async app => {
 
   await tap.test('Create Simple Note', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -136,7 +136,7 @@ const test = async app => {
   //   'Try to create Note with invalid Publication context',
   //   async () => {
   //     const res = await request(app)
-  //       .post(`${userUrl}/activity`)
+  //       .post(`${readerUrl}/activity`)
   //       .set('Host', 'reader-api.test')
   //       .set('Authorization', `Bearer ${token}`)
   //       .type(
@@ -168,7 +168,7 @@ const test = async app => {
   //   'Try to create Note with invalid inReplyTo Document',
   //   async () => {
   //     const res = await request(app)
-  //       .post(`${userUrl}/activity`)
+  //       .post(`${readerUrl}/activity`)
   //       .set('Host', 'reader-api.test')
   //       .set('Authorization', `Bearer ${token}`)
   //       .type(
@@ -256,7 +256,7 @@ const test = async app => {
   //   async () => {
   //     // create another document for this publication
   //     const documentRes = await request(app)
-  //       .post(`${userUrl}/activity`)
+  //       .post(`${readerUrl}/activity`)
   //       .set('Host', 'reader-api.test')
   //       .set('Authorization', `Bearer ${token}`)
   //       .type(
@@ -287,7 +287,7 @@ const test = async app => {
   //     const secondDocUrl = ActivityObject2.object.id
   //     // create a note for that document
   //     await request(app)
-  //       .post(`${userUrl}/activity`)
+  //       .post(`${readerUrl}/activity`)
   //       .set('Host', 'reader-api.test')
   //       .set('Authorization', `Bearer ${token}`)
   //       .type(
@@ -329,7 +329,7 @@ const test = async app => {
 
   await tap.test('Update a Note', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -383,7 +383,7 @@ const test = async app => {
 
   await tap.test('Try to update a Note that does not exist', async () => {
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -418,7 +418,7 @@ const test = async app => {
     await tap.equal(pubresbefore.body.replies.length, 1) // should be 2 if previous test is re-enabled
 
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -470,7 +470,7 @@ const test = async app => {
   await tap.test('Try to delete a Note that does not exist', async () => {
     // already deleted
     const res = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -493,7 +493,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
 
     const res1 = await request(app)
-      .post(`${userUrl}/activity`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

@@ -13,13 +13,13 @@ const test = async () => {
   }
 
   const token = getToken()
-  const userId = await createUser(app, token)
-  const userUrl = urlparse(userId).path
+  const readerId = await createUser(app, token)
+  const readerUrl = urlparse(readerId).path
 
-  await createPublication(token, userUrl, 10)
+  await createPublication(token, readerUrl, 10)
 
   const res = await request(app)
-    .get(`${userUrl}/library`)
+    .get(`${readerUrl}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -31,21 +31,21 @@ const test = async () => {
   await tap.test('Create 10 documents', async () => {
     const testName = 'create 10 documents'
     console.time(testName)
-    await createDocument(token, userUrl, publicationUrl, 10)
+    await createDocument(token, readerUrl, publicationUrl, 10)
     console.timeEnd(testName)
   })
 
   await tap.test('Create 100 documents', async () => {
     const testName = 'create 100 documents'
     console.time(testName)
-    await createDocument(token, userUrl, publicationUrl, 100)
+    await createDocument(token, readerUrl, publicationUrl, 100)
     console.timeEnd(testName)
   })
 
   await tap.test('Create 500 documents', async () => {
     const testName = 'create 500 documents'
     console.time(testName)
-    await createDocument(token, userUrl, publicationUrl, 500)
+    await createDocument(token, readerUrl, publicationUrl, 500)
     console.timeEnd(testName)
   })
 

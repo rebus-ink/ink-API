@@ -4,7 +4,7 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
@@ -295,7 +295,7 @@ class Reader extends BaseModel {
       name: this.name,
       type: 'Person',
       summaryMap: {
-        en: `User with id ${this.id}`
+        en: `Reader with id ${this.id}`
       },
       inbox: `${this.id}/inbox`,
       outbox: `${this.id}/activity`,

@@ -1,6 +1,6 @@
 const libraryTests = require('./library.test')
 const createPublicationTests = require('./createPublications.test')
-const userProfileTests = require('./getUserProfile.test')
+const readerProfileTests = require('./getReaderProfile.test')
 const createDocumentTests = require('./createDocuments.test')
 const createNotesTests = require('./createNotes.test')
 const getDocumentWithNotesTests = require('./getDocumentWithNotes.test')
@@ -21,7 +21,7 @@ const allTests = async () => {
   }
 
   await libraryTests(app)
-  await userProfileTests(app)
+  await readerProfileTests(app)
   await createPublicationTests(app)
   await createDocumentTests(app)
   await createNotesTests(app)

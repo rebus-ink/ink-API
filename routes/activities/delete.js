@@ -1,8 +1,8 @@
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 const { Publication } = require('../../models/Publication')
 const { Activity } = require('../../models/Activity')
 const { Note } = require('../../models/Note')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 
 const handleDelete = async (req, res, reader) => {
   const body = req.body
