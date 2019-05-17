@@ -7,7 +7,7 @@ const {
   destroyDB,
   getActivityFromUrl
 } = require('../integration/utils')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 const { Document } = require('../../models/Document')
 

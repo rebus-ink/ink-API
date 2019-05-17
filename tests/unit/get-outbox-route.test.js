@@ -60,7 +60,7 @@ const test = async () => {
 
   const outboxRoute = proxyquire('../../routes/outbox-get', {
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

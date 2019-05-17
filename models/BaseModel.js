@@ -2,7 +2,7 @@
 'use strict'
 const { Model } = require('objection')
 const _ = require('lodash')
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 
 const domain = process.env.DOMAIN || ''

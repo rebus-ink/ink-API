@@ -1,12 +1,12 @@
 const tap = require('tap')
-const { destroyDB } = require('../integration/utils')
+const { destroyDB } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const { Tag } = require('../../models/Tag')
 const { Publication } = require('../../models/Publication')
 const { Document } = require('../../models/Document')
 const { Note_Tag } = require('../../models/Note_Tag')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 
 const test = async app => {

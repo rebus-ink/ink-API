@@ -55,7 +55,7 @@ const test = async () => {
 
   const activityRoute = proxyquire('../../routes/activity', {
     '../models/Activity.js': ActivityStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

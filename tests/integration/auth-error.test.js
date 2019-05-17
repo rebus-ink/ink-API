@@ -6,7 +6,7 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 

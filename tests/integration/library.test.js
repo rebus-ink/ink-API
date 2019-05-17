@@ -6,7 +6,7 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const app = require('../../server').app
 
 const test = async () => {

@@ -87,7 +87,7 @@ const test = async () => {
     '../models/Publications_Tags.js': Publication_TagsStub,
     '../models/Tag.js': TagStub,
     '../models/Publication.js': PublicationStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

@@ -35,7 +35,7 @@ const test = async () => {
 
   const inboxRoute = proxyquire('../../routes/inbox', {
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

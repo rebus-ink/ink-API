@@ -85,7 +85,7 @@ const test = async () => {
     '../models/Publication.js': PublicationStub,
     '../models/Document.js': DocumentStub,
     '../models/ReadActivity.js': ReadActivityStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

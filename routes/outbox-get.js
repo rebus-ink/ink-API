@@ -6,7 +6,7 @@ const { getId } = require('../utils/get-id.js')
 // const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 
-const utils = require('./utils')
+const utils = require('../utils/utils')
 /**
  * @swagger
  * definition:

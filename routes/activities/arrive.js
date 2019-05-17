@@ -1,4 +1,4 @@
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 const { Activity } = require('../../models/Activity')
 
 const handleArrive = async (req, res, reader) => {

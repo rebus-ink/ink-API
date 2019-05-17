@@ -68,7 +68,7 @@ const test = async () => {
   const noteRoute = proxyquire('../../routes/reader-notes', {
     '../models/Note.js': NoteStub,
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

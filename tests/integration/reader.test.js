@@ -1,7 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, destroyDB } = require('./utils')
+const { getToken, destroyDB } = require('../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

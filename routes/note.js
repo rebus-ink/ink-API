@@ -3,7 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Note } = require('../models/Note')
 const debug = require('debug')('hobb:routes:document')
-const utils = require('./utils')
+const utils = require('../utils/utils')
 
 /**
  * @swagger

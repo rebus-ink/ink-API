@@ -7,7 +7,7 @@ const { ReadActivity } = require('./ReadActivity')
 
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.

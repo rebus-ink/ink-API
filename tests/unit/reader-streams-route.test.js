@@ -36,7 +36,7 @@ const test = async () => {
 
   const readerStreamsRoute = proxyquire('../../routes/reader-streams', {
     '../models/Reader.js': ReaderStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

@@ -1,5 +1,5 @@
 const tap = require('tap')
-const { destroyDB } = require('../integration/utils')
+const { destroyDB } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const crypto = require('crypto')

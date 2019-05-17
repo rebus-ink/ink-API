@@ -1,9 +1,9 @@
 const tap = require('tap')
-const { destroyDB } = require('../integration/utils')
+const { destroyDB } = require('../utils/utils')
 const { Activity } = require('../../models/Activity')
 const { Reader } = require('../../models/Reader')
 const crypto = require('crypto')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

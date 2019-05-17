@@ -2,7 +2,7 @@ const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
 const { Note } = require('../../models/Note')
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 
 const handleCreate = async (req, res, reader) => {
   const body = req.body

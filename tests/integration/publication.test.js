@@ -6,9 +6,9 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('./utils')
+} = require('../utils/utils')
 const _ = require('lodash')
-const { urlToId } = require('../../routes/utils')
+const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {

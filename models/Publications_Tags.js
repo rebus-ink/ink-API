@@ -1,5 +1,5 @@
 const { BaseModel } = require('./BaseModel')
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 
 class Publication_Tag extends BaseModel {
   static get tableName () {

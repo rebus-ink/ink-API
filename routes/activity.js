@@ -4,7 +4,7 @@ const passport = require('passport')
 const { Activity } = require('../models/Activity')
 const debug = require('debug')('hobb:routes:activity')
 // app.use('/', require('./routes/activity'))
-const utils = require('./utils')
+const utils = require('../utils/utils')
 
 /**
  * @swagger

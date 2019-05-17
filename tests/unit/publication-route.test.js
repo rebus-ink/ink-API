@@ -47,7 +47,7 @@ const test = async () => {
 
   const publicationRoute = proxyquire('../../routes/publication', {
     '../models/Publication.js': PublicationStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

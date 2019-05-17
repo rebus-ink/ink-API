@@ -135,7 +135,7 @@ const test = async () => {
     '../models/Tag.js': TagStub,
     '../models/Publication.js': PublicationStub,
     '../models/Note.js': NoteStub,
-    './utils.js': {
+    '../utils/utils.js': {
       checkReader: checkReaderStub
     }
   })

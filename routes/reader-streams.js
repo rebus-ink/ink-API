@@ -5,7 +5,7 @@ const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:reader-streams')
 const { getId } = require('../utils/get-id.js')
 
-const utils = require('./utils')
+const utils = require('../utils/utils')
 
 module.exports = app => {
   app.use('/', router)

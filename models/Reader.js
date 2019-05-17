@@ -4,7 +4,7 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']

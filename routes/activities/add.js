@@ -1,4 +1,4 @@
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Activity } = require('../../models/Activity')

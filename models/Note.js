@@ -3,7 +3,7 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
-const { urlToId } = require('../routes/utils')
+const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
 
 /**
