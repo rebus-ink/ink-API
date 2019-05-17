@@ -51,7 +51,7 @@ const publication2 = Object.assign(new Publication(), {
 
 const readerLibrary = Object.assign(new Reader(), {
   id: '95256c7b-e613-4036-899b-d686708b12e0',
-  json: { name: 'J. Random Reader', readerId: 'auth0|foo1545149658018' },
+  json: { name: 'J. Random Reader' },
   readerId: 'auth0|foo1545149658018',
   published: '2018-12-18T16:14:18.104Z',
   updated: '2018-12-18 16:14:18',
