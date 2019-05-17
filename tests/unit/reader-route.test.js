@@ -25,7 +25,7 @@ const app = express()
 const reader = Object.assign(new Reader(), {
   id: '0dad66d5-670f-41e1-886a-b2e25b510b2d',
   name: 'J. Random Reader',
-  authId: 'auth0|foo1545149868960',
+  authId: 'auth0|foo1545149868969',
   published: '2018-12-18T16:17:49.077Z',
   updated: '2018-12-18 16:17:49'
 })
@@ -34,22 +34,22 @@ const test = async () => {
   const ReaderStub = {}
   const checkReaderStub = sinon.stub()
 
-  const readerStreamsRoute = proxyquire('../../routes/user-streams', {
+  const readerRoute = proxyquire('../../routes/reader', {
     '../models/Reader.js': ReaderStub,
     './utils.js': {
       checkReader: checkReaderStub
     }
   })
 
-  readerStreamsRoute(app)
+  readerRoute(app)
   const request = supertest(app)
 
-  await tap.test('Get Reader Streams', async () => {
+  await tap.test('Get User profile', async () => {
     ReaderStub.Reader.byId = async () => Promise.resolve(reader)
     checkReaderStub.returns(true)
 
     const res = await request
-      .get('/reader-123/streams')
+      .get('/reader-123')
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -60,30 +60,41 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-
-    // should it be an object?
-    await tap.type(body['@context'], 'string')
-    await tap.equal(body.type, 'Collection')
+    await tap.type(body['@context'], 'object')
+    await tap.ok(Array.isArray(body['@context']))
+    await tap.equal(body.type, 'Person')
     await tap.type(body.summaryMap, 'object')
-    await tap.ok(Array.isArray(body.items))
+    await tap.type(body.inbox, 'string')
+    await tap.type(body.outbox, 'string')
   })
 
-  await tap.test(
-    'Get Reader Streams that belongs to another reader',
-    async () => {
-      ReaderStub.Reader.byId = async () => Promise.resolve(reader)
-      checkReaderStub.returns(false)
+  await tap.test('Get User profile for another user', async () => {
+    ReaderStub.Reader.byId = async () => Promise.resolve(reader)
+    checkReaderStub.returns(false)
 
-      const res = await request
-        .get('/reader-123/streams')
-        .set('Host', 'reader-api.test')
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+    const res = await request
+      .get('/reader-123')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-      await tap.equal(res.statusCode, 403)
-    }
-  )
+    await tap.equal(res.statusCode, 403)
+  })
+
+  await tap.test('Get User profile that does not exist', async () => {
+    ReaderStub.Reader.byId = async () => Promise.resolve(null)
+    checkReaderStub.returns(true)
+
+    const res = await request
+      .get('/reader-123')
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.statusCode, 404)
+  })
 }
 
 test()

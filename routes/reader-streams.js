@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
-const debug = require('debug')('hobb:routes:user-streams')
+const debug = require('debug')('hobb:routes:reader-streams')
 const { getId } = require('../utils/get-id.js')
 
 const utils = require('./utils')
