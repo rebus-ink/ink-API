@@ -118,6 +118,33 @@ const test = async app => {
     await tap.equal(refObject2.profile, undefined)
   })
 
+  await tap.test('get library', async () => {
+    const readerWithLibrary = await Reader.getLibrary(
+      urlToId(createdReader.id),
+      10,
+      0,
+      {}
+    )
+    await tap.ok(readerWithLibrary)
+    await tap.type(readerWithLibrary.id, 'string')
+    await tap.type(readerWithLibrary.authId, 'string')
+    await tap.ok(Array.isArray(readerWithLibrary.tags))
+    await tap.ok(Array.isArray(readerWithLibrary.publications))
+  })
+
+  await tap.test('get notes', async () => {
+    const readerWithNotes = await Reader.getNotes(
+      urlToId(createdReader.id),
+      10,
+      0,
+      {}
+    )
+    await tap.ok(readerWithNotes)
+    await tap.type(readerWithNotes.id, 'string')
+    await tap.type(readerWithNotes.authId, 'string')
+    await tap.ok(Array.isArray(readerWithNotes.replies))
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

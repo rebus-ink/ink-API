@@ -222,6 +222,245 @@ const test = async app => {
 
   //   await tap.equal(res.message, 'duplicate')
   // })
+  await tap.test('Update publication name', async () => {
+    const newPubObj = {
+      id: publication.id,
+      name: 'New name for pub A'
+    }
+
+    // Update the publication
+    const newPub = await Publication.update(newPubObj)
+
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.equal(newPub.name, pubRetrieved.name)
+    await tap.equal(
+      newPub.readingOrder.data[0].name,
+      pubRetrieved.readingOrder[0].name
+    )
+  })
+
+  await tap.test(
+    'Update publication with incorrect publicationId',
+    async () => {
+      const newPubObj = {
+        id: 'BlahID',
+        name: 'New name for pub A'
+      }
+
+      const newPub = await Publication.update(newPubObj)
+
+      await tap.ok(!newPub)
+      await tap.equal(newPub, null)
+    }
+  )
+
+  // await tap.test('Update publication datePublished', async () => {
+  //   const timestamp = new Date(2018, 01, 30).toISOString()
+  //   const newPubObj = {
+  //     id: publication.id,
+  //     datePublished: timestamp
+  //   }
+
+  //   const newPub = await Publication.update(newPubObj)
+
+  //   // Retrieve the Publication that has just been updated
+  //   const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
+  //   await tap.ok(newPub)
+  //   await tap.ok(newPub instanceof Publication)
+  //   await tap.equal(
+  //     newPub.datePublished.toString(),
+  //     pubRetrieved.datePublished.toString()
+  //   )
+  // })
+
+  await tap.test('Update publication description', async () => {
+    const newPubObj = {
+      id: publication.id,
+      description: 'New description for Publication'
+    }
+
+    const newPub = await Publication.update(newPubObj)
+
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.equal(newPub.description, pubRetrieved.description)
+  })
+
+  await tap.test('Update publication json object', async () => {
+    const newPubObj = {
+      id: publication.id,
+      json: { property: 'New value for json property' }
+    }
+
+    const newPub = await Publication.update(newPubObj)
+
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.equal(newPub.json.property, pubRetrieved.json.property)
+  })
+
+  await tap.test('Update publication metadata', async () => {
+    const newPubObj = {
+      id: publication.id,
+      inLanguage: ['Swahili', 'French'],
+      keywords: ['newKeyWord1', 'newKeyWord2']
+    }
+
+    const newPub = await Publication.update(newPubObj)
+
+    // Retrieve the Publication that has just been updated
+    const pubRetrieved = await Publication.byId(urlToId(newPub.id))
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.equal(
+      newPub.metadata.keywords[0],
+      pubRetrieved.metadata.keywords[0]
+    )
+    await tap.equal(
+      newPub.metadata.keywords[1],
+      pubRetrieved.metadata.keywords[1]
+    )
+    await tap.equal(
+      newPub.metadata.inLanguage[0],
+      pubRetrieved.metadata.inLanguage[0]
+    )
+    await tap.equal(
+      newPub.metadata.inLanguage[1],
+      pubRetrieved.metadata.inLanguage[1]
+    )
+  })
+
+  await tap.test('Update publication attribution with objects', async () => {
+    const newPubObj = {
+      id: publication.id,
+      author: [
+        { type: 'Person', name: 'New Sample Author' },
+        { type: 'Organization', name: 'New Org inc.' }
+      ],
+      editor: [{ type: 'Person', name: 'New Sample Editor' }]
+    }
+
+    const newPub = await Publication.update(newPubObj)
+    const attributions = await Attribution.getAttributionByPubId(
+      urlToId(publication.id)
+    )
+
+    let newAuthor1Exists = false
+    let newAuthor2Exists = false
+    let newEditorExists = false
+
+    for (let i = 0; i < attributions.length; i++) {
+      if (
+        attributions[i].role === 'author' &&
+        attributions[i].name === 'New Sample Author' &&
+        attributions[i].type === 'Person'
+      ) {
+        newAuthor1Exists = true
+      }
+
+      if (
+        attributions[i].role === 'author' &&
+        attributions[i].name === 'New Org inc.' &&
+        attributions[i].type === 'Organization'
+      ) {
+        newAuthor2Exists = true
+      }
+
+      if (
+        attributions[i].role === 'editor' &&
+        attributions[i].name === 'New Sample Editor' &&
+        attributions[i].type === 'Person'
+      ) {
+        newEditorExists = true
+      }
+    }
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.ok(
+      newPub.author[0].name === 'New Sample Author' ||
+        newPub.author[0].name === 'New Org inc.'
+    )
+    await tap.ok(
+      newPub.author[1].name === 'New Sample Author' ||
+        newPub.author[1].name === 'New Org inc.'
+    )
+    await tap.equal(newPub.editor[0].name, 'New Sample Editor')
+    await tap.ok(attributions[0] instanceof Attribution)
+    await tap.equal(attributions.length, 3)
+    await tap.ok(newAuthor1Exists)
+    await tap.ok(newAuthor2Exists)
+    await tap.ok(newEditorExists)
+  })
+
+  await tap.test('Update publication attribution with strings', async () => {
+    const newPubObj = {
+      id: publication.id,
+      author: ['Sample String Author1', 'Sample String Author2'],
+      editor: ['Sample String Editor1', 'Sample String Editor2']
+    }
+
+    const newPub = await Publication.update(newPubObj)
+    const attributions = await Attribution.getAttributionByPubId(
+      urlToId(publication.id)
+    )
+
+    let author1Exists = false
+    let author2Exists = false
+    let editor1Exists = false
+    let editor2Exists = false
+
+    for (let i = 0; i < attributions.length; i++) {
+      if (
+        attributions[i].role === 'author' &&
+        attributions[i].name === 'Sample String Author1'
+      ) {
+        author1Exists = true
+      }
+
+      if (
+        attributions[i].role === 'author' &&
+        attributions[i].name === 'Sample String Author2'
+      ) {
+        author2Exists = true
+      }
+
+      if (
+        attributions[i].role === 'editor' &&
+        attributions[i].name === 'Sample String Editor1'
+      ) {
+        editor1Exists = true
+      }
+
+      if (
+        attributions[i].role === 'editor' &&
+        attributions[i].name === 'Sample String Editor2'
+      ) {
+        editor2Exists = true
+      }
+    }
+
+    await tap.ok(newPub)
+    await tap.ok(newPub instanceof Publication)
+    await tap.ok(attributions[0] instanceof Attribution)
+    await tap.equal(attributions.length, 4)
+    await tap.ok(author1Exists)
+    await tap.ok(author2Exists)
+    await tap.ok(editor1Exists)
+    await tap.ok(editor2Exists)
+  })
 
   await tap.test('Delete publication', async () => {
     const res = await Publication.delete(publicationId)

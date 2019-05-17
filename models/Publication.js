@@ -7,6 +7,7 @@ const { ReadActivity } = require('./ReadActivity')
 
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
+const { urlToId } = require('../routes/utils')
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -186,6 +187,71 @@ class Publication extends BaseModel {
     }
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
+  }
+
+  static async update (newPubObj /*: any */) /*: Promise<any> */ {
+    // Create metadata
+    const metadata = {}
+    metadataProps.forEach(property => {
+      metadata[property] = newPubObj[property]
+    })
+
+    // Fetch the Publication that will be modified
+    let publication = await Publication.query().findById(urlToId(newPubObj.id))
+    if (!publication) {
+      return null
+    }
+
+    const modifications = _.pick(newPubObj, [
+      'name',
+      'description',
+      'datePublished',
+      'json',
+      'readingOrder',
+      'resources',
+      'links'
+    ])
+
+    if (metadata) {
+      modifications.metadata = metadata
+    }
+
+    if (modifications.readingOrder) {
+      modifcations.readingOrder = { data: modifications.readingOrder }
+    }
+    if (modifications.links) modifications.links = { data: modifications.links }
+    if (modifications.resources) {
+      modifications.resources = { data: modifications.resources }
+    }
+
+    // Assign the modifications to the publication object
+    publication = Object.assign(publication, modifications)
+
+    let updatedPub = await Publication.query().updateAndFetchById(
+      urlToId(newPubObj.id),
+      publication
+    )
+
+    // Update Attributions if necessary
+    for (const role of attributionTypes) {
+      if (newPubObj[role]) {
+        // Delete the previous attributions for this role
+        await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), role)
+
+        // Assign new attributions
+        updatedPub[role] = []
+        for (let i = 0; i < newPubObj[role].length; i++) {
+          const attribution = await Attribution.createAttribution(
+            newPubObj[role][i],
+            role,
+            publication
+          )
+          updatedPub[role].push(attribution)
+        }
+      }
+    }
+
+    return updatedPub
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
