@@ -8,7 +8,6 @@ const {
   getActivityFromUrl
 } = require('./utils')
 const app = require('../../server').app
-const { urlToId } = require('../../routes/utils')
 
 const test = async () => {
   if (!process.env.POSTGRE_INSTANCE) {

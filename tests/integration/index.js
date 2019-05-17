@@ -6,6 +6,7 @@ const publicationTests = require('./publication.test')
 const readerTests = require('./reader.test')
 const noteTests = require('./note.test')
 const tagTests = require('./tag.test')
+const readerNotesTests = require('./reader-notes.test')
 
 const app = require('../../server').app
 
@@ -19,14 +20,15 @@ const allTests = async () => {
       await app.knex.migrate.latest()
     }
   }
-  //  await activityTests(app)
-  //  await authErrorTests(app)
+  await activityTests(app)
+  await authErrorTests(app)
   await libraryTests(app)
-  //  await outboxTests(app)
-  //  await publicationTests(app)
-  //  await readerTests(app)
-  //  await noteTests(app)
-  //  await tagTests(app)
+  await outboxTests(app)
+  await publicationTests(app)
+  await readerTests(app)
+  await noteTests(app)
+  await tagTests(app)
+  await readerNotesTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()

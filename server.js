@@ -23,6 +23,7 @@ const fileUploadRoute = require('./routes/file-upload')
 const publicationFileUploadRoute = require('./routes/publication-file-upload')
 const noteRoute = require('./routes/note')
 const publicationDocumentRoute = require('./routes/publication-document')
+const readerNotesRoute = require('./routes/reader-notes')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -169,6 +170,7 @@ fileUploadRoute(app)
 publicationFileUploadRoute(app)
 noteRoute(app)
 publicationDocumentRoute(app)
+readerNotesRoute(app)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

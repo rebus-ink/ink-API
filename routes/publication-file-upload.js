@@ -104,7 +104,6 @@ module.exports = app => {
             })
 
             stream.on('error', err => {
-              console.log(err.message)
               res
                 .status(400)
                 .send(
