@@ -3,8 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
-const utils = require('../utils/utils')
-const paginate = require('express-paginate')
+const utils = require('./utils')
+const paginate = require('./middleware/paginate')
 
 /**
  * @swagger
@@ -97,14 +97,12 @@ module.exports = app => {
    *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
-  app.use(paginate.middleware())
   router.get(
     '/reader-:id/notes',
+    paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
-      if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
-      if (req.query.limit > 100) req.query.limit = 100
       const filters = {
         publication: req.query.publication,
         document: req.query.document,
@@ -123,7 +121,6 @@ module.exports = app => {
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
             let replies = reader.replies.filter(reply => !reply.deleted)
-
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',

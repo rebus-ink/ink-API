@@ -3,6 +3,8 @@ const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../integration/utils')
 const app = require('../../server').app
+const { Document } = require('../../models/Document')
+const { urlToId } = require('../../routes/utils')
 
 const createPublication = require('./utils/createPublication')
 const createNotes = require('./utils/createNotes')
@@ -35,7 +37,18 @@ const test = async () => {
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
-  const documentUrl = resPublication.body.orderedItems[0].id
+
+  await Document.createDocument(
+    { id: urlToId(userId) },
+    urlToId(publicationUrl),
+    {
+      documentPath: '/path/1',
+      mediaType: 'text/html',
+      url: 'http://something/123'
+    }
+  )
+
+  const documentUrl = `${publicationUrl}path/1`
 
   await tap.test('Create 10 notes', async () => {
     const testName = 'create 10 notes'
