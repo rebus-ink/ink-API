@@ -40,18 +40,18 @@ module.exports = function (app) {
 
     /**
      * @swagger
-     * /reader-{shortId}/activity:
+     * /reader-{readerId}/activity:
      *   get:
      *     tags:
      *       - readers
-     *     description: GET /reader-:shortId/activity
+     *     description: GET /reader-:readerId/activity
      *     parameters:
      *       - in: path
-     *         name: shortId
+     *         name: readerId
      *         schema:
      *           type: string
      *         required: true
-     *         description: the short id of the reader
+     *         description: the reader id of the reader
      *     security:
      *       - Bearer: []
      *     produces:
@@ -64,13 +64,13 @@ module.exports = function (app) {
      *             schema:
      *               $ref: '#/definitions/outbox'
      *       404:
-     *         description: 'No Reader with ID {shortId}'
+     *         description: 'No Reader with ID {readerId}'
      *       403:
-     *         description: 'Access to reader {shortId} disallowed'
+     *         description: 'Access to reader {readerId} disallowed'
      */
-    .route('/reader-:shortId/activity')
+    .route('/reader-:readerId/activity')
     .get(jwtAuth, function (req, res, next) {
-      const id = req.params.shortId
+      const id = req.params.readerId
       Reader.byId(id, '[outbox]')
         .then(reader => {
           if (!reader) {
