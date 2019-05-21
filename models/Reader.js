@@ -14,9 +14,9 @@ type ReaderType = {
   id: string,
   authId: string,
   name?: string,
-  json?: object,
-  profile?: object,
-  preferences?: object,
+  json?: Object,
+  profile?: Object,
+  preferences?: Object,
   published: Date,
   updated: Date
 };
@@ -34,7 +34,7 @@ type ReaderType = {
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
 class Reader extends BaseModel {
-  static async byAuthId (authId /*: string */) /*: Promise<ReaderType> */ {
+  static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
     const readers = await Reader.query(Reader.knex()).where(
       'authId',
       '=',
@@ -56,7 +56,7 @@ class Reader extends BaseModel {
   static async getLibrary (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /*: number */,
+    offset = 0 /* ?: number */,
     filter /*: any */
   ) {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
@@ -142,9 +142,9 @@ class Reader extends BaseModel {
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /*: number */,
+    offset = 0 /* ?: number */,
     filters /*: any */
-  ) /*: Promise<array<any>> */ {
+  ) /*: Promise<Array<any>> */ {
     const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
@@ -178,7 +178,7 @@ class Reader extends BaseModel {
   }
 
   static async createReader (
-    authId,
+    authId /*: string */,
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
@@ -308,7 +308,7 @@ class Reader extends BaseModel {
     return json
   }
 
-  asRef () /*: {name: string, nameMap: any, summary: any, summaryMap: any, id: string, type: string} */ {
+  asRef () /*: {name: string, id: string, type: string} */ {
     return {
       id: this.id,
       type: 'Person',
