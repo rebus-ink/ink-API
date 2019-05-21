@@ -40,7 +40,7 @@ module.exports = function (app) {
 
     /**
      * @swagger
-     * /reader-{readerId}/activity:
+     * /reader-{id}/activity:
      *   get:
      *     tags:
      *       - readers
@@ -51,7 +51,7 @@ module.exports = function (app) {
      *         schema:
      *           type: string
      *         required: true
-     *         description: the reader id of the reader
+     *         description: the id of the reader
      *     security:
      *       - Bearer: []
      *     produces:
@@ -64,9 +64,9 @@ module.exports = function (app) {
      *             schema:
      *               $ref: '#/definitions/outbox'
      *       404:
-     *         description: 'No Reader with ID {readerId}'
+     *         description: 'No Reader with ID {id}'
      *       403:
-     *         description: 'Access to reader {readerId} disallowed'
+     *         description: 'Access to reader {id} disallowed'
      */
     .route('/reader-:readerId/activity')
     .get(jwtAuth, function (req, res, next) {
