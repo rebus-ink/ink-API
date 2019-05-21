@@ -89,6 +89,17 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: will return only exact matches.
+   *       - in: query
+   *         name: orderBy
+   *         schema:
+   *           type: string
+   *           enum: ['title', 'datePublished']
+   *         description: used to order either alphabetically by title or by date published (most recent first)
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         description: a modifier to use with orderBy to reverse the order
    *     security:
    *       - Bearer: []
    *     produces:
