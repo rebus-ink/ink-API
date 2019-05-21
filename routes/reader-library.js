@@ -116,7 +116,9 @@ module.exports = app => {
         author: req.query.author,
         attribution: req.query.attribution,
         role: req.query.role,
-        title: req.query.title
+        title: req.query.title,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       Reader.getLibrary(id, req.query.limit, req.skip, filters)

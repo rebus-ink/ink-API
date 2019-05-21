@@ -70,6 +70,13 @@ class Reader extends BaseModel {
             .joinRelation('attributions')
             .where('attributions.normalizedName', 'like', `%${attribution}%`)
             .andWhere('attributions.role', '=', filter.role)
+          if (filter.orderBy === 'title') {
+            if (filter.reverse) {
+              builder.orderBy('name', 'desc')
+            } else {
+              builder.orderBy('name')
+            }
+          }
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -87,6 +94,13 @@ class Reader extends BaseModel {
           builder
             .joinRelation('attributions')
             .where('attributions.normalizedName', 'like', `%${attribution}%`)
+          if (filter.orderBy === 'title') {
+            if (filter.reverse) {
+              builder.orderBy('name', 'desc')
+            } else {
+              builder.orderBy('name')
+            }
+          }
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -105,6 +119,13 @@ class Reader extends BaseModel {
             .joinRelation('attributions')
             .where('attributions.normalizedName', '=', attribution)
             .andWhere('attributions.role', '=', 'author')
+          if (filter.orderBy === 'title') {
+            if (filter.reverse) {
+              builder.orderBy('name', 'desc')
+            } else {
+              builder.orderBy('name')
+            }
+          }
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -122,6 +143,13 @@ class Reader extends BaseModel {
             'LOWER(name) LIKE ?',
             '%' + filter.title.toLowerCase() + '%'
           )
+        }
+        if (filter.orderBy === 'title') {
+          if (filter.reverse) {
+            builder.orderBy('name', 'desc')
+          } else {
+            builder.orderBy('name')
+          }
         }
         builder.limit(limit).offset(offset)
       })
