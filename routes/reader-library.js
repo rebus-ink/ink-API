@@ -5,7 +5,7 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('../utils/utils')
 const _ = require('lodash')
-const paginate = require('express-paginate')
+const paginate = require('./middleware/paginate')
 
 /**
  * @swagger
@@ -106,10 +106,9 @@ module.exports = app => {
    *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
-  app.use(paginate.middleware())
   router.get(
     '/reader-:id/library',
-    paginate.middleware(10, 100),
+    paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
@@ -153,8 +152,8 @@ module.exports = app => {
                 totalItems: publications.length,
                 items: publications.map(pub => pub.asRef()),
                 tags: reader.tags,
-                page: res.locals.paginate.page,
-                pageSize: req.query.limit
+                page: req.query.page,
+                pageSize: parseInt(req.query.limit)
               })
             )
           }

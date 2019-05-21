@@ -281,7 +281,7 @@ const test = async () => {
 
     // testing limit
     const res3 = await request(app)
-      .get(`${readerUrl}/library?page=2&limit=0`)
+      .get(`${readerUrl}/library?page=1&limit=0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

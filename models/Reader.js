@@ -55,7 +55,7 @@ class Reader extends BaseModel {
 
   static async getLibrary (
     readerId /*: string */,
-    limit /*: number */,
+    limit = 10 /*: number */,
     offset = 0 /*: number */,
     filter /*: any */
   ) {

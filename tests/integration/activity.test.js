@@ -114,7 +114,6 @@ const test = async app => {
         }
       })
     )
-  console.log(resActivity.error)
   const activityUrl2 = resActivity.get('Location')
   const activityObject = await getActivityFromUrl(app, activityUrl2, token)
   const publicationUrl = activityObject.object.id

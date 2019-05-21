@@ -22,75 +22,53 @@ const createPublication = async (token, readerUrl, number = 1) => {
             type: 'Create',
             object: {
               type: 'Publication',
-              name: 'Publication A',
-              attributedTo: [
+              name: 'Publication ' + i,
+              author: ['John Smith'],
+              editor: 'Jané S. Doe',
+              description: 'this is a description!!',
+              inLanguage: 'English',
+              links: [
                 {
-                  type: 'Person',
-                  name: 'Sample Author'
+                  '@context': 'https://www.w3.org/ns/activitystreams',
+                  href: 'http://example.org/abc',
+                  hreflang: 'en',
+                  mediaType: 'text/html',
+                  name: 'An example link'
                 }
               ],
-              totalItems: 3,
-              attachment: [
+              readingOrder: [
                 {
-                  type: 'Document',
-                  name: 'Chapter 2',
-                  position: 1
+                  '@context': 'https://www.w3.org/ns/activitystreams',
+                  href: 'http://example.org/abc',
+                  hreflang: 'en',
+                  mediaType: 'text/html',
+                  name: 'An example reading order object1'
                 },
                 {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 0
+                  '@context': 'https://www.w3.org/ns/activitystreams',
+                  href: 'http://example.org/abc',
+                  hreflang: 'en',
+                  mediaType: 'text/html',
+                  name: 'An example reading order object2'
                 },
                 {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 2
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 3
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 4
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 5
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 6
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 7
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 8
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 9
-                },
-                {
-                  type: 'Document',
-                  name: 'Chapter 1',
-                  position: 10
-                },
-                {
-                  type: 'Document',
-                  name: 'Not a Chapter'
+                  '@context': 'https://www.w3.org/ns/activitystreams',
+                  href: 'http://example.org/abc',
+                  hreflang: 'en',
+                  mediaType: 'text/html',
+                  name: 'An example reading order object3'
                 }
-              ]
+              ],
+              resources: [
+                {
+                  '@context': 'https://www.w3.org/ns/activitystreams',
+                  href: 'http://example.org/abc',
+                  hreflang: 'en',
+                  mediaType: 'text/html',
+                  name: 'An example resource'
+                }
+              ],
+              json: { property: 'value' }
             }
           })
         )
