@@ -508,7 +508,7 @@ const test = async app => {
     // 110
 
     const res = await request(app)
-      .get(`${userUrl}/notes?limit=100`)
+      .get(`${readerUrl}/notes?limit=100`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
