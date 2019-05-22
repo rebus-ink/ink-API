@@ -1,4 +1,4 @@
-/* @flow */
+// @flow
 'use strict'
 const assert = require('assert')
 const Model = require('objection').Model
@@ -6,15 +6,15 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 
 /*::
-type activity = {
+type ActivityType = {
     id: string,
     type: string,
-    json: {},
-    object: {},
-    target: {},
+    object?: Object,
+    target?: Object,
+    json?: Object,
     readerId: string,
-    published: string,
-    reader: {id: string, json: any, userId: string, published: string, updated: string}
+    published: Date,
+    reader: {id: string, json: any, userId: string, published: Date, updated: Date}
   }
 */
 
@@ -127,13 +127,15 @@ class Activity extends BaseModel {
     }
   }
 
-  static async byId (id /*: string */) /*: Promise<activity> */ {
+  static async byId (id /*: string */) /*: Promise<ActivityType> */ {
     return await Activity.query()
       .findById(id)
       .eager('reader')
   }
 
-  static async createActivity (activity /*: any */) /*: Promise<activity> */ {
+  static async createActivity (
+    activity /*: any */
+  ) /*: Promise<ActivityType> */ {
     const props = _.pick(activity, [
       'type',
       'object',

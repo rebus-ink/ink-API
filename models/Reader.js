@@ -149,7 +149,9 @@ class Reader extends BaseModel {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
     if (filters.document) {
+      // $FlowFixMe
       const path = urlparse(filters.document).path.substr(45)
+      // $FlowFixMe
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
     }
