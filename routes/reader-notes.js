@@ -107,7 +107,9 @@ module.exports = app => {
         publication: req.query.publication,
         document: req.query.document,
         type: req.query.type,
-        search: req.query.search
+        search: req.query.search,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {

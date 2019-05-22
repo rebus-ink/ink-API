@@ -30,14 +30,6 @@ const test = async () => {
 
   const publicationUrl = res.body.items[0].id
 
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
   await Document.createDocument(
     { id: urlToId(userId) },
     urlToId(publicationUrl),
