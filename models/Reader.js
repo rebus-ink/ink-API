@@ -61,6 +61,23 @@ class Reader extends BaseModel {
   ) {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
 
+    const orderBuilder = builder => {
+      if (filter.orderBy === 'title') {
+        if (filter.reverse) {
+          builder.orderBy('name', 'desc')
+        } else {
+          builder.orderBy('name')
+        }
+      }
+
+      if (filter.orderBy === 'datePublished') {
+        if (filter.reverse) {
+          builder.orderByRaw('"datePublished" NULLS FIRST')
+        } else {
+          builder.orderByRaw('"datePublished" DESC NULLS LAST')
+        }
+      }
+    }
     if (filter.attribution && filter.role) {
       const attribution = Attribution.normalizeName(filter.attribution)
       const readers = await qb
@@ -70,6 +87,7 @@ class Reader extends BaseModel {
             .joinRelation('attributions')
             .where('attributions.normalizedName', 'like', `%${attribution}%`)
             .andWhere('attributions.role', '=', filter.role)
+          orderBuilder(builder)
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -87,6 +105,7 @@ class Reader extends BaseModel {
           builder
             .joinRelation('attributions')
             .where('attributions.normalizedName', 'like', `%${attribution}%`)
+          orderBuilder(builder)
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -105,6 +124,7 @@ class Reader extends BaseModel {
             .joinRelation('attributions')
             .where('attributions.normalizedName', '=', attribution)
             .andWhere('attributions.role', '=', 'author')
+          orderBuilder(builder)
           builder
             .eager('[tags, attributions]')
             .limit(limit)
@@ -123,6 +143,7 @@ class Reader extends BaseModel {
             '%' + filter.title.toLowerCase() + '%'
           )
         }
+        orderBuilder(builder)
         builder.limit(limit).offset(offset)
       })
     return readers[0]

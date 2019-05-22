@@ -89,6 +89,17 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: will return only exact matches.
+   *       - in: query
+   *         name: orderBy
+   *         schema:
+   *           type: string
+   *           enum: ['title', 'datePublished']
+   *         description: used to order either alphabetically by title or by date published (most recent first)
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         description: a modifier to use with orderBy to reverse the order
    *     security:
    *       - Bearer: []
    *     produces:
@@ -116,7 +127,9 @@ module.exports = app => {
         author: req.query.author,
         attribution: req.query.attribution,
         role: req.query.role,
-        title: req.query.title
+        title: req.query.title,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       Reader.getLibrary(id, req.query.limit, req.skip, filters)

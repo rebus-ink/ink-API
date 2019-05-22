@@ -18,10 +18,13 @@ const test = async () => {
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
 
+  const publicationDate = new Date(2002, 12, 25).toISOString()
+
   const createPublication = async (
     title,
     author = ['John Smith'],
-    editor = 'Jane Doe'
+    editor = 'Jane Doe',
+    datePublished = publicationDate
   ) => {
     return await request(app)
       .post(`${readerUrl}/activity`)
@@ -44,6 +47,7 @@ const test = async () => {
             editor: editor,
             description: 'this is a description!!',
             keywords: 'one, two',
+            datePublished: datePublished,
             links: [{ property: 'value' }],
             readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
             resources: [{ property: 'value' }],
@@ -541,6 +545,227 @@ const test = async () => {
       )
 
     await tap.equal(res4.body.items.length, 1)
+  })
+
+  await tap.test('order library by title', async () => {
+    await createPublication('BBBB')
+    await createPublication('AAAA')
+    await createPublication('aabb')
+    await createPublication('ffff')
+    await createPublication('ffaa')
+    await createPublication('abc')
+    await createPublication('ccccc', 'anonymous')
+    await createPublication('zzz', 'Anonymous')
+    await createPublication('XXXX', 'anonyMOUS')
+
+    const res = await request(app)
+      .get(`${readerUrl}/library?orderBy=title`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.body.items[0].name, 'AAAA')
+    await tap.equal(res.body.items[1].name, 'aabb')
+    await tap.equal(res.body.items[2].name, 'abc')
+
+    // with other filters:
+    const res1 = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&title=b`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res1.body.items[0].name, 'aabb')
+    await tap.equal(res1.body.items[1].name, 'abc')
+
+    const res2 = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&author=anonymous`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 3)
+
+    await tap.equal(res2.body.items[0].name, 'ccccc')
+    await tap.equal(res2.body.items[1].name, 'XXXX')
+    await tap.equal(res2.body.items[2].name, 'zzz')
+
+    const res3 = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&attribution=anonymous`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 3)
+
+    await tap.equal(res3.body.items[0].name, 'ccccc')
+    await tap.equal(res3.body.items[1].name, 'XXXX')
+    await tap.equal(res3.body.items[2].name, 'zzz')
+  })
+
+  await tap.test('order library by title, reversed', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.body.items[0].name, 'zzz')
+    await tap.equal(res.body.items[1].name, 'XXXX')
+
+    // with other filters:
+    const res1 = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&title=ff&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res1.body.items[0].name, 'ffff')
+    await tap.equal(res1.body.items[1].name, 'ffaa')
+
+    const res2 = await request(app)
+      .get(`${readerUrl}/library?orderBy=title&author=anonymous&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 3)
+
+    await tap.equal(res2.body.items[0].name, 'zzz')
+    await tap.equal(res2.body.items[1].name, 'XXXX')
+    await tap.equal(res2.body.items[2].name, 'ccccc')
+
+    const res3 = await request(app)
+      .get(
+        `${readerUrl}/library?orderBy=title&attribution=anonymous&reverse=true`
+      )
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 3)
+
+    await tap.equal(res3.body.items[0].name, 'zzz')
+    await tap.equal(res3.body.items[1].name, 'XXXX')
+    await tap.equal(res3.body.items[2].name, 'ccccc')
+  })
+
+  await tap.test('order by date published', async () => {
+    await createPublication(
+      'pub1 ggg',
+      'someone',
+      'someone else',
+      new Date(2011, 3, 20).toISOString()
+    )
+    await createPublication(
+      'pub2',
+      'someone new',
+      'someone else',
+      new Date(2012, 3, 20).toISOString()
+    )
+    await createPublication(
+      'pub3',
+      'someone',
+      'someone else',
+      new Date(2001, 3, 20).toISOString()
+    )
+    await createPublication(
+      'pub4 ggg',
+      'someone new',
+      'someone else',
+      new Date(1011, 3, 20).toISOString()
+    )
+    await createPublication(
+      'pub5',
+      'someone',
+      'someone else',
+      new Date(2016, 3, 20).toISOString()
+    )
+    await createPublication(
+      'pub6',
+      'someone new',
+      'someone else',
+      new Date(2012, 1, 20).toISOString()
+    )
+    await createPublication(
+      'pub7',
+      'someone',
+      'someone new',
+      new Date(2011, 3, 22).toISOString()
+    )
+
+    const res = await request(app)
+      .get(`${readerUrl}/library?orderBy=datePublished`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    // most recent first
+    await tap.equal(res.body.items[0].name, 'pub5')
+    await tap.equal(res.body.items[1].name, 'pub2')
+    await tap.equal(res.body.items[2].name, 'pub6')
+
+    // reverse
+    const res1 = await request(app)
+      .get(`${readerUrl}/library?orderBy=datePublished&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    // oldest first
+    await tap.equal(res1.body.items[0].name, 'Publication A') // has datePublished of null
+    await tap.equal(res1.body.items[1].name, 'pub4 ggg')
+    await tap.equal(res1.body.items[2].name, 'pub3')
+
+    // with other filters
+    const res2 = await request(app)
+      .get(`${readerUrl}/library?orderBy=datePublished&title=ggg`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res2.body.items[0].name, 'pub1 ggg')
+    await tap.equal(res2.body.items[1].name, 'pub4 ggg')
+
+    const res3 = await request(app)
+      .get(`${readerUrl}/library?orderBy=datePublished&author=someone%20new`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res3.body.items[0].name, 'pub2')
+    await tap.equal(res3.body.items[1].name, 'pub6')
+    await tap.equal(res3.body.items[2].name, 'pub4 ggg')
+
+    const res4 = await request(app)
+      .get(`${readerUrl}/library?orderBy=datePublished&attribution=new`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res4.body.items[0].name, 'pub2')
+    await tap.equal(res4.body.items[1].name, 'pub6')
+    await tap.equal(res4.body.items[2].name, 'pub7')
+    await tap.equal(res4.body.items[3].name, 'pub4 ggg')
   })
 
   await tap.test(
