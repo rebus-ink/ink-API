@@ -175,6 +175,24 @@ class Reader extends BaseModel {
       doc = await Document.byPath(pubId, path)
     }
 
+    const orderBuilder = builder => {
+      if (filters.orderBy === 'created') {
+        if (filters.reverse) {
+          builder.orderBy('published')
+        } else {
+          builder.orderBy('published', 'desc')
+        }
+      }
+
+      if (filters.orderBy === 'updated') {
+        if (filters.reverse) {
+          builder.orderBy('updated')
+        } else {
+          builder.orderBy('updated', 'desc')
+        }
+      }
+    }
+
     const readers = await qb
       .eager('replies')
       .modifyEager('replies', builder => {
@@ -193,6 +211,7 @@ class Reader extends BaseModel {
             '%' + filters.search.toLowerCase() + '%'
           )
         }
+        orderBuilder(builder)
         builder.limit(limit).offset(offset)
       })
     return readers[0]

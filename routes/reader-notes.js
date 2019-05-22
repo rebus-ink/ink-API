@@ -80,6 +80,17 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: keyword to search for in the content of notes. Not case sensitive.
+   *       - in: query
+   *         name: orderBy
+   *         schema:
+   *           type: string
+   *           enum: ['created', 'updated']
+   *         description: the property to be used to order the notes. By default will return most recent first.
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         description: modifier for the orderBy query to return the oldest notes first.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -107,7 +118,9 @@ module.exports = app => {
         publication: req.query.publication,
         document: req.query.document,
         type: req.query.type,
-        search: req.query.search
+        search: req.query.search,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {
