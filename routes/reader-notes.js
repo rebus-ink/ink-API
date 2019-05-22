@@ -80,17 +80,17 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: keyword to search for in the content of notes. Not case sensitive.
-   *      - in: query
-   *        name: orderBy
-   *        schema:
-   *          type: string
-   *          enum: ['created', 'updated']
-   *        description: the property to be used to order the notes. By default will return most recent first.
-   *      - in: query
-   *        name: reverse
-   *        schema:
-   *          type: boolean
-   *        description: modifier for the orderBy query to return the oldest notes first.
+   *       - in: query
+   *         name: orderBy
+   *         schema:
+   *           type: string
+   *           enum: ['created', 'updated']
+   *         description: the property to be used to order the notes. By default will return most recent first.
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         description: modifier for the orderBy query to return the oldest notes first.
    *     security:
    *       - Bearer: []
    *     produces:
