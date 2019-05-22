@@ -1,7 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, createUser, destroyDB } = require('../integration/utils')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 

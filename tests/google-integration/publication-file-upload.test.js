@@ -6,7 +6,8 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl
-} = require('../integration/utils')
+} = require('../utils/utils')
+
 const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 const { Document } = require('../../models/Document')
