@@ -193,6 +193,11 @@ const test = async app => {
         )
 
       await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Activity')
+      await tap.type(error.details.id, 'string')
     }
   )
 

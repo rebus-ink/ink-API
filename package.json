@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^2.3.1",
+    "@hapi/boom": "^7.4.2",
     "accesscontrol": "^2.2.1",
     "arrify": "^1.0.1",
     "compression": "^1.7.3",

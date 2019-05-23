@@ -5,6 +5,7 @@ const { Activity } = require('../models/Activity')
 const debug = require('debug')('hobb:routes:activity')
 // app.use('/', require('./routes/activity'))
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -66,7 +67,6 @@ const utils = require('../utils/utils')
 
 module.exports = function (app) {
   app.use('/', router)
-
   /**
    * @swagger
    * /activity-{id}:
@@ -105,9 +105,19 @@ module.exports = function (app) {
       Activity.byId(id)
         .then(activity => {
           if (!activity) {
-            res.status(404).send(`No activity with ID ${id}`)
+            return next(
+              boom.notFound(`No activity with ID ${id}`, {
+                type: 'Activity',
+                id: id
+              })
+            )
           } else if (!utils.checkReader(req, activity.reader)) {
-            res.status(403).send(`Access to activity ${id} disallowed`)
+            return next(
+              boom.forbidden(`Access to activity ${id} disallowed`, {
+                type: 'Activity',
+                id: id
+              })
+            )
           } else {
             debug(activity)
             res.setHeader(
