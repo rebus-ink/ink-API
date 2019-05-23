@@ -90,14 +90,30 @@ const test = async app => {
   })
 
   await tap.test('Delete all documents of a publication', async () => {
+    // Add another document
+    const newDocumentObject = {
+      mediaType: 'txt',
+      url: 'http://google-bucket/somewhere/file1234.txt',
+      documentPath: '/inside/the/book.txt',
+      json: { property2: 'value2' }
+    }
+
+    let newDoc = await Document.createDocument(
+      createdReader,
+      publication.id,
+      newDocumentObject
+    )
+
     const numDeleted = await Document.deleteDocumentsByPubId(
       urlToId(publication.id)
     )
 
     const docDeleted = await Document.byId(documentId)
+    const doc2Deleted = await Document.byId(newDoc.id)
 
-    await tap.equal(numDeleted, 1)
+    await tap.equal(numDeleted, 2)
     await tap.ok(docDeleted.deleted)
+    await tap.ok(doc2Deleted.deleted)
   })
 
   await tap.test(
