@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Note } = require('../models/Note')
 const debug = require('debug')('hobb:routes:document')
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -85,9 +86,16 @@ module.exports = app => {
       Note.byId(id)
         .then(note => {
           if (!note || note.deleted) {
-            res.status(404).send(`No note with ID ${id}`)
+            return next(
+              boom.notFound(`No note with ID ${id}`, { type: 'Note', id })
+            )
           } else if (!utils.checkReader(req, note.reader)) {
-            res.status(403).send(`Access to note ${id} disallowed`)
+            return next(
+              boom.forbidden(`Access to note ${id} disallowed`, {
+                type: 'Note',
+                id
+              })
+            )
           } else {
             debug(note)
             res.setHeader(

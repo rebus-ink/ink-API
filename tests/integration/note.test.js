@@ -235,6 +235,11 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
   })
 
   await tap.test('Get Publication with reference to Notes', async () => {

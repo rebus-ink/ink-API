@@ -226,6 +226,11 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
   })
 
   await tap.test(
@@ -291,7 +296,6 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-    console.log(res1.error)
     await tap.equal(res1.statusCode, 401)
 
     // reader
