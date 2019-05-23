@@ -291,6 +291,7 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+    console.log(res1.error)
     await tap.equal(res1.statusCode, 401)
 
     // reader

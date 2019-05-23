@@ -6,6 +6,7 @@ const passport = require('passport')
 const crypto = require('crypto')
 const { Reader } = require('../models/Reader')
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 const storage = new Storage()
 
@@ -52,13 +53,20 @@ module.exports = app => {
     '/reader-:id/file-upload',
     passport.authenticate('jwt', { session: false }),
     m.array('files'),
-    async function (req, res) {
+    async function (req, res, next) {
       const id = req.params.id
       Reader.byId(id).then(async reader => {
         if (!reader) {
-          res.status(404).send(`No reader with ID ${id}`)
+          return next(
+            boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id: id })
+          )
         } else if (!utils.checkReader(req, reader)) {
-          res.status(403).send(`Access to reader ${id} disallowed`)
+          return next(
+            boom.forbidden(`Access to reader ${id} disallowed`, {
+              type: 'Reader',
+              id: id
+            })
+          )
         } else {
           let prefix =
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
@@ -71,9 +79,13 @@ module.exports = app => {
           if (!exists[0]) {
             await storage.createBucket(bucketName)
           }
-
-          if (!req.files) {
-            res.status(400).send('no file was included in this upload')
+          if (req.files.length === 0) {
+            return next(
+              boom.badRequest('no file was included in this upload', {
+                type: 'file-upload',
+                missingParams: ['req.files']
+              })
+            )
           } else {
             let promises = []
             let response = {}
