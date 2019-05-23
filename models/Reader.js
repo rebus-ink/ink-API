@@ -56,11 +56,11 @@ class Reader extends BaseModel {
   static async getLibrary (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /* ?: number */,
+    offset /*: number */,
     filter /*: any */
   ) {
+    offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
-
     if (filter.attribution && filter.role) {
       const attribution = Attribution.normalizeName(filter.attribution)
       const readers = await qb
@@ -142,9 +142,10 @@ class Reader extends BaseModel {
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /* ?: number */,
+    offset /*: number */,
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
+    offset = !offset ? 0 : offset
     const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
