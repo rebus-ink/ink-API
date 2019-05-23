@@ -134,7 +134,7 @@ class Activity extends BaseModel {
   }
 
   static async createActivity (
-    activity /*: any */
+    activity /*: { type: string, object: Object, target?: Object, json?: Object, readerId: string } */
   ) /*: Promise<ActivityType> */ {
     const props = _.pick(activity, [
       'type',
