@@ -164,9 +164,9 @@ const test = async app => {
 
   await tap.test('Get all notes for a reader', async () => {
     // create more notes
-    await createNote()
-    await createNote()
-    await createNote()
+    await createNote(undefined, undefined, undefined, 'first')
+    await createNote(undefined, undefined, undefined, 'second')
+    await createNote(undefined, undefined, undefined, 'third')
 
     const res = await request(app)
       .get(`${readerUrl}/notes`)
@@ -417,6 +417,212 @@ const test = async app => {
     await tap.equal(res3.status, 200)
     await tap.ok(res3.body)
     await tap.equal(res3.body.items.length, 3)
+  })
+
+  await tap.test('should paginate up to 100', async () => {
+    // 33 so far
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 40
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 50
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 60
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 70
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 80
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 90
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    // 100
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote()
+    await createNote(undefined, undefined, undefined, 'third last')
+    await createNote(undefined, undefined, undefined, 'second last')
+    await createNote(undefined, undefined, undefined, 'last')
+    // 110
+
+    const res = await request(app)
+      .get(`${readerUrl}/notes?limit=100`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.body.items.length, 100)
+  })
+
+  await tap.test('order by date created', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes?orderBy=created`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.body.items[0].content, 'last')
+    await tap.equal(res.body.items[1].content, 'second last')
+    await tap.equal(res.body.items[2].content, 'third last')
+
+    const res1 = await request(app)
+      .get(`${readerUrl}/notes?orderBy=created&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res1.body.items[0].content, 'first')
+    await tap.equal(res1.body.items[1].content, 'second')
+    await tap.equal(res1.body.items[2].content, 'third')
+  })
+
+  await tap.test('order by date updated', async () => {
+    // update two older notes:
+    const res = await request(app)
+      .get(`${readerUrl}/notes?orderBy=created&limit=25`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    const id1 = res.body.items[22].id
+    const id2 = res.body.items[18].id
+
+    await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Note',
+            id: id1,
+            content: 'new content1'
+          }
+        })
+      )
+    await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Note',
+            id: id2,
+            content: 'new content2'
+          }
+        })
+      )
+
+    const res1 = await request(app)
+      .get(`${readerUrl}/notes?orderBy=updated`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res1.body.items[0].content, 'new content2')
+    await tap.equal(res1.body.items[1].content, 'new content1')
+    await tap.equal(res1.body.items[2].content, 'last')
+
+    const res2 = await request(app)
+      .get(`${readerUrl}/notes?orderBy=updated&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items[0].content, 'first')
+    await tap.equal(res2.body.items[1].content, 'second')
+    await tap.equal(res2.body.items[2].content, 'third')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

@@ -31,6 +31,7 @@ const createNotes = async (
               content:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id felis dui. Ut dictum mauris nulla, ornare feugiat mi facilisis id. Vestibulum non volutpat ante. Etiam eget egestas velit. Duis eget porta leo, vitae varius sem. In fringilla cursus orci, id semper dui imperdiet sit amet. Nulla eget mi non eros pretium faucibus vel sed est. Curabitur aliquet nisl risus, at tempus turpis dictum maximus. Proin tincidunt non lacus nec pulvinar. Duis vulputate metus diam. Donec efficitur orci turpis. Cras tristique eros sed massa efficitur, gravida malesuada turpis egestas. Mauris venenatis ut orci in pharetra.',
               'oa:hasSelector': {},
+              noteType: 'something',
               context: publicationUrl,
               inReplyTo: documentUrl
             }

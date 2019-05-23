@@ -49,7 +49,7 @@ const test = async () => {
           ],
           type: 'Add',
           object: { id: tagId, type: 'reader:Stack' },
-          target: { id: publicationUrl }
+          target: { id: publicationUrl, type: 'Publication' }
         })
       )
     console.timeEnd(testName)

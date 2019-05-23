@@ -1,11 +1,10 @@
 const libraryTests = require('./library.test')
 const createPublicationTests = require('./createPublications.test')
 const readerProfileTests = require('./getReaderProfile.test')
-const createDocumentTests = require('./createDocuments.test')
 const createNotesTests = require('./createNotes.test')
-const getDocumentWithNotesTests = require('./getDocumentWithNotes.test')
 const createTagsTests = require('./createTags.test')
 const addPubToCollectionTests = require('./addPubToCollection.test')
+const getReaderNotesTests = require('./getReaderNotes.test')
 
 const app = require('../../server').app
 
@@ -23,11 +22,10 @@ const allTests = async () => {
   await libraryTests(app)
   await readerProfileTests(app)
   await createPublicationTests(app)
-  await createDocumentTests(app)
   await createNotesTests(app)
-  await getDocumentWithNotesTests(app)
   await createTagsTests(app)
   await addPubToCollectionTests(app)
+  await getReaderNotesTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()

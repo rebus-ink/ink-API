@@ -5,7 +5,7 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('../utils/utils')
 const _ = require('lodash')
-const paginate = require('express-paginate')
+const paginate = require('./middleware/paginate')
 
 /**
  * @swagger
@@ -89,6 +89,17 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: will return only exact matches.
+   *       - in: query
+   *         name: orderBy
+   *         schema:
+   *           type: string
+   *           enum: ['title', 'datePublished']
+   *         description: used to order either alphabetically by title or by date published (most recent first)
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         description: a modifier to use with orderBy to reverse the order
    *     security:
    *       - Bearer: []
    *     produces:
@@ -106,10 +117,9 @@ module.exports = app => {
    *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
-  app.use(paginate.middleware())
   router.get(
     '/reader-:id/library',
-    paginate.middleware(10, 100),
+    paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
@@ -117,7 +127,9 @@ module.exports = app => {
         author: req.query.author,
         attribution: req.query.attribution,
         role: req.query.role,
-        title: req.query.title
+        title: req.query.title,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       Reader.getLibrary(id, req.query.limit, req.skip, filters)
@@ -153,8 +165,8 @@ module.exports = app => {
                 totalItems: publications.length,
                 items: publications.map(pub => pub.asRef()),
                 tags: reader.tags,
-                page: res.locals.paginate.page,
-                pageSize: req.query.limit
+                page: req.query.page,
+                pageSize: parseInt(req.query.limit)
               })
             )
           }
