@@ -89,6 +89,26 @@ const test = async app => {
     await tap.equal(url, documentObject.url)
   })
 
+  await tap.test('Delete all documents of a publication', async () => {
+    const numDeleted = await Document.deleteDocumentsByPubId(
+      urlToId(publication.id)
+    )
+
+    const docDeleted = await Document.byId(documentId)
+
+    await tap.equal(numDeleted, 1)
+    await tap.ok(docDeleted.deleted)
+  })
+
+  await tap.test(
+    'Delete all documents of a publication with the wrong publicationId',
+    async () => {
+      const numDeleted = await Document.deleteDocumentsByPubId('wrongId123')
+
+      await tap.equal(numDeleted, 0)
+    }
+  )
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

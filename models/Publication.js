@@ -203,6 +203,9 @@ class Publication extends BaseModel {
     if (!publication || publication.deleted) {
       return null
     }
+
+    const { Document } = require('./Document')
+    await Document.deleteDocumentsByPubId(id)
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
