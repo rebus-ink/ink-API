@@ -1,5 +1,14 @@
+// @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
+
+/*::
+type PublicationTagType = {
+  id: string,
+  publicationId: string,
+  tagId: string
+};
+*/
 
 class Publication_Tag extends BaseModel {
   static get tableName () {
@@ -12,8 +21,8 @@ class Publication_Tag extends BaseModel {
 
   static async addTagToPub (
     publicationId /*: string */,
-    tagId /*: number */
-  ) /*: any */ {
+    tagId /*: string */
+  ) /*: Promise<any> */ {
     // check publication
     if (!publicationId) return new Error('no publication')
 
@@ -49,7 +58,7 @@ class Publication_Tag extends BaseModel {
   static async removeTagFromPub (
     publicationId /*: string */,
     tagId /*: string */
-  ) /*: number */ {
+  ) /*: Promise<PublicationTagType|Error> */ {
     // check publication
     if (!publicationId) return new Error('no publication')
 

@@ -7,6 +7,20 @@ const { Note } = require('./Note')
 const { Reader } = require('./Reader.js')
 const _ = require('lodash')
 
+/*::
+type DocumentType = {
+  id: string,
+  mediaType: string,
+  url: string,
+  documentPath: string,
+  json?: Object,
+  readerId: string,
+  publicationId: string,
+  published: Date,
+  updated: Date
+};
+*/
+
 /**
  * @property {Reader} reader - Returns the reader that owns this document.
  * @property {Publication} context - Returns the document's parent `Publication`.
@@ -73,7 +87,7 @@ class Document extends BaseModel {
     reader /*: any */,
     publicationId /*: string */,
     document /* :any */
-  ) /*: any */ {
+  ) /*: Promise<DocumentType> */ {
     const props = _.pick(document, ['mediaType', 'url', 'documentPath', 'json'])
     props.readerId = reader.id
     props.publicationId = publicationId

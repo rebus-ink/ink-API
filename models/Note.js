@@ -6,6 +6,21 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
 
+/*::
+type NoteType = {
+  id: string,
+  noteType: string,
+  content?: string,
+  selector?: Object,
+  json?: Object,
+  readerId: string,
+  documentId?: string,
+  publicationId?: string,
+  published: Date,
+  updated: Date
+};
+*/
+
 /**
  * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
  * @property {Document} inReplyTo - returns the document, if any, that this note is on.
@@ -94,7 +109,7 @@ class Note extends BaseModel {
   static async createNote (
     reader /*: any */,
     note /*: any */
-  ) /*: Promise<any> */ {
+  ) /*: Promise<NoteType> */ {
     const { Document } = require('./Document')
     const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
 
@@ -140,14 +155,14 @@ class Note extends BaseModel {
     return this.id
   }
 
-  static async delete (id /*: string */) /*: Promise<any> */ {
+  static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
     let note = await Note.query().findById(id)
     if (!note || note.deleted) return null
     note.deleted = new Date().toISOString()
     return await Note.query().updateAndFetchById(id, note)
   }
 
-  static async update (object /*: any */) /*: Promise<any> */ {
+  static async update (object /*: any */) /*: Promise<NoteType|null> */ {
     // $FlowFixMe
     object.selector = object['oa:hasSelector']
     const modifications = _.pick(object, ['content', 'selector'])

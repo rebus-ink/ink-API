@@ -1,3 +1,4 @@
+// @flow
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
@@ -8,6 +9,23 @@ const { ReadActivity } = require('./ReadActivity')
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
 const { urlToId } = require('../utils/utils')
+
+/*::
+type PublicationType = {
+  id: string,
+  description?: string,
+  name: string,
+  datePublished?: Date,
+  metadata?: Object,
+  readingOrder: Object,
+  resources?: Object,
+  links?: Object,
+  json?: Object,
+  readerId: string,
+  published: Date,
+  updated: Date
+};
+*/
 
 /**
  * @property {Reader} reader - Returns the reader that owns this publication.
@@ -119,7 +137,7 @@ class Publication extends BaseModel {
   static async createPublication (
     reader /*: any */,
     publication /*: any */
-  ) /*: any */ {
+  ) /*: Promise<PublicationType> */ {
     const metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]
@@ -166,7 +184,7 @@ class Publication extends BaseModel {
     return createdPublication
   }
 
-  static async byId (id /*: string */) /*: Promise<any> */ {
+  static async byId (id /*: string */) /*: Promise<PublicationType|null> */ {
     const pub = await Publication.query()
       .findById(id)
       .eager('[reader, replies, tags, attributions]')
@@ -180,7 +198,7 @@ class Publication extends BaseModel {
     return pub
   }
 
-  static async delete (id /*: string */) /*: number */ {
+  static async delete (id /*: string */) /*: Promise<number|null> */ {
     let publication = await Publication.query().findById(id)
     if (!publication || publication.deleted) {
       return null
@@ -189,7 +207,9 @@ class Publication extends BaseModel {
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
 
-  static async update (newPubObj /*: any */) /*: Promise<any> */ {
+  static async update (
+    newPubObj /*: any */
+  ) /*: Promise<PublicationType|null> */ {
     // Create metadata
     const metadata = {}
     metadataProps.forEach(property => {
@@ -217,6 +237,7 @@ class Publication extends BaseModel {
     }
 
     if (modifications.readingOrder) {
+      // $FlowFixMe
       modifcations.readingOrder = { data: modifications.readingOrder }
     }
     if (modifications.links) modifications.links = { data: modifications.links }

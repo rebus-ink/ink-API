@@ -8,7 +8,7 @@ type TagType = {
   id: string,
   name: string,
   type: string,
-  json?: {},
+  json?: Object,
   published: Date,
   updated: Date
 };
@@ -34,7 +34,7 @@ class Tag extends BaseModel {
   static async createTag (
     readerId /*: string */,
     tag /*: {type: string, name: string, json?: {}, readerId?: string} */
-  ) /*: any */ {
+  ) /*: Promise<any> */ {
     tag.readerId = readerId
 
     // reject duplicates TODO: enforce this as the database level?

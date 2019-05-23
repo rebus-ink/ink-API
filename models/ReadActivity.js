@@ -1,8 +1,19 @@
-/* @flow */
+// @flow
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+
+/*::
+type ReadActivityType = {
+  id: string,
+  selector?: Object,
+  json?: Object,
+  readerId: string,
+  publicationId: string,
+  published: Date
+};
+*/
 
 class ReadActivity extends BaseModel {
   static get tableName () /*: string */ {
@@ -56,7 +67,7 @@ class ReadActivity extends BaseModel {
     readerId /*: string */,
     publicationId /*: string */,
     object /*: any */
-  ) /*: any */ {
+  ) /*: Promise<any> */ {
     if (!readerId) return new Error('missing readerId')
 
     if (!publicationId) return new Error('missing publicationId')
@@ -80,7 +91,9 @@ class ReadActivity extends BaseModel {
     }
   }
 
-  static async getLatestReadActivity (publicationId /*: string */) /*: any */ {
+  static async getLatestReadActivity (
+    publicationId /*: string */
+  ) /*: Promise<ReadActivityType|Error> */ {
     if (!publicationId) return new Error('missing publicationId')
 
     const readActivities = await ReadActivity.query()

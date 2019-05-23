@@ -1,4 +1,13 @@
+// @flow
 const { Model } = require('objection')
+
+/*::
+type NoteTagType = {
+  id: string,
+  noteId: string,
+  tagId: string
+};
+*/
 
 class Note_Tag extends Model {
   static get tableName () {
@@ -11,8 +20,8 @@ class Note_Tag extends Model {
 
   static async addTagToNote (
     noteId /*: string */,
-    tagId /*: number */
-  ) /*: any */ {
+    tagId /*: string */
+  ) /*: Promise<any> */ {
     if (!noteId) return new Error('no note')
 
     if (!tagId) return new Error('no tag')
@@ -34,7 +43,7 @@ class Note_Tag extends Model {
   static async removeTagFromNote (
     noteId /*: string */,
     tagId /*: string */
-  ) /*: number */ {
+  ) /*: Promise<NoteTagType|Error> */ {
     if (!noteId) return new Error('no note')
 
     if (!tagId) return new Error('no tag')

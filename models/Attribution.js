@@ -4,6 +4,20 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 
+/*::
+type AttributionType = {
+  id: string,
+  role: string,
+  isContributor: boolean,
+  name: string,
+  normalizedName: string,
+  type: string,
+  readerId: string,
+  publicationId?: string,
+  published: Date
+};
+*/
+
 /**
  * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
  */
@@ -64,7 +78,7 @@ class Attribution extends BaseModel {
     attribution /*: any */,
     role /*: string */,
     publication /*: any */
-  ) {
+  ) /*: Promise<AttributionType> */ {
     let props
 
     if (_.isString(attribution)) {
@@ -109,11 +123,13 @@ class Attribution extends BaseModel {
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\']/g, '') // remove punctuation
   }
 
-  static async byId (id /*: string */) /*: Promise<any> */ {
+  static async byId (id /*: string */) /*: Promise<AttributionType> */ {
     return await Attribution.query().findById(id)
   }
 
-  static async getAttributionByPubId (publicationId /*: string */) /*: any */ {
+  static async getAttributionByPubId (
+    publicationId /*: string */
+  ) /*: Promise<AttributionType> */ {
     if (publicationId === null) {
       throw Error(`Your publicationId cannot be null`)
     }
@@ -128,7 +144,7 @@ class Attribution extends BaseModel {
   static async deleteAttributionOfPub (
     publicationId /*: string */,
     role /*: string */
-  ) /*: any */ {
+  ) /*: Promise<AttributionType> */ {
     return await Attribution.query(Attribution.knex())
       .where('role', '=', role)
       .andWhere('publicationId', '=', publicationId)

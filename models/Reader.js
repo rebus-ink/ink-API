@@ -14,9 +14,9 @@ type ReaderType = {
   id: string,
   authId: string,
   name?: string,
-  json?: object,
-  profile?: object,
-  preferences?: object,
+  json?: Object,
+  profile?: Object,
+  preferences?: Object,
   published: Date,
   updated: Date
 };
@@ -34,7 +34,7 @@ type ReaderType = {
  * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
  */
 class Reader extends BaseModel {
-  static async byAuthId (authId /*: string */) /*: Promise<ReaderType> */ {
+  static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
     const readers = await Reader.query(Reader.knex()).where(
       'authId',
       '=',
@@ -55,10 +55,11 @@ class Reader extends BaseModel {
 
   static async getLibrary (
     readerId /*: string */,
-    limit = 10 /*: number */,
-    offset = 0 /*: number */,
+    limit /*: number */,
+    offset /*: number */,
     filter /*: any */
   ) {
+    offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
 
     const orderBuilder = builder => {
@@ -163,14 +164,17 @@ class Reader extends BaseModel {
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
-    offset = 0 /*: number */,
+    offset /*: number */,
     filters /*: any */
-  ) /*: Promise<array<any>> */ {
+  ) /*: Promise<Array<any>> */ {
+    offset = !offset ? 0 : offset
     const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
     if (filters.document) {
+      // $FlowFixMe
       const path = urlparse(filters.document).path.substr(45)
+      // $FlowFixMe
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
     }
@@ -218,7 +222,7 @@ class Reader extends BaseModel {
   }
 
   static async createReader (
-    authId,
+    authId /*: string */,
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
@@ -348,7 +352,7 @@ class Reader extends BaseModel {
     return json
   }
 
-  asRef () /*: {name: string, nameMap: any, summary: any, summaryMap: any, id: string, type: string} */ {
+  asRef () /*: {name: string, id: string, type: string} */ {
     return {
       id: this.id,
       type: 'Person',
