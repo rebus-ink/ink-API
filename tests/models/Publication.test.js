@@ -463,6 +463,54 @@ const test = async app => {
     await tap.ok(editor2Exists)
   })
 
+  await tap.test(
+    'Delete Publication_Tags when a Publication is deleted',
+    async () => {
+      // Create 2 additional tags for testing purposes
+      const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
+        type: 'reader:Stack',
+        name: 'mystack2'
+      })
+
+      const createdTag3 = await Tag.createTag(urlToId(createdReader.id), {
+        type: 'reader:Stack',
+        name: 'mystack3'
+      })
+
+      const newTag2 = await Publication_Tag.addTagToPub(
+        urlToId(publication.id),
+        createdTag2.id
+      )
+
+      const newTag3 = await Publication_Tag.addTagToPub(
+        urlToId(publication.id),
+        createdTag3.id
+      )
+
+      // Get the Publication with 2 new tags
+      const pub = await Publication.byId(urlToId(publication.id))
+
+      await tap.equal(pub.tags.length, 2)
+      await tap.ok(
+        pub.tags[0].name === 'mystack2' || pub.tags[0].name === 'mystack3'
+      )
+      await tap.ok(
+        pub.tags[1].name === 'mystack3' || pub.tags[1].name === 'mystack2'
+      )
+
+      // Delete the entries in Publication_Tag
+      const numDeleted = await Publication_Tag.deletePubTagsOfPub(
+        urlToId(publication.id)
+      )
+
+      // Get the updated Publication
+      const newPub = await Publication.byId(urlToId(publication.id))
+
+      await tap.equal(numDeleted, 2)
+      await tap.equal(newPub.tags.length, 0)
+    }
+  )
+
   await tap.test('Delete publication', async () => {
     // Add a document to the publication
     const documentObject = {

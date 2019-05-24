@@ -204,8 +204,14 @@ class Publication extends BaseModel {
       return null
     }
 
+    // Mark documents associated with pub as deleted
     const { Document } = require('./Document')
     await Document.deleteDocumentsByPubId(id)
+
+    // Delete Publication_Tag associated with pub
+    const { Publication_Tag } = require('./Publications_Tags')
+    await Publication_Tag.deletePubTagsOfPub(id)
+
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
   }
