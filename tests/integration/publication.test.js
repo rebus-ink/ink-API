@@ -10,6 +10,10 @@ const {
 const _ = require('lodash')
 const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
+const { Document } = require('../../models/Document')
+const { Reader } = require('../../models/Reader')
+const { Tag } = require('../../models/Tag')
+const { Publication_Tag } = require('../../models/Publications_Tags')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -19,6 +23,14 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
+
+  // Create Reader object
+  const person = {
+    name: 'J. Random Reader'
+  }
+
+  const reader1 = await Reader.createReader(readerCompleteUrl, person)
+
   let publicationUrl
   let activityUrl
 
@@ -355,6 +367,28 @@ const test = async app => {
   })
 
   await tap.test('Delete Publication', async () => {
+    // Create a Document for that publication
+    const documentObject = {
+      mediaType: 'txt',
+      url: 'http://google-bucket/somewhere/file1234.txt',
+      documentPath: '/inside/the/book.txt',
+      json: { property1: 'value1' }
+    }
+
+    const document = await Document.createDocument(
+      reader1,
+      publicationUrl,
+      documentObject
+    )
+
+    // Create a tag for testing purposes
+    const createdTag = await Tag.createTag(reader1.id, {
+      type: 'reader:Stack',
+      name: 'mystack'
+    })
+
+    await Publication_Tag.addTagToPub(publicationUrl, createdTag.id)
+
     // before
     const before = await request(app)
       .get(`${readerUrl}/library`)
@@ -363,7 +397,11 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+
     await tap.equal(before.body.items.length, 2)
+    await tap.equal(before.body.items[1].tags.length, 1)
+    await tap.equal(before.body.items[1].tags[0].name, 'mystack')
+    await tap.ok(!document.deleted)
 
     const res = await request(app)
       .post(`${readerUrl}/activity`)
@@ -407,10 +445,15 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
+    // Make sure documents associated with the publication are deleted
+    const deletedDoc = await Document.byId(document.id)
+    await tap.ok(deletedDoc.deleted)
+
     await tap.equal(libraryres.status, 200)
     const body = libraryres.body
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 1)
+    await tap.equal(body.items[0].tags.length, 0)
   })
 
   await tap.test('delete publication that does not exist', async () => {

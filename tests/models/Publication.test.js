@@ -6,6 +6,7 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
+const { Document } = require('../../models/Document')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -462,9 +463,106 @@ const test = async app => {
     await tap.ok(editor2Exists)
   })
 
+  await tap.test(
+    'Delete Publication_Tags when a Publication is deleted',
+    async () => {
+      // Create 2 additional tags for testing purposes
+      const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
+        type: 'reader:Stack',
+        name: 'mystack2'
+      })
+
+      const createdTag3 = await Tag.createTag(urlToId(createdReader.id), {
+        type: 'reader:Stack',
+        name: 'mystack3'
+      })
+
+      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag2.id)
+
+      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag3.id)
+
+      // Get the Publication with 2 new tags
+      const pub = await Publication.byId(urlToId(publication.id))
+
+      await tap.equal(pub.tags.length, 2)
+      await tap.ok(
+        pub.tags[0].name === 'mystack2' || pub.tags[0].name === 'mystack3'
+      )
+      await tap.ok(
+        pub.tags[1].name === 'mystack3' || pub.tags[1].name === 'mystack2'
+      )
+
+      // Delete the entries in Publication_Tag
+      const numDeleted = await Publication_Tag.deletePubTagsOfPub(
+        urlToId(publication.id)
+      )
+
+      // Get the updated Publication
+      const newPub = await Publication.byId(urlToId(publication.id))
+
+      await tap.equal(numDeleted, 2)
+      await tap.equal(newPub.tags.length, 0)
+    }
+  )
+
+  await tap.test(
+    'Delete Publication_Tags of a Publication with an id that does not exist',
+    async () => {
+      const response = await Publication_Tag.deletePubTagsOfPub(
+        'invalidIdOfPub'
+      )
+
+      await tap.equal(response, 0)
+    }
+  )
+
+  await tap.test(
+    'Delete Publication_Tags of a Publication with an invalid id',
+    async () => {
+      const response = await Publication_Tag.deletePubTagsOfPub(null)
+
+      await tap.ok(typeof response, Error)
+      await tap.equal(response.message, 'no publication')
+    }
+  )
+
   await tap.test('Delete publication', async () => {
+    // Add a document to the publication
+    const documentObject = {
+      mediaType: 'txt',
+      url: 'http://google-bucket/somewhere/file1234.txt',
+      documentPath: '/inside/the/book.txt',
+      json: { property1: 'value1' }
+    }
+
+    let document = await Document.createDocument(
+      createdReader,
+      publicationId,
+      documentObject
+    )
+
+    // Add Tag to the publication
+    const tagAdded = await Tag.createTag(urlToId(createdReader.id), {
+      type: 'reader:Stack',
+      name: 'tagAdded'
+    })
+
+    await Publication_Tag.addTagToPub(publicationId, tagAdded.id)
+
+    // Get the Publication with new tags
+    const pub = await Publication.byId(publicationId)
+
+    await tap.equal(pub.tags.length, 1)
+    await tap.equal(pub.tags[0].name, 'tagAdded')
+
     const res = await Publication.delete(publicationId)
+
+    // Fetch the document that has just been deleted
+    const docDeleted = await Document.byId(urlToId(document.id))
+
     await tap.ok(res.deleted)
+    await tap.ok(docDeleted.deleted)
+    await tap.ok(!res.tags)
   })
 
   await tap.test('Delete publication that does not exist', async () => {
