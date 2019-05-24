@@ -118,6 +118,37 @@ const test = async app => {
     await tap.equal(res.text, `Found. Redirecting to ${url}`)
   })
 
+  await tap.test('get file that does not exist', async () => {
+    const res = await request(app)
+      .get(`${publicationUrl}/${path}abc`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.ok(res)
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Document')
+    await tap.equal(error.details.path, path + 'abc')
+  })
+
+  await tap.test(
+    'try to get a file for a document that does not exist',
+    async () => {
+      const res = await request(app)
+        .get(`${publicationUrl}abc/${path}`)
+        .set('Authorization', `Bearer ${token}`)
+
+      await tap.ok(res)
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+    }
+  )
+
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
