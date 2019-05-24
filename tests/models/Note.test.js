@@ -183,6 +183,63 @@ const test = async app => {
     tap.equal(tagNote.message, 'no tag')
   })
 
+  await tap.test('Delete all Note_Tags associated with a note', async () => {
+    // Create valid tags
+    const tag1 = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'someStack1'
+    })
+    const tag2 = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'someStack2'
+    })
+
+    const note = await Note.createNote(createdReader, noteObject)
+
+    await Note_Tag.addTagToNote(urlToId(note.id), tag1.id)
+    await Note_Tag.addTagToNote(urlToId(note.id), tag2.id)
+
+    const noteWithTags = await Note.byId(urlToId(note.id))
+
+    await tap.ok(noteWithTags.tags)
+    await tap.equal(noteWithTags.tags.length, 2)
+    await tap.ok(
+      noteWithTags.tags[0].name === tag1.name ||
+        noteWithTags.tags[0].name === tag2.name
+    )
+    await tap.ok(
+      noteWithTags.tags[1].name === tag1.name ||
+        noteWithTags.tags[1].name === tag2.name
+    )
+
+    // Remote the Note_Tag
+    const numDeleted = await Note_Tag.deleteNoteTagsOfNote(
+      urlToId(noteWithTags.id)
+    )
+
+    // Fetch the new Note
+    const noteWithoutTags = await Note.byId(urlToId(noteWithTags.id))
+
+    await tap.equal(noteWithoutTags.tags.length, 0)
+    await tap.equal(numDeleted, 2)
+  })
+
+  await tap.test(
+    'Delete Note_Tags of a Note with an id that does not exist',
+    async () => {
+      const response = await Note_Tag.deleteNoteTagsOfNote('invalidIdOfNote')
+
+      await tap.equal(response, 0)
+    }
+  )
+
+  await tap.test('Delete Note_Tags of a Note with an invalid id', async () => {
+    const response = await Note_Tag.deleteNoteTagsOfNote(null)
+
+    await tap.ok(typeof response, Error)
+    await tap.equal(response.message, 'no note')
+  })
+
   await tap.test('Remove a valid tag from a valid note', async () => {
     // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
@@ -240,6 +297,27 @@ const test = async app => {
 
     tap.ok(typeof result, Error)
     tap.equal(result.message, 'not found')
+  })
+
+  await tap.test('Delete a Note', async () => {
+    const tag = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'random name for tag'
+    })
+
+    const tagNote = await Note_Tag.addTagToNote(urlToId(newNote.id), tag.id)
+
+    // Fetch the note with the new tag
+    const noteWithTag = await Note.byId(urlToId(newNote.id))
+
+    await tap.ok(!noteWithTag.deleted)
+    await tap.ok(noteWithTag.tags.length !== 0)
+
+    // Delete the note
+    const noteDeleted = await Note.delete(urlToId(noteWithTag.id))
+
+    await tap.ok(noteDeleted.deleted)
+    await tap.ok(!noteDeleted.tags)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
