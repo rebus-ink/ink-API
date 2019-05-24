@@ -625,6 +625,26 @@ const test = async app => {
     await tap.equal(res2.body.items[2].content, 'third')
   })
 
+  await tap.test(
+    'try to get notes for a reader that does not exist',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}abc/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Reader')
+      await tap.type(error.details.id, 'string')
+    }
+  )
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

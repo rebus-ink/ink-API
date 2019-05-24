@@ -123,6 +123,11 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

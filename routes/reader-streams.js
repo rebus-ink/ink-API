@@ -4,24 +4,32 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:reader-streams')
 const { getId } = require('../utils/get-id.js')
+const boom = require('@hapi/boom')
 
 const utils = require('../utils/utils')
 
 module.exports = app => {
   app.use('/', router)
   router.get(
-    '/reader-:shortId/streams',
+    '/reader-:id/streams',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Reader.byId(shortId)
+      const id = req.params.id
+      Reader.byId(id)
         .then(reader => {
           debug(reader)
           debug(req.user)
           if (!reader) {
-            res.status(404).send(`No reader with ID ${shortId}`)
+            return next(
+              boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id })
+            )
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${shortId} disallowed`)
+            return next(
+              boom.forbidden(`Access to reader ${id} disallowed`, {
+                type: 'Reader',
+                id
+              })
+            )
           } else {
             res.setHeader(
               'Content-Type',
@@ -31,17 +39,17 @@ module.exports = app => {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Streams for reader with id ${shortId}`
+                  en: `Streams for reader with id ${id}`
                 },
                 type: 'Collection',
-                id: getId(`/reader-${shortId}/streams`),
+                id: getId(`/reader-${id}/streams`),
                 totalItems: 1,
                 items: [
                   {
                     type: 'Collection',
-                    id: getId(`/reader-${shortId}/library`),
+                    id: getId(`/reader-${id}/library`),
                     summaryMap: {
-                      en: `Library for reader with id ${shortId}`
+                      en: `Library for reader with id ${id}`
                     }
                   }
                 ]
