@@ -279,6 +279,11 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.type(error.details.id, 'string')
   })
 
   await tap.test('Update a publication', async () => {
@@ -435,6 +440,11 @@ const test = async app => {
       )
 
     await tap.equal(getres.statusCode, 404)
+    const error = JSON.parse(getres.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.type(error.details.id, 'string')
 
     // publication should no longer be in the reader library
     const libraryres = await request(app)

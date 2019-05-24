@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const debug = require('debug')('hobb:routes:publication')
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -132,9 +133,19 @@ module.exports = function (app) {
       Publication.byId(id)
         .then(publication => {
           if (!publication || publication.deleted) {
-            res.status(404).send(`No publication with ID ${id}`)
+            return next(
+              boom.notFound(`No publication with ID ${id}`, {
+                type: 'Publication',
+                id
+              })
+            )
           } else if (!utils.checkReader(req, publication.reader)) {
-            res.status(403).send(`Access to publication ${id} disallowed`)
+            return next(
+              boom.forbidden(`Access to publication ${id} disallowed`, {
+                type: 'Publication',
+                id
+              })
+            )
           } else {
             debug(publication)
             res.setHeader(
