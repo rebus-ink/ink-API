@@ -387,10 +387,7 @@ const test = async app => {
       name: 'mystack'
     })
 
-    const newTag = await Publication_Tag.addTagToPub(
-      publicationUrl,
-      createdTag.id
-    )
+    await Publication_Tag.addTagToPub(publicationUrl, createdTag.id)
 
     // before
     const before = await request(app)

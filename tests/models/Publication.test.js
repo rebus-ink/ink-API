@@ -477,15 +477,9 @@ const test = async app => {
         name: 'mystack3'
       })
 
-      const newTag2 = await Publication_Tag.addTagToPub(
-        urlToId(publication.id),
-        createdTag2.id
-      )
+      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag2.id)
 
-      const newTag3 = await Publication_Tag.addTagToPub(
-        urlToId(publication.id),
-        createdTag3.id
-      )
+      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag3.id)
 
       // Get the Publication with 2 new tags
       const pub = await Publication.byId(urlToId(publication.id))
@@ -553,7 +547,7 @@ const test = async app => {
       name: 'tagAdded'
     })
 
-    const pubTag = await Publication_Tag.addTagToPub(publicationId, tagAdded.id)
+    await Publication_Tag.addTagToPub(publicationId, tagAdded.id)
 
     // Get the Publication with new tags
     const pub = await Publication.byId(publicationId)
