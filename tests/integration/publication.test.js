@@ -489,6 +489,12 @@ const test = async app => {
         })
       )
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Publication')
 
     // never existed
     const res1 = await request(app)
@@ -512,6 +518,12 @@ const test = async app => {
         })
       )
     await tap.equal(res1.statusCode, 404)
+    const error1 = JSON.parse(res1.text)
+    await tap.equal(error1.statusCode, 404)
+    await tap.equal(error1.error, 'Not Found')
+    await tap.equal(error1.details.type, 'Publication')
+    await tap.type(error1.details.id, 'string')
+    await tap.equal(error1.details.activity, 'Delete Publication')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

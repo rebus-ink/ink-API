@@ -216,6 +216,35 @@ const test = async app => {
     }
   )
 
+  await tap.test('Try to Delete something that is not valid', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'SomethingInvalid'
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.badParams[0], 'object.type')
+    await tap.equal(error.details.activity, 'Delete SomethingInvalid')
+  })
+
   await tap.test('Get Outbox', async () => {
     const res = await request(app)
       .get(`${readerUrl}/activity`)

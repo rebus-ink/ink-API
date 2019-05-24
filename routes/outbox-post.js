@@ -114,7 +114,7 @@ module.exports = function (app) {
                 break
 
               case 'Delete':
-                await handleDelete(req, res, reader)
+                await handleDelete(req, res, next, reader)
                 break
 
               case 'Arrive':

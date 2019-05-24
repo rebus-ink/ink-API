@@ -472,6 +472,11 @@ const test = async app => {
       )
 
     await tap.equal(getres.statusCode, 404)
+    const error = JSON.parse(getres.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
 
     // note should no longer be attached to publication
     const pubres = await request(app)
@@ -519,6 +524,12 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Note')
 
     const res1 = await request(app)
       .post(`${readerUrl}/activity`)
