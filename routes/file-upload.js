@@ -125,7 +125,11 @@ module.exports = app => {
                 res.status(200).json(response)
               })
               .catch(err => {
-                res.status(400).send(err.message)
+                return next(
+                  boom.failedDependency(err.message, {
+                    service: 'google bucket'
+                  })
+                )
               })
           }
         }

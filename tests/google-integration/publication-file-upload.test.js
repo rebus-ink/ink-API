@@ -108,6 +108,46 @@ const test = async app => {
     url = document.url
   })
 
+  await tap.test(
+    'try to upload a file to a publication that does not exist',
+    async () => {
+      const res = await request(app)
+        .post(`${publicationUrl}abc/file-upload`)
+        .set('Authorization', `Bearer ${token}`)
+        .field('name', 'file')
+        .field('documentPath', path)
+        .field('mediaType', 'text')
+        .field('json', JSON.stringify({ test: 'Value' }))
+        .attach('file', 'tests/test-files/test-file1.txt')
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+    }
+  )
+
+  await tap.test(
+    'using the upload route without including a file',
+    async () => {
+      const res = await request(app)
+        .post(`${publicationUrl}/file-upload`)
+        .set('Authorization', `Bearer ${token}`)
+        .field('name', 'file')
+        .field('documentPath', path)
+        .field('mediaType', 'text')
+        .field('json', JSON.stringify({ test: 'Value' }))
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'publication-file-upload')
+      await tap.equal(error.details.missingParams[0], 'req.file')
+    }
+  )
+
   await tap.test('get file through redirect', async () => {
     const res = await request(app)
       .get(`${publicationUrl}/${path}`)
