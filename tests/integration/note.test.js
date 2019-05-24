@@ -8,6 +8,8 @@ const {
   getActivityFromUrl
 } = require('../utils/utils')
 const { Document } = require('../../models/Document')
+const { Tag } = require('../../models/Tag')
+const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
@@ -407,6 +409,14 @@ const test = async app => {
   })
 
   await tap.test('Delete a Note', async () => {
+    // Create a tag for testing purposes and add it to the note
+    const createdTag = await Tag.createTag(readerId, {
+      type: 'reader:Stack',
+      name: 'random stack'
+    })
+
+    const noteTag = await Note_Tag.addTagToNote(urlToId(noteUrl), createdTag.id)
+
     // before: there are two notes on this publication
     const pubresbefore = await request(app)
       .get(urlparse(publicationUrl).path)
