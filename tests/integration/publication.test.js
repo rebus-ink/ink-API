@@ -12,6 +12,8 @@ const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
+const { Tag } = require('../../models/Tag')
+const { Publication_Tag } = require('../../models/Publications_Tags')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -379,6 +381,17 @@ const test = async app => {
       documentObject
     )
 
+    // Create a tag for testing purposes
+    const createdTag = await Tag.createTag(reader1.id, {
+      type: 'reader:Stack',
+      name: 'mystack'
+    })
+
+    const newTag = await Publication_Tag.addTagToPub(
+      publicationUrl,
+      createdTag.id
+    )
+
     // before
     const before = await request(app)
       .get(`${readerUrl}/library`)
@@ -389,6 +402,8 @@ const test = async app => {
       )
 
     await tap.equal(before.body.items.length, 2)
+    await tap.equal(before.body.items[1].tags.length, 1)
+    await tap.equal(before.body.items[1].tags[0].name, 'mystack')
     await tap.ok(!document.deleted)
 
     const res = await request(app)
@@ -441,6 +456,7 @@ const test = async app => {
     const body = libraryres.body
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 1)
+    await tap.equal(body.items[0].tags.length, 0)
   })
 
   await tap.test('delete publication that does not exist', async () => {
