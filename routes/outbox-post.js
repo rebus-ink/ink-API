@@ -10,6 +10,8 @@ const { handleDelete } = require('./activities/delete')
 const { handleArrive } = require('./activities/arrive')
 const { handleUpdate } = require('./activities/update')
 const { handleRead } = require('./activities/read')
+const boom = require('@hapi/boom')
+const _ = require('lodash')
 
 const utils = require('../utils/utils')
 /**
@@ -77,17 +79,24 @@ module.exports = function (app) {
     Reader.byId(id)
       .then(reader => {
         if (!reader) {
-          res.status(404).send(`No reader with ID ${id}`)
+          return next(
+            boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id })
+          )
         } else if (!utils.checkReader(req, reader)) {
-          res.status(403).send(`Access to reader ${id} disallowed`)
+          return next(
+            boom.forbidden(`Access to reader ${id} disallowed`, {
+              type: 'Reader',
+              id
+            })
+          )
         } else {
           if (!req.is('application/ld+json')) {
-            return next(new Error('Body must be JSON-LD'))
+            return next(boom.badRequest('Body must be JSON-LD'))
           }
 
           const body = req.body
-          if (typeof body !== 'object') {
-            return next(new Error('Body must be a JSON object'))
+          if (typeof body !== 'object' || _.isEmpty(body)) {
+            return next(boom.badRequest('Body must be a JSON object'))
           }
 
           const handleActivity = async () => {
@@ -97,7 +106,7 @@ module.exports = function (app) {
                 break
 
               case 'Add':
-                await handleAdd(req, res, reader)
+                await handleAdd(req, res, next, reader)
                 break
 
               case 'Remove':
@@ -121,7 +130,11 @@ module.exports = function (app) {
                 break
 
               default:
-                res.status(400).send(`action ${body.type} not recognized`)
+                return next(
+                  boom.badRequest(`action ${body.type} not recognized`, {
+                    badParams: ['body.type']
+                  })
+                )
             }
           }
           return handleActivity()

@@ -43,6 +43,7 @@ class Publication_Tag extends BaseModel {
         tagId
       })
     } catch (err) {
+      if (!err.constraint) console.log('?????', err, publicationId)
       if (err.constraint === 'publication_tag_tagid_foreign') {
         return new Error('no tag')
       } else if (err.constraint === 'publication_tag_publicationid_foreign') {

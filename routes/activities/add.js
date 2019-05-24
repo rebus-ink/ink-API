@@ -3,8 +3,9 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Activity } = require('../../models/Activity')
 // const { urlToId } = require('./utils')
+const boom = require('@hapi/boom')
 
-const handleAdd = async (req, res, reader) => {
+const handleAdd = async (req, res, next, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'reader:Stack':
@@ -26,40 +27,58 @@ const handleAdd = async (req, res, reader) => {
       if (resultStack instanceof Error) {
         switch (resultStack.message) {
           case 'duplicate':
-            res
-              .status(400)
-              .send(
-                `duplicate` +
+            return next(
+              boom.badRequest(
+                `duplicate ` +
                   body.target.type +
                   `: ${body.target.id} already asssociated with tag ${
                     body.object.id
-                  } (${body.object.name})`
+                  } (${body.object.name})`,
+                {
+                  type: `${body.target.type}_Tag`,
+                  target: body.target.id,
+                  object: body.object.id,
+                  activity: `Add Tag to ${body.target.type}`
+                }
               )
-            break
+            )
 
           case 'no publication':
-            res
-              .status(404)
-              .send(`no publication found with id ${body.target.id}`)
-            break
+            return next(
+              boom.notFound(`no publication found with id ${body.target.id}`, {
+                type: 'Publication',
+                id: body.target.id,
+                activity: 'Add Tag to Publication'
+              })
+            )
 
           case 'no tag':
-            res.status(404).send(`no tag found with id ${body.object.id}`)
-            break
+            return next(
+              boom.notFound(`no tag found with id ${body.object.id}`, {
+                type: 'Tag',
+                id: body.object.id,
+                activity: `Add Tag to ${body.target.type}`
+              })
+            )
 
           case 'no note':
-            res.status(404).send(`no note found with id ${body.target.id}`)
-            break
+            return next(
+              boom.notFound(`no note found with id ${body.target.id}`, {
+                type: 'Note',
+                id: body.target.id,
+                activity: 'Add Tag to Note'
+              })
+            )
 
           default:
-            res.status(400).send(`add tag to publication error: ${err.message}`)
-            break
+            return next(
+              boom.badRequest(
+                `unknown error with add Tag to ${body.target.type}: ${
+                  err.message
+                }`
+              )
+            )
         }
-        break
-      } else if (!resultStack) {
-        res
-          .status(404)
-          .send(`add tag to publication or to note error: ${err.message}`)
       }
 
       const activityObjStack = createActivityObject(body, resultStack, reader)
@@ -70,13 +89,23 @@ const handleAdd = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
+          return next(
+            boom.badRequest(
+              `unknown error creating activity for add Tag to ${
+                body.target.type
+              }: ${err.message}`
+            )
+          )
         })
       break
 
     default:
-      res.status(400).send(`cannot add ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot add ${body.object.type}`, {
+          badParams: ['object.type'],
+          activity: `Add Tag to ${body.object.type}`
+        })
+      )
   }
 }
 
