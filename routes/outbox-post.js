@@ -122,7 +122,7 @@ module.exports = function (app) {
                 break
 
               case 'Update':
-                await handleUpdate(req, res, reader)
+                await handleUpdate(req, res, next, reader)
                 break
 
               case 'Read':

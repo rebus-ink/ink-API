@@ -371,6 +371,47 @@ const test = async app => {
     )
   })
 
+  await tap.test('Update a Publication that does not exist', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Update',
+          object: {
+            type: 'Publication',
+            id: publicationUrl + 'abc',
+            name: 'New name for pub A',
+            // datePublished: timestamp,
+            description: 'New description for Publication',
+            json: { property: 'New value for json property' },
+            inLanguage: ['Swahili', 'French'],
+            keywords: ['newKeyWord1', 'newKeyWord2'],
+            author: [
+              { type: 'Person', name: 'New Sample Author' },
+              { type: 'Organization', name: 'New Org inc.' }
+            ],
+            editor: [{ type: 'Person', name: 'New Sample Editor' }]
+          }
+        })
+      )
+
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Update Publication')
+  })
+
   await tap.test('Delete Publication', async () => {
     // Create a Document for that publication
     const documentObject = {
