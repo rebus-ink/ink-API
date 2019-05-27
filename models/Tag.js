@@ -1,6 +1,8 @@
 // @flow
 'use strict'
 const { BaseModel } = require('./BaseModel')
+const { Publication_Tag } = require('./Publications_Tags')
+const { Note_Tag } = require('./Note_Tag')
 const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
 
@@ -59,6 +61,12 @@ class Tag extends BaseModel {
 
   static async deleteTag (tagId /*: string */) /*: Promise<number|Error> */ {
     if (!tagId) return new Error('no tag')
+
+    // Delete all Publication_Tags associated with this tag
+    await Publication_Tag.deletePubTagsOfTag(urlToId(tagId))
+
+    // Delete all Note_Tags associated with this tag
+    await Note_Tag.deleteNoteTagsOfTag(urlToId(tagId))
 
     return await Tag.query().deleteById(urlToId(tagId))
   }

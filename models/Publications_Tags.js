@@ -89,6 +89,16 @@ class Publication_Tag extends BaseModel {
       .where({ publicationId: urlToId(publicationId) })
   }
 
+  static async deletePubTagsOfTag (
+    tagId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!tagId) return new Error('no tag')
+
+    return await Publication_Tag.query()
+      .delete()
+      .where({ tagId: urlToId(tagId) })
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this

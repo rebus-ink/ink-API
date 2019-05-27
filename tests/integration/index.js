@@ -20,15 +20,15 @@ const allTests = async () => {
       await app.knex.migrate.latest()
     }
   }
-  // await activityTests(app)
-  // await authErrorTests(app)
-  // await libraryTests(app)
-  // await outboxTests(app)
-  // await publicationTests(app)
-  // await readerTests(app)
-  // await noteTests(app)
+  await activityTests(app)
+  await authErrorTests(app)
+  await libraryTests(app)
+  await outboxTests(app)
+  await publicationTests(app)
+  await readerTests(app)
+  await noteTests(app)
   await tagTests(app)
-  // await readerNotesTests(app)
+  await readerNotesTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()
