@@ -16,8 +16,6 @@ jobs:
   include:
   - stage: Lint
     script: npm run lint
-  - stage: Unit Tests
-    script: npm run test-unit
   - stage: Integration Tests
     name: routes integration tests
     script: npm run test-integration
