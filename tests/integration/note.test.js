@@ -10,6 +10,7 @@ const {
 const { Document } = require('../../models/Document')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
+const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
@@ -415,7 +416,7 @@ const test = async app => {
       name: 'random stack'
     })
 
-    const noteTag = await Note_Tag.addTagToNote(urlToId(noteUrl), createdTag.id)
+    await Note_Tag.addTagToNote(urlToId(noteUrl), createdTag.id)
 
     // before: there are two notes on this publication
     const pubresbefore = await request(app)
@@ -425,7 +426,13 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+
+    // Fetch the note that now has a tag
+    const noteBefore = await Note.byId(urlToId(noteUrl))
+
     await tap.equal(pubresbefore.body.replies.length, 1) // should be 2 if previous test is re-enabled
+    await tap.equal(noteBefore.tags.length, 1)
+    await tap.equal(noteBefore.tags[0].name, createdTag.name)
 
     const res = await request(app)
       .post(`${readerUrl}/activity`)
@@ -469,6 +476,12 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+
+    // Fetch the note that should no longer have a tag
+    const noteAfter = await Note.byId(urlToId(noteUrl))
+
+    await tap.equal(noteAfter.tags.length, 0)
+    await tap.ok(noteAfter.deleted)
 
     await tap.equal(pubres.statusCode, 200)
 

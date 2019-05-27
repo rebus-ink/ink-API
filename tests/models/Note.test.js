@@ -194,12 +194,12 @@ const test = async app => {
       name: 'someStack2'
     })
 
-    const note = await Note.createNote(createdReader, noteObject)
+    const anotherNote = await Note.createNote(createdReader, noteObject)
 
-    await Note_Tag.addTagToNote(urlToId(note.id), tag1.id)
-    await Note_Tag.addTagToNote(urlToId(note.id), tag2.id)
+    await Note_Tag.addTagToNote(urlToId(anotherNote.id), tag1.id)
+    await Note_Tag.addTagToNote(urlToId(anotherNote.id), tag2.id)
 
-    const noteWithTags = await Note.byId(urlToId(note.id))
+    const noteWithTags = await Note.byId(urlToId(anotherNote.id))
 
     await tap.ok(noteWithTags.tags)
     await tap.equal(noteWithTags.tags.length, 2)
@@ -305,7 +305,7 @@ const test = async app => {
       name: 'random name for tag'
     })
 
-    const tagNote = await Note_Tag.addTagToNote(urlToId(newNote.id), tag.id)
+    await Note_Tag.addTagToNote(urlToId(newNote.id), tag.id)
 
     // Fetch the note with the new tag
     const noteWithTag = await Note.byId(urlToId(newNote.id))
