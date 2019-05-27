@@ -58,13 +58,18 @@ module.exports = app => {
       Reader.byId(id).then(async reader => {
         if (!reader) {
           return next(
-            boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id: id })
+            boom.notFound(`No reader with ID ${id}`, {
+              type: 'Reader',
+              id: id,
+              activity: 'Upload File'
+            })
           )
         } else if (!utils.checkReader(req, reader)) {
           return next(
             boom.forbidden(`Access to reader ${id} disallowed`, {
               type: 'Reader',
-              id: id
+              id: id,
+              activity: 'Upload File'
             })
           )
         } else {
@@ -83,7 +88,8 @@ module.exports = app => {
             return next(
               boom.badRequest('no file was included in this upload', {
                 type: 'file-upload',
-                missingParams: ['req.files']
+                missingParams: ['req.files'],
+                activity: 'Upload File'
               })
             )
           } else {

@@ -75,6 +75,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Reader')
   })
 
   // TODO: add test for incomplete reader object (once incoming json is validated)
@@ -151,6 +152,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Reader')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

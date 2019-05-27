@@ -21,13 +21,18 @@ module.exports = app => {
           debug(req.user)
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id })
+              boom.notFound(`No reader with ID ${id}`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Streams'
+              })
             )
           } else if (!utils.checkReader(req, reader)) {
             return next(
               boom.forbidden(`Access to reader ${id} disallowed`, {
                 type: 'Reader',
-                id
+                id,
+                activity: 'Get Streams'
               })
             )
           } else {

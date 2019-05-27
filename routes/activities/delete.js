@@ -103,7 +103,8 @@ const handleDelete = async (req, res, next, reader) => {
       return next(
         boom.badRequest(`cannot delete ${body.object.type}`, {
           badParams: ['object.type'],
-          activity: `Delete ${body.object.type}`
+          type: body.object.type,
+          activity: 'Delete'
         })
       )
   }

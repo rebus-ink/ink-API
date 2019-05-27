@@ -284,6 +284,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Publication')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Publication')
   })
 
   await tap.test('Update a publication', async () => {

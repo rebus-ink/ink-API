@@ -21,7 +21,7 @@ const handleRead = async (req, res, next, reader) => {
           boom.notFound(`no publication found with id ${body.context}`, {
             type: 'Publication',
             id: body.context,
-            activity: 'read'
+            activity: 'Read'
           })
         )
       }

@@ -76,13 +76,18 @@ module.exports = function (app) {
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${id}`, { type: 'Reader', id })
+              boom.notFound(`No reader with ID ${id}`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Outbox'
+              })
             )
           } else if (!utils.checkReader(req, reader)) {
             return next(
               boom.forbidden(`Access to reader ${id} disallowed`, {
                 type: 'Reader',
-                id
+                id,
+                activity: 'Get Outbox'
               })
             )
           } else {

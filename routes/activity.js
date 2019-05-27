@@ -108,14 +108,16 @@ module.exports = function (app) {
             return next(
               boom.notFound(`No activity with ID ${id}`, {
                 type: 'Activity',
-                id: id
+                id: id,
+                activity: 'Get Activity'
               })
             )
           } else if (!utils.checkReader(req, activity.reader)) {
             return next(
               boom.forbidden(`Access to activity ${id} disallowed`, {
                 type: 'Activity',
-                id: id
+                id: id,
+                activity: 'Get Activity'
               })
             )
           } else {

@@ -149,6 +149,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Activity')
   })
 
   await tap.test('Try to create activity without a body', async () => {
@@ -164,6 +165,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.activity, 'Create Activity')
   })
 
   await tap.test(
@@ -213,6 +215,7 @@ const test = async app => {
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(error.details.badParams[0], 'body.type')
+      await tap.equal(error.details.activity, 'Create Activity')
     }
   )
 
@@ -242,7 +245,8 @@ const test = async app => {
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(error.details.badParams[0], 'object.type')
-    await tap.equal(error.details.activity, 'Delete SomethingInvalid')
+    await tap.equal(error.details.type, 'SomethingInvalid')
+    await tap.equal(error.details.activity, 'Delete')
   })
 
   await tap.test('Try to Update something that is not valid', async () => {
@@ -319,6 +323,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Outbox')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

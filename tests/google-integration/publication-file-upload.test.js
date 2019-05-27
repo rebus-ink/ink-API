@@ -125,6 +125,7 @@ const test = async app => {
       await tap.equal(error.error, 'Not Found')
       await tap.equal(error.details.type, 'Publication')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Upload File to Publication')
     }
   )
 
@@ -145,6 +146,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(error.details.type, 'publication-file-upload')
       await tap.equal(error.details.missingParams[0], 'req.file')
+      await tap.equal(error.details.activity, 'Upload File to Publication')
     }
   )
 
@@ -170,10 +172,11 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Document')
     await tap.equal(error.details.path, path + 'abc')
+    await tap.equal(error.details.activity, 'Get File for Publication')
   })
 
   await tap.test(
-    'try to get a file for a document that does not exist',
+    'try to get a file for a publication that does not exist',
     async () => {
       const res = await request(app)
         .get(`${publicationUrl}abc/${path}`)
@@ -186,6 +189,7 @@ const test = async app => {
       await tap.equal(error.error, 'Not Found')
       await tap.equal(error.details.type, 'Publication')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get File for Publication')
     }
   )
 

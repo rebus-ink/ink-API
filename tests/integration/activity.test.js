@@ -217,6 +217,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Activity')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Activity')
   })
 
   await tap.test('Create Read activity with only a selector', async () => {
@@ -318,7 +319,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(error.details.type, 'Publication')
     await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'read')
+    await tap.equal(error.details.activity, 'Read')
   })
 
   await tap.test('Create a ReadActivity with invalid readerId', async () => {

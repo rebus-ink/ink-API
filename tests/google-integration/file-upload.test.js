@@ -114,6 +114,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(error.details.type, 'file-upload')
     await tap.equal(error.details.missingParams[0], 'req.files')
+    await tap.equal(error.details.activity, 'Upload File')
   })
 
   await destroyDB(app)

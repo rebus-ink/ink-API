@@ -87,13 +87,18 @@ module.exports = app => {
         .then(note => {
           if (!note || note.deleted) {
             return next(
-              boom.notFound(`No note with ID ${id}`, { type: 'Note', id })
+              boom.notFound(`No note with ID ${id}`, {
+                type: 'Note',
+                id,
+                activity: 'Get Note'
+              })
             )
           } else if (!utils.checkReader(req, note.reader)) {
             return next(
               boom.forbidden(`Access to note ${id} disallowed`, {
                 type: 'Note',
-                id
+                id,
+                activity: 'Get Note'
               })
             )
           } else {

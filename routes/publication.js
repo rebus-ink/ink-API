@@ -136,14 +136,16 @@ module.exports = function (app) {
             return next(
               boom.notFound(`No publication with ID ${id}`, {
                 type: 'Publication',
-                id
+                id,
+                activity: 'Get Publication'
               })
             )
           } else if (!utils.checkReader(req, publication.reader)) {
             return next(
               boom.forbidden(`Access to publication ${id} disallowed`, {
                 type: 'Publication',
-                id
+                id,
+                activity: 'Get Publication'
               })
             )
           } else {

@@ -38,7 +38,8 @@ module.exports = app => {
             return next(
               boom.notFound(`No reader with ID ${req.user}`, {
                 type: 'Reader',
-                authId: req.user
+                authId: req.user,
+                activity: 'WhoAmI'
               })
             )
           } else {

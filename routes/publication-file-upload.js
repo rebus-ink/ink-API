@@ -66,14 +66,16 @@ module.exports = app => {
           return next(
             boom.notFound(`No publication with ID ${id}`, {
               type: 'Publication',
-              id
+              id,
+              activity: 'Upload File for Publication'
             })
           )
         } else if (!utils.checkReader(req, publication.reader)) {
           return next(
             boom.forbidden(`Access to publication ${id} disallowed`, {
               type: 'Publication',
-              id
+              id,
+              acitivity: 'Upload File for Publication'
             })
           )
         } else {
@@ -94,7 +96,8 @@ module.exports = app => {
             return next(
               boom.badRequest('no file was included in this upload', {
                 type: 'publication-file-upload',
-                missingParams: ['req.file']
+                missingParams: ['req.file'],
+                activity: 'Upload File for Publication'
               })
             )
           } else {
@@ -121,7 +124,10 @@ module.exports = app => {
 
             stream.on('error', err => {
               return next(
-                boom.failedDependency(err.message, { service: 'google bucket' })
+                boom.failedDependency(err.message, {
+                  service: 'google bucket',
+                  activity: 'Upload File for Publication'
+                })
               )
             })
 

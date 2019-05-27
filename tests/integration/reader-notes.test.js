@@ -642,6 +642,7 @@ const test = async app => {
       await tap.equal(error.error, 'Not Found')
       await tap.equal(error.details.type, 'Reader')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Notes')
     }
   )
 

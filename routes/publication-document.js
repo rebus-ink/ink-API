@@ -46,14 +46,16 @@ module.exports = function (app) {
             return next(
               boom.notFound(`No publication with ID ${id}`, {
                 type: 'Publication',
-                id
+                id,
+                activity: 'Get File for Publication'
               })
             )
           } else if (!utils.checkReader(req, publication.reader)) {
             return next(
               boom.forbidden(`Access to publication ${id} disallowed`, {
                 type: 'Publication',
-                id
+                id,
+                activity: 'Get File for Publication'
               })
             )
           } else {
@@ -65,7 +67,8 @@ module.exports = function (app) {
             return next(
               boom.notFound(`No document found with path ${req.params.path}`, {
                 type: 'Document',
-                path: req.params.path
+                path: req.params.path,
+                activity: 'Get File for Publication'
               })
             )
           }

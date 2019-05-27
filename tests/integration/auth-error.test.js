@@ -198,6 +198,7 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(error.details.type, 'Activity')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Activity')
     }
   )
 
@@ -218,6 +219,7 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(error.details.type, 'Publication')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Publication')
     }
   )
 
@@ -236,6 +238,7 @@ const test = async app => {
     await tap.equal(error.error, 'Forbidden')
     await tap.equal(error.details.type, 'Note')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Note')
   })
 
   await tap.test(
@@ -254,6 +257,7 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(error.details.type, 'Reader')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Reader')
     }
   )
 
@@ -272,6 +276,7 @@ const test = async app => {
     await tap.equal(error.error, 'Forbidden')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Library')
   })
 
   await tap.test('Try to get outbox belonging to another reader', async () => {
@@ -289,6 +294,7 @@ const test = async app => {
     await tap.equal(error.error, 'Forbidden')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Outbox')
   })
 
   await tap.test('Try to create an activity for another user', async () => {
@@ -337,6 +343,7 @@ const test = async app => {
     await tap.equal(error.error, 'Forbidden')
     await tap.equal(error.details.type, 'Reader')
     await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Activity')
   })
 
   await tap.test(
@@ -357,6 +364,7 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(error.details.type, 'Reader')
       await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Upload File')
     }
   )
 

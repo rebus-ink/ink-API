@@ -15,7 +15,8 @@ const insertNewReader = (readerId, person, next) => {
           return next(
             boom.badRequest(`reader already exists with id ${readerId}`, {
               type: 'Reader',
-              id: readerId
+              id: readerId,
+              activity: 'Create Reader'
             })
           )
         } else {
