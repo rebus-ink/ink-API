@@ -1,6 +1,7 @@
 // @flow
 'use strict'
 const { BaseModel } = require('./BaseModel')
+const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
 
 /*::
@@ -54,6 +55,12 @@ class Tag extends BaseModel {
         return new Error('duplicate')
       }
     }
+  }
+
+  static async deleteTag (tagId /*: string */) /*: Promise<number|Error> */ {
+    if (!tagId) return new Error('no tag')
+
+    return await Tag.query().deleteById(urlToId(tagId))
   }
 
   static async byId (id /*: string */) /*: Promise<TagType> */ {
