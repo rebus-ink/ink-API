@@ -68,9 +68,9 @@ class ReadActivity extends BaseModel {
     publicationId /*: string */,
     object /*: any */
   ) /*: Promise<any> */ {
-    if (!readerId) return new Error('missing readerId')
+    if (!readerId) return new Error('no reader')
 
-    if (!publicationId) return new Error('missing publicationId')
+    if (!publicationId) return new Error('no publication')
 
     const props = _.pick(object, ['selector', 'json'])
 
@@ -84,9 +84,9 @@ class ReadActivity extends BaseModel {
         .returning('*')
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
-        return new Error('no reader')
+        throw new Error('no reader') // NOTE: should not happen. Should be caught by the post-outbox route
       } else if (err.constraint === 'readactivity_publicationid_foreign') {
-        return new Error('no publication')
+        throw new Error('no publication')
       }
     }
   }

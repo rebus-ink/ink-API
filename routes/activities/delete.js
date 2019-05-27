@@ -24,17 +24,6 @@ const handleDelete = async (req, res, next, reader) => {
             }
           )
         )
-      } else if (returned instanceof Error || !returned) {
-        const message = returned
-          ? returned.message
-          : 'publication deletion failed'
-
-        return next(
-          boom.badRequest(`delete publication error: ${message}`, {
-            type: 'Publication',
-            activity: 'Delete Publication'
-          })
-        )
       }
       const activityObjPub = createActivityObject(body, returned, reader)
       Activity.createActivity(activityObjPub)
@@ -63,14 +52,6 @@ const handleDelete = async (req, res, next, reader) => {
             } does not exist or has already been deleted`,
             { type: 'Note', id: body.object.id, activity: 'Delete Note' }
           )
-        )
-      } else if (resultNote instanceof Error || !resultNote) {
-        const message = resultNote ? resultNote.message : 'note deletion failed'
-        return next(
-          boom.badRequest(`delete note error: ${message}`, {
-            type: 'Note',
-            activity: 'Delete Note'
-          })
         )
       }
       const activityObjNote = createActivityObject(body, resultNote, reader)

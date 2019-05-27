@@ -126,7 +126,7 @@ module.exports = function (app) {
                 break
 
               case 'Read':
-                await handleRead(req, res, reader)
+                await handleRead(req, res, next, reader)
                 break
 
               default:

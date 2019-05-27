@@ -287,6 +287,73 @@ const test = async app => {
     await tap.equal(latestAct.json.property, 'value')
   })
 
+  await tap.test('Create a ReadActivity with invalid pubId', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: document.id },
+          context: publicationUrl + 'abc',
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span'
+          },
+          json: { property: 'value' }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'read')
+  })
+
+  await tap.test('Create a ReadActivity with invalid readerId', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}abc/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Read',
+          object: { type: 'Document', id: document.id },
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span'
+          },
+          json: { property: 'value' }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
+  })
+
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
