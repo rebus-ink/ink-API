@@ -1,5 +1,6 @@
 // @flow
 const { Model } = require('objection')
+const { urlToId } = require('../utils/utils')
 
 /*::
 type NoteTagType = {
@@ -60,6 +61,16 @@ class Note_Tag extends Model {
     } else {
       return result
     }
+  }
+
+  static async deleteNoteTagsOfNote (
+    noteId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!noteId) return new Error('no note')
+
+    return await Note_Tag.query()
+      .delete()
+      .where({ noteId: urlToId(noteId) })
   }
 }
 
