@@ -67,7 +67,7 @@ module.exports = app => {
             boom.notFound(`No publication with ID ${id}`, {
               type: 'Publication',
               id,
-              activity: 'Upload File for Publication'
+              activity: 'Upload File to Publication'
             })
           )
         } else if (!utils.checkReader(req, publication.reader)) {
@@ -75,7 +75,7 @@ module.exports = app => {
             boom.forbidden(`Access to publication ${id} disallowed`, {
               type: 'Publication',
               id,
-              acitivity: 'Upload File for Publication'
+              acitivity: 'Upload File to Publication'
             })
           )
         } else {
@@ -97,7 +97,7 @@ module.exports = app => {
               boom.badRequest('no file was included in this upload', {
                 type: 'publication-file-upload',
                 missingParams: ['req.file'],
-                activity: 'Upload File for Publication'
+                activity: 'Upload File to Publication'
               })
             )
           } else {
@@ -126,7 +126,7 @@ module.exports = app => {
               return next(
                 boom.failedDependency(err.message, {
                   service: 'google bucket',
-                  activity: 'Upload File for Publication'
+                  activity: 'Upload File to Publication'
                 })
               )
             })
