@@ -386,6 +386,10 @@ const test = async app => {
           })
         )
       await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Publication_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
     }
   )
 
@@ -411,6 +415,68 @@ const test = async app => {
           })
         )
       await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Publication_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a publication with undefined tag',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: undefined, type: stack.type },
+            target: { id: publication.id, type: 'Publication' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a publication with undefined publication',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: stack.id, type: stack.type },
+            target: { id: undefined, type: 'Publication' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
     }
   )
 
@@ -671,7 +737,10 @@ const test = async app => {
           })
         )
       await tap.equal(res.status, 404)
-      await tap.ok(res.error.text.startsWith('no relationship found'))
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Note_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
     }
   )
 
@@ -697,7 +766,68 @@ const test = async app => {
           })
         )
       await tap.equal(res.status, 404)
-      await tap.ok(res.error.text.startsWith('no relationship found'))
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Note_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a note with undefined note',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: stack.id, type: stack.type },
+            target: { id: undefined, type: 'Note' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Note')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a note with undefined tag',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Remove',
+            object: { id: undefined, type: stack.type },
+            target: { id: urlToId(noteUrl), type: 'Note' }
+          })
+        )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
     }
   )
 

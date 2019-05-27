@@ -110,7 +110,7 @@ module.exports = function (app) {
                 break
 
               case 'Remove':
-                await handleRemove(req, res, reader)
+                await handleRemove(req, res, next, reader)
                 break
 
               case 'Delete':
