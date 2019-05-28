@@ -167,6 +167,8 @@ const test = async app => {
 
       await tap.ok(typeof responseDelete, Error)
       await tap.equal(responseDelete.message, 'no tag')
+
+      await Publication_Tag.deletePubTagsOfTag(urlToId(createdTag5.id))
     }
   )
 
@@ -179,13 +181,27 @@ const test = async app => {
 
     const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
+    // Add tag to a publiction
+    await Publication_Tag.addTagToPub(urlToId(publication.id), tagCreated.id)
+
+    // Fetch the publication to make sure there is a tag
+    const pubBefore = await Publication.byId(urlToId(publication.id))
+
+    await tap.equal(pubBefore.tags.length, 1)
+    await tap.equal(pubBefore.tags[0].name, tagCreated.name)
+
+    // Delte the tag
     const numDeleted = await Tag.deleteTag(tagCreated.id)
 
     // Try to fetch the deleted tag from library
     const tagDeleted = await Tag.byId(tagCreated.id)
 
+    // Fetch the publication to make sure there there is no tag
+    const pubAfter = await Publication.byId(urlToId(publication.id))
+
     await tap.equal(numDeleted, 1)
     await tap.ok(!tagDeleted)
+    await tap.equal(pubAfter.tags.length, 0)
   })
 
   await tap.test('Delete tag with an id that does not exist', async () => {

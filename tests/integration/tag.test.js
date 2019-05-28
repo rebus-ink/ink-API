@@ -10,6 +10,8 @@ const {
 const { urlToId } = require('../../utils/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
+const { Note_Tag } = require('../../models/Note_Tag')
+const { Note } = require('../../models/Note')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -716,8 +718,18 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
+    // Add a tag to the note
+    await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
+
+    // Fetch the note with the tag
+    const noteWithTag = await Note.byId(urlToId(noteUrl))
+
+    await tap.equal(noteWithTag.tags.length, 1)
+    await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
     await tap.equal(libraryBefore.body.tags.length, 1)
     await tap.equal(libraryBefore.body.tags[0].name, stack.name)
+    await tap.equal(libraryBefore.body.items[0].tags.length, 1)
+    await tap.equal(libraryBefore.body.items[0].tags[0].name, stack.name)
 
     // Delete the tag
     const res = await request(app)
@@ -752,7 +764,12 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
+    // Get the note afte the modifications
+    const noteWithoutTag = await Note.byId(urlToId(noteUrl))
+
     await tap.equal(libraryAfter.body.tags.length, 0)
+    await tap.equal(libraryAfter.body.items[0].tags.length, 0)
+    await tap.equal(noteWithoutTag.tags.length, 0)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
