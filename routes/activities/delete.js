@@ -69,16 +69,26 @@ const handleDelete = async (req, res, next, reader) => {
     case 'Tag':
       const resultTag = await Tag.deleteTag(urlToId(body.object.id))
       if (resultTag === null || resultTag === 0) {
-        res
-          .status(404)
-          .send(
+        return next(
+          boom.notFound(
             `tag with id ${
               body.object.id
-            } does not exist or has already been deleted`
+            } does not exist or has already been deleted`,
+            { type: 'Tag', id: body.object.id, activity: 'Delete Tag' }
           )
-        break
+        )
       } else if (resultTag instanceof Error || !resultTag) {
         const message = resultTag ? resultTag.message : 'tag deletion failed'
+        if (resultTag.message === 'no tag') {
+          return next(
+            boom.notFound(
+              `tag with id ${
+                body.object.id
+              } does not exist or has already been deleted`,
+              { type: 'Tag', id: body.object.id, activity: 'Delete Tag' }
+            )
+          )
+        }
         res.status(400).send(`delete tag error: ${message}`)
         break
       }
