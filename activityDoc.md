@@ -99,6 +99,38 @@ Possible errors:
 * 400 'create publication error: {message}' - generic error that occured on createPublication. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
+### Edit a Publication
+
+Example:
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Update',
+  object: {
+    type: 'Publication',
+    id: <publicationUrl>,
+    name: <string>,
+    datePublished: <timestamp>,
+    description: <string>,
+    json: <Object>,
+    inLanguage: Array<string>,
+    keywords: Array<string>,
+    author: Array<LinkObjects>,
+    editor: Array<LinkObjects>
+  }
+}
+```
+
+Possible errors:
+
+* 404: 'no publication found with id {id}'
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+* 400 'cannot update {publication} - generic default error.
+
 ### Delete a Publication
 
 Example:
