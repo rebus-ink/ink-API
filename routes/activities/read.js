@@ -1,6 +1,7 @@
 const { ReadActivity } = require('../../models/ReadActivity')
+const boom = require('@hapi/boom')
 
-const handleRead = async (req, res, reader) => {
+const handleRead = async (req, res, next, reader) => {
   const body = req.body
 
   const object = {
@@ -15,7 +16,16 @@ const handleRead = async (req, res, reader) => {
       res.end()
     })
     .catch(err => {
-      res.status(400).send(`create read activity error: ${err.message}`)
+      if (err.message === 'no publication') {
+        return next(
+          boom.notFound(`no publication found with id ${body.context}`, {
+            type: 'Publication',
+            id: body.context,
+            activity: 'Read'
+          })
+        )
+      }
+      return next(boom.badRequest(`create read activity error: ${err.message}`))
     })
 }
 

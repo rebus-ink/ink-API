@@ -4,27 +4,26 @@ const { Activity } = require('../../models/Activity')
 const { Note } = require('../../models/Note')
 const { Tag } = require('../../models/Tag')
 const { urlToId } = require('../../utils/utils')
+const boom = require('@hapi/boom')
 
-const handleDelete = async (req, res, reader) => {
+const handleDelete = async (req, res, next, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'Publication':
       const returned = await Publication.delete(urlToId(body.object.id))
       if (returned === null) {
-        res
-          .status(404)
-          .send(
+        return next(
+          boom.notFound(
             `publication with id ${
               body.object.id
-            } does not exist or has already been deleted`
+            } does not exist or has already been deleted`,
+            {
+              type: 'Publication',
+              id: body.object.id,
+              activity: 'Delete Publication'
+            }
           )
-        break
-      } else if (returned instanceof Error || !returned) {
-        const message = returned
-          ? returned.message
-          : 'publication deletion failed'
-        res.status(400).send(`delete publication error: ${message}`)
-        break
+        )
       }
       const activityObjPub = createActivityObject(body, returned, reader)
       Activity.createActivity(activityObjPub)
@@ -34,25 +33,26 @@ const handleDelete = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
+          return next(
+            boom.badRequest(`create activity error: ${err.message}`, {
+              type: 'Activity',
+              activity: 'Delete Publication'
+            })
+          )
         })
       break
 
     case 'Note':
       const resultNote = await Note.delete(urlToId(body.object.id))
       if (resultNote === null) {
-        res
-          .status(404)
-          .send(
+        return next(
+          boom.notFound(
             `note with id ${
               body.object.id
-            } does not exist or has already been deleted`
+            } does not exist or has already been deleted`,
+            { type: 'Note', id: body.object.id, activity: 'Delete Note' }
           )
-        break
-      } else if (resultNote instanceof Error || !resultNote) {
-        const message = resultNote ? resultNote.message : 'note deletion failed'
-        res.status(400).send(`delete note error: ${message}`)
-        break
+        )
       }
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
@@ -90,13 +90,23 @@ const handleDelete = async (req, res, reader) => {
           res.end()
         })
         .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
+          return next(
+            boom.badRequest(`create activity error: ${err.message}`, {
+              type: 'Activity',
+              activity: 'Delete Note'
+            })
+          )
         })
       break
 
     default:
-      res.status(400).send(`cannot delete ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot delete ${body.object.type}`, {
+          badParams: ['object.type'],
+          type: body.object.type,
+          activity: 'Delete'
+        })
+      )
   }
 }
 

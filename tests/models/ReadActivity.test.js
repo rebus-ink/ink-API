@@ -88,28 +88,18 @@ const test = async app => {
     await tap.equal(readActivity.json, null)
   })
 
-  await tap.test('Create ReadActivity with non-existent readerId', async () => {
-    let readActivity = await ReadActivity.createReadActivity(
-      urlToId(createdReader.id + 'RandomString'),
-      urlToId(publication.id),
-      selectorObject
-    )
-
-    await tap.ok(typeof readActivity, Error)
-    await tap.equal(readActivity.message, 'no reader')
-  })
-
   await tap.test(
     'Create ReadActivity with non-existent publicationId',
     async () => {
-      let readActivity = await ReadActivity.createReadActivity(
-        urlToId(createdReader.id),
-        urlToId(publication.id + 'AnotherRandomString'),
-        selectorObject
-      )
-
-      await tap.ok(typeof readActivity, Error)
-      await tap.equal(readActivity.message, 'no publication')
+      try {
+        await ReadActivity.createReadActivity(
+          urlToId(createdReader.id),
+          urlToId(publication.id + 'AnotherRandomString'),
+          selectorObject
+        )
+      } catch (err) {
+        await tap.equal(err.message, 'no publication')
+      }
     }
   )
 

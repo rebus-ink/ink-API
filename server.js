@@ -172,6 +172,17 @@ noteRoute(app)
 publicationDocumentRoute(app)
 readerNotesRoute(app)
 
+app.use((err, req, res, next) => {
+  if (err) {
+    if (err.data && err.output) err.output.payload.details = err.data
+    if (err.output) {
+      return res.status(err.output.statusCode).json(err.output.payload)
+    } else {
+      return res.status(err.statusCode).json(err.data)
+    }
+  }
+})
+
 app.start = port => {
   app.listen(port, () => console.log('Listening'))
 }

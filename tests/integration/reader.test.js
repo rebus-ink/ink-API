@@ -54,6 +54,30 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
+  await tap.test('Create reader that already exists', async () => {
+    const res = await request(app)
+      .post('/readers')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': 'https://www.w3.org/ns/activitystreams',
+          name: 'Jane Doe'
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Reader')
+  })
+
   // TODO: add test for incomplete reader object (once incoming json is validated)
 
   await tap.test('Whoami route', async () => {
@@ -123,6 +147,12 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Reader')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

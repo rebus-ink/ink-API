@@ -3,8 +3,9 @@ const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
 const { Note } = require('../../models/Note')
 const { createActivityObject } = require('../../utils/utils')
+const boom = require('@hapi/boom')
 
-const handleCreate = async (req, res, reader) => {
+const handleCreate = async (req, res, next, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'Publication':
@@ -28,51 +29,26 @@ const handleCreate = async (req, res, reader) => {
       break
 
     case 'Note':
-      const resultNote = await Note.createNote(reader, body.object)
-
-      if (!resultNote) res.status.send('create note error')
-      if (resultNote instanceof Error) {
-        switch (resultNote.message) {
-          case 'no publication':
-            res
-              .status(404)
-              .send(
-                `note creation failed: no publication found with id ${
-                  body.object.context
-                }`
-              )
-            break
-
-          case 'no document':
-            res
-              .status(404)
-              .send(
-                `note creation failed: no document found with url ${
-                  body.object.inReplyTo
-                }`
-              )
-            break
-
-          case 'wrong publication':
-            res
-              .status(400)
-              .send(
-                `note creation failed: document ${
-                  body.object.inReplyTo
-                } does not belong to publication ${body.object.context}`
-              )
-            break
-
-          default:
-            res.status(400).send(`note creation failed: ${resultNote.message}`)
-            break
+      let resultNote
+      try {
+        resultNote = await Note.createNote(reader, body.object)
+      } catch (err) {
+        if (err.message === 'no document') {
+          return next(
+            boom.notFound(
+              `note creation failed: no document found with url ${
+                body.object.inReplyTo
+              }`,
+              {
+                type: 'Document',
+                id: body.object.inReplyTo,
+                activity: 'Create Note'
+              }
+            )
+          )
         }
-        break
       }
-      if (resultNote instanceof Error || !resultNote) {
-        const message = resultNote ? resultNote.message : 'note creation failed'
-        res.status(400).send(`create note error: ${message}`)
-      }
+
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {

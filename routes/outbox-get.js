@@ -5,6 +5,7 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 // const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
+const boom = require('@hapi/boom')
 
 const utils = require('../utils/utils')
 /**
@@ -74,9 +75,21 @@ module.exports = function (app) {
       Reader.byId(id, '[outbox]')
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${id}`)
+            return next(
+              boom.notFound(`No reader with ID ${id}`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Outbox'
+              })
+            )
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${id} disallowed`)
+            return next(
+              boom.forbidden(`Access to reader ${id} disallowed`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Outbox'
+              })
+            )
           } else {
             res.setHeader(
               'Content-Type',

@@ -102,6 +102,21 @@ const test = async app => {
     }
   })
 
+  await tap.test('Upload without including a file', async () => {
+    const res = await request(app)
+      .post(`${userUrl}/file-upload`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('name', 'files')
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.type, 'file-upload')
+    await tap.equal(error.details.missingParams[0], 'req.files')
+    await tap.equal(error.details.activity, 'Upload File')
+  })
+
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

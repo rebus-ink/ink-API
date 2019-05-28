@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Publication } = require('../models/Publication')
 const utils = require('../utils/utils')
 const { Document } = require('../models/Document')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -42,18 +43,34 @@ module.exports = function (app) {
       Publication.byId(id)
         .then(publication => {
           if (!publication || publication.deleted) {
-            res.status(404).send(`No publication with ID ${id}`)
+            return next(
+              boom.notFound(`No publication with ID ${id}`, {
+                type: 'Publication',
+                id,
+                activity: 'Get File for Publication'
+              })
+            )
           } else if (!utils.checkReader(req, publication.reader)) {
-            res.status(403).send(`Access to publication ${id} disallowed`)
+            return next(
+              boom.forbidden(`Access to publication ${id} disallowed`, {
+                type: 'Publication',
+                id,
+                activity: 'Get File for Publication'
+              })
+            )
           } else {
             return Document.byPath(id, req.params.path)
           }
         })
         .then(document => {
           if (!document) {
-            res
-              .status(404)
-              .send(`No document found with path ${req.params.path}`)
+            return next(
+              boom.notFound(`No document found with path ${req.params.path}`, {
+                type: 'Document',
+                path: req.params.path,
+                activity: 'Get File for Publication'
+              })
+            )
           }
           res.redirect(document.url)
         })

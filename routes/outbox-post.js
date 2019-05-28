@@ -10,6 +10,8 @@ const { handleDelete } = require('./activities/delete')
 const { handleArrive } = require('./activities/arrive')
 const { handleUpdate } = require('./activities/update')
 const { handleRead } = require('./activities/read')
+const boom = require('@hapi/boom')
+const _ = require('lodash')
 
 const utils = require('../utils/utils')
 /**
@@ -77,35 +79,55 @@ module.exports = function (app) {
     Reader.byId(id)
       .then(reader => {
         if (!reader) {
-          res.status(404).send(`No reader with ID ${id}`)
+          return next(
+            boom.notFound(`No reader with ID ${id}`, {
+              type: 'Reader',
+              id,
+              activity: 'Create Activity'
+            })
+          )
         } else if (!utils.checkReader(req, reader)) {
-          res.status(403).send(`Access to reader ${id} disallowed`)
+          return next(
+            boom.forbidden(`Access to reader ${id} disallowed`, {
+              type: 'Reader',
+              id,
+              activity: 'Create Activity'
+            })
+          )
         } else {
           if (!req.is('application/ld+json')) {
-            return next(new Error('Body must be JSON-LD'))
+            return next(
+              boom.badRequest('Body must be JSON-LD', {
+                activity: 'Create Activity'
+              })
+            )
           }
 
           const body = req.body
-          if (typeof body !== 'object') {
-            return next(new Error('Body must be a JSON object'))
+          if (typeof body !== 'object' || _.isEmpty(body)) {
+            return next(
+              boom.badRequest('Body must be a JSON object', {
+                activity: 'Create Activity'
+              })
+            )
           }
 
           const handleActivity = async () => {
             switch (body.type) {
               case 'Create':
-                await handleCreate(req, res, reader)
+                await handleCreate(req, res, next, reader)
                 break
 
               case 'Add':
-                await handleAdd(req, res, reader)
+                await handleAdd(req, res, next, reader)
                 break
 
               case 'Remove':
-                await handleRemove(req, res, reader)
+                await handleRemove(req, res, next, reader)
                 break
 
               case 'Delete':
-                await handleDelete(req, res, reader)
+                await handleDelete(req, res, next, reader)
                 break
 
               case 'Arrive':
@@ -113,15 +135,20 @@ module.exports = function (app) {
                 break
 
               case 'Update':
-                await handleUpdate(req, res, reader)
+                await handleUpdate(req, res, next, reader)
                 break
 
               case 'Read':
-                await handleRead(req, res, reader)
+                await handleRead(req, res, next, reader)
                 break
 
               default:
-                res.status(400).send(`action ${body.type} not recognized`)
+                return next(
+                  boom.badRequest(`action ${body.type} not recognized`, {
+                    badParams: ['body.type'],
+                    activity: 'Create Activity'
+                  })
+                )
             }
           }
           return handleActivity()

@@ -2,15 +2,21 @@ const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
 const { createActivityObject } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
+const boom = require('@hapi/boom')
 
-const handleUpdate = async (req, res, reader) => {
+const handleUpdate = async (req, res, next, reader) => {
   const body = req.body
   switch (body.object.type) {
     case 'Note':
       const resultNote = await Note.update(body.object)
       if (resultNote === null) {
-        res.status(404).send(`no note found with id ${body.object.id}`)
-        break
+        return next(
+          boom.notFound(`no note found with id ${body.object.id}`, {
+            type: 'Note',
+            id: body.object.id,
+            activity: 'Update Note'
+          })
+        )
       }
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
@@ -27,8 +33,13 @@ const handleUpdate = async (req, res, reader) => {
     case 'Publication':
       const resultPub = await Publication.update(body.object)
       if (resultPub === null) {
-        res.status(404).send(`no publication found with id ${body.object.id}`)
-        break
+        return next(
+          boom.notFound(`no publication found with id ${body.object.id}`, {
+            type: 'Publication',
+            id: body.object.id,
+            activity: 'Update Publication'
+          })
+        )
       }
       const activityObjPub = createActivityObject(body, resultPub, reader)
       Activity.createActivity(activityObjPub)
@@ -43,8 +54,13 @@ const handleUpdate = async (req, res, reader) => {
       break
 
     default:
-      res.status(400).send(`cannot update ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot update ${body.object.type}`, {
+          type: body.object.type,
+          activity: 'Update',
+          badParams: ['object.type']
+        })
+      )
   }
 }
 

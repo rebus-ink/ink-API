@@ -3,6 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:whoami')
+const boom = require('@hapi/boom')
 
 module.exports = app => {
   /**
@@ -34,7 +35,13 @@ module.exports = app => {
       Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${req.user}`)
+            return next(
+              boom.notFound(`No reader with ID ${req.user}`, {
+                type: 'Reader',
+                authId: req.user,
+                activity: 'WhoAmI'
+              })
+            )
           } else {
             debug(`Got reader ${JSON.stringify(reader)}`)
             res.setHeader(

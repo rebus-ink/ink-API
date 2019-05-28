@@ -5,6 +5,7 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('../utils/utils')
 const paginate = require('./middleware/paginate')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -125,9 +126,21 @@ module.exports = app => {
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${id}`)
+            return next(
+              boom.notFound(`No reader with ID ${id}`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Notes'
+              })
+            )
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${id} disallowed`)
+            return next(
+              boom.notFound(`Access to reader ${id} disallowed`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Notes'
+              })
+            )
           } else {
             res.setHeader(
               'Content-Type',

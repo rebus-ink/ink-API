@@ -7,6 +7,7 @@ const crypto = require('crypto')
 const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 const storage = new Storage()
 
@@ -58,13 +59,25 @@ module.exports = app => {
     '/publication-:id/file-upload',
     passport.authenticate('jwt', { session: false }),
     m.single('file'),
-    async function (req, res) {
+    async function (req, res, next) {
       const id = req.params.id
       Publication.byId(id).then(async publication => {
         if (!publication) {
-          res.status(404).send(`No publication with ID ${id}`)
+          return next(
+            boom.notFound(`No publication with ID ${id}`, {
+              type: 'Publication',
+              id,
+              activity: 'Upload File to Publication'
+            })
+          )
         } else if (!utils.checkReader(req, publication.reader)) {
-          res.status(403).send(`Access to publication ${id} disallowed`)
+          return next(
+            boom.forbidden(`Access to publication ${id} disallowed`, {
+              type: 'Publication',
+              id,
+              acitivity: 'Upload File to Publication'
+            })
+          )
         } else {
           let prefix =
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
@@ -80,7 +93,13 @@ module.exports = app => {
           }
 
           if (!req.file) {
-            res.status(400).send('no file was included in this upload')
+            return next(
+              boom.badRequest('no file was included in this upload', {
+                type: 'publication-file-upload',
+                missingParams: ['req.file'],
+                activity: 'Upload File to Publication'
+              })
+            )
           } else {
             let document = {
               documentPath: req.body.documentPath,
@@ -104,11 +123,12 @@ module.exports = app => {
             })
 
             stream.on('error', err => {
-              res
-                .status(400)
-                .send(
-                  `error connecting to the google cloud bucket: ${err.message}`
-                )
+              return next(
+                boom.failedDependency(err.message, {
+                  service: 'google bucket',
+                  activity: 'Upload File to Publication'
+                })
+              )
             })
 
             stream.on('finish', () => {

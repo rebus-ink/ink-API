@@ -134,6 +134,39 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
+  await tap.test('Create Note with invalid document url', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Note',
+            'oa:hasSelector': { propety: 'value' },
+            context: publicationUrl,
+            inReplyTo: documentUrl + 'abc',
+            noteType: 'test'
+          }
+        })
+      )
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Document')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Note')
+  })
+
   // TODO: migrate
   // await tap.test(
   //   'Try to create Note with invalid Publication context',
@@ -235,6 +268,12 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Note')
   })
 
   await tap.test('Get Publication with reference to Notes', async () => {
@@ -407,6 +446,12 @@ const test = async app => {
         })
       )
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Update Note')
   })
 
   await tap.test('Delete a Note', async () => {
@@ -467,6 +512,12 @@ const test = async app => {
       )
 
     await tap.equal(getres.statusCode, 404)
+    const error = JSON.parse(getres.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Note')
 
     // note should no longer be attached to publication
     const pubres = await request(app)
@@ -514,6 +565,12 @@ const test = async app => {
       )
 
     await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Note')
 
     const res1 = await request(app)
       .post(`${readerUrl}/activity`)
@@ -537,6 +594,12 @@ const test = async app => {
       )
 
     await tap.equal(res1.statusCode, 404)
+    const error1 = JSON.parse(res1.text)
+    await tap.equal(error1.statusCode, 404)
+    await tap.equal(error1.error, 'Not Found')
+    await tap.equal(error1.details.type, 'Note')
+    await tap.type(error1.details.id, 'string')
+    await tap.equal(error1.details.activity, 'Delete Note')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

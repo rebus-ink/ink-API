@@ -3,6 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -82,9 +83,21 @@ module.exports = app => {
       Reader.byId(req.params.id)
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${req.params.id}`)
+            return next(
+              boom.notFound(`No reader with ID ${req.params.id}`, {
+                type: 'Reader',
+                id: req.params.id,
+                activity: 'Get Reader'
+              })
+            )
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${req.params.id} disallowed`)
+            return next(
+              boom.forbidden(`Access to reader ${req.params.id} disallowed`, {
+                type: 'Reader',
+                id: req.params.id,
+                activity: 'Get Reader'
+              })
+            )
           } else {
             res.setHeader(
               'Content-Type',
