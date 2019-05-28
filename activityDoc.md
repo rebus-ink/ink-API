@@ -99,6 +99,38 @@ Possible errors:
 * 400 'create publication error: {message}' - generic error that occured on createPublication. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
 
+### Edit a Publication
+
+Example:
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Update',
+  object: {
+    type: 'Publication',
+    id: <publicationUrl>,
+    name: <string>,
+    datePublished: <timestamp>,
+    description: <string>,
+    json: <Object>,
+    inLanguage: Array<string>,
+    keywords: Array<string>,
+    author: Array<LinkObjects>,
+    editor: Array<LinkObjects>
+  }
+}
+```
+
+Possible errors:
+
+* 404: 'no publication found with id {id}'
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+* 400 'cannot update {publication} - generic default error.
+
 ### Delete a Publication
 
 Example:
@@ -451,4 +483,28 @@ Possible errors:
 * 404 'no note found with id {id}'
 * 404 'no tag found with id {id}'
 * 400 'remove tag from note error: {message}' - generic error that occured on remove tag from note. Refer to message for more details.
+* 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
+
+### Delete a Tag
+
+Example:
+
+```
+{
+  '@context': [
+    'https://www.w3.org/ns/activitystreams',
+    { reader: 'https://rebus.foundation/ns/reader' }
+  ],
+  type: 'Delete',
+  object: {
+    type: 'Tag',
+    id: <tagUrl>
+  }
+}
+```
+
+Possible errors:
+
+* 404: 'tag with id {id} does not exist or has already been deleted'
+* 400: 'delete tag error: {message}' - generic error taht occured on deleteTag. Refer to message for more details.
 * 400 'create activity error: {message}' - generic error that occured on createActivity. Refer to message for more details.
