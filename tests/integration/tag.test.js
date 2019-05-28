@@ -10,6 +10,8 @@ const {
 const { urlToId } = require('../../utils/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
+const { Note_Tag } = require('../../models/Note_Tag')
+const { Note } = require('../../models/Note')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -650,6 +652,125 @@ const test = async app => {
       await tap.ok(res.error.text.startsWith('no relationship found'))
     }
   )
+
+  await tap.test(
+    'Try to delete a tag with a tagId that does not exist',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Tag',
+              id: stack.id + 'blah'
+            }
+          })
+        )
+
+      await tap.equal(res.statusCode, 404)
+      await tap.ok(res.error.text.startsWith('tag with id'))
+    }
+  )
+
+  await tap.test('Try to delete a tag with a null tagId', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Tag',
+            id: null
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 400)
+    await tap.ok(res.error.text.startsWith('delete tag error'))
+  })
+
+  await tap.test('Delete a tag', async () => {
+    // Get the library before the modifications
+    const libraryBefore = await request(app)
+      .get(`${readerUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    // Add a tag to the note
+    await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
+
+    // Fetch the note with the tag
+    const noteWithTag = await Note.byId(urlToId(noteUrl))
+
+    await tap.equal(noteWithTag.tags.length, 1)
+    await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
+    await tap.equal(libraryBefore.body.tags.length, 1)
+    await tap.equal(libraryBefore.body.tags[0].name, stack.name)
+    await tap.equal(libraryBefore.body.items[0].tags.length, 1)
+    await tap.equal(libraryBefore.body.items[0].tags[0].name, stack.name)
+
+    // Delete the tag
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Tag',
+            id: stack.id
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 204)
+
+    // Get the library after the modifications
+    const libraryAfter = await request(app)
+      .get(`${readerUrl}/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    // Get the note after the modifications
+    const noteWithoutTag = await Note.byId(urlToId(noteUrl))
+
+    await tap.equal(libraryAfter.body.tags.length, 0)
+    await tap.equal(libraryAfter.body.items[0].tags.length, 0)
+    await tap.equal(noteWithoutTag.tags.length, 0)
+  })
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

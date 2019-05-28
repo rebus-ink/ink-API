@@ -240,6 +240,37 @@ const test = async app => {
     await tap.equal(response.message, 'no note')
   })
 
+  await tap.test('Delete all Note_Tags associated with a Tag', async () => {
+    // Create 1 tag, 2 notes, and add this tag to the notes
+    const createdTag = await Tag.createTag(createdReader.id, {
+      type: 'reader:Stack',
+      name: 'another random stack'
+    })
+
+    const anotherNote1 = await Note.createNote(createdReader, noteObject)
+    const anotherNote2 = await Note.createNote(createdReader, noteObject)
+
+    await Note_Tag.addTagToNote(urlToId(anotherNote1.id), createdTag.id)
+    await Note_Tag.addTagToNote(urlToId(anotherNote2.id), createdTag.id)
+
+    // Fetch notes with tags
+    const note1WithTag = await Note.byId(urlToId(anotherNote1.id))
+    const note2WithTag = await Note.byId(urlToId(anotherNote2.id))
+
+    await tap.equal(note1WithTag.tags.length, 1)
+    await tap.equal(note2WithTag.tags.length, 1)
+
+    const numDeleted = await Note_Tag.deleteNoteTagsOfTag(createdTag.id)
+
+    // Fetch the Notes without tags
+    const note1WithoutTag = await Note.byId(urlToId(anotherNote1.id))
+    const note2WithoutTag = await Note.byId(urlToId(anotherNote2.id))
+
+    await tap.equal(numDeleted, 2)
+    await tap.equal(note1WithoutTag.tags.length, 0)
+    await tap.equal(note2WithoutTag.tags.length, 0)
+  })
+
   await tap.test('Remove a valid tag from a valid note', async () => {
     // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
