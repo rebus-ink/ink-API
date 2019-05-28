@@ -856,7 +856,10 @@ const test = async app => {
         )
 
       await tap.equal(res.statusCode, 404)
-      await tap.ok(res.error.text.startsWith('tag with id'))
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.activity, 'Delete Tag')
     }
   )
 
@@ -882,8 +885,11 @@ const test = async app => {
         })
       )
 
-    await tap.equal(res.statusCode, 400)
-    await tap.ok(res.error.text.startsWith('delete tag error'))
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.activity, 'Delete Tag')
   })
 
   await tap.test('Delete a tag', async () => {
