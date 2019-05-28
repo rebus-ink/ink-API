@@ -455,7 +455,7 @@ const test = async app => {
         })
       )
 
-    await tap.equal(res.statusCode, 201)
+    await tap.equal(res.statusCode, 204)
 
     // note should no longer exist
     const getres = await request(app)

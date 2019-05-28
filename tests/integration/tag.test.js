@@ -753,7 +753,7 @@ const test = async app => {
         })
       )
 
-    await tap.equal(res.statusCode, 201)
+    await tap.equal(res.statusCode, 204)
 
     // Get the library after the modifications
     const libraryAfter = await request(app)
@@ -764,7 +764,7 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    // Get the note afte the modifications
+    // Get the note after the modifications
     const noteWithoutTag = await Note.byId(urlToId(noteUrl))
 
     await tap.equal(libraryAfter.body.tags.length, 0)

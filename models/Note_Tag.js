@@ -76,7 +76,7 @@ class Note_Tag extends Model {
   static async deleteNoteTagsOfTag (
     tagId /*: string */
   ) /*: Promise<number|Error> */ {
-    if (!tagId) return new Error('no note')
+    if (!tagId) return new Error('no tag')
 
     return await Note_Tag.query()
       .delete()

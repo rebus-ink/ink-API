@@ -29,7 +29,7 @@ const handleDelete = async (req, res, reader) => {
       const activityObjPub = createActivityObject(body, returned, reader)
       Activity.createActivity(activityObjPub)
         .then(activity => {
-          res.status(201)
+          res.status(204)
           res.set('Location', activity.url)
           res.end()
         })
@@ -57,7 +57,7 @@ const handleDelete = async (req, res, reader) => {
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {
-          res.status(201)
+          res.status(204)
           res.set('Location', activity.url)
           res.end()
         })
@@ -85,7 +85,7 @@ const handleDelete = async (req, res, reader) => {
       const activityObjTag = createActivityObject(body, body.object.id, reader)
       Activity.createActivity(activityObjTag)
         .then(activity => {
-          res.status(201)
+          res.status(204)
           res.set('Location', activity.url)
           res.end()
         })
