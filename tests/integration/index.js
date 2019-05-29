@@ -20,15 +20,18 @@ const allTests = async () => {
       await app.knex.migrate.latest()
     }
   }
-  await activityTests(app)
-  await authErrorTests(app)
-  await libraryTests(app)
-  await outboxTests(app)
-  await publicationTests(app)
-  await readerTests(app)
-  await noteTests(app)
-  await tagTests(app)
-  await readerNotesTests(app)
+
+  const test = process.env.npm_config_test
+
+  if (!test || test === 'activity') await activityTests(app)
+  if (!test || test === 'auth') await authErrorTests(app)
+  if (!test || test === 'library') await libraryTests(app)
+  if (!test || test === 'outbox') await outboxTests(app)
+  if (!test || test === 'publication') await publicationTests(app)
+  if (!test || test === 'reader') await readerTests(app)
+  if (!test || test === 'note') await noteTests(app)
+  if (!test || test === 'tag') await tagTests(app)
+  if (!test || test === 'readerNotes') await readerNotesTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()
