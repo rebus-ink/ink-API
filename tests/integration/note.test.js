@@ -5,7 +5,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl
+  getActivityFromUrl,
+  createPublication
 } = require('../utils/utils')
 const { Document } = require('../../models/Document')
 const { Tag } = require('../../models/Tag')
@@ -24,34 +25,7 @@ const test = async app => {
   let noteUrl
   let activityUrl
 
-  const resActivity = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Publication',
-          name: 'Publication A',
-          author: ['John Smith'],
-          editor: 'Jane Doe',
-          description: 'this is a description!!',
-          links: [{ property: 'value' }],
-          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-          resources: [{ property: 'value' }],
-          json: { property: 'value' }
-        }
-      })
-    )
-
+  const resActivity = await createPublication(app, token, readerUrl)
   const pubActivityUrl = resActivity.get('Location')
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
   const publicationUrl = pubActivityObject.object.id

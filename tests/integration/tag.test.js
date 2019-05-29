@@ -5,7 +5,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl
+  getActivityFromUrl,
+  createPublication
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
 const { Document } = require('../../models/Document')
@@ -29,71 +30,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const resActivity = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Publication',
-          name: 'Publication A',
-          author: ['John Smith'],
-          editor: 'Jane Doe',
-          description: 'this is a description!!',
-          links: [
-            {
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              href: 'http://example.org/abc',
-              hreflang: 'en',
-              mediaType: 'text/html',
-              name: 'An example link'
-            }
-          ],
-          readingOrder: [
-            {
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              href: 'http://example.org/abc',
-              hreflang: 'en',
-              mediaType: 'text/html',
-              name: 'An example reading order object1'
-            },
-            {
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              href: 'http://example.org/abc',
-              hreflang: 'en',
-              mediaType: 'text/html',
-              name: 'An example reading order object2'
-            },
-            {
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              href: 'http://example.org/abc',
-              hreflang: 'en',
-              mediaType: 'text/html',
-              name: 'An example reading order object3'
-            }
-          ],
-          resources: [
-            {
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              href: 'http://example.org/abc',
-              hreflang: 'en',
-              mediaType: 'text/html',
-              name: 'An example resource'
-            }
-          ],
-          json: { property: 'value' }
-        }
-      })
-    )
+  const resActivity = await createPublication(app, token, readerUrl)
 
   const pubActivityUrl = resActivity.get('Location')
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)

@@ -5,7 +5,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl
+  getActivityFromUrl,
+  createPublication
 } = require('../utils/utils')
 const app = require('../../server').app
 
@@ -18,43 +19,8 @@ const test = async () => {
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
 
-  const publicationDate = new Date(2002, 12, 25).toISOString()
-
-  const createPublication = async (
-    title,
-    author = ['John Smith'],
-    editor = 'Jane Doe',
-    datePublished = publicationDate
-  ) => {
-    return await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'Publication',
-            name: title,
-            author: author,
-            editor: editor,
-            description: 'this is a description!!',
-            keywords: 'one, two',
-            datePublished: datePublished,
-            links: [{ property: 'value' }],
-            readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-            resources: [{ property: 'value' }],
-            json: { property: 'value' }
-          }
-        })
-      )
+  const createPublicationSimplified = async object => {
+    return await createPublication(app, token, readerUrl, object)
   }
 
   await tap.test('Get empty library', async () => {
@@ -144,7 +110,7 @@ const test = async () => {
   await tap.test('filter library by collection', async () => {
     // add more publications
     // publication 2
-    const pubBres = await createPublication('Publication 2')
+    const pubBres = await createPublicationSimplified({ name: 'Publication 2' })
 
     const pubActivityUrl = pubBres.get('Location')
     const pubActivityObject = await getActivityFromUrl(
@@ -155,7 +121,7 @@ const test = async () => {
     const publication = pubActivityObject.object
 
     // publication 3
-    await createPublication('Publication 3')
+    await createPublicationSimplified({ name: 'Publication 3' })
 
     // create a stack
     const stackRes = await request(app)
@@ -228,16 +194,16 @@ const test = async () => {
 
   await tap.test('paginate library', async () => {
     // add more publications
-    await createPublication('Publication 4')
-    await createPublication('Publication 5')
-    await createPublication('Publication 6')
-    await createPublication('Publication 7')
-    await createPublication('Publication 8')
-    await createPublication('Publication 9')
-    await createPublication('Publication 10')
-    await createPublication('Publication 11')
-    await createPublication('Publication 12')
-    await createPublication('Publication 13')
+    await createPublicationSimplified({ name: 'Publication 4' })
+    await createPublicationSimplified({ name: 'Publication 5' })
+    await createPublicationSimplified({ name: 'Publication 6' })
+    await createPublicationSimplified({ name: 'Publication 7' })
+    await createPublicationSimplified({ name: 'Publication 8' })
+    await createPublicationSimplified({ name: 'Publication 9' })
+    await createPublicationSimplified({ name: 'Publication 10' })
+    await createPublicationSimplified({ name: 'Publication 11' })
+    await createPublicationSimplified({ name: 'Publication 12' })
+    await createPublicationSimplified({ name: 'Publication 13' })
 
     // get library with pagination
     const res = await request(app)
@@ -307,8 +273,8 @@ const test = async () => {
   })
 
   await tap.test('filter library by title', async () => {
-    await createPublication('superbook')
-    await createPublication('Super great book!')
+    await createPublicationSimplified({ name: 'superbook' })
+    await createPublicationSimplified({ name: 'Super great book!' })
 
     const res = await request(app)
       .get(`${readerUrl}/library?title=super`)
@@ -358,9 +324,19 @@ const test = async () => {
   })
 
   await tap.test('filter library by attribution', async () => {
-    await createPublication('new book 1', 'John Doe')
-    await createPublication('new book 2', `jo H. n'dOe`)
-    await createPublication('new book 3', 'John Smith', 'John doe')
+    await createPublicationSimplified({
+      name: 'new book 1',
+      author: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 2',
+      author: `jo H. n'dOe`
+    })
+    await createPublicationSimplified({
+      name: 'new book 3',
+      author: 'John Smith',
+      editor: 'John doe'
+    })
 
     const res = await request(app)
       .get(`${readerUrl}/library?attribution=John%20Doe`)
@@ -405,18 +381,66 @@ const test = async () => {
     await tap.equal(res1.body.items.length, 3)
 
     // should work with limit
-    await createPublication('new book 4', 'Jane Smith', 'John Doe')
-    await createPublication('new book 5', 'Jane Smith', 'John Doe')
-    await createPublication('new book 6', 'Jane Smith', 'John Doe')
-    await createPublication('new book 7', 'Jane Smith', 'John Doe')
-    await createPublication('new book 8', 'Jane Smith', 'John Doe')
-    await createPublication('new book 9', 'Jane Smith', 'John Doe')
-    await createPublication('new book 10', 'Jane Smith', 'John Doe')
-    await createPublication('new book 11', 'Jane Smith', 'John Doe')
-    await createPublication('new book 12', 'Jane Smith', 'John Doe')
-    await createPublication('new book 13', 'Jane Smith', 'John Doe')
-    await createPublication('new book 14', 'Jane Smith', 'John Doe')
-    await createPublication('new book 15', 'Jane Smith', 'John Doe')
+    await createPublicationSimplified({
+      name: 'new book 4',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 5',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 6',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 7',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 8',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 9',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 10',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 11',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 12',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 13',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 14',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
+    await createPublicationSimplified({
+      name: 'new book 15',
+      author: 'Jane Smith',
+      editor: 'John Doe'
+    })
 
     const res2 = await request(app)
       .get(`${readerUrl}/library?attribution=John%20Doe`)
@@ -548,15 +572,15 @@ const test = async () => {
   })
 
   await tap.test('order library by title', async () => {
-    await createPublication('BBBB')
-    await createPublication('AAAA')
-    await createPublication('aabb')
-    await createPublication('ffff')
-    await createPublication('ffaa')
-    await createPublication('abc')
-    await createPublication('ccccc', 'anonymous')
-    await createPublication('zzz', 'Anonymous')
-    await createPublication('XXXX', 'anonyMOUS')
+    await createPublicationSimplified({ name: 'BBBB' })
+    await createPublicationSimplified({ name: 'AAAA' })
+    await createPublicationSimplified({ name: 'aabb' })
+    await createPublicationSimplified({ name: 'ffff' })
+    await createPublicationSimplified({ name: 'ffaa' })
+    await createPublicationSimplified({ name: 'abc' })
+    await createPublicationSimplified({ name: 'ccccc', author: 'anonymous' })
+    await createPublicationSimplified({ name: 'zzz', author: 'Anonymous' })
+    await createPublicationSimplified({ name: 'XXXX', author: 'anonyMOUS' })
 
     const res = await request(app)
       .get(`${readerUrl}/library?orderBy=title`)
@@ -665,48 +689,48 @@ const test = async () => {
   })
 
   await tap.test('order by date published', async () => {
-    await createPublication(
-      'pub1 ggg',
-      'someone',
-      'someone else',
-      new Date(2011, 3, 20).toISOString()
-    )
-    await createPublication(
-      'pub2',
-      'someone new',
-      'someone else',
-      new Date(2012, 3, 20).toISOString()
-    )
-    await createPublication(
-      'pub3',
-      'someone',
-      'someone else',
-      new Date(2001, 3, 20).toISOString()
-    )
-    await createPublication(
-      'pub4 ggg',
-      'someone new',
-      'someone else',
-      new Date(1011, 3, 20).toISOString()
-    )
-    await createPublication(
-      'pub5',
-      'someone',
-      'someone else',
-      new Date(2016, 3, 20).toISOString()
-    )
-    await createPublication(
-      'pub6',
-      'someone new',
-      'someone else',
-      new Date(2012, 1, 20).toISOString()
-    )
-    await createPublication(
-      'pub7',
-      'someone',
-      'someone new',
-      new Date(2011, 3, 22).toISOString()
-    )
+    await createPublicationSimplified({
+      name: 'pub1 ggg',
+      author: 'someone',
+      editor: 'someone else',
+      datePublished: new Date(2011, 3, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub2',
+      author: 'someone new',
+      editor: 'someone else',
+      datePublished: new Date(2012, 3, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub3',
+      author: 'someone',
+      editor: 'someone else',
+      datePublished: new Date(2001, 3, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub4 ggg',
+      author: 'someone new',
+      editor: 'someone else',
+      datePublished: new Date(1011, 3, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub5',
+      author: 'someone',
+      editor: 'someone else',
+      datePublished: new Date(2016, 3, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub6',
+      author: 'someone new',
+      editor: 'someone else',
+      datePublished: new Date(2012, 1, 20).toISOString()
+    })
+    await createPublicationSimplified({
+      name: 'pub7',
+      author: 'someone',
+      editor: 'someone new',
+      datePublished: new Date(2011, 3, 22).toISOString()
+    })
 
     const res = await request(app)
       .get(`${readerUrl}/library?orderBy=datePublished`)
