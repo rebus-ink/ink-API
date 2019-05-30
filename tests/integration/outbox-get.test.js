@@ -13,7 +13,7 @@ const test = async app => {
   const readerUrl = urlparse(readerId).path
 
   // create activity
-  const createActivityResponse = await request(app)
+  await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)

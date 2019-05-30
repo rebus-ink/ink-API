@@ -10,9 +10,6 @@ const {
   createNote
 } = require('../utils/utils')
 const { Document } = require('../../models/Document')
-const { Tag } = require('../../models/Tag')
-const { Note_Tag } = require('../../models/Note_Tag')
-const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {

@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const { getToken, destroyDB } = require('../utils/utils')
 
 const test = async app => {
@@ -12,7 +11,6 @@ const test = async app => {
   // to avoid duplicate tokens:
   await new Promise(_func => setTimeout(_func, 50))
   const token2 = getToken()
-  let readerUrl
 
   await tap.test('Create Reader', async () => {
     const res = await request(app)

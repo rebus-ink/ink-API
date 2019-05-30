@@ -10,8 +10,6 @@ const {
 } = require('../utils/utils')
 const _ = require('lodash')
 
-const { Reader } = require('../../models/Reader')
-
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()

@@ -1,17 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const {
-  getToken,
-  createUser,
-  destroyDB,
-  getActivityFromUrl,
-  createPublication
-} = require('../utils/utils')
-const { Document } = require('../../models/Document')
-const { Reader } = require('../../models/Reader')
-const { ReadActivity } = require('../../models/ReadActivity')
-const { urlToId } = require('../../utils/utils')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -21,42 +11,6 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
-  let activityUrl
-
-  // Create Reader object
-  const person = {
-    name: 'J. Random Reader'
-  }
-  const reader1 = await Reader.createReader(readerId, person)
-
-  // Create Publication
-  const resActivity = await createPublication(app, token, readerUrl)
-
-  const activityUrl2 = resActivity.get('Location')
-  const activityObject = await getActivityFromUrl(app, activityUrl2, token)
-  const publicationUrl = activityObject.object.id
-
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  // Create Document
-  const documentObject = {
-    mediaType: 'txt',
-    url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: '/inside/the/book.txt',
-    json: { property1: 'value1' }
-  }
-
-  const document = await Document.createDocument(
-    reader1,
-    resPublication.body.id,
-    documentObject
-  )
 
   await tap.test('Create Activity', async () => {
     const res = await request(app)

@@ -9,9 +9,6 @@ const {
   createPublication
 } = require('../utils/utils')
 const { Document } = require('../../models/Document')
-const { Tag } = require('../../models/Tag')
-const { Note_Tag } = require('../../models/Note_Tag')
-const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
@@ -22,8 +19,6 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
-  let noteUrl
-  let activityUrl
 
   const resActivity = await createPublication(app, token, readerUrl)
   const pubActivityUrl = resActivity.get('Location')

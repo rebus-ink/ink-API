@@ -8,13 +8,8 @@ const {
   getActivityFromUrl,
   createPublication
 } = require('../utils/utils')
-const _ = require('lodash')
 const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
-const { Document } = require('../../models/Document')
-const { Reader } = require('../../models/Reader')
-const { Tag } = require('../../models/Tag')
-const { Publication_Tag } = require('../../models/Publications_Tags')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

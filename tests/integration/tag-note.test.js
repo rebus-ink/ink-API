@@ -12,8 +12,6 @@ const {
 const { urlToId } = require('../../utils/utils')
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
-const { Note_Tag } = require('../../models/Note_Tag')
-const { Note } = require('../../models/Note')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {

@@ -6,14 +6,9 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication,
-  createNote
+  createPublication
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
-const { Document } = require('../../models/Document')
-const { Reader } = require('../../models/Reader')
-const { Note_Tag } = require('../../models/Note_Tag')
-const { Note } = require('../../models/Note')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -24,51 +19,14 @@ const test = async app => {
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
 
-  // Create Reader object
-  const person = {
-    name: 'J. Random Reader'
-  }
-  const reader1 = await Reader.createReader(readerId, person)
-
   const resActivity = await createPublication(app, token, readerUrl)
 
   const pubActivityUrl = resActivity.get('Location')
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
   const publication = pubActivityObject.object
 
-  // Create a Document for that publication
-  const documentObject = {
-    mediaType: 'txt',
-    url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: '/inside/the/book.txt',
-    json: { property1: 'value1' }
-  }
-  const document = await Document.createDocument(
-    reader1,
-    publication.id,
-    documentObject
-  )
-
-  const documentUrl = `${publication.id}${document.documentPath}`
-
-  // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl, {
-    inReplyTo: documentUrl,
-    context: publication.id
-  })
-
-  // get the urls needed for the tests
-  const noteActivityUrl = noteActivity.get('Location')
-
-  const noteActivityObject = await getActivityFromUrl(
-    app,
-    noteActivityUrl,
-    token
-  )
-  const noteUrl = noteActivityObject.object.id
-
   // create Tag
-  const createTagRes = await request(app)
+  await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)

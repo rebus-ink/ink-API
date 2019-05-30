@@ -1,19 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const {
-  getToken,
-  createUser,
-  destroyDB,
-  getActivityFromUrl
-} = require('../utils/utils')
-const _ = require('lodash')
-const { urlToId } = require('../../utils/utils')
-const { Attribution } = require('../../models/Attribution')
-const { Document } = require('../../models/Document')
-const { Reader } = require('../../models/Reader')
-const { Tag } = require('../../models/Tag')
-const { Publication_Tag } = require('../../models/Publications_Tags')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -23,16 +11,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
-
-  // Create Reader object
-  const person = {
-    name: 'J. Random Reader'
-  }
-
-  const reader1 = await Reader.createReader(readerCompleteUrl, person)
-
-  let publicationUrl
-  let activityUrl
 
   const now = new Date().toISOString()
 

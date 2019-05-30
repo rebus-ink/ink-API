@@ -37,27 +37,6 @@ const test = async app => {
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     )
 
-  // create another publication
-  const resActivity2 = await createPublication(app, token, readerUrl, {
-    name: 'Publication B'
-  })
-
-  const pubActivityUrl2 = resActivity2.get('Location')
-  const pubActivityObject2 = await getActivityFromUrl(
-    app,
-    pubActivityUrl2,
-    token
-  )
-  const publicationUrl2 = pubActivityObject2.object.id
-
-  const resPublication2 = await request(app)
-    .get(urlparse(publicationUrl2).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
   // creating a document - this will not be exposed to the readers. It will be done as part of the upload
   const createdDocument = await Document.createDocument(
     { id: urlToId(readerId) },
@@ -69,19 +48,7 @@ const test = async app => {
     }
   )
 
-  // creating a second document
-  const createdDocument2 = await Document.createDocument(
-    { id: urlToId(readerId) },
-    urlToId(resPublication2.body.id),
-    {
-      documentPath: '/path/2',
-      mediaType: 'text/html',
-      url: 'http://something/124'
-    }
-  )
-
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-  const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
