@@ -7,7 +7,52 @@ const boom = require('@hapi/boom')
 const handleRemove = async (req, res, next, reader) => {
   const body = req.body
 
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot remove without an object`, {
+        missingParams: ['object'],
+        activity: 'Remove'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot remove without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Remove'
+      })
+    )
+  }
+
+  if (!body.target) {
+    return next(
+      boom.badRequest(`cannot remove without a target`, {
+        missingParams: ['target'],
+        activity: 'Remove'
+      })
+    )
+  }
+
+  if (!body.target.type) {
+    return next(
+      boom.badRequest(`cannot remove without a target type`, {
+        missingParams: ['target.type'],
+        activity: 'Remove'
+      })
+    )
+  }
+
   let resultStack
+  if (body.object.type !== 'reader:Stack') {
+    return next(
+      boom.badRequest(`cannot remove ${body.object.type}`, {
+        badParams: ['object.type'],
+        activity: 'Remove',
+        type: body.object.type
+      })
+    )
+  }
 
   // Determine where the Tag is removed from
   if (body.target.type === 'Publication') {
@@ -19,6 +64,14 @@ const handleRemove = async (req, res, next, reader) => {
     resultStack = await Note_Tag.removeTagFromNote(
       body.target.id,
       body.object.id
+    )
+  } else {
+    return next(
+      boom.badRequest(`cannot remove ${body.target.type}`, {
+        badParams: ['target.type'],
+        activity: 'Remove',
+        type: body.target.type
+      })
     )
   }
 

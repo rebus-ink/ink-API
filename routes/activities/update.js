@@ -6,6 +6,25 @@ const boom = require('@hapi/boom')
 
 const handleUpdate = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot update without an object`, {
+        missingParams: ['object'],
+        activity: 'Update'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot update without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Update'
+      })
+    )
+  }
+
   switch (body.object.type) {
     case 'Note':
       const resultNote = await Note.update(body.object)

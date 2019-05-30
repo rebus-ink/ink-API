@@ -7,6 +7,25 @@ const boom = require('@hapi/boom')
 
 const handleCreate = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot create without an object`, {
+        missingParams: ['object'],
+        activity: 'Create'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot create without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Create'
+      })
+    )
+  }
+
   switch (body.object.type) {
     case 'Publication':
       const resultPub = await Publication.createPublication(reader, body.object)
@@ -90,8 +109,13 @@ const handleCreate = async (req, res, next, reader) => {
       break
 
     default:
-      res.status(400).send(`cannot create ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot create ${body.object.type}`, {
+          badParams: ['object.type'],
+          type: body.object.type,
+          activity: 'Create'
+        })
+      )
   }
 }
 

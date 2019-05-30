@@ -214,7 +214,7 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.details.badParams[0], 'object.type')
-      await tap.equal(error.details.activity, 'Add Tag to SomethingInvalid')
+      await tap.equal(error.details.activity, 'Add')
     }
   )
 

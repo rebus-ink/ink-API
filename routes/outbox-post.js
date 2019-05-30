@@ -112,6 +112,15 @@ module.exports = function (app) {
             )
           }
 
+          if (!body.type) {
+            return next(
+              boom.badRequest('Activity must have a type', {
+                activity: 'Create Activity',
+                missingParams: ['type']
+              })
+            )
+          }
+
           const handleActivity = async () => {
             switch (body.type) {
               case 'Create':
