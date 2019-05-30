@@ -144,10 +144,44 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     )
 }
 
+const createNote = async (app, token, readerUrl, object = {}) => {
+  const noteObject = Object.assign(
+    {
+      type: 'Note',
+      content: 'test content',
+      'oa:hasSelector': { propety: 'value' },
+      context: '',
+      inReplyTo: '',
+      noteType: 'test',
+      json: { property1: 'value1' }
+    },
+    object
+  )
+
+  return await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Create',
+        object: noteObject
+      })
+    )
+}
+
 module.exports = {
   getToken,
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication
+  createPublication,
+  createNote
 }
