@@ -69,13 +69,17 @@ class Reader extends BaseModel {
         } else {
           builder.orderBy('name')
         }
-      }
-
-      if (filter.orderBy === 'datePublished') {
+      } else if (filter.orderBy === 'datePublished') {
         if (filter.reverse) {
           builder.orderByRaw('"datePublished" NULLS FIRST')
         } else {
           builder.orderByRaw('"datePublished" DESC NULLS LAST')
+        }
+      } else {
+        if (filter.reverse) {
+          builder.orderBy('updated')
+        } else {
+          builder.orderBy('updated', 'desc')
         }
       }
     }
