@@ -51,7 +51,7 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
-  await tap.test('Create reader that already exists', async () => {
+  await tap.test('Try to create Reader that already exists', async () => {
     const res = await request(app)
       .post('/readers')
       .set('Host', 'reader-api.test')

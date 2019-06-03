@@ -134,7 +134,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'deleted note should no longer be attached to publication',
+    'Deleted Note should no longer be attached to publication',
     async () => {
       // note should no longer be attached to publication
       const pubres = await request(app)
@@ -160,7 +160,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'deleted note should no longer show up in a list of the reader notes',
+    'Deleted Note should no longer show up in a list of the reader notes',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/notes`)
@@ -206,7 +206,7 @@ const test = async app => {
     await tap.equal(error1.details.activity, 'Delete Note')
   })
 
-  await tap.test('try to delete a note that was already deleted', async () => {
+  await tap.test('Try to delete a Note that was already deleted', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')

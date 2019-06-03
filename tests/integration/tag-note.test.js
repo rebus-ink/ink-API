@@ -88,7 +88,7 @@ const test = async app => {
       })
     )
 
-  // get tag object by fetching the library
+  // get Tag object by fetching the library
   const libraryRes = await request(app)
     .get(`${readerUrl}/library`)
     .set('Host', 'reader-api.test')
@@ -99,7 +99,7 @@ const test = async app => {
 
   const stack = libraryRes.body.tags[0]
 
-  await tap.test('Assign note to tag', async () => {
+  await tap.test('Assign Note to Tag', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -137,7 +137,7 @@ const test = async app => {
     await tap.equal(body.tags[0].name, 'mystack')
   })
 
-  await tap.test('Try to assign note to tag with invalid tag', async () => {
+  await tap.test('Try to assign Note to invalid Tag', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -163,7 +163,7 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Add Tag to Note')
   })
 
-  await tap.test('Try to assign note to tag with invalid note', async () => {
+  await tap.test('Try to assign Note to Tag with invalid Note', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -190,7 +190,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'try to assign a tag to an invalid type of object',
+    'Try to assign a Tag to an invalid type of object',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -218,7 +218,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('remove tag from note', async () => {
+  await tap.test('Remove Tag from Note', async () => {
     const note = await request(app)
       .get(urlparse(noteUrl).path)
       .set('Host', 'reader-api.test')
@@ -268,7 +268,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to remove a tag from a note with invalid tag',
+    'Try to remove a Tag from a Note with invalid Tag',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -297,7 +297,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a note with invalid note',
+    'Try to remove a Tag from a Note with invalid Note',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -326,7 +326,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a note with undefined note',
+    'Try to remove a Tag from a Note with undefined Note',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -355,7 +355,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a note with undefined tag',
+    'Try to remove a Tag from a Note with undefined Tag',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)

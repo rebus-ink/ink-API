@@ -57,7 +57,7 @@ const test = async app => {
     await tap.equal(body.json.something, '!!!!')
   })
 
-  await tap.test('get reader by readerId', async () => {
+  await tap.test('Get Reader by readerId', async () => {
     const res = await request(app)
       .get(urlparse(readerUrl).path)
       .set('Host', 'reader-api.test')
@@ -85,7 +85,7 @@ const test = async app => {
     await tap.equal(body.json.something, '!!!!')
   })
 
-  await tap.test('Get Reader that does not exist', async () => {
+  await tap.test('Try to get Reader that does not exist', async () => {
     const res = await request(app)
       .get(urlparse(readerUrl).path + 'abc')
       .set('Host', 'reader-api.test')

@@ -117,7 +117,7 @@ const test = async app => {
 
   // --------------------------------------------- PUBLICATION -----------------------------------
 
-  await tap.test('Get all notes for a reader filtered by pub', async () => {
+  await tap.test('Filter Notes by Publication', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
@@ -179,7 +179,7 @@ const test = async app => {
     inReplyTo: documentUrl2
   }) // 13
 
-  await tap.test('Filter notes by publication, with pagination', async () => {
+  await tap.test('Filter Notes by Publication with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
@@ -217,7 +217,7 @@ const test = async app => {
     await tap.equal(res4.body.items.length, 2)
   })
 
-  await tap.test('Filter notes by nonexistant publication', async () => {
+  await tap.test('Filter Notes by nonexistant Publication', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?publication=${publicationUrl2}abc`)
       .set('Host', 'reader-api.test')
@@ -235,7 +235,7 @@ const test = async app => {
 
   // ----------------------------------------- DOCUMENT ----------------------------------------------------
 
-  await tap.test('filter notes by documentUrl', async () => {
+  await tap.test('Filter Notes by documentUrl', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?document=${documentUrl2}`)
       .set('Host', 'reader-api.test')
@@ -249,7 +249,7 @@ const test = async app => {
     await tap.equal(res.body.items.length, 10)
   })
 
-  await tap.test('Filter notes by documentUrl with pagination', async () => {
+  await tap.test('Filter Notes by documentUrl with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
       .set('Host', 'reader-api.test')
@@ -263,7 +263,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 3)
   })
 
-  await tap.test('Filter notes by a nonexistant documentUrl', async () => {
+  await tap.test('Filter Notes by a nonexistant documentUrl', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?document=${documentUrl2}abc`)
       .set('Host', 'reader-api.test')
@@ -292,7 +292,7 @@ const test = async app => {
 
   await createNoteSimplified({ noteType: 'new' })
 
-  await tap.test('filter notes by noteType', async () => {
+  await tap.test('Filter Notes by noteType', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?type=new`)
       .set('Host', 'reader-api.test')
@@ -322,7 +322,7 @@ const test = async app => {
 
   // ------------------------------------ SEARCH NOTE CONTENT ----------------------------------
 
-  await tap.test('search note content', async () => {
+  await tap.test('Search Note content', async () => {
     await createNoteSimplified({
       noteType: 'test',
       content: 'this string contains abc and other things'
@@ -371,7 +371,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 2)
   })
 
-  await tap.test('Search Notes and filter by note type', async () => {
+  await tap.test('Search Notes and filter by noteType', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?search=abc&type=test2`)
       .set('Host', 'reader-api.test')
@@ -385,7 +385,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 1)
   })
 
-  await tap.test('Search Notes and filter by document', async () => {
+  await tap.test('Search Notes and filter by Document', async () => {
     const res3 = await request(app)
       .get(`${readerUrl}/notes?search=abc&document=${documentUrl}`)
       .set('Host', 'reader-api.test')

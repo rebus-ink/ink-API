@@ -73,7 +73,7 @@ const test = async app => {
     await tap.equal(body.items.length, 0)
   })
 
-  await tap.test('Get all notes for a reader', async () => {
+  await tap.test('Get all notes for a Reader', async () => {
     // create more notes
     await createNoteSimplified({ content: 'first' })
     await createNoteSimplified({ content: 'second' })
@@ -95,7 +95,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'try to get notes for a reader that does not exist',
+    'Try to get Notes for a reader that does not exist',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}abc/notes`)

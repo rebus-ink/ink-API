@@ -68,7 +68,7 @@ const test = async app => {
     await tap.equal(body.actor.type, 'Person')
   })
 
-  await tap.test('Get Activity that does not exist', async () => {
+  await tap.test('Try to get Activity that does not exist', async () => {
     const res = await request(app)
       .get(urlparse(activityUrl).path + 'abc')
       .set('Host', 'reader-api.test')

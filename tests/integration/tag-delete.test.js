@@ -102,7 +102,7 @@ const test = async app => {
   const stack = libraryRes.body.tags[0]
 
   await tap.test(
-    'Try to delete a tag with a tagId that does not exist',
+    'Try to delete a Tag with a tagId that does not exist',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -133,7 +133,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('Try to delete a tag with a null tagId', async () => {
+  await tap.test('Try to delete a Tag with a null tagId', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -162,7 +162,7 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Delete Tag')
   })
 
-  await tap.test('Delete a tag', async () => {
+  await tap.test('Delete a Tag', async () => {
     // Get the library before the modifications
     const libraryBefore = await request(app)
       .get(`${readerUrl}/library`)
@@ -223,7 +223,7 @@ const test = async app => {
     await tap.equal(noteWithoutTag.tags.length, 0)
   })
 
-  await tap.test('Try to delete a tag that was already deleted', async () => {
+  await tap.test('Try to delete a Tag that was already deleted', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')

@@ -103,7 +103,7 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
-  await tap.test('Try to create activity for non-existant reader', async () => {
+  await tap.test('Try to create Activity for non-existant reader', async () => {
     const res = await request(app)
       .post(`${readerUrl}abc/activity`)
       .set('Host', 'reader-api.test')
@@ -152,7 +152,7 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Activity')
   })
 
-  await tap.test('Try to create activity without a body', async () => {
+  await tap.test('Try to create Activity without a body', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -169,7 +169,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to create activity with invalid activity type',
+    'Try to create Activity with invalid activity type',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -220,7 +220,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to create activity without an activity type',
+    'Try to create Activity without an activity type',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -271,7 +271,7 @@ const test = async app => {
 
   // -------------------------DELETE----------------------------------------
 
-  await tap.test('Try to Delete something that is not valid', async () => {
+  await tap.test('Try to Delete with invalid object type', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -301,7 +301,7 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Delete')
   })
 
-  await tap.test('Try to Delete with an object that has no type', async () => {
+  await tap.test('Try to Delete an object that has no type', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -358,7 +358,7 @@ const test = async app => {
 
   // --------------------------------------UPDATE-------------------------------------
 
-  await tap.test('Try to Update something that is not valid', async () => {
+  await tap.test('Try to Update with an invalid object type', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -445,7 +445,7 @@ const test = async app => {
 
   // -------------------------------------CREATE-----------------------------------
 
-  await tap.test('Try to Create something that is not valid', async () => {
+  await tap.test('Try to Create with an invalid object type', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')

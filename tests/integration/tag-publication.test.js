@@ -59,7 +59,7 @@ const test = async app => {
 
   const stack = libraryRes.body.tags[0]
 
-  await tap.test('Assign publication to tag', async () => {
+  await tap.test('Assign Publication to Tag', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -98,7 +98,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to assign publication to tag with invalid tag',
+    'Try to assign Publication to Tag with invalid Tag',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -127,7 +127,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to assign publication to tag with invalid publication',
+    'Try to assign Publication to Tag with invalid Publication',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -155,7 +155,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('remove tag from publication', async () => {
+  await tap.test('Remove Tag from Publication', async () => {
     const pubresbefore = await request(app)
       .get(urlparse(publication.id).path)
       .set('Host', 'reader-api.test')
@@ -205,7 +205,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to remove a tag from a publication with invalid tag',
+    'Try to remove a Tag from a Publication with invalid Tag',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -234,7 +234,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a publication with invalid publication',
+    'Try to remove a Tag from a Publication with invalid Publication',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -263,7 +263,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a publication with undefined tag',
+    'Try to remove a Tag from a Publication with undefined Tag',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -292,7 +292,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to remove a tag from a publication with undefined publication',
+    'Try to remove a Tag from a Publication with undefined Publication',
     async () => {
       const res = await request(app)
         .post(`${readerUrl}/activity`)
@@ -320,7 +320,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('Try to assign publication to tag twice', async () => {
+  await tap.test('Try to assign Publication to Tag twice', async () => {
     await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')

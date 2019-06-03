@@ -72,7 +72,7 @@ const test = async app => {
   await createNoteSimplified() // 12
   await createNoteSimplified() // 13
 
-  await tap.test('get notes - paginated by default to 10', async () => {
+  await tap.test('Get Notes - paginated by default to 10', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes`)
       .set('Host', 'reader-api.test')
@@ -86,7 +86,7 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 10)
   })
 
-  await tap.test('get notes - paginated with limit', async () => {
+  await tap.test('Get Notes - paginated with limit', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?limit=12`)
       .set('Host', 'reader-api.test')
@@ -100,7 +100,7 @@ const test = async app => {
     await tap.equal(res.body.items.length, 12)
   })
 
-  await tap.test('get notes - paginated with page', async () => {
+  await tap.test('Get Notes - paginated with page', async () => {
     const res3 = await request(app)
       .get(`${readerUrl}/notes?page=2`)
       .set('Host', 'reader-api.test')
@@ -114,7 +114,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
   })
 
-  await tap.test('get notes - paginated with limit and page', async () => {
+  await tap.test('Get Notes - paginated with limit and page', async () => {
     const res4 = await request(app)
       .get(`${readerUrl}/notes?limit=11&page=2`)
       .set('Host', 'reader-api.test')
@@ -129,7 +129,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'get notes - paginate with page to an empty page',
+    'Get Notes - paginate with page to an empty page',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/notes?page=3`)
@@ -146,7 +146,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'get notes - limit higher than the number of notes',
+    'Get Notes - limit higher than the number of notes',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/notes?limit=20`)
@@ -163,7 +163,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'get notes - limit under 10 should default to 10',
+    'Get Notes - limit under 10 should default to 10',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/notes?limit=2`)
@@ -179,7 +179,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('get notes - limit of 0 should default to 10', async () => {
+  await tap.test('Get Notes - limit of 0 should default to 10', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?limit=0`)
       .set('Host', 'reader-api.test')
@@ -194,7 +194,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'get notes - limit of over 100 should default to 100',
+    'Get Notes - limit of over 100 should default to 100',
     async () => {
       // 13 so far
       await createNoteSimplified()

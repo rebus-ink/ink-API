@@ -97,7 +97,7 @@ const test = async app => {
 
   // ------------------------------------------ DATE CREATED ----------------------------------
 
-  await tap.test('order notes by date created', async () => {
+  await tap.test('Order Notes by date created', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?orderBy=created`)
       .set('Host', 'reader-api.test')
@@ -111,7 +111,7 @@ const test = async app => {
     await tap.equal(res.body.items[2].content, 'third last')
   })
 
-  await tap.test('order notes by date created - reverse', async () => {
+  await tap.test('Order Notes by date created - reversed', async () => {
     const res1 = await request(app)
       .get(`${readerUrl}/notes?orderBy=created&reverse=true`)
       .set('Host', 'reader-api.test')
@@ -127,7 +127,7 @@ const test = async app => {
 
   // -------------------------------------- DATE UPDATED ---------------------------------------
 
-  await tap.test('order by date updated', async () => {
+  await tap.test('Order Notes by date updated', async () => {
     // update two older notes:
     const res = await request(app)
       .get(`${readerUrl}/notes?orderBy=created&limit=25`)

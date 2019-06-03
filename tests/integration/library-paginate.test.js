@@ -36,7 +36,7 @@ const test = async () => {
   await createPublicationSimplified({ name: 'Publication 12' })
   await createPublicationSimplified({ name: 'Publication 13' })
 
-  await tap.test('By default, library paginated to 10 per page', async () => {
+  await tap.test('By default, Library paginated to 10 per page', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
@@ -82,7 +82,7 @@ const test = async () => {
     await tap.equal(body.pageSize, 11)
   })
 
-  await tap.test('Get page 2 of library', async () => {
+  await tap.test('Paginate Library by setting page', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?page=2`)
       .set('Host', 'reader-api.test')
@@ -105,7 +105,7 @@ const test = async () => {
     await tap.equal(body.pageSize, 10)
   })
 
-  await tap.test('Paginate library with limit and page', async () => {
+  await tap.test('Paginate Library by setting limit and page', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?limit=11&page=2`)
       .set('Host', 'reader-api.test')
@@ -129,7 +129,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'Paginate library with limit over the number of publications',
+    'Paginate Library with limit over the number of publications',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/library?limit=20`)
@@ -154,7 +154,7 @@ const test = async () => {
     }
   )
 
-  await tap.test('Get empty page of a library', async () => {
+  await tap.test('Get empty page of a Library', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?page=3`)
       .set('Host', 'reader-api.test')

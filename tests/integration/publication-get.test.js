@@ -121,7 +121,7 @@ const test = async app => {
     await tap.equal(body.inLanguage, 'English')
   })
 
-  await tap.test('Get Publication that does not exist', async () => {
+  await tap.test('Try to get Publication that does not exist', async () => {
     const res = await request(app)
       .get(urlparse(publicationUrl).path + 'abc')
       .set('Host', 'reader-api.test')

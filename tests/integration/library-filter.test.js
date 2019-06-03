@@ -31,7 +31,7 @@ const test = async () => {
 
   // ------------------------------------ COLLECTION ---------------------------------------
 
-  await tap.test('filter library by collection', async () => {
+  await tap.test('Filter Library by collection', async () => {
     // add more publications
     // publication 2
     const pubBres = await createPublicationSimplified({ name: 'Publication 2' })
@@ -116,7 +116,7 @@ const test = async () => {
     await tap.equal(body.items[0].name, 'Publication 2')
   })
 
-  await tap.test('Try to filter with a non-existing collection', async () => {
+  await tap.test('Filter Library with a non-existing collection', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?stack=notastack`)
       .set('Host', 'reader-api.test')
@@ -148,7 +148,7 @@ const test = async () => {
   await createPublicationSimplified({ name: 'Publication 12' })
   await createPublicationSimplified({ name: 'Publication 13' })
 
-  await tap.test('filter library by title', async () => {
+  await tap.test('Filter Library by title', async () => {
     await createPublicationSimplified({ name: 'superbook' })
     await createPublicationSimplified({ name: 'Super great book!' })
 
@@ -167,7 +167,7 @@ const test = async () => {
     await tap.equal(res.body.items[0].name, 'Super great book!')
   })
 
-  await tap.test('filter by title with pagination', async () => {
+  await tap.test('Filter Library by title with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/library?title=publication`)
       .set('Host', 'reader-api.test')
@@ -189,7 +189,7 @@ const test = async () => {
     await tap.equal(res3.body.totalItems, 11)
   })
 
-  await tap.test('filter by title using inexistant title', async () => {
+  await tap.test('Filter Library by title using inexistant title', async () => {
     const res4 = await request(app)
       .get(`${readerUrl}/library?title=ansoiwereow`)
       .set('Host', 'reader-api.test')
@@ -217,7 +217,7 @@ const test = async () => {
     editor: 'John doe'
   })
 
-  await tap.test('filter library by attribution', async () => {
+  await tap.test('Filter Library by attribution', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?attribution=John%20Doe`)
       .set('Host', 'reader-api.test')
@@ -244,7 +244,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'filter by attribution should work with partial matches',
+    'Filter Library by attribution should work with partial matches',
     async () => {
       const res1 = await request(app)
         .get(`${readerUrl}/library?attribution=John d`)
@@ -319,7 +319,7 @@ const test = async () => {
     editor: 'John Doe'
   })
 
-  await tap.test('filter by attribution and pagination', async () => {
+  await tap.test('Filter by attribution with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/library?attribution=John%20Doe`)
       .set('Host', 'reader-api.test')
@@ -352,7 +352,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'filter by attribution with unknown author should return empty library',
+    'Filter Library by attribution with unknown author',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/library?attribution=XYZABC`)
@@ -369,7 +369,7 @@ const test = async () => {
 
   // ---------------------------------------- ATTRIBUTION + ROLE -----------------------------------
 
-  await tap.test('filter library by attribution with role', async () => {
+  await tap.test('Filter Library by attribution and role', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?attribution=John%20D&role=author`)
       .set('Host', 'reader-api.test')
@@ -382,30 +382,33 @@ const test = async () => {
     await tap.equal(res.body.items.length, 2)
   })
 
-  await tap.test('filter by attribution and role with pagination', async () => {
-    const res2 = await request(app)
-      .get(`${readerUrl}/library?attribution=John%20D&role=editor`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+  await tap.test(
+    'Filter Library by attribution and role with pagination',
+    async () => {
+      const res2 = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=editor`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
 
-    await tap.equal(res2.body.items.length, 10)
+      await tap.equal(res2.body.items.length, 10)
 
-    const res3 = await request(app)
-      .get(`${readerUrl}/library?attribution=John%20D&role=editor&page=2`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      const res3 = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=editor&page=2`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
 
-    await tap.equal(res3.body.items.length, 3)
-  })
+      await tap.equal(res3.body.items.length, 3)
+    }
+  )
 
   await tap.test(
-    'filter by attribution with invalid role returns empty library',
+    'Filter Library by attribution with invalid role returns empty library',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/library?attribution=John%20D&role=autho`)
@@ -422,7 +425,7 @@ const test = async () => {
 
   // ------------------------------------------ AUTHOR ---------------------------------------
 
-  await tap.test('filter library by author', async () => {
+  await tap.test('Filter Library by author', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?author=John%20Doe`)
       .set('Host', 'reader-api.test')
@@ -447,7 +450,7 @@ const test = async () => {
     await tap.equal(body.items[0].author[0].name, `jo H. n'dOe`)
   })
 
-  await tap.test('filter by author with pagination', async () => {
+  await tap.test('Filter Library by author with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/library?author=JaneSmith`)
       .set('Host', 'reader-api.test')
@@ -480,7 +483,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'filter by author should not work with partial matches',
+    'Filter Library by author should not work with partial matches',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}/library?author=Doe`)

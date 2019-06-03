@@ -34,7 +34,7 @@ const test = async () => {
     await tap.ok(Array.isArray(body.items))
   })
 
-  await tap.test('Add publication and get library', async () => {
+  await tap.test('Get Library containing a publication', async () => {
     await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -98,7 +98,7 @@ const test = async () => {
   })
 
   await tap.test(
-    'Try to get library for reader that does not exist',
+    'Try to get Library for Reader that does not exist',
     async () => {
       const res = await request(app)
         .get(`${readerUrl}abc/library`)

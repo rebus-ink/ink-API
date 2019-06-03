@@ -59,7 +59,7 @@ const test = async app => {
 
   const activityUrl = response.get('Location')
 
-  await tap.test('Get note', async () => {
+  await tap.test('Get Note', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
 
@@ -87,7 +87,7 @@ const test = async app => {
     await tap.ok(Array.isArray(body['@context']))
   })
 
-  await tap.test('Get Note that does not exist', async () => {
+  await tap.test('Try to get Note that does not exist', async () => {
     const res = await request(app)
       .get(urlparse(noteUrl).path + 'abc')
       .set('Host', 'reader-api.test')

@@ -85,23 +85,26 @@ const test = async app => {
     await tap.type(body.orderedItems[0].id, 'string')
   })
 
-  await tap.test('Get Outbox for reader that does not exist', async () => {
-    const res = await request(app)
-      .get(`${readerUrl}abc/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+  await tap.test(
+    'Try to get Outbox for reader that does not exist',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}abc/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
 
-    await tap.equal(res.statusCode, 404)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Outbox')
-  })
+      await tap.equal(res.statusCode, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Reader')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Outbox')
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

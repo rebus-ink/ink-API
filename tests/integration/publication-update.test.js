@@ -84,7 +84,7 @@ const test = async app => {
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
   const publicationUrl = activityObject.object.id
 
-  await tap.test('Update a publication', async () => {
+  await tap.test('Update a Publication', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
       .post(`${readerUrl}/activity`)
@@ -173,46 +173,49 @@ const test = async app => {
     )
   })
 
-  await tap.test('Update a Publication that does not exist', async () => {
-    const res = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Update',
-          object: {
-            type: 'Publication',
-            id: publicationUrl + 'abc',
-            name: 'New name for pub A',
-            // datePublished: timestamp,
-            description: 'New description for Publication',
-            json: { property: 'New value for json property' },
-            inLanguage: ['Swahili', 'French'],
-            keywords: ['newKeyWord1', 'newKeyWord2'],
-            author: [
-              { type: 'Person', name: 'New Sample Author' },
-              { type: 'Organization', name: 'New Org inc.' }
+  await tap.test(
+    'Try to update a Publication that does not exist',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
             ],
-            editor: [{ type: 'Person', name: 'New Sample Editor' }]
-          }
-        })
-      )
+            type: 'Update',
+            object: {
+              type: 'Publication',
+              id: publicationUrl + 'abc',
+              name: 'New name for pub A',
+              // datePublished: timestamp,
+              description: 'New description for Publication',
+              json: { property: 'New value for json property' },
+              inLanguage: ['Swahili', 'French'],
+              keywords: ['newKeyWord1', 'newKeyWord2'],
+              author: [
+                { type: 'Person', name: 'New Sample Author' },
+                { type: 'Organization', name: 'New Org inc.' }
+              ],
+              editor: [{ type: 'Person', name: 'New Sample Editor' }]
+            }
+          })
+        )
 
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Update Publication')
-  })
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Update Publication')
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

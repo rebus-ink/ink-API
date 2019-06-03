@@ -176,7 +176,7 @@ const test = async app => {
     await tap.ok(Array.isArray(body['@context']))
   })
 
-  await tap.test('Try to update note type', async () => {
+  await tap.test('Try to update noteType', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')

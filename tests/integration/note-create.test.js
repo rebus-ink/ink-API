@@ -103,7 +103,7 @@ const test = async app => {
     await tap.type(res.get('Location'), 'string')
   })
 
-  await tap.test('Create Note with invalid document url', async () => {
+  await tap.test('Try to create Note with invalid document url', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
