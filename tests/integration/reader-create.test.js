@@ -44,8 +44,7 @@ const test = async app => {
       )
       .send(
         JSON.stringify({
-          '@context': 'https://www.w3.org/ns/activitystreams',
-          name: 'Jane Doe'
+          '@context': 'https://www.w3.org/ns/activitystreams'
         })
       )
     await tap.equal(res.status, 201)

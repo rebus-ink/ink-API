@@ -1,7 +1,12 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, createUser, destroyDB } = require('../utils/utils')
+const {
+  getToken,
+  createUser,
+  destroyDB,
+  createActivity
+} = require('../utils/utils')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -13,34 +18,25 @@ const test = async app => {
   const readerUrl = urlparse(readerId).path
 
   // create activity
-  const createActivityResponse = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Publication',
-          name: 'Publication A',
-          attributedTo: [
-            {
-              type: 'Person',
-              name: 'Sample Author'
-            }
-          ],
-          totalItems: 0,
-          orderedItems: []
+  const createActivityResponse = await createActivity(app, token, readerUrl, {
+    '@context': [
+      'https://www.w3.org/ns/activitystreams',
+      { reader: 'https://rebus.foundation/ns/reader' }
+    ],
+    type: 'Create',
+    object: {
+      type: 'Publication',
+      name: 'Publication A',
+      attributedTo: [
+        {
+          type: 'Person',
+          name: 'Sample Author'
         }
-      })
-    )
+      ],
+      totalItems: 0,
+      orderedItems: []
+    }
+  })
 
   const activityUrl = createActivityResponse.get('Location')
 

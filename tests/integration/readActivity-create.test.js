@@ -106,7 +106,6 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Read',
-          object: { type: 'Document', id: document.id },
           context: publicationUrl,
           'oa:hasSelector': {
             type: 'XPathSelector',
@@ -140,7 +139,6 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Read',
-          object: { type: 'Document', id: document.id },
           context: publicationUrl + 'abc',
           'oa:hasSelector': {
             type: 'XPathSelector',
@@ -174,7 +172,6 @@ const test = async app => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Read',
-          object: { type: 'Document', id: document.id },
           context: publicationUrl,
           'oa:hasSelector': {
             type: 'XPathSelector',

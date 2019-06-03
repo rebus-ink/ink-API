@@ -192,65 +192,71 @@ const test = async app => {
     await tap.equal(body.items[0].tags.length, 0)
   })
 
-  await tap.test('delete publication that does not exist', async () => {
-    // already deleted
-    const res = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'Publication',
-            id: publicationUrl
-          }
-        })
-      )
-    await tap.equal(res.statusCode, 404)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Publication')
+  await tap.test(
+    'Try to delete a Publication that was already deleted',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Publication',
+              id: publicationUrl
+            }
+          })
+        )
+      await tap.equal(res.statusCode, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Delete Publication')
+    }
+  )
 
-    // never existed
-    const res1 = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'Publication',
-            id: publicationUrl + '123'
-          }
-        })
-      )
-    await tap.equal(res1.statusCode, 404)
-    const error1 = JSON.parse(res1.text)
-    await tap.equal(error1.statusCode, 404)
-    await tap.equal(error1.error, 'Not Found')
-    await tap.equal(error1.details.type, 'Publication')
-    await tap.type(error1.details.id, 'string')
-    await tap.equal(error1.details.activity, 'Delete Publication')
-  })
+  await tap.test(
+    'Try to delete a Publication that does not exist',
+    async () => {
+      const res1 = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Publication',
+              id: publicationUrl + '123'
+            }
+          })
+        )
+      await tap.equal(res1.statusCode, 404)
+      const error1 = JSON.parse(res1.text)
+      await tap.equal(error1.statusCode, 404)
+      await tap.equal(error1.error, 'Not Found')
+      await tap.equal(error1.details.type, 'Publication')
+      await tap.type(error1.details.id, 'string')
+      await tap.equal(error1.details.activity, 'Delete Publication')
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
