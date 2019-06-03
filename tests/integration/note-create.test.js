@@ -136,7 +136,7 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Note')
   })
 
-  // TODO: migrate
+  // TODO: fix issue #310
   // await tap.test(
   //   'Try to create Note with invalid Publication context',
   //   async () => {
@@ -165,38 +165,12 @@ const test = async app => {
   //       )
 
   //     await tap.equal(res.status, 404)
-  //   }
-  // )
-
-  // TODO: migrate
-  // await tap.test(
-  //   'Try to create Note with invalid inReplyTo Document',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`${readerUrl}/activity`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type(
-  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //       )
-  //       .send(
-  //         JSON.stringify({
-  //           '@context': [
-  //             'https://www.w3.org/ns/activitystreams',
-  //             { reader: 'https://rebus.foundation/ns/reader' }
-  //           ],
-  //           type: 'Create',
-  //           object: {
-  //             type: 'Note',
-  //             content: 'This is the content of note A.',
-  //             'oa:hasSelector': {},
-  //             context: publicationUrl,
-  //             inReplyTo: documentUrl + '123'
-  //           }
-  //         })
-  //       )
-
-  //     await tap.equal(res.status, 404)
+  //         const error = JSON.parse(res.text)
+  //   await tap.equal(error.statusCode, 404)
+  //   await tap.equal(error.error, 'Not Found')
+  //   await tap.equal(error.details.type, 'Publication')
+  //   await tap.type(error.details.id, 'string')
+  //   await tap.equal(error.details.activity, 'Create Note')
   //   }
   // )
 

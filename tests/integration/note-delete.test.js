@@ -77,7 +77,6 @@ const test = async app => {
 
     await Note_Tag.addTagToNote(urlToId(noteUrl), createdTag.id)
 
-    // before: there are two notes on this publication
     const pubresbefore = await request(app)
       .get(urlparse(publicationUrl).path)
       .set('Host', 'reader-api.test')
@@ -89,7 +88,7 @@ const test = async app => {
     // Fetch the note that now has a tag
     const noteBefore = await Note.byId(urlToId(noteUrl))
 
-    await tap.equal(pubresbefore.body.replies.length, 1) // should be 2 if previous test is re-enabled
+    await tap.equal(pubresbefore.body.replies.length, 1)
     await tap.equal(noteBefore.tags.length, 1)
     await tap.equal(noteBefore.tags[0].name, createdTag.name)
 
@@ -132,60 +131,51 @@ const test = async app => {
     await tap.equal(error.details.type, 'Note')
     await tap.type(error.details.id, 'string')
     await tap.equal(error.details.activity, 'Get Note')
-
-    // note should no longer be attached to publication
-    const pubres = await request(app)
-      .get(urlparse(publicationUrl).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-
-    // Fetch the note that should no longer have a tag
-    const noteAfter = await Note.byId(urlToId(noteUrl))
-
-    await tap.equal(noteAfter.tags.length, 0)
-    await tap.ok(noteAfter.deleted)
-
-    await tap.equal(pubres.statusCode, 200)
-
-    const body = pubres.body
-    await tap.ok(Array.isArray(body.replies))
-    await tap.equal(body.replies.length, 0)
   })
 
+  await tap.test(
+    'deleted note should no longer be attached to publication',
+    async () => {
+      // note should no longer be attached to publication
+      const pubres = await request(app)
+        .get(urlparse(publicationUrl).path)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      // Fetch the note that should no longer have a tag
+      const noteAfter = await Note.byId(urlToId(noteUrl))
+
+      await tap.equal(noteAfter.tags.length, 0)
+      await tap.ok(noteAfter.deleted)
+
+      await tap.equal(pubres.statusCode, 200)
+
+      const body = pubres.body
+      await tap.ok(Array.isArray(body.replies))
+      await tap.equal(body.replies.length, 0)
+    }
+  )
+
+  await tap.test(
+    'deleted note should no longer show up in a list of the reader notes',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 200)
+      await tap.equal(res.body.items.length, 0)
+    }
+  )
+
   await tap.test('Try to delete a Note that does not exist', async () => {
-    // already deleted
-    const res = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'Note',
-            id: noteUrl
-          }
-        })
-      )
-
-    await tap.equal(res.statusCode, 404)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Note')
-
     const res1 = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -214,6 +204,37 @@ const test = async app => {
     await tap.equal(error1.details.type, 'Note')
     await tap.type(error1.details.id, 'string')
     await tap.equal(error1.details.activity, 'Delete Note')
+  })
+
+  await tap.test('try to delete a note that was already deleted', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Note',
+            id: noteUrl
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Note')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
