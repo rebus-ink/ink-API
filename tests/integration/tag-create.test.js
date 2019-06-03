@@ -61,7 +61,10 @@ const test = async app => {
         })
       )
     await tap.equal(res.status, 400)
-    await tap.ok(res.error.text.startsWith('duplicate error:'))
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.activity, 'Create Tag')
   })
 
   await tap.test('Get tag when fetching library', async () => {

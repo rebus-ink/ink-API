@@ -320,8 +320,6 @@ const test = async app => {
     }
   )
 
-  // error disabled for now
-
   await tap.test('Try to assign publication to tag twice', async () => {
     await request(app)
       .post(`${readerUrl}/activity`)
@@ -367,24 +365,6 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Add Tag to Publication')
     await tap.type(error.details.target, 'string')
     await tap.type(error.details.object, 'string')
-
-    /*
-    // doesn't affect the publication
-    const pubres = await request(app)
-      .get(urlparse(publication.id).path)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
-    await tap.ok(Array.isArray(body.tags))
-    await tap.equal(body.tags.length, 1)
-    await tap.equal(body.tags[0].type, 'reader:Stack')
-    await tap.equal(body.tags[0].name, 'mystack')
-    */
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

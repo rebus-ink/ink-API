@@ -223,6 +223,35 @@ const test = async app => {
     await tap.equal(noteWithoutTag.tags.length, 0)
   })
 
+  await tap.test('Try to delete a tag that was already deleted', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Tag',
+            id: stack.id
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.activity, 'Delete Tag')
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
