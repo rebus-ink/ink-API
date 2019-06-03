@@ -58,6 +58,21 @@ const test = async app => {
     return await createNote(app, token, readerUrl, noteObj)
   }
 
+  await tap.test('Get empty list of notes', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.totalItems, 0)
+    await tap.equal(body.items.length, 0)
+  })
+
   await tap.test('Get all notes for a reader', async () => {
     // create more notes
     await createNoteSimplified({ content: 'first' })

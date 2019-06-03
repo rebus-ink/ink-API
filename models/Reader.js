@@ -181,6 +181,7 @@ class Reader extends BaseModel {
       // $FlowFixMe
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
+      if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
     }
 
     const orderBuilder = builder => {

@@ -95,7 +95,9 @@ const test = async app => {
   await createNoteSimplified({ content: 'second last' })
   await createNoteSimplified({ content: 'last' })
 
-  await tap.test('order by date created', async () => {
+  // ------------------------------------------ DATE CREATED ----------------------------------
+
+  await tap.test('order notes by date created', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?orderBy=created`)
       .set('Host', 'reader-api.test')
@@ -107,7 +109,9 @@ const test = async app => {
     await tap.equal(res.body.items[0].content, 'last')
     await tap.equal(res.body.items[1].content, 'second last')
     await tap.equal(res.body.items[2].content, 'third last')
+  })
 
+  await tap.test('order notes by date created - reverse', async () => {
     const res1 = await request(app)
       .get(`${readerUrl}/notes?orderBy=created&reverse=true`)
       .set('Host', 'reader-api.test')
@@ -120,6 +124,8 @@ const test = async app => {
     await tap.equal(res1.body.items[1].content, 'second')
     await tap.equal(res1.body.items[2].content, 'third')
   })
+
+  // -------------------------------------- DATE UPDATED ---------------------------------------
 
   await tap.test('order by date updated', async () => {
     // update two older notes:
@@ -188,7 +194,9 @@ const test = async app => {
     await tap.equal(res1.body.items[0].content, 'new content2')
     await tap.equal(res1.body.items[1].content, 'new content1')
     await tap.equal(res1.body.items[2].content, 'last')
+  })
 
+  await tap.test('Order Notes by date updated - reversed', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?orderBy=updated&reverse=true`)
       .set('Host', 'reader-api.test')

@@ -105,17 +105,19 @@ const test = async app => {
   await createNoteSimplified() // 12
   await createNoteSimplified() // 13
 
-  await tap.test('Get all notes for a reader filtered by pub', async () => {
-    // create more notes for another pub
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
+  // create more notes for another pub
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
 
+  // --------------------------------------------- PUBLICATION -----------------------------------
+
+  await tap.test('Get all notes for a reader filtered by pub', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
@@ -130,53 +132,54 @@ const test = async app => {
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
     await tap.equal(body.items[0].type, 'Note')
+  })
 
-    // should work with pagination
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    }) // 3
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    }) // 10
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2
-    }) // 13
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  }) // 3
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  }) // 10
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2
+  }) // 13
 
+  await tap.test('Filter notes by publication, with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
@@ -214,6 +217,24 @@ const test = async app => {
     await tap.equal(res4.body.items.length, 2)
   })
 
+  await tap.test('Filter notes by nonexistant publication', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes?publication=${publicationUrl2}abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+
+    await tap.equal(body.totalItems, 0)
+    await tap.equal(body.items.length, 0)
+  })
+
+  // ----------------------------------------- DOCUMENT ----------------------------------------------------
+
   await tap.test('filter notes by documentUrl', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?document=${documentUrl2}`)
@@ -226,7 +247,9 @@ const test = async app => {
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.items.length, 10)
+  })
 
+  await tap.test('Filter notes by documentUrl with pagination', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
       .set('Host', 'reader-api.test')
@@ -240,18 +263,36 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 3)
   })
 
-  await tap.test('filter notes by noteType', async () => {
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2,
-      noteType: 'new'
-    })
-    await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2,
-      noteType: 'new'
-    })
+  await tap.test('Filter notes by a nonexistant documentUrl', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes?document=${documentUrl2}abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 0)
+  })
+
+  // ------------------------------------------------ NOTE TYPE -------------------------------------------
+
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2,
+    noteType: 'new'
+  })
+  await createNoteSimplified({
+    context: publicationUrl2,
+    inReplyTo: documentUrl2,
+    noteType: 'new'
+  })
+
+  await createNoteSimplified({ noteType: 'new' })
+
+  await tap.test('filter notes by noteType', async () => {
     const res = await request(app)
       .get(`${readerUrl}/notes?type=new`)
       .set('Host', 'reader-api.test')
@@ -262,23 +303,24 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
-    await tap.equal(res.body.items.length, 2)
+    await tap.equal(res.body.items.length, 3)
+  })
 
-    // combine with pubid filter
-    await createNoteSimplified({ noteType: 'new' })
-
-    const res2 = await request(app)
-      .get(`${readerUrl}/notes?type=new&publication=${publicationUrl2}`)
+  await tap.test('Filter Notes by an inexistant noteType', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes?type=notANoteType`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(res2.status, 200)
-    await tap.ok(res2.body)
-    await tap.equal(res2.body.items.length, 2)
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 0)
   })
+
+  // ------------------------------------ SEARCH NOTE CONTENT ----------------------------------
 
   await tap.test('search note content', async () => {
     await createNoteSimplified({
@@ -311,8 +353,25 @@ const test = async app => {
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.items.length, 4)
+  })
 
-    // should combine with other filters:
+  // ----------------------------------- COMBINING FILTERS -----------------------------------
+
+  await tap.test('Filter Notes by noteType and PubId', async () => {
+    const res2 = await request(app)
+      .get(`${readerUrl}/notes?type=new&publication=${publicationUrl2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.equal(res2.body.items.length, 2)
+  })
+
+  await tap.test('Search Notes and filter by note type', async () => {
     const res2 = await request(app)
       .get(`${readerUrl}/notes?search=abc&type=test2`)
       .set('Host', 'reader-api.test')
@@ -324,7 +383,9 @@ const test = async app => {
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
     await tap.equal(res2.body.items.length, 1)
+  })
 
+  await tap.test('Search Notes and filter by document', async () => {
     const res3 = await request(app)
       .get(`${readerUrl}/notes?search=abc&document=${documentUrl}`)
       .set('Host', 'reader-api.test')
@@ -337,6 +398,7 @@ const test = async app => {
     await tap.ok(res3.body)
     await tap.equal(res3.body.items.length, 3)
   })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }
