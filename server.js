@@ -173,6 +173,7 @@ publicationDocumentRoute(app)
 readerNotesRoute(app)
 
 app.use((err, req, res, next) => {
+  if (!err.output) console.log(err)
   if (err) {
     if (err.data && err.output) err.output.payload.details = err.data
     if (err.output) {

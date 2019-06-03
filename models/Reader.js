@@ -69,13 +69,17 @@ class Reader extends BaseModel {
         } else {
           builder.orderBy('name')
         }
-      }
-
-      if (filter.orderBy === 'datePublished') {
+      } else if (filter.orderBy === 'datePublished') {
         if (filter.reverse) {
           builder.orderByRaw('"datePublished" NULLS FIRST')
         } else {
           builder.orderByRaw('"datePublished" DESC NULLS LAST')
+        }
+      } else {
+        if (filter.reverse) {
+          builder.orderBy('updated')
+        } else {
+          builder.orderBy('updated', 'desc')
         }
       }
     }
@@ -177,6 +181,7 @@ class Reader extends BaseModel {
       // $FlowFixMe
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
+      if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
     }
 
     const orderBuilder = builder => {

@@ -7,6 +7,43 @@ const boom = require('@hapi/boom')
 
 const handleAdd = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot add without an object`, {
+        missingParams: ['object'],
+        activity: 'Add'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot add without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Add'
+      })
+    )
+  }
+
+  if (!body.target) {
+    return next(
+      boom.badRequest(`cannot add without a target`, {
+        missingParams: ['target'],
+        activity: 'Add'
+      })
+    )
+  }
+
+  if (!body.target.type) {
+    return next(
+      boom.badRequest(`cannot add without a target type`, {
+        missingParams: ['target.type'],
+        activity: 'Add'
+      })
+    )
+  }
+
   switch (body.object.type) {
     case 'reader:Stack':
       // Determine if the Tag is added to a Publication or a Note
@@ -20,6 +57,14 @@ const handleAdd = async (req, res, next, reader) => {
         resultStack = await Note_Tag.addTagToNote(
           body.target.id,
           body.object.id
+        )
+      } else {
+        return next(
+          boom.badRequest(`cannot add to ${body.target.type}`, {
+            badParams: ['target.type'],
+            activity: 'Add',
+            type: body.target.type
+          })
         )
       }
 
@@ -103,7 +148,8 @@ const handleAdd = async (req, res, next, reader) => {
       return next(
         boom.badRequest(`cannot add ${body.object.type}`, {
           badParams: ['object.type'],
-          activity: `Add Tag to ${body.object.type}`
+          activity: 'Add',
+          type: body.object.type
         })
       )
   }

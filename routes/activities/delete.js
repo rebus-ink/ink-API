@@ -8,6 +8,25 @@ const boom = require('@hapi/boom')
 
 const handleDelete = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot delete without an object`, {
+        missingParams: ['object'],
+        activity: 'Delete'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot delete without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Delete'
+      })
+    )
+  }
+
   switch (body.object.type) {
     case 'Publication':
       const returned = await Publication.delete(urlToId(body.object.id))
