@@ -45,7 +45,7 @@ class Note extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        noteType: { type: 'string' },
+        noteType: { type: 'string', maxLength: 255 },
         content: { type: 'string' },
         selector: { type: 'object' },
         json: { type: 'object' },

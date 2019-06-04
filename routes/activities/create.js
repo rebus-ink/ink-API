@@ -4,6 +4,7 @@ const { Publication } = require('../../models/Publication')
 const { Note } = require('../../models/Note')
 const { createActivityObject } = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const { ValidationError } = require('objection')
 
 const handleCreate = async (req, res, next, reader) => {
   const body = req.body
@@ -64,6 +65,14 @@ const handleCreate = async (req, res, next, reader) => {
                 activity: 'Create Note'
               }
             )
+          )
+        } else if (err instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation Error on Create Note: ', {
+              activity: 'Create Note',
+              type: 'Note',
+              validation: err.data
+            })
           )
         }
       }
