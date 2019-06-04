@@ -31,21 +31,42 @@ const handleCreate = async (req, res, next, reader) => {
     case 'Publication':
       const resultPub = await Publication.createPublication(reader, body.object)
       if (resultPub instanceof Error || !resultPub) {
-        const message = resultPub
-          ? resultPub.message
-          : 'publication creation failed'
-        res.status(400).send(`create publication error: ${message}`)
+        if (resultPub instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation Error on Create Publication: ', {
+              type: 'Publication',
+              activity: 'Create Publication',
+              validation: resultPub.data
+            })
+          )
+        }
+
+        // since readingOrder is stored nested in an object, normal validation does not kick in.
+        if (resultPub.message === 'no readingOrder') {
+          return next(
+            boom.badRequest('Validation Error on Create Publication: ', {
+              type: 'Publication',
+              activity: 'Create Publication',
+              validation: {
+                readingOrder: [
+                  {
+                    message: 'is a required property',
+                    keyword: 'required',
+                    params: { missingProperty: 'readingOrder' }
+                  }
+                ]
+              }
+            })
+          )
+        }
       }
       const activityObjPub = createActivityObject(body, resultPub, reader)
-      Activity.createActivity(activityObjPub)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.id)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      Activity.createActivity(activityObjPub).then(activity => {
+        res.status(201)
+        res.set('Location', activity.id)
+        res.end()
+      })
+
       break
 
     case 'Note':

@@ -169,8 +169,9 @@ class Note extends BaseModel {
 
   static async update (object /*: any */) /*: Promise<NoteType|null> */ {
     // $FlowFixMe
-    object.selector = object['oa:hasSelector']
-    const modifications = _.pick(object, ['content', 'selector'])
+    if (object['oa:hasSelector']) object.selector = object['oa:hasSelector']
+
+    const modifications = _.pick(object, ['content', 'selector', 'json'])
     let note = await Note.query().findById(urlToId(object.id))
     if (!note) {
       return null

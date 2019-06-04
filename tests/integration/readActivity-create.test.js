@@ -8,7 +8,6 @@ const {
   getActivityFromUrl,
   createPublication
 } = require('../utils/utils')
-const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { urlToId } = require('../../utils/utils')
@@ -34,14 +33,6 @@ const test = async app => {
   const activityUrl2 = resActivity.get('Location')
   const activityObject = await getActivityFromUrl(app, activityUrl2, token)
   const publicationUrl = activityObject.object.id
-
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
 
   await tap.test('Create Read activity with only a selector', async () => {
     const readActivity = await request(app)
