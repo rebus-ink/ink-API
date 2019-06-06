@@ -34,28 +34,48 @@ class Tag extends BaseModel {
     return 'tag'
   }
 
+  static get jsonSchema () /*: any */ {
+    return {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        type: { type: 'string', maxLength: 255 },
+        name: { type: 'string' },
+        json: { type: 'object' },
+        readerId: { type: 'string' },
+        updated: { type: 'string', format: 'date-time' },
+        published: { type: 'string', format: 'date-time' },
+        deleted: { type: 'string', format: 'date-time' }
+      },
+      additionalProperties: true,
+      required: ['type', 'readerId', 'name']
+    }
+  }
+
   static async createTag (
     readerId /*: string */,
     tag /*: {type: string, name: string, json?: {}, readerId?: string} */
   ) /*: Promise<any> */ {
     tag.readerId = readerId
-
     // reject duplicates TODO: enforce this as the database level?
-    const existing = await Tag.query().where({
-      readerId: tag.readerId,
-      type: tag.type,
-      name: tag.name
-    })
-    if (existing.length > 0) return new Error('duplicate')
-
+    //   if (tag.name) {
+    //   console.log(tag.type, tag.name)
+    //   const existing = await Tag.query().where({
+    //     readerId: tag.readerId,
+    //     type: tag.type,
+    //     name: tag.name
+    //   })
+    //   console.log(existing)
+    //   if (existing.length > 0) return new Error('duplicate')
+    // }
     const props = _.pick(tag, ['name', 'type', 'json', 'readerId'])
-
     try {
       return await Tag.query().insert(props)
     } catch (err) {
       if (err.constraint === 'tag_readerid_name_type_unique') {
         return new Error('duplicate')
       }
+      return err
     }
   }
 

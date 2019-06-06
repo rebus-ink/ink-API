@@ -44,14 +44,7 @@ const test = async app => {
     object: {
       type: 'Publication',
       name: 'Publication A',
-      attributedTo: [
-        {
-          type: 'Person',
-          name: 'Sample Author'
-        }
-      ],
-      totalItems: 0,
-      orderedItems: []
+      readingOrder: [{ something: 'value' }]
     }
   })
 
@@ -76,7 +69,7 @@ const test = async app => {
     await tap.equal(body.type, 'OrderedCollection')
     await tap.type(body.summaryMap, 'object')
     await tap.ok(Array.isArray(body.orderedItems))
-    await tap.equal(body.orderedItems.length, 3)
+    await tap.equal(body.orderedItems.length, 1)
     await tap.type(body.orderedItems[0], 'object')
     await tap.type(body.orderedItems[0].type, 'string')
     await tap.equal(body.orderedItems[0].type, 'Create')

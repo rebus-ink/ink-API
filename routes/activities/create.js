@@ -113,20 +113,32 @@ const handleCreate = async (req, res, next, reader) => {
     case 'reader:Stack':
       const resultStack = await Tag.createTag(reader.id, body.object)
 
-      if (resultStack instanceof Error && resultStack.message === 'duplicate') {
-        return next(
-          boom.badRequest(
-            `duplicate error: stack ${body.object.name} already exists`,
-            { activity: 'Create Tag', type: 'Tag' }
-          )
-        )
-      }
       if (resultStack instanceof Error || !resultStack) {
+        if (resultStack.message === 'duplicate') {
+          return next(
+            boom.badRequest(
+              `duplicate error: stack ${body.object.name} already exists`,
+              { activity: 'Create Tag', type: 'Tag' }
+            )
+          )
+        }
+
+        if (resultStack instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation error on create Tag: ', {
+              type: 'Tag',
+              activity: 'Create Tag',
+              validation: resultStack.data
+            })
+          )
+        }
+
         const message = resultStack
           ? resultStack.message
           : 'stack creation failed'
         res.status(400).send(`create stack error: ${message}`)
       }
+
       const activityObjStack = createActivityObject(body, resultStack, reader)
 
       Activity.createActivity(activityObjStack)
