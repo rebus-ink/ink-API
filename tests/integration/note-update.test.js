@@ -176,7 +176,7 @@ const test = async app => {
     await tap.ok(Array.isArray(body['@context']))
   })
 
-  // TODO: figure out why updates with bad type of input time out instead of throwing an error.
+  // TODO: figure out why this returns a json error instead of a validation error.
 
   // await tap.test('Try to update the selector of a note to the wrong type', async () => {
   //   const res = await request(app)
@@ -200,6 +200,7 @@ const test = async app => {
   //         }
   //       })
   //     )
+  //     console.log(res.error)
   //     await tap.equal(res.status, 400)
   //     const error = JSON.parse(res.text)
   //     await tap.equal(error.statusCode, 400)

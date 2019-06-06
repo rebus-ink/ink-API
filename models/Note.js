@@ -177,7 +177,12 @@ class Note extends BaseModel {
       return null
     }
     note = Object.assign(note, modifications)
-    return await Note.query().updateAndFetchById(urlToId(object.id), note)
+
+    try {
+      return await Note.query().updateAndFetchById(urlToId(object.id), note)
+    } catch (err) {
+      return err
+    }
   }
 
   $formatJson (json /*: any */) /*: any */ {
