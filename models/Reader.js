@@ -233,9 +233,13 @@ class Reader extends BaseModel {
     const props = _.pick(person, attributes)
 
     props.authId = authId
-    return await Reader.query(Reader.knex())
-      .insert(props)
-      .returning('*')
+    try {
+      return await Reader.query(Reader.knex())
+        .insert(props)
+        .returning('*')
+    } catch (err) {
+      return err
+    }
   }
 
   static get tableName () /*: string */ {

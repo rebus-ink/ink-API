@@ -123,7 +123,6 @@ const test = async app => {
         )
       await tap.equal(readActivity.statusCode, 400)
       const error = JSON.parse(readActivity.text)
-      console.log(error)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(error.details.type, 'Publication')
