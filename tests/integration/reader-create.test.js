@@ -11,6 +11,7 @@ const test = async app => {
   // to avoid duplicate tokens:
   await new Promise(_func => setTimeout(_func, 50))
   const token2 = getToken()
+  await new Promise(_func => setTimeout(_func, 50))
   const token3 = getToken()
 
   await tap.test('Create Reader', async () => {
