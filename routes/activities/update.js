@@ -3,10 +3,10 @@ const { Publication } = require('../../models/Publication')
 const { createActivityObject } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
+const { ValidationError } = require('objection')
 
 const handleUpdate = async (req, res, next, reader) => {
   const body = req.body
-
   if (!body.object) {
     return next(
       boom.badRequest(`cannot update without an object`, {
@@ -37,6 +37,16 @@ const handleUpdate = async (req, res, next, reader) => {
           })
         )
       }
+      if (resultNote instanceof ValidationError) {
+        return next(
+          boom.badRequest('Validation error on Update Note: ', {
+            type: 'Note',
+            activity: 'Create Note',
+            validation: resultNote.data
+          })
+        )
+      }
+
       const activityObjNote = createActivityObject(body, resultNote, reader)
       Activity.createActivity(activityObjNote)
         .then(activity => {

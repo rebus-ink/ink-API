@@ -176,6 +176,42 @@ const test = async app => {
     await tap.ok(Array.isArray(body['@context']))
   })
 
+  // TODO: figure out why this returns a json error instead of a validation error.
+
+  // await tap.test('Try to update the selector of a note to the wrong type', async () => {
+  //   const res = await request(app)
+  //     .post(`${readerUrl}/activity`)
+  //     .set('Host', 'reader-api.test')
+  //     .set('Authorization', `Bearer ${token}`)
+  //     .type(
+  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //     )
+  //     .send(
+  //       JSON.stringify({
+  //         '@context': [
+  //           'https://www.w3.org/ns/activitystreams',
+  //           { reader: 'https://rebus.foundation/ns/reader' }
+  //         ],
+  //         type: 'Update',
+  //         object: {
+  //           type: 'Note',
+  //           id: noteUrl,
+  //           'oa:hasSelector': 'string!!!'
+  //         }
+  //       })
+  //     )
+  //     console.log(res.error)
+  //     await tap.equal(res.status, 400)
+  //     const error = JSON.parse(res.text)
+  //     await tap.equal(error.statusCode, 400)
+  //     await tap.equal(error.error, 'Bad Request')
+  //     await tap.equal(error.details.type, 'Note')
+  //     await tap.equal(error.details.activity, 'Create Note')
+  //     await tap.type(error.details.validation, 'object')
+  //     await tap.equal(error.details.validation.content[0].keyword, 'type')
+  //     await tap.equal(error.details.validation.content[0].params.type, 'string')
+  // })
+
   await tap.test('Try to update noteType', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)

@@ -8,7 +8,6 @@ const {
   getActivityFromUrl,
   createPublication
 } = require('../utils/utils')
-const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { urlToId } = require('../../utils/utils')
@@ -34,14 +33,6 @@ const test = async app => {
   const activityUrl2 = resActivity.get('Location')
   const activityObject = await getActivityFromUrl(app, activityUrl2, token)
   const publicationUrl = activityObject.object.id
-
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
 
   await tap.test('Create Read activity with only a selector', async () => {
     const readActivity = await request(app)
@@ -109,6 +100,44 @@ const test = async app => {
     await tap.equal(readActivity.statusCode, 201)
     await tap.equal(latestAct.json.property, 'value')
   })
+
+  await tap.test(
+    'Try to create a ReadActivity without a selector',
+    async () => {
+      const readActivity = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Read',
+            context: publicationUrl
+          })
+        )
+      await tap.equal(readActivity.statusCode, 400)
+      const error = JSON.parse(readActivity.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Read')
+      await tap.type(error.details.validation, 'object')
+      await tap.equal(
+        error.details.validation['oa:hasSelector'][0].keyword,
+        'required'
+      )
+      await tap.equal(
+        error.details.validation['oa:hasSelector'][0].params.missingProperty,
+        'oa:hasSelector'
+      )
+    }
+  )
 
   await tap.test(
     'Try to create a ReadActivity with invalid pubId',

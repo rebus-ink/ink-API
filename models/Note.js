@@ -45,7 +45,7 @@ class Note extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        noteType: { type: 'string' },
+        noteType: { type: 'string', maxLength: 255 },
         content: { type: 'string' },
         selector: { type: 'object' },
         json: { type: 'object' },
@@ -169,14 +169,20 @@ class Note extends BaseModel {
 
   static async update (object /*: any */) /*: Promise<NoteType|null> */ {
     // $FlowFixMe
-    object.selector = object['oa:hasSelector']
-    const modifications = _.pick(object, ['content', 'selector'])
+    if (object['oa:hasSelector']) object.selector = object['oa:hasSelector']
+
+    const modifications = _.pick(object, ['content', 'selector', 'json'])
     let note = await Note.query().findById(urlToId(object.id))
     if (!note) {
       return null
     }
     note = Object.assign(note, modifications)
-    return await Note.query().updateAndFetchById(urlToId(object.id), note)
+
+    try {
+      return await Note.query().updateAndFetchById(urlToId(object.id), note)
+    } catch (err) {
+      return err
+    }
   }
 
   $formatJson (json /*: any */) /*: any */ {

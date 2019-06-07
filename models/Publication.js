@@ -137,7 +137,7 @@ class Publication extends BaseModel {
   static async createPublication (
     reader /*: any */,
     publication /*: any */
-  ) /*: Promise<PublicationType> */ {
+  ) /*: Promise<PublicationType|Error> */ {
     const metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]
@@ -155,13 +155,22 @@ class Publication extends BaseModel {
     ])
     props.readerId = reader.id
     props.metadata = metadata
+    // since this is stored under data:, the validation does not kick in if it is missing.
+    if (!props.readingOrder || props.readingOrder.length === 0) {
+      return Error('no readingOrder')
+    }
     props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }
 
-    const createdPublication = await Publication.query(
-      Publication.knex()
-    ).insertAndFetch(props)
+    let createdPublication
+    try {
+      createdPublication = await Publication.query(
+        Publication.knex()
+      ).insertAndFetch(props)
+    } catch (err) {
+      return err
+    }
 
     // create attributions
     for (const type of attributionTypes) {

@@ -39,6 +39,42 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
+  await tap.test('Try to create Tag without a name', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Stack',
+            json: { property: 'value' }
+          }
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.activity, 'Create Tag')
+    await tap.type(error.details.validation, 'object')
+    await tap.equal(error.details.validation.name[0].keyword, 'required')
+    await tap.equal(
+      error.details.validation.name[0].params.missingProperty,
+      'name'
+    )
+  })
+
   await tap.test('Try to create a duplicate Tag', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)

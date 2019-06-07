@@ -3,6 +3,7 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+const { ValidationError } = require('objection')
 
 /*::
 type ReadActivityType = {
@@ -77,17 +78,18 @@ class ReadActivity extends BaseModel {
     props.readerId = readerId
     props.publicationId = publicationId
     props.published = new Date().toISOString()
-
     try {
       return await ReadActivity.query()
         .insert(props)
         .returning('*')
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
-        throw new Error('no reader') // NOTE: should not happen. Should be caught by the post-outbox route
+        throw 'no reader' // NOTE: should not happen. Should be caught by the post-outbox route
       } else if (err.constraint === 'readactivity_publicationid_foreign') {
-        throw new Error('no publication')
-      }
+        return new Error('no publication')
+      } else if (err instanceof ValidationError) {
+        return err
+      } else throw err
     }
   }
 

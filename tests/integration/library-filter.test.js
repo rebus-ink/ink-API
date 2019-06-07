@@ -514,7 +514,6 @@ const test = async () => {
   //     )
 
   //   const body = res.body
-  //   console.log(res.error)
   //   await tap.equal(body.totalItems, 3)
   //   await tap.equal(body.items.length, 3)
   // })
