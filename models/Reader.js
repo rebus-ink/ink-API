@@ -60,7 +60,7 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    const qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
 
     const orderBuilder = builder => {
       if (filter.orderBy === 'title') {
@@ -122,19 +122,76 @@ class Reader extends BaseModel {
 
     if (filter.author) {
       const attribution = Attribution.normalizeName(filter.author)
-      const readers = await qb
-        .eager('[tags, publications]')
-        .modifyEager('publications', builder => {
-          builder
-            .joinRelation('attributions')
-            .where('attributions.normalizedName', '=', attribution)
-            .andWhere('attributions.role', '=', 'author')
-          orderBuilder(builder)
-          builder
-            .eager('[tags, attributions]')
-            .limit(limit)
-            .offset(offset)
-        })
+      let readers
+      if (filter.title) {
+        readers = await Reader.query(Reader.knex())
+          .leftJoin('Publication', 'Reader.id', 'Publication.readerId')
+          .leftJoin(
+            'Attribution',
+            'Publication.id',
+            'Attribution.publicationId'
+          )
+          .where('Reader.id', '=', readerId)
+          .whereRaw(
+            'LOWER(Publication.name) LIKE ?',
+            '%' + filter.title.toLowerCase() + '%'
+          )
+          .where('Attribution.normalizedName', '=', attribution)
+          .andWhere('Attribution.role', '=', 'author')
+          .eager('[tags, attributions]')
+          .limit(limit)
+          .offset(offset)
+
+        // readers = await qb
+        // .whereRaw(
+        //     'LOWER(Publication.name) LIKE ?',
+        //     '%' + filter.title.toLowerCase() + '%'
+        // )
+        // .eager('[tags, publications]')
+        // .modifyEager('publications', builder => {
+        //   builder
+        //     .joinRelation('attributions')
+        //     .where('attributions.normalizedName', '=', attribution)
+        //     .andWhere('attributions.role', '=', 'author')
+        //   orderBuilder(builder)
+        //   builder
+        //     .eager('[tags, attributions]')
+        //     .limit(limit)
+        //     .offset(offset)
+        // })
+
+        // console.log('before')
+        // readers = await Reader.knex()
+        //   .leftJoin('Publication', 'Reader.id', 'Publication.readerId')
+        //   .whereRaw(
+        //     'LOWER(Publication.name) LIKE ?',
+        //     '%' + filter.title.toLowerCase() + '%'
+        //   )
+        //  .leftJoin('Attribution', 'Attribution.publicationId', 'Publication.id')
+        //  .where('Attribution.normalizedName', '=', attribution)
+        //   .andWhere('Attribution.role', '=', 'author')
+        //   .eager('[tags, publications]')
+
+        //  .then(() => {
+        //   return Reader.knex('reader').where('Reader.id', '=', readerId)
+        //  })
+
+        //  console.log('after')
+      } else {
+        readers = await qb
+          .eager('[tags, publications]')
+          .modifyEager('publications', builder => {
+            builder
+              .joinRelation('attributions')
+              .where('attributions.normalizedName', '=', attribution)
+              .andWhere('attributions.role', '=', 'author')
+            orderBuilder(builder)
+            builder
+              .eager('[tags, attributions]')
+              .limit(limit)
+              .offset(offset)
+          })
+      }
 
       return readers[0]
     }
