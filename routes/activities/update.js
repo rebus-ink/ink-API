@@ -38,10 +38,17 @@ const handleUpdate = async (req, res, next, reader) => {
         )
       }
       if (resultNote instanceof ValidationError) {
+        // rename selector to oa:hasSelector
+        if (resultNote.data && resultNote.data.selector) {
+          resultNote.data['oa:hasSelector'] = resultNote.data.selector
+          resultNote.data['oa:hasSelector'][0].params.missingProperty =
+            'oa:hasSelector'
+          delete resultNote.data.selector
+        }
         return next(
           boom.badRequest('Validation error on Update Note: ', {
             type: 'Note',
-            activity: 'Create Note',
+            activity: 'Upcate Note',
             validation: resultNote.data
           })
         )
@@ -70,6 +77,16 @@ const handleUpdate = async (req, res, next, reader) => {
           })
         )
       }
+      if (resultPub instanceof ValidationError) {
+        return next(
+          boom.badRequest('Validation error on Update Publication: ', {
+            type: 'Publication',
+            activity: 'Update Publication',
+            validation: resultPub.data
+          })
+        )
+      }
+
       const activityObjPub = createActivityObject(body, resultPub, reader)
       Activity.createActivity(activityObjPub)
         .then(activity => {

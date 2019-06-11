@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
+const { ValidationError } = require('objection')
 
 /*::
 type NoteType = {
@@ -176,10 +177,12 @@ class Note extends BaseModel {
     if (!note) {
       return null
     }
-    note = Object.assign(note, modifications)
-
+    // note = Object.assign(note, modifications)
     try {
-      return await Note.query().updateAndFetchById(urlToId(object.id), note)
+      return await Note.query().patchAndFetchById(
+        urlToId(object.id),
+        modifications
+      )
     } catch (err) {
       return err
     }

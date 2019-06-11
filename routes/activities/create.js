@@ -88,6 +88,13 @@ const handleCreate = async (req, res, next, reader) => {
             )
           )
         } else if (err instanceof ValidationError) {
+          // rename selector to oa:hasSelector
+          if (err.data && err.data.selector) {
+            err.data['oa:hasSelector'] = err.data.selector
+            err.data['oa:hasSelector'][0].params.missingProperty =
+              'oa:hasSelector'
+            delete err.data.selector
+          }
           return next(
             boom.badRequest('Validation Error on Create Note: ', {
               activity: 'Create Note',
