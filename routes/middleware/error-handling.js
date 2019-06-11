@@ -1,4 +1,5 @@
-const errorHandling = (err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+const errorHandling = (err, req, res, next) => {
   // if (err instanceof ValidationError) {
   //   return res.status(err.statusCode)
   // }
