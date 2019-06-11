@@ -48,7 +48,7 @@ const handleUpdate = async (req, res, next, reader) => {
         return next(
           boom.badRequest('Validation error on Update Note: ', {
             type: 'Note',
-            activity: 'Upcate Note',
+            activity: 'Update Note',
             validation: resultNote.data
           })
         )

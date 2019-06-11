@@ -1,6 +1,4 @@
-const { ValidationError } = require('objection')
-
-const errorHandling = (err, req, res, next) => {
+const errorHandling = (err, req, res) => {
   // if (err instanceof ValidationError) {
   //   return res.status(err.statusCode)
   // }

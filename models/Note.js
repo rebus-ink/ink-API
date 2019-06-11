@@ -5,7 +5,6 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
-const { ValidationError } = require('objection')
 
 /*::
 type NoteType = {
