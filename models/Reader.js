@@ -60,7 +60,7 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    let qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
+    const qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
 
     const orderBuilder = builder => {
       if (filter.orderBy === 'title') {
