@@ -84,31 +84,12 @@ class Reader extends BaseModel {
       }
     }
 
-    // if (filter.attribution) {
-    //   const attribution = Attribution.normalizeName(filter.attribution)
-    //   const readers = await qb
-    //     .eager('[tags, publications]')
-    //     .modifyEager('publications', builder => {
-    //       builder
-    //         .joinRelation('attributions')
-    //         .where('attributions.normalizedName', 'like', `%${attribution}%`)
-    //       if (filter.role) {
-    //         builder.andWhere('attributions.role', '=', filter.role)
-    //       }
-    //       orderBuilder(builder)
-    //       builder
-    //         .eager('[tags, attributions]')
-    //         .limit(limit)
-    //         .offset(offset)
-    //     })
-
-    //   return readers[0]
-    // }
-
     if (filter.author || filter.attribution) {
       let author, attribution
       if (filter.author) author = Attribution.normalizeName(filter.author)
-      if (filter.attribution) { attribution = Attribution.normalizeName(filter.attribution) }
+      if (filter.attribution) {
+        attribution = Attribution.normalizeName(filter.attribution)
+      }
 
       const readers = await qb
         .skipUndefined()
