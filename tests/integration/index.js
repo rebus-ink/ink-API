@@ -50,8 +50,8 @@ const allTests = async () => {
   const test = process.env.npm_config_test
 
   if (!test || test === 'activity') {
-    // await activityCreateTests(app)
-    // await activityGetTests(app)
+    await activityCreateTests(app)
+    await activityGetTests(app)
     await readActivityCreateTests(app)
   }
   if (!test || test === 'auth') await authErrorTests(app)

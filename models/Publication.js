@@ -263,13 +263,15 @@ class Publication extends BaseModel {
       modifications.resources = { data: modifications.resources }
     }
 
-    // Assign the modifications to the publication object
-    publication = Object.assign(publication, modifications)
-
-    let updatedPub = await Publication.query().updateAndFetchById(
-      urlToId(newPubObj.id),
-      publication
-    )
+    let updatedPub
+    try {
+      updatedPub = await Publication.query().patchAndFetchById(
+        urlToId(newPubObj.id),
+        modifications
+      )
+    } catch (err) {
+      return err
+    }
 
     // Update Attributions if necessary
     for (const role of attributionTypes) {

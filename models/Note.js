@@ -176,10 +176,12 @@ class Note extends BaseModel {
     if (!note) {
       return null
     }
-    note = Object.assign(note, modifications)
-
+    // note = Object.assign(note, modifications)
     try {
-      return await Note.query().updateAndFetchById(urlToId(object.id), note)
+      return await Note.query().patchAndFetchById(
+        urlToId(object.id),
+        modifications
+      )
     } catch (err) {
       return err
     }

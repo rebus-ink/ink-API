@@ -1,5 +1,4 @@
-const { ValidationError } = require('objection')
-
+// eslint-disable-next-line no-unused-vars
 const errorHandling = (err, req, res, next) => {
   // if (err instanceof ValidationError) {
   //   return res.status(err.statusCode)
@@ -12,6 +11,7 @@ const errorHandling = (err, req, res, next) => {
     } else if (err.statusCode) {
       return res.status(err.statusCode).json(err.data)
     }
+    return res.status(500).send(err)
   }
 }
 
