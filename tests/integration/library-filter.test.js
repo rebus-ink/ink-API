@@ -518,19 +518,19 @@ const test = async () => {
     await tap.equal(body.items.length, 3)
   })
 
-  // await tap.test('filter by attribution and title', async () => {
-  //   const res = await request(app)
-  //     .get(`${readerUrl}/library?attribution=John&title=sequel`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+  await tap.test('filter by attribution and title', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?attribution=John&title=sequel`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-  //   const body = res.body
-  //   await tap.equal(body.totalItems, 4)
-  //   await tap.equal(body.items.length, 4)
-  // })
+    const body = res.body
+    await tap.equal(body.totalItems, 4)
+    await tap.equal(body.items.length, 4)
+  })
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
