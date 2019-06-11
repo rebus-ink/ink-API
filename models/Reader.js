@@ -60,7 +60,7 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    const qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
 
     const orderBuilder = builder => {
       if (filter.orderBy === 'title') {
@@ -83,57 +83,53 @@ class Reader extends BaseModel {
         }
       }
     }
-    if (filter.attribution && filter.role) {
-      const attribution = Attribution.normalizeName(filter.attribution)
+
+    if (filter.author || filter.attribution) {
+      let author, attribution
+      if (filter.author) author = Attribution.normalizeName(filter.author)
+      if (filter.attribution) {
+        attribution = Attribution.normalizeName(filter.attribution)
+      }
+
       const readers = await qb
+        .skipUndefined()
         .eager('[tags, publications]')
-        .modifyEager('publications', builder => {
-          builder
-            .joinRelation('attributions')
-            .where('attributions.normalizedName', 'like', `%${attribution}%`)
-            .andWhere('attributions.role', '=', filter.role)
-          orderBuilder(builder)
-          builder
-            .eager('[tags, attributions]')
-            .limit(limit)
-            .offset(offset)
+        .leftJoin('Publication', builder => {
+          builder.on('Publication.readerId', '=', 'Reader.id')
+          if (filter.title) {
+            builder.onIn('Publication.name', [filter.title])
+          }
         })
-
-      return readers[0]
-    }
-
-    if (filter.attribution) {
-      const attribution = Attribution.normalizeName(filter.attribution)
-      const readers = await qb
-        .eager('[tags, publications]')
         .modifyEager('publications', builder => {
-          builder
-            .joinRelation('attributions')
-            .where('attributions.normalizedName', 'like', `%${attribution}%`)
+          if (filter.title) {
+            const title = filter.title.toLowerCase()
+            builder.where('Publication.name', 'like', `%${title}%`)
+          }
+          builder.leftJoin(
+            'Attribution',
+            'Attribution.publicationId',
+            '=',
+            'Publication.id'
+          )
+          if (filter.author) {
+            builder
+              .where('Attribution.normalizedName', '=', author)
+              .andWhere('Attribution.role', '=', 'author')
+          }
+          if (filter.attribution) {
+            builder.where(
+              'Attribution.normalizedName',
+              'like',
+              `%${attribution}%`
+            )
+            if (filter.role) {
+              builder.andWhere('Attribution.role', '=', filter.role)
+            }
+          }
+          builder.eager('[tags, attributions]')
           orderBuilder(builder)
-          builder
-            .eager('[tags, attributions]')
-            .limit(limit)
-            .offset(offset)
-        })
-
-      return readers[0]
-    }
-
-    if (filter.author) {
-      const attribution = Attribution.normalizeName(filter.author)
-      const readers = await qb
-        .eager('[tags, publications]')
-        .modifyEager('publications', builder => {
-          builder
-            .joinRelation('attributions')
-            .where('attributions.normalizedName', '=', attribution)
-            .andWhere('attributions.role', '=', 'author')
-          orderBuilder(builder)
-          builder
-            .eager('[tags, attributions]')
-            .limit(limit)
-            .offset(offset)
+          builder.limit(limit)
+          builder.offset(offset)
         })
 
       return readers[0]
