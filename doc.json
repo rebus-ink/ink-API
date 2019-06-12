@@ -306,7 +306,7 @@
             "Bearer": []
           }
         ],
-        "reponses": {
+        "responses": {
           "302": "redirected to document",
           "403": "Access to publication {id} disallowed",
           "404": "Publication or Document not found"
@@ -783,8 +783,7 @@
               "enum": [
                 "Publication",
                 "Note'",
-                "reader:Stack",
-                "Tag"
+                "reader:Tag"
               ]
             },
             "id": {
@@ -801,8 +800,7 @@
               "enum": [
                 "Publication",
                 "Note'",
-                "reader:Stack",
-                "Tag"
+                "reader:Tag"
               ]
             },
             "id": {
@@ -1120,11 +1118,82 @@
             "Publication"
           ]
         },
+        "summaryMap": {
+          "type": "object",
+          "properties": {
+            "en": {
+              "type": "string"
+            }
+          }
+        },
+        "@context": {
+          "type": "array"
+        },
+        "author": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/annotation"
+          }
+        },
+        "editor": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/annotation"
+          }
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "datePublished": {
+          "type": "string",
+          "format": "timestamp"
+        },
+        "readerId": {
+          "type": "string",
+          "format": "url"
+        },
+        "published": {
+          "type": "string",
+          "format": "timestamp"
+        },
+        "updated": {
+          "type": "string",
+          "format": "timestamp"
+        }
+      }
+    },
+    "tag": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "url"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "reader:Tag"
+          ]
+        },
         "name": {
           "type": "string"
         },
-        "attributedTo": {
-          "type": "array"
+        "tagType": {
+          "type": "string"
+        },
+        "published": {
+          "type": "string",
+          "format": "timestamp"
+        },
+        "updated": {
+          "type": "string",
+          "format": "timestamp"
         }
       }
     },
@@ -1150,6 +1219,12 @@
         },
         "@context": {
           "type": "array"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/tag"
+          }
         },
         "totalItems": {
           "type": "integer"

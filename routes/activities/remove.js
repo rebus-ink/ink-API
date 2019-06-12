@@ -44,7 +44,7 @@ const handleRemove = async (req, res, next, reader) => {
   }
 
   let resultStack
-  if (body.object.type !== 'reader:Stack') {
+  if (body.object.type !== 'reader:Tag') {
     return next(
       boom.badRequest(`cannot remove ${body.object.type}`, {
         badParams: ['object.type'],
@@ -88,7 +88,7 @@ const handleRemove = async (req, res, next, reader) => {
       case 'no tag':
         return next(
           boom.notFound(`no tag provided`, {
-            type: 'Tag',
+            type: 'reader:Tag',
             activity: `Remove Tag from ${body.target.type}`
           })
         )

@@ -28,7 +28,36 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Stack',
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
+            name: 'mystack',
+            json: { property: 'value' }
+          }
+        })
+      )
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
+    activityUrl = res.get('Location')
+  })
+
+  await tap.test('Create Tag with new type', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'reader:Tag',
+            tagType: 'newTagType!',
             name: 'mystack',
             json: { property: 'value' }
           }
@@ -55,7 +84,8 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Stack',
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
             json: { property: 'value' }
           }
         })
@@ -65,7 +95,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.type, 'reader:Tag')
     await tap.equal(error.details.activity, 'Create Tag')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.name[0].keyword, 'required')
@@ -91,7 +121,8 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Stack',
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
             name: 'mystack'
           }
         })
@@ -99,7 +130,7 @@ const test = async app => {
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
-    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.type, 'reader:Tag')
     await tap.equal(error.details.activity, 'Create Tag')
   })
 
@@ -116,6 +147,8 @@ const test = async app => {
     const body = res.body
     await tap.ok(Array.isArray(body.tags))
     await tap.type(body.tags[0].name, 'string')
+    await tap.equal(body.tags[0].tagType, 'newTagType!')
+    await tap.equal(body.tags[0].type, 'reader:Tag')
     await tap.type(body.tags[0].json, 'object')
     stack = body.tags[0]
   })

@@ -92,6 +92,7 @@ const test = async app => {
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
     await tap.equal(body.items[0].type, 'Note')
+    await tap.ok(body.items[0]['oa:hasSelector'])
   })
 
   await tap.test(

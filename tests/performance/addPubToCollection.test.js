@@ -48,7 +48,7 @@ const test = async () => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Add',
-          object: { id: tagId, type: 'reader:Stack' },
+          object: { id: tagId, type: 'reader:Tag', tagType: 'reader:Stack' },
           target: { id: publicationUrl, type: 'Publication' }
         })
       )
@@ -73,7 +73,7 @@ const test = async () => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Remove',
-          object: { id: tagId, type: 'reader:Stack' },
+          object: { id: tagId, type: 'reader:Tag', tagType: 'reader:Stack' },
           target: { id: publicationUrl }
         })
       )

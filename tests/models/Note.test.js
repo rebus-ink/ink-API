@@ -147,7 +147,8 @@ const test = async app => {
 
   // Create a valid tag
   const newTag = await Tag.createTag(createdReader.id, {
-    type: 'reader:Stack',
+    type: 'reader:Tag',
+    tagType: 'reader:Stack',
     name: 'mystack'
   })
 
@@ -186,11 +187,13 @@ const test = async app => {
   await tap.test('Delete all Note_Tags associated with a note', async () => {
     // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'someStack1'
     })
     const tag2 = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'someStack2'
     })
 
@@ -243,7 +246,8 @@ const test = async app => {
   await tap.test('Delete all Note_Tags associated with a Tag', async () => {
     // Create 1 tag, 2 notes, and add this tag to the notes
     const createdTag = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'another random stack'
     })
 
@@ -274,11 +278,13 @@ const test = async app => {
   await tap.test('Remove a valid tag from a valid note', async () => {
     // Create valid tags
     const tag1 = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'MyStack1'
     })
     const tag2 = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'MyStack2'
     })
 
@@ -332,7 +338,8 @@ const test = async app => {
 
   await tap.test('Delete a Note', async () => {
     const tag = await Tag.createTag(createdReader.id, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'random name for tag'
     })
 

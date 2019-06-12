@@ -644,7 +644,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: {
-            type: 'reader:Stack'
+            type: 'reader:Tag'
           },
           target: {
             type: 'SomethingInvalid'
@@ -677,7 +677,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: {
-            type: 'reader:Stack'
+            type: 'reader:Tag'
           },
           target: {
             name: 'something'
@@ -709,7 +709,7 @@ const test = async app => {
           ],
           type: 'Add',
           object: {
-            type: 'reader:Stack'
+            type: 'reader:Tag'
           }
         })
       )
@@ -841,7 +841,7 @@ const test = async app => {
             ],
             type: 'Remove',
             object: {
-              type: 'reader:Stack'
+              type: 'reader:Tag'
             },
             target: {
               type: 'SomethingInvalid'
@@ -875,7 +875,7 @@ const test = async app => {
           ],
           type: 'Remove',
           object: {
-            type: 'reader:Stack'
+            type: 'reader:Tag'
           },
           target: {
             name: 'something'
@@ -907,7 +907,7 @@ const test = async app => {
           ],
           type: 'Remove',
           object: {
-            type: 'reader:Stack'
+            type: 'reader:Tag'
           }
         })
       )

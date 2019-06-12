@@ -45,7 +45,7 @@ const handleAdd = async (req, res, next, reader) => {
   }
 
   switch (body.object.type) {
-    case 'reader:Stack':
+    case 'reader:Tag':
       // Determine if the Tag is added to a Publication or a Note
       let resultStack
       if (body.target.type === 'Publication') {
@@ -100,7 +100,7 @@ const handleAdd = async (req, res, next, reader) => {
           case 'no tag':
             return next(
               boom.notFound(`no tag found with id ${body.object.id}`, {
-                type: 'Tag',
+                type: 'reader:Tag',
                 id: body.object.id,
                 activity: `Add Tag to ${body.target.type}`
               })

@@ -81,7 +81,8 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Stack',
+          type: 'reader:Tag',
+          tagType: 'reader:Stack',
           name: 'mystack',
           json: { property: 'value' }
         }
@@ -133,7 +134,7 @@ const test = async app => {
     const body = tagsForNotes.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 1)
-    await tap.equal(body.tags[0].type, 'reader:Stack')
+    await tap.equal(body.tags[0].type, 'reader:Tag')
     await tap.equal(body.tags[0].name, 'mystack')
   })
 
@@ -159,7 +160,7 @@ const test = async app => {
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.type, 'reader:Tag')
     await tap.equal(error.details.activity, 'Add Tag to Note')
   })
 
@@ -378,7 +379,7 @@ const test = async app => {
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.type, 'reader:Tag')
       await tap.equal(error.details.activity, 'Remove Tag from Note')
     }
   )

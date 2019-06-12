@@ -63,7 +63,8 @@ const test = async () => {
           ],
           type: 'Create',
           object: {
-            type: 'reader:Stack',
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
             name: 'mystack'
           }
         })
@@ -92,7 +93,7 @@ const test = async () => {
             { reader: 'https://rebus.foundation/ns/reader' }
           ],
           type: 'Add',
-          object: { id: stack.id, type: 'reader:Stack' },
+          object: { id: stack.id, type: 'reader:Tag' },
           target: { id: publication.id, type: 'Publication' }
         })
       )

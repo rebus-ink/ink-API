@@ -85,7 +85,7 @@ const handleDelete = async (req, res, next, reader) => {
         })
       break
 
-    case 'Tag':
+    case 'reader:Tag':
       const resultTag = await Tag.deleteTag(urlToId(body.object.id))
       if (resultTag === null || resultTag === 0) {
         return next(
@@ -93,7 +93,7 @@ const handleDelete = async (req, res, next, reader) => {
             `tag with id ${
               body.object.id
             } does not exist or has already been deleted`,
-            { type: 'Tag', id: body.object.id, activity: 'Delete Tag' }
+            { type: 'reader:Tag', id: body.object.id, activity: 'Delete Tag' }
           )
         )
       } else if (resultTag instanceof Error || !resultTag) {
@@ -104,7 +104,7 @@ const handleDelete = async (req, res, next, reader) => {
               `tag with id ${
                 body.object.id
               } does not exist or has already been deleted`,
-              { type: 'Tag', id: body.object.id, activity: 'Delete Tag' }
+              { type: 'reader:Tag', id: body.object.id, activity: 'Delete Tag' }
             )
           )
         }
