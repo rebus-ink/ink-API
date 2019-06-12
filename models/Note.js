@@ -116,6 +116,10 @@ class Note extends BaseModel {
     if (note.inReplyTo) {
       // $FlowFixMe
       const path = urlparse(note.inReplyTo).path.substr(45)
+      note.context = note.inReplyTo.substr(
+        0,
+        note.inReplyTo.length - path.length
+      )
       const document = await Document.byPath(urlToId(note.context), path)
       if (document) {
         props.documentId = urlToId(document.id)
@@ -130,7 +134,14 @@ class Note extends BaseModel {
     }
     props.readerId = reader.id
 
-    return await Note.query().insertAndFetch(props)
+    try {
+      return await Note.query().insertAndFetch(props)
+    } catch (err) {
+      if (err.constraint === 'note_publicationid_foreign') {
+        throw new Error('no publication')
+      }
+      throw err
+    }
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {

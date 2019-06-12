@@ -46,7 +46,37 @@ const test = async app => {
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
-  await tap.test('Create Note', async () => {
+  await tap.test('Create Note with inReplyTo', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Create',
+          object: {
+            type: 'Note',
+            content: 'This is the content of note A.',
+            'oa:hasSelector': { propety: 'value' },
+            inReplyTo: documentUrl,
+            noteType: 'test',
+            json: { property1: 'value1' }
+          }
+        })
+      )
+    await tap.equal(res.status, 201)
+    await tap.type(res.get('Location'), 'string')
+    activityUrl = res.get('Location')
+  })
+
+  await tap.test('Create Note with context', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -66,7 +96,6 @@ const test = async app => {
             content: 'This is the content of note A.',
             'oa:hasSelector': { propety: 'value' },
             context: publicationUrl,
-            inReplyTo: documentUrl,
             noteType: 'test',
             json: { property1: 'value1' }
           }
@@ -77,7 +106,7 @@ const test = async app => {
     activityUrl = res.get('Location')
   })
 
-  await tap.test('Create Simple Note', async () => {
+  await tap.test('Create Note without inReplyTo or context', async () => {
     const res = await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -249,43 +278,42 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Note')
   })
 
-  // TODO: fix issue #310
-  // await tap.test(
-  //   'Try to create Note with invalid Publication context',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`${readerUrl}/activity`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type(
-  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //       )
-  //       .send(
-  //         JSON.stringify({
-  //           '@context': [
-  //             'https://www.w3.org/ns/activitystreams',
-  //             { reader: 'https://rebus.foundation/ns/reader' }
-  //           ],
-  //           type: 'Create',
-  //           object: {
-  //             type: 'Note',
-  //             content: 'This is the content of note A.',
-  //             'oa:hasSelector': {},
-  //             context: publicationUrl + '123',
-  //             inReplyTo: documentUrl
-  //           }
-  //         })
-  //       )
+  await tap.test(
+    'Try to create Note with invalid Publication context',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Create',
+            object: {
+              type: 'Note',
+              noteType: 'something',
+              content: 'This is the content of note A.',
+              'oa:hasSelector': {},
+              context: publicationUrl + '123'
+            }
+          })
+        )
 
-  //     await tap.equal(res.status, 404)
-  //         const error = JSON.parse(res.text)
-  //   await tap.equal(error.statusCode, 404)
-  //   await tap.equal(error.error, 'Not Found')
-  //   await tap.equal(error.details.type, 'Publication')
-  //   await tap.type(error.details.id, 'string')
-  //   await tap.equal(error.details.activity, 'Create Note')
-  //   }
-  // )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Create Note')
+    }
+  )
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
