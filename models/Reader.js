@@ -94,12 +94,6 @@ class Reader extends BaseModel {
       const readers = await qb
         .skipUndefined()
         .eager('[tags, publications]')
-        .leftJoin('Publication', builder => {
-          builder.on('Publication.readerId', '=', 'Reader.id')
-          if (filter.title) {
-            builder.onIn('Publication.name', [filter.title])
-          }
-        })
         .modifyEager('publications', builder => {
           if (filter.title) {
             const title = filter.title.toLowerCase()
