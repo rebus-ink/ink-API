@@ -245,7 +245,6 @@ Example:
     type: 'Note',
     content: <string>,
     'oa:hasSelector': {},
-    context: <publicationUrl>,
     inReplyTo: <documentUrl>,
     noteType: <string>
   }
@@ -266,7 +265,11 @@ Required Properties:
 }
 ```
 
-This will create a note that is (optionally) attached to the document specified in object.inReplyTo, in the context of the publication in object.context (also optional)
+Note that if you want to create a note associated with a particular document, you need to pass in the documentUrl in property inReplyTo.
+To create a note that is associated with a publication, but not a specific document within the publication, pass in the publicationId in property context.
+If you pass in inReplyTo, you do not need to specify the publication under context. If you do, it will be quietly ignored.
+
+It is also possible to create a note that has neither inReplyTo nor context.
 
 The specific location of the annotation within the document is specified by the oa:hasSelector object
 
