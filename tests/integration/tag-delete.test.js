@@ -83,7 +83,8 @@ const test = async app => {
         ],
         type: 'Create',
         object: {
-          type: 'reader:Stack',
+          type: 'reader:Tag',
+          tagType: 'reader:Stack',
           name: 'mystack',
           json: { property: 'value' }
         }
@@ -119,7 +120,7 @@ const test = async app => {
             ],
             type: 'Delete',
             object: {
-              type: 'Tag',
+              type: 'reader:Tag',
               id: stack.id + 'blah'
             }
           })
@@ -128,7 +129,7 @@ const test = async app => {
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.type, 'reader:Tag')
       await tap.equal(error.details.activity, 'Delete Tag')
     }
   )
@@ -149,7 +150,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'Tag',
+            type: 'reader:Tag',
             id: null
           }
         })
@@ -158,7 +159,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.type, 'reader:Tag')
     await tap.equal(error.details.activity, 'Delete Tag')
   })
 
@@ -198,7 +199,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'Tag',
+            type: 'reader:Tag',
             id: stack.id
           }
         })
@@ -239,7 +240,7 @@ const test = async app => {
           ],
           type: 'Delete',
           object: {
-            type: 'Tag',
+            type: 'reader:Tag',
             id: stack.id
           }
         })
@@ -248,7 +249,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.type, 'reader:Tag')
     await tap.equal(error.details.activity, 'Delete Tag')
   })
 

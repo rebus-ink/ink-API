@@ -12,7 +12,7 @@ These errors can be thrown on various activities
 * 404: 'No reader with id {id}'
 * 403: 'Access to reader {id} disallowed'
 * 400: 'action {action type} not recognized' - action type should be one of 'Create', 'Add', 'Remove', 'Delete', 'Update', 'Read'
-* 400: 'cannot {verb} {type}' e.g. 'cannot delete Document'. Object types can be 'reader:Publication', 'Document', 'Note', 'reader:Stack'. But not all action - object combinations are supported. For example, Update reader:Publication is not supported.
+* 400: 'cannot {verb} {type}' e.g. 'cannot delete Document'. Object types can be 'reader:Publication', 'Document', 'Note', 'reader:Tag'. But not all action - object combinations are supported. For example, Update reader:Publication is not supported.
 
 ## Publications
 
@@ -332,7 +332,8 @@ Possible errors:
 
 ## Tags
 
-Currently, only tags of the type reader:Stack are supported by the API. Those are used to organize publications into stacks or collections.
+Tags of the tagType reader:Stack are used to organize publications into stacks or collections.
+It is possible to create tags with other types.
 
 ### Create a Tag
 
@@ -346,7 +347,8 @@ Example:
   ],
   type: 'Create',
   object: {
-    type: 'reader:Stack',
+    type: 'reader:Tag',
+    tagType: <string> // e.g. 'reader:Stack' for collections
     name: <string>,
     json: {object} // optional
   }
@@ -371,7 +373,7 @@ Example:
   type: 'Add',
   object: {
     id: <tagId>
-    type: 'reader:Stack'
+    type: 'reader:Tag'
   },
   target: {
     id: <publicationId>
@@ -407,7 +409,7 @@ Example:
   type: 'Add',
   object: {
     id: <tagId>
-    type: 'reader:Stack'
+    type: 'reader:Tag'
   },
   target: {
     id: <noteId>
@@ -441,7 +443,7 @@ Possible errors:
   type: 'Remove',
   object: {
     id: <tagId>
-    type: 'reader:Stack'
+    type: 'reader:Tag'
   },
   target: {
     id: <publicationId>
@@ -471,7 +473,7 @@ Possible errors:
   type: 'Remove',
   object: {
     id: <tagId>
-    type: 'reader:Stack'
+    type: 'reader:Tag'
   },
   target: {
     id: <noteId>
@@ -494,8 +496,6 @@ Possible errors:
 
 Example:
 
-NOTE: should use reader:Stack but right now uses 'Tag' as the object type. This might change. Avoid using this feature until this is fixed.
-
 ```
 {
   '@context': [
@@ -504,7 +504,7 @@ NOTE: should use reader:Stack but right now uses 'Tag' as the object type. This 
   ],
   type: 'Delete',
   object: {
-    type: 'Tag',
+    type: 'reader:Tag',
     id: <tagUrl>
   }
 }

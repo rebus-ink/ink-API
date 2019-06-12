@@ -54,7 +54,7 @@ class Tag extends BaseModel {
 
   static async createTag (
     readerId /*: string */,
-    tag /*: {type: string, name: string, json?: {}, readerId?: string} */
+    tag /*: {type: string, name: string, tagType: string, json?: {}, readerId?: string} */
   ) /*: Promise<any> */ {
     tag.readerId = readerId
     // reject duplicates TODO: enforce this as the database level?
@@ -68,7 +68,8 @@ class Tag extends BaseModel {
     //   console.log(existing)
     //   if (existing.length > 0) return new Error('duplicate')
     // }
-    const props = _.pick(tag, ['name', 'type', 'json', 'readerId'])
+    const props = _.pick(tag, ['name', 'json', 'readerId'])
+    props.type = tag.tagType
     try {
       return await Tag.query().insert(props)
     } catch (err) {
@@ -101,6 +102,13 @@ class Tag extends BaseModel {
     return Promise.resolve(parent).then(function () {
       doc.updated = new Date().toISOString()
     })
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.tagType = json.type
+    json.type = 'reader:Tag'
+    return json
   }
 }
 

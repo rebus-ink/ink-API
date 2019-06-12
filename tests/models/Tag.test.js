@@ -18,7 +18,8 @@ const test = async app => {
   }
 
   const tagObject = {
-    type: 'reader:Stack',
+    type: 'reader:Tag',
+    tagType: 'reader:Stack',
     name: 'mystack',
     json: { property: 1 }
   }
@@ -60,7 +61,8 @@ const test = async app => {
     await tap.ok(responseCreate)
     await tap.ok(responseCreate instanceof Tag)
     await tap.equal(responseCreate.readerId, createdReader.id)
-    await tap.equal(responseCreate.type, 'reader:Stack')
+    // await tap.equal(responseCreate.type, 'reader:Tag')
+    // await tap.equal(responseCreate.tagType, 'reader:Stack') // has not gone through the formatjson yet.
     await tap.equal(responseCreate.name, 'mystack')
     await tap.type(responseCreate.id, 'string')
     await tap.type(responseCreate.json, 'object')
@@ -78,12 +80,14 @@ const test = async app => {
   await tap.test('Delete Publication_Tags of a Tag', async () => {
     // Create 2 additional tags for testing purposes
     const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'mystack2'
     })
 
     const createdTag3 = await Tag.createTag(urlToId(createdReader.id), {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'mystack3'
     })
 
@@ -122,7 +126,8 @@ const test = async app => {
     async () => {
       // Create 2 additional tags for testing purposes
       const createdTag4 = await Tag.createTag(urlToId(createdReader.id), {
-        type: 'reader:Stack',
+        type: 'reader:Tag',
+        tagType: 'reader:Stack',
         name: 'mystack4'
       })
 
@@ -150,7 +155,8 @@ const test = async app => {
     async () => {
       // Create 2 additional tags for testing purposes
       const createdTag5 = await Tag.createTag(urlToId(createdReader.id), {
-        type: 'reader:Stack',
+        type: 'reader:Tag',
+        tagType: 'reader:Stack',
         name: 'mystack5'
       })
 
@@ -174,7 +180,8 @@ const test = async app => {
 
   await tap.test('Delete tag by id', async () => {
     const newTagObject = {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'random stack name',
       json: { property: 1 }
     }
@@ -206,7 +213,8 @@ const test = async app => {
 
   await tap.test('Delete tag with an id that does not exist', async () => {
     const newTagObject = {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'random stack name',
       json: { property: 1 }
     }
@@ -220,7 +228,8 @@ const test = async app => {
 
   await tap.test('Delete tag with an invalid id', async () => {
     const newTagObject = {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'another random stack name',
       json: { property: 1 }
     }

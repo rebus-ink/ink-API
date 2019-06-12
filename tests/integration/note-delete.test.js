@@ -71,7 +71,8 @@ const test = async app => {
   await tap.test('Delete a Note', async () => {
     // Create a tag for testing purposes and add it to the note
     const createdTag = await Tag.createTag(readerId, {
-      type: 'reader:Stack',
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
       name: 'random stack'
     })
 

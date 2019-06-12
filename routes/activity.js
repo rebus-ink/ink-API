@@ -25,7 +25,7 @@ const boom = require('@hapi/boom')
  *         properties:
  *           type:
  *             type: string
- *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
+ *             enum: ['Publication', Note', 'reader:Tag']
  *           id:
  *             type: string
  *             format: url
@@ -34,7 +34,7 @@ const boom = require('@hapi/boom')
  *         properties:
  *           type:
  *             type: string
- *             enum: ['Publication', Note', 'reader:Stack', 'Tag']
+ *             enum: ['Publication', Note', 'reader:Tag']
  *           id:
  *             type: string
  *             format: url

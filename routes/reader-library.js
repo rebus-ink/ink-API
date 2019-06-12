@@ -53,6 +53,24 @@ const boom = require('@hapi/boom')
  *       updated:
  *         type: string
  *         format: timestamp
+ *   tag:
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *       type:
+ *         type: string
+ *         enum: ['reader:Tag']
+ *       name:
+ *         type: string
+ *       tagType:
+ *         type: string
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *       updated:
+ *         type: string
+ *         format: timestamp
  *   library:
  *     properties:
  *       id:
@@ -68,6 +86,10 @@ const boom = require('@hapi/boom')
  *             type: string
  *       '@context':
  *         type: array
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
  *       totalItems:
  *         type: integer
  *       items:
@@ -160,7 +182,8 @@ module.exports = app => {
         role: req.query.role,
         title: req.query.title,
         orderBy: req.query.orderBy,
-        reverse: req.query.reverse
+        reverse: req.query.reverse,
+        collection: req.query.stack
       }
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       Reader.getLibrary(id, req.query.limit, req.skip, filters)
