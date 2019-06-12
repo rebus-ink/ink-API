@@ -19,10 +19,40 @@ const boom = require('@hapi/boom')
  *       type:
  *         type: string
  *         enum: ['Publication']
- *       name:
- *         type: string
- *       attributedTo:
+ *       summaryMap:
+ *         type: object
+ *         properties:
+ *           en:
+ *             type: string
+ *       '@context':
  *         type: array
+ *       author:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       editor:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       replies:
+ *         type: array
+ *         items:
+ *           type: string
+ *           format: url
+ *       description:
+ *         type: string
+ *       datePublished:
+ *         type: string
+ *         format: timestamp
+ *       readerId:
+ *         type: string
+ *         format: url
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *       updated:
+ *         type: string
+ *         format: timestamp
  *   library:
  *     properties:
  *       id:

@@ -28,7 +28,7 @@ const boom = require('@hapi/boom')
  *         description: the relative path to the document within the publication
  *     security:
  *       - Bearer: []
- *     reponses:
+ *     responses:
  *       302: redirected to document
  *       403: Access to publication {id} disallowed
  *       404: Publication or Document not found
