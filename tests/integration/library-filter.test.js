@@ -6,7 +6,8 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication
+  createPublication,
+  addPubToCollection
 } = require('../utils/utils')
 const app = require('../../server').app
 
@@ -30,6 +31,8 @@ const test = async () => {
   })
 
   // ------------------------------------ COLLECTION ---------------------------------------
+
+  let stack
 
   await tap.test('Filter Library by collection', async () => {
     // add more publications
@@ -77,26 +80,9 @@ const test = async () => {
       token
     )
 
-    const stack = stackActivityObject.object
+    stack = stackActivityObject.object
     // assign mystack to publication B
-    await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Add',
-          object: { id: stack.id, type: 'reader:Tag' },
-          target: { id: publication.id, type: 'Publication' }
-        })
-      )
+    await addPubToCollection(app, token, readerUrl, publicaiton.id, stack.id)
 
     // get library with filter for collection
     const res = await request(app)
@@ -117,6 +103,68 @@ const test = async () => {
     await tap.equal(body.items[0].name, 'Publication 2')
   })
 
+  await tap.test('should work with pagination', async () => {
+    await createPublicationSimplified({ name: 'Publication 4' })
+    await createPublicationSimplified({ name: 'Publication 5' })
+    await createPublicationSimplified({ name: 'Publication 6' })
+    await createPublicationSimplified({ name: 'Publication 7' })
+    await createPublicationSimplified({ name: 'Publication 8' })
+    await createPublicationSimplified({ name: 'Publication 9' })
+    await createPublicationSimplified({ name: 'Publication 10' })
+    await createPublicationSimplified({ name: 'Publication 11' })
+    await createPublicationSimplified({ name: 'Publication 12' })
+    await createPublicationSimplified({ name: 'Publication 13' })
+
+    // get whole library to get ids:
+    const resLibrary = await request(app)
+      .get(`${readerUrl}/library?limit=20`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    const library = resLibrary.body.items
+    const pubId1 = library[0].id
+    const pubId2 = library[1].id
+    const pubId3 = library[2].id
+    const pubId4 = library[3].id // 5
+    const pubId5 = library[4].id
+    const pubId6 = library[5].id
+    // skipping 7
+    const pubId8 = library[7].id
+    const pubId9 = library[8].id
+    const pubId10 = library[9].id
+    const pubId13 = library[12].id
+
+    await addPubToCollection(app, token, readerUrl, pubId1, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId2, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId3, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId4, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId5, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId6, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId8, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId9, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId10, stack.id)
+    await addPubToCollection(app, token, readerUrl, pubId13, stack.id)
+
+    // get library with filter for collection with pagination
+    const res = await request(app)
+      .get(`${readerUrl}/library?stack=mystack&limit=11`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.totalItems, 11)
+    await tap.equal(body.items.length, 11)
+  })
+
   await tap.test('Filter Library with a non-existing collection', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?stack=notastack`)
@@ -135,19 +183,6 @@ const test = async () => {
   })
 
   // ---------------------------------------- TITLE ------------------------------------
-
-  // add more publications
-
-  await createPublicationSimplified({ name: 'Publication 4' })
-  await createPublicationSimplified({ name: 'Publication 5' })
-  await createPublicationSimplified({ name: 'Publication 6' })
-  await createPublicationSimplified({ name: 'Publication 7' })
-  await createPublicationSimplified({ name: 'Publication 8' })
-  await createPublicationSimplified({ name: 'Publication 9' })
-  await createPublicationSimplified({ name: 'Publication 10' })
-  await createPublicationSimplified({ name: 'Publication 11' })
-  await createPublicationSimplified({ name: 'Publication 12' })
-  await createPublicationSimplified({ name: 'Publication 13' })
 
   await tap.test('Filter Library by title', async () => {
     await createPublicationSimplified({ name: 'superbook' })
