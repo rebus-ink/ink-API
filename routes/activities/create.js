@@ -87,6 +87,19 @@ const handleCreate = async (req, res, next, reader) => {
               }
             )
           )
+        } else if (err.message === 'no publication') {
+          return next(
+            boom.notFound(
+              `note creation failed: no publication found with id ${
+                body.object.context
+              }`,
+              {
+                type: 'Publication',
+                id: body.object.context,
+                activity: 'Create Note'
+              }
+            )
+          )
         } else if (err instanceof ValidationError) {
           // rename selector to oa:hasSelector
           if (err.data && err.data.selector) {
