@@ -119,6 +119,77 @@ const test = async app => {
     await tap.ok(body.published)
     await tap.ok(body.updated)
     await tap.equal(body.inLanguage, 'English')
+    // should not have a position
+    await tap.notOk(body.position)
+  })
+
+  await tap.test('Get Publication with a position', async () => {
+    // create some read activity
+    await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Read',
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
+            property: 'first' // included for testing purposes
+          }
+        })
+      )
+
+    await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Read',
+          context: publicationUrl,
+          'oa:hasSelector': {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[3]/td[6]/span',
+            property: 'last'
+          }
+        })
+      )
+
+    // get publication with position:
+    const res = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.equal(body.type, 'Publication')
+    await tap.equal(body.name, 'Publication A')
+    await tap.type(body.position, 'object')
+    console.log('????', body.position)
+    await tap.equal(body.position.property, 'last')
   })
 
   await tap.test('Try to get Publication that does not exist', async () => {
