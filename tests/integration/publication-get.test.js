@@ -188,7 +188,6 @@ const test = async app => {
     await tap.equal(body.type, 'Publication')
     await tap.equal(body.name, 'Publication A')
     await tap.type(body.position, 'object')
-    console.log('????', body.position)
     await tap.equal(body.position.property, 'last')
   })
 
