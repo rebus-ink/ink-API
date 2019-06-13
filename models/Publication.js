@@ -21,6 +21,7 @@ type PublicationType = {
   resources?: Object,
   links?: Object,
   json?: Object,
+  position?: Object,
   readerId: string,
   published: Date,
   updated: Date
@@ -200,6 +201,8 @@ class Publication extends BaseModel {
 
     if (!pub || pub.deleted) return null
 
+    const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
+    if (latestReadActivity && latestReadActivity.selector) { pub.position = latestReadActivity.selector }
     pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data

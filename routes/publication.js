@@ -77,6 +77,8 @@ const boom = require('@hapi/boom')
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
+ *       position:
+ *         type: object
  *       json:
  *         type: object
  *       readerId:
