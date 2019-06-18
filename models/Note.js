@@ -83,7 +83,7 @@ class Note extends BaseModel {
           to: 'Document.id'
         }
       },
-      context: {
+      publication: {
         relation: Model.BelongsToOneRelation,
         modelClass: Publication,
         join: {

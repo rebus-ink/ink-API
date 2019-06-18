@@ -281,27 +281,21 @@ class Reader extends BaseModel {
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
     }
 
-    const orderBuilder = builder => {
-      if (filters.orderBy === 'created') {
-        if (filters.reverse) {
-          builder.orderBy('published')
-        } else {
-          builder.orderBy('published', 'desc')
-        }
-      }
-
-      if (filters.orderBy === 'updated') {
-        if (filters.reverse) {
-          builder.orderBy('updated')
-        } else {
-          builder.orderBy('updated', 'desc')
-        }
-      }
-    }
-
     const readers = await qb
-      .eager('replies')
+      .eager('replies.[publication.[attributions]]')
       .modifyEager('replies', builder => {
+        // load details of parent publication for each note
+        builder.modifyEager('publication', pubBuilder => {
+          pubBuilder.select(
+            'id',
+            'name',
+            'description',
+            'datePublished',
+            'metadata'
+          )
+        })
+
+        // filters
         if (filters.publication) {
           builder.where('publicationId', '=', urlToId(filters.publication))
         }
@@ -317,7 +311,25 @@ class Reader extends BaseModel {
             '%' + filters.search.toLowerCase() + '%'
           )
         }
-        orderBuilder(builder)
+
+        // orderBy
+        if (filters.orderBy === 'created') {
+          if (filters.reverse) {
+            builder.orderBy('published')
+          } else {
+            builder.orderBy('published', 'desc')
+          }
+        }
+
+        if (filters.orderBy === 'updated') {
+          if (filters.reverse) {
+            builder.orderBy('updated')
+          } else {
+            builder.orderBy('updated', 'desc')
+          }
+        }
+
+        // paginate
         builder.limit(limit).offset(offset)
       })
     return readers[0]
