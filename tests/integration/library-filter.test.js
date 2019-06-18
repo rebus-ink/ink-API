@@ -82,7 +82,7 @@ const test = async () => {
 
     stack = stackActivityObject.object
     // assign mystack to publication B
-    await addPubToCollection(app, token, readerUrl, publicaiton.id, stack.id)
+    await addPubToCollection(app, token, readerUrl, publication.id, stack.id)
 
     // get library with filter for collection
     const res = await request(app)
@@ -94,7 +94,6 @@ const test = async () => {
       )
 
     await tap.equal(res.statusCode, 200)
-
     const body = res.body
     await tap.type(body, 'object')
     await tap.equal(body.totalItems, 1)
@@ -104,10 +103,10 @@ const test = async () => {
   })
 
   await tap.test('should work with pagination', async () => {
-    await createPublicationSimplified({ name: 'Publication 4' })
+    await createPublicationSimplified({ name: 'Publication 4 test' })
     await createPublicationSimplified({ name: 'Publication 5' })
     await createPublicationSimplified({ name: 'Publication 6' })
-    await createPublicationSimplified({ name: 'Publication 7' })
+    await createPublicationSimplified({ name: 'Publication 7 test' })
     await createPublicationSimplified({ name: 'Publication 8' })
     await createPublicationSimplified({ name: 'Publication 9' })
     await createPublicationSimplified({ name: 'Publication 10' })
@@ -128,7 +127,7 @@ const test = async () => {
     const pubId1 = library[0].id
     const pubId2 = library[1].id
     const pubId3 = library[2].id
-    const pubId4 = library[3].id // 5
+    const pubId4 = library[3].id
     const pubId5 = library[4].id
     const pubId6 = library[5].id
     // skipping 7
@@ -566,6 +565,20 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 4)
     await tap.equal(body.items.length, 4)
+  })
+
+  await tap.test('filter by collection and title', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?stack=mystack&title=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    const body = res.body
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

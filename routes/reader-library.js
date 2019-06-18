@@ -209,17 +209,17 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
-            let publications = reader.publications.filter(pub => !pub.deleted)
-            if (req.query.stack) {
-              publications = publications.filter(pub => {
-                const result = _.find(pub.tags, tag => {
-                  return (
-                    tag.type === 'reader:Stack' && tag.name === req.query.stack
-                  )
-                })
-                return result
-              })
-            }
+            let publications = reader.publications.filter(pub => !pub.deleted) // TODO: move to database query
+            // if (req.query.stack) {
+            //   publications = publications.filter(pub => {
+            //     const result = _.find(pub.tags, tag => {
+            //       return (
+            //         tag.type === 'reader:Stack' && tag.name === req.query.stack
+            //       )
+            //     })
+            //     return result
+            //   })
+            // }
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
