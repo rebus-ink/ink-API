@@ -66,6 +66,7 @@ class Reader extends BaseModel {
       const readers = await qb
         .eager('[tags, publications.[tags, attributions]]')
         .modifyEager('publications', builder => {
+          builder.whereNull('deleted')
           if (filter.title) {
             builder.whereRaw(
               'LOWER(name) LIKE ?',
@@ -100,6 +101,7 @@ class Reader extends BaseModel {
     const readers = await qb.eager('[tags, publications.[tags, attributions]]')
     if (!readers[0]) return null
     let publications = readers[0].publications
+    publications = publications.filter(pub => !pub.deleted)
     if (filter.author) {
       const author = Attribution.normalizeName(filter.author)
       publications = publications.filter(pub => {
