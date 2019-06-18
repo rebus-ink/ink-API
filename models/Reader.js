@@ -62,86 +62,193 @@ class Reader extends BaseModel {
     offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
 
-    const orderBuilder = builder => {
-      if (filter.orderBy === 'title') {
-        if (filter.reverse) {
-          builder.orderBy('name', 'desc')
-        } else {
-          builder.orderBy('name')
-        }
-      } else if (filter.orderBy === 'datePublished') {
-        if (filter.reverse) {
-          builder.orderByRaw('"datePublished" NULLS FIRST')
-        } else {
-          builder.orderByRaw('"datePublished" DESC NULLS LAST')
-        }
-      } else {
-        if (filter.reverse) {
-          builder.orderBy('updated')
-        } else {
-          builder.orderBy('updated', 'desc')
-        }
-      }
-    }
-
-    if (filter.author || filter.attribution) {
-      let author, attribution
-      if (filter.author) author = Attribution.normalizeName(filter.author)
-      if (filter.attribution) {
-        attribution = Attribution.normalizeName(filter.attribution)
-      }
-
+    if (!filter.author && !filter.attribution && !filter.collection) {
       const readers = await qb
-        .skipUndefined()
-        .eager('[tags, publications]')
+        .eager('[tags, publications.[tags, attributions]]')
         .modifyEager('publications', builder => {
+          builder.whereNull('deleted')
           if (filter.title) {
-            const title = filter.title.toLowerCase()
-            builder.where('Publication.name', 'like', `%${title}%`)
-          }
-          builder.leftJoin(
-            'Attribution',
-            'Attribution.publicationId',
-            '=',
-            'Publication.id'
-          )
-          if (filter.author) {
-            builder
-              .where('Attribution.normalizedName', '=', author)
-              .andWhere('Attribution.role', '=', 'author')
-          }
-          if (filter.attribution) {
-            builder.where(
-              'Attribution.normalizedName',
-              'like',
-              `%${attribution}%`
+            builder.whereRaw(
+              'LOWER(name) LIKE ?',
+              '%' + filter.title.toLowerCase() + '%'
             )
-            if (filter.role) {
-              builder.andWhere('Attribution.role', '=', filter.role)
+          }
+          if (filter.orderBy === 'title') {
+            if (filter.reverse) {
+              builder.orderBy('name', 'desc')
+            } else {
+              builder.orderBy('name')
+            }
+          } else if (filter.orderBy === 'datePublished') {
+            if (filter.reverse) {
+              builder.orderByRaw('"datePublished" NULLS FIRST')
+            } else {
+              builder.orderByRaw('"datePublished" DESC NULLS LAST')
+            }
+          } else {
+            if (filter.reverse) {
+              builder.orderBy('updated')
+            } else {
+              builder.orderBy('updated', 'desc')
             }
           }
-          builder.eager('[tags, attributions]')
-          orderBuilder(builder)
-          builder.limit(limit)
-          builder.offset(offset)
+          builder.limit(limit).offset(offset)
         })
-
       return readers[0]
     }
 
-    const readers = await qb
-      .eager('[tags, publications.[tags, attributions]]')
-      .modifyEager('publications', builder => {
-        if (filter.title) {
-          builder.whereRaw(
-            'LOWER(name) LIKE ?',
-            '%' + filter.title.toLowerCase() + '%'
-          )
-        }
-        orderBuilder(builder)
-        builder.limit(limit).offset(offset)
+    // temporary fix. TODO: make this into a SQL query
+    const readers = await qb.eager('[tags, publications.[tags, attributions]]')
+    if (!readers[0]) return null
+    let publications = readers[0].publications
+    publications = publications.filter(pub => !pub.deleted)
+    if (filter.author) {
+      const author = Attribution.normalizeName(filter.author)
+      publications = publications.filter(pub => {
+        return !!_.find(pub.attributions, {
+          normalizedName: author,
+          role: 'author'
+        })
       })
+    }
+    if (filter.attribution && filter.role) {
+      const attribution = Attribution.normalizeName(filter.attribution)
+      publications = publications.filter(pub => {
+        return !!_.find(pub.attributions, attr => {
+          return (
+            attr.normalizedName.includes(attribution) &&
+            attr.role === filter.role
+          )
+        })
+      })
+    } else if (filter.attribution) {
+      const attribution = Attribution.normalizeName(filter.attribution)
+      publications = publications.filter(pub => {
+        return !!_.find(pub.attributions, attr => {
+          return attr.normalizedName.includes(attribution)
+        })
+      })
+    }
+
+    // other filters
+    if (filter.title) {
+      publications = publications.filter(pub => {
+        return pub.name.toLowerCase().includes(filter.title.toLowerCase())
+      })
+    }
+
+    if (filter.collection) {
+      publications = publications.filter(pub => {
+        return !!_.find(pub.tags, {
+          name: filter.collection,
+          type: 'reader:Stack'
+        })
+      })
+    }
+
+    // order
+    if (filter.orderBy === 'title') {
+      if (filter.reverse) {
+        publications = _.orderBy(
+          publications,
+          pub => {
+            return pub.name.toLowerCase()
+          },
+          ['desc']
+        )
+      } else {
+        publications = _.orderBy(
+          publications,
+          pub => {
+            return pub.name.toLowerCase()
+          },
+          ['asc']
+        )
+      }
+    } else if (filter.orderBy === 'datePublished') {
+      if (filter.reverse) {
+        publications = _.orderBy(
+          publications,
+          [
+            o => {
+              return o.datePublished === null ? -1 : 1
+            },
+            'datePublished'
+          ],
+          ['asc']
+        )
+      } else {
+        publications = _.orderBy(
+          publications,
+          [o => o.datePublished || ''],
+          ['desc']
+        )
+      }
+    } else {
+      if (filter.reverse) {
+        publications = _.orderBy(publications, ['updated'], ['asc'])
+      } else {
+        publications = _.orderBy(publications, ['updated'], ['desc'])
+      }
+    }
+
+    // paginate
+    publications = _.take(_.drop(publications, offset), limit)
+
+    readers[0].publications = publications
+
     return readers[0]
+
+    // This was almost working. Almost.
+    // if (filter.author || filter.attribution || filter.collection) {
+    //   let author, attribution
+    //   if (filter.author) author = Attribution.normalizeName(filter.author)
+    //   if (filter.attribution) {
+    //     attribution = Attribution.normalizeName(filter.attribution)
+    //   }
+
+    //   const readers = await qb
+    //     .skipUndefined()
+    //     .eager('[tags, publications]')
+    //     .modifyEager('publications', builder => {
+    //       if (filter.title) {
+    //         const title = filter.title.toLowerCase()
+    //         builder.where('Publication.name', 'like', `%${title}%`)
+    //       }
+    //       builder.leftJoin(
+    //         'Attribution',
+    //         'Attribution.publicationId',
+    //         '=',
+    //         'Publication.id'
+    //       )
+    //       if (filter.author) {
+    //         builder
+    //           .where('Attribution.normalizedName', '=', author)
+    //           .andWhere('Attribution.role', '=', 'author')
+    //       }
+    //       if (filter.attribution) {
+    //         builder.where(
+    //           'Attribution.normalizedName',
+    //           'like',
+    //           `%${attribution}%`
+    //         )
+    //         if (filter.role) {
+    //           builder.andWhere('Attribution.role', '=', filter.role)
+    //         }
+    //       }
+    //       builder.eager('[tags, attributions]')
+    //       if (filter.collection) {
+    //         builder
+    //           .where('Tag.name', '=', filter.collection)
+    //           .andWhere('Tag.type', '=', 'reader:Stack')
+    //       }
+    //       orderBuilder(builder)
+    //       builder.limit(limit)
+    //       builder.offset(offset)
+    //     })
+
+    //   return readers[0]
+    // }
   }
 
   static async checkIfExistsByAuthId (

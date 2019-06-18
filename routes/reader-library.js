@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 const utils = require('../utils/utils')
-const _ = require('lodash')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 
@@ -209,17 +208,6 @@ module.exports = app => {
               'Content-Type',
               'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
             )
-            let publications = reader.publications.filter(pub => !pub.deleted)
-            if (req.query.stack) {
-              publications = publications.filter(pub => {
-                const result = _.find(pub.tags, tag => {
-                  return (
-                    tag.type === 'reader:Stack' && tag.name === req.query.stack
-                  )
-                })
-                return result
-              })
-            }
             res.end(
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
@@ -228,8 +216,8 @@ module.exports = app => {
                 },
                 type: 'Collection',
                 id: getId(`/reader-${id}/library`),
-                totalItems: publications.length,
-                items: publications.map(pub => pub.asRef()),
+                totalItems: reader.publications.length,
+                items: reader.publications.map(pub => pub.asRef()),
                 tags: reader.tags,
                 page: req.query.page,
                 pageSize: parseInt(req.query.limit)

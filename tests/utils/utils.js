@@ -200,6 +200,27 @@ const createActivity = async (app, token, readerUrl, object = {}) => {
     .send(JSON.stringify(activityObject))
 }
 
+const addPubToCollection = async (app, token, readerUrl, pubId, tagId) => {
+  return await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Add',
+        object: { id: tagId, type: 'reader:Tag' },
+        target: { id: pubId, type: 'Publication' }
+      })
+    )
+}
+
 module.exports = {
   getToken,
   createUser,
@@ -207,5 +228,6 @@ module.exports = {
   getActivityFromUrl,
   createPublication,
   createNote,
-  createActivity
+  createActivity,
+  addPubToCollection
 }
