@@ -93,6 +93,11 @@ const test = async app => {
     await tap.equal(body.items.length, 3)
     await tap.equal(body.items[0].type, 'Note')
     await tap.ok(body.items[0]['oa:hasSelector'])
+    // notes should include publication information
+    await tap.ok(body.items[0].publication)
+    await tap.type(body.items[0].publication.name, 'string')
+    await tap.ok(body.items[0].publication.author)
+    await tap.type(body.items[0].publication.author[0].name, 'string')
   })
 
   await tap.test(
