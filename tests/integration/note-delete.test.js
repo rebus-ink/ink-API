@@ -238,6 +238,97 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Delete Note')
   })
 
+  // DELETE NOTES FOR PUB
+  await tap.test('Delete all Notes for a Publication', async () => {
+    // create two notes for our publication:
+    const createNoteRes = await createNote(app, token, readerUrl, {
+      content: 'This is the content of note B.',
+      'oa:hasSelector': { propety: 'value' },
+      context: publicationUrl,
+      inReplyTo: documentUrl,
+      noteType: 'test'
+    })
+    const createNoteActivityUrl1 = createNoteRes.get('Location')
+    const noteActivityObject1 = await getActivityFromUrl(
+      app,
+      createNoteActivityUrl1,
+      token
+    )
+    newNoteUrl = noteActivityObject1.object.id
+
+    await createNote(app, token, readerUrl, {
+      content: 'This is the content of note C.',
+      'oa:hasSelector': { propety: 'value' },
+      context: publicationUrl,
+      inReplyTo: documentUrl,
+      noteType: 'test'
+    })
+
+    // before: publication has two replies
+    const pubresbefore = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(pubresbefore.body.replies.length, 2)
+
+    // now delete all notes for pub:
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Collection',
+            name: 'Publication Notes',
+            id: publicationUrl
+          }
+        })
+      )
+
+    await tap.equal(res.statusCode, 204)
+
+    // notes should no longer exist
+    const getres = await request(app)
+      .get(urlparse(newNoteUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(getres.statusCode, 404)
+    const error = JSON.parse(getres.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Get Note')
+
+    // publication should now have no notes
+    const pubresafter = await request(app)
+      .get(urlparse(publicationUrl).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(pubresafter.body.replies.length, 0)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

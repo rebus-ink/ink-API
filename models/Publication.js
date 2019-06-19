@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { Attribution } = require('./Attribution')
 const { ReadActivity } = require('./ReadActivity')
+const { Note } = require('./Note')
 
 const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
@@ -202,7 +203,9 @@ class Publication extends BaseModel {
     if (!pub || pub.deleted) return null
 
     const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
-    if (latestReadActivity && latestReadActivity.selector) { pub.position = latestReadActivity.selector }
+    if (latestReadActivity && latestReadActivity.selector) {
+      pub.position = latestReadActivity.selector
+    }
     pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
@@ -226,6 +229,13 @@ class Publication extends BaseModel {
 
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
+  }
+
+  static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
+    const time = new Date().toISOString()
+    return await Note.query()
+      .patch({ deleted: time })
+      .where('publicationId', '=', id)
   }
 
   static async update (
