@@ -10,6 +10,56 @@ const boom = require('@hapi/boom')
 /**
  * @swagger
  * definition:
+ *   noteWithPub:
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *       type:
+ *         type: string
+ *         enum: ['Note']
+ *       noteType:
+ *         type: string
+ *       'oa:hasSelector':
+ *         type: object
+ *       content:
+ *         type: string
+ *       '@context':
+ *         type: array
+ *       published:
+ *         type: string
+ *         format: date-time
+ *       updated:
+ *         type: string
+ *         format: date-time
+ *       publication:
+ *         properties:
+ *           id:
+ *             type: string
+ *             format: url
+ *           author:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/annotation'
+ *           editor:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/annotation'
+ *           description:
+ *             type: string
+ *           datePublished:
+ *             type: string
+ *             format: timestamp
+ *       inReplyTo:
+ *         type: string
+ *         format: url
+ *         description: The url of the document
+ *       context:
+ *         type: string
+ *         format: url
+ *         description: The url of the publication
+ *       json:
+ *         type: object
  *   notes:
  *     properties:
  *       id:
@@ -30,7 +80,7 @@ const boom = require('@hapi/boom')
  *       items:
  *         type: array
  *         items:
- *           $ref: '#/definitions/note'
+ *           $ref: '#/definitions/noteWithPub'
  *
  */
 module.exports = app => {
