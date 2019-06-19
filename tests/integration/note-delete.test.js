@@ -329,6 +329,67 @@ const test = async app => {
     await tap.equal(pubresafter.body.replies.length, 0)
   })
 
+  await tap.test(
+    'Try to delete all Notes for a Publication with undefined publication id',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Collection',
+              name: 'Publication Notes'
+            }
+          })
+        )
+
+      await tap.equal(res.statusCode, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Collection')
+      await tap.equal(error.details.activity, 'Delete Collection')
+      await tap.equal(error.details.missingParams[0], 'object.id')
+    }
+  )
+
+  await tap.test('Delete all notes for an invalid publication id', async () => {
+    const res = await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Collection',
+            name: 'Publication Notes',
+            id: '123'
+          }
+        })
+      )
+
+    // NOTE: does not return an error. It just deletes nothing.
+    await tap.equal(res.statusCode, 204)
+  })
+
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
   }

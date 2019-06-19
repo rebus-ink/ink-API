@@ -73,7 +73,6 @@ class Publication extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
     const { Document } = require('./Document.js')
-    const { Note } = require('./Note.js')
     const { Tag } = require('./Tag.js')
     return {
       reader: {
