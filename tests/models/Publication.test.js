@@ -7,6 +7,7 @@ const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
 const { Document } = require('../../models/Document')
+const { Note } = require('../../models/Note')
 const crypto = require('crypto')
 
 const test = async app => {
@@ -572,6 +573,29 @@ const test = async app => {
   await tap.test('Delete publication that does not exist', async () => {
     const res = await Publication.delete('123')
     await tap.notOk(res)
+  })
+
+  await tap.test('Delete all notes for a publication', async () => {
+    const createdNote1 = await Note.createNote(createdReader, {
+      noteType: 'something',
+      selector: { property: 'value' },
+      context: publicationId
+    })
+
+    const createdNote2 = await Note.createNote(createdReader, {
+      noteType: 'something',
+      selector: { property: 'value' },
+      context: publicationId
+    })
+
+    const res = await Publication.deleteNotes(publicationId)
+    await tap.equal(res, 2)
+
+    const note1 = await Note.byId(urlToId(createdNote1.id))
+    await tap.ok(note1.deleted)
+
+    const note2 = await Note.byId(urlToId(createdNote2.id))
+    await tap.ok(note2.deleted)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
