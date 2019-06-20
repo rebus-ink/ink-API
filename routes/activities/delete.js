@@ -45,20 +45,12 @@ const handleDelete = async (req, res, next, reader) => {
         )
       }
       const activityObjPub = createActivityObject(body, returned, reader)
-      Activity.createActivity(activityObjPub)
-        .then(activity => {
-          res.status(204)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          return next(
-            boom.badRequest(`create activity error: ${err.message}`, {
-              type: 'Activity',
-              activity: 'Delete Publication'
-            })
-          )
-        })
+      const pubActivity = await Activity.createActivity(activityObjPub)
+
+      res.status(204)
+      res.set('Location', pubActivity.id)
+      res.end()
+
       break
 
     case 'Note':
@@ -74,15 +66,12 @@ const handleDelete = async (req, res, next, reader) => {
         )
       }
       const activityObjNote = createActivityObject(body, resultNote, reader)
-      Activity.createActivity(activityObjNote)
-        .then(activity => {
-          res.status(204)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const noteActivity = await Activity.createActivity(activityObjNote)
+
+      res.status(204)
+      res.set('Location', noteActivity.id)
+      res.end()
+
       break
 
     case 'reader:Tag':
@@ -97,7 +86,6 @@ const handleDelete = async (req, res, next, reader) => {
           )
         )
       } else if (resultTag instanceof Error || !resultTag) {
-        const message = resultTag ? resultTag.message : 'tag deletion failed'
         if (resultTag.message === 'no tag') {
           return next(
             boom.notFound(
@@ -107,26 +95,16 @@ const handleDelete = async (req, res, next, reader) => {
               { type: 'reader:Tag', id: body.object.id, activity: 'Delete Tag' }
             )
           )
+        } else {
+          return next(err)
         }
-        res.status(400).send(`delete tag error: ${message}`)
-        break
       }
       const activityObjTag = createActivityObject(body, body.object, reader)
-      Activity.createActivity(activityObjTag)
-        .then(activity => {
-          res.status(204)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          return next(
-            boom.badRequest(`create activity error: ${err.message}`, {
-              type: 'Activity',
-              activity: 'Delete Note'
-            })
-          )
-        })
-      break
+      const tagActivity = await Activity.createActivity(activityObjTag)
+
+      res.status(204)
+      res.set('Location', tagActivity.id)
+      res.end()
 
     case 'Collection':
       if (body.object.name !== 'Publication Notes') {
@@ -151,15 +129,11 @@ const handleDelete = async (req, res, next, reader) => {
 
       await Publication.deleteNotes(urlToId(body.object.id))
       const activityObjNotes = createActivityObject(body, body.object, reader)
-      Activity.createActivity(activityObjNotes)
-        .then(activity => {
-          res.status(204)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const collectionActivity = await Activity.createActivity(activityObjNotes)
+      res.status(204)
+      res.set('Location', collectionActivity.id)
+      res.end()
+
       break
 
     default:

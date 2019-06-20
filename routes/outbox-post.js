@@ -140,7 +140,7 @@ module.exports = function (app) {
                 break
 
               case 'Arrive':
-                await handleArrive(req, res, reader)
+                await handleArrive(req, res, next, reader)
                 break
 
               case 'Update':

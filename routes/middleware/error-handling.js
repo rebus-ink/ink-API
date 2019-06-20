@@ -7,8 +7,8 @@ const errorHandling = (err, req, res, next) => {
     } else if (err.statusCode) {
       return res.status(err.statusCode).json(err.data)
     }
-    console.log(err)
-    return res.status(500).send(err)
+    console.log('uncaught error: ', err)
+    return next(err)
   }
 }
 

@@ -55,15 +55,10 @@ const handleUpdate = async (req, res, next, reader) => {
       }
 
       const activityObjNote = createActivityObject(body, resultNote, reader)
-      Activity.createActivity(activityObjNote)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.id)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const noteActivity = await Activity.createActivity(activityObjNote)
+      res.status(201)
+      res.set('Location', noteActivity.id)
+      res.end()
       break
 
     case 'Publication':
@@ -88,15 +83,11 @@ const handleUpdate = async (req, res, next, reader) => {
       }
 
       const activityObjPub = createActivityObject(body, resultPub, reader)
-      Activity.createActivity(activityObjPub)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.id)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const pubActivity = await Activity.createActivity(activityObjPub)
+      res.status(201)
+      res.set('Location', pubActivity.id)
+      res.end()
+
       break
 
     default:

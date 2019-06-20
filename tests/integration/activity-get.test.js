@@ -27,15 +27,7 @@ const test = async app => {
     object: {
       type: 'Publication',
       name: 'Publication A',
-      readingOrder: [{ property: 'value' }],
-      attributedTo: [
-        {
-          type: 'Person',
-          name: 'Sample Author'
-        }
-      ],
-      totalItems: 0,
-      orderedItems: []
+      readingOrder: [{ property: 'value' }]
     }
   })
 

@@ -59,13 +59,13 @@ const handleCreate = async (req, res, next, reader) => {
             })
           )
         }
+        return next(err)
       }
       const activityObjPub = createActivityObject(body, resultPub, reader)
-      Activity.createActivity(activityObjPub).then(activity => {
-        res.status(201)
-        res.set('Location', activity.id)
-        res.end()
-      })
+      const pubActivity = await Activity.createActivity(activityObjPub)
+      res.status(201)
+      res.set('Location', pubActivity.id)
+      res.end()
 
       break
 
@@ -115,19 +115,17 @@ const handleCreate = async (req, res, next, reader) => {
               validation: err.data
             })
           )
+        } else {
+          return next(err)
         }
       }
 
       const activityObjNote = createActivityObject(body, resultNote, reader)
-      Activity.createActivity(activityObjNote)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.id)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const noteActivity = await Activity.createActivity(activityObjNote)
+      res.status(201)
+      res.set('Location', noteActivity.id)
+      res.end()
+
       break
 
     case 'reader:Tag':
@@ -153,23 +151,15 @@ const handleCreate = async (req, res, next, reader) => {
           )
         }
 
-        const message = resultStack
-          ? resultStack.message
-          : 'stack creation failed'
-        res.status(400).send(`create tag error: ${message}`)
+        return next(err)
       }
 
       const activityObjStack = createActivityObject(body, resultStack, reader)
 
-      Activity.createActivity(activityObjStack)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.id)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const tagActivity = await Activity.createActivity(activityObjStack)
+      res.status(201)
+      res.set('Location', tagActivity.id)
+      res.end()
 
       break
 
