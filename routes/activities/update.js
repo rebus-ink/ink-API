@@ -113,9 +113,9 @@ const handleUpdate = async (req, res, next, reader) => {
       }
 
       const activityObjTag = createActivityObject(body, resultTag, reader)
-      const noteActivity = await Activity.createActivity(activityObjTag)
+      const tagActivity = await Activity.createActivity(activityObjTag)
       res.status(201)
-      res.set('Location', noteActivity.id)
+      res.set('Location', tagActivity.id)
       res.end()
 
       break
