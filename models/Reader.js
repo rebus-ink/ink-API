@@ -92,6 +92,7 @@ class Reader extends BaseModel {
           'Publication.id'
         )
         builder.leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+        builder.whereNull('Tag.deleted')
         if (filter.author) {
           builder
             .where('Attribution.normalizedName', '=', author)
