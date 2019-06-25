@@ -8,7 +8,9 @@ const {
   getActivityFromUrl,
   createPublication,
   createNote,
-  createDocument
+  createDocument,
+  createTag,
+  addNoteToCollection
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
 
@@ -91,6 +93,8 @@ const test = async app => {
     inReplyTo: documentUrl2
   })
 
+  let noteId1, noteId2, noteId3
+
   // --------------------------------------------- PUBLICATION -----------------------------------
 
   await tap.test('Filter Notes by Publication', async () => {
@@ -108,6 +112,8 @@ const test = async app => {
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
     await tap.equal(body.items[0].type, 'Note')
+
+    noteId1 = body.items[0].id
   })
 
   await createNoteSimplified({
@@ -167,6 +173,9 @@ const test = async app => {
     await tap.equal(res2.status, 200)
     await tap.equal(res2.body.totalItems, 10)
     await tap.equal(res2.body.items.length, 10)
+
+    noteId2 = res2.body.items[3].id
+    noteId3 = res2.body.items[5].id
 
     const res3 = await request(app)
       .get(`${readerUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
@@ -344,9 +353,9 @@ const test = async app => {
   const tagId = tagActivityObject.object.id
 
   // add 3 notes to this collection
-  await addNoteToCollection(app, token, readerUrl, noteId1, tagId)
-  await addNoteToCollection(app, token, readerUrl, noteId2, tagId)
-  await addNoteToCollection(app, token, readerUrl, noteId3, tagId)
+  await addNoteToCollection(app, token, readerUrl, urlToId(noteId1), tagId)
+  await addNoteToCollection(app, token, readerUrl, urlToId(noteId2), tagId)
+  await addNoteToCollection(app, token, readerUrl, urlToId(noteId3), tagId)
 
   await tap.test('Get Notes by Collection', async () => {
     const res = await request(app)

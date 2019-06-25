@@ -132,6 +132,11 @@ module.exports = app => {
    *           type: string
    *         description: keyword to search for in the content of notes. Not case sensitive.
    *       - in: query
+   *         name: stack
+   *         schema:
+   *           type: string
+   *         description: the collection (tag with type 'reader:Stack')
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -171,7 +176,8 @@ module.exports = app => {
         type: req.query.type,
         search: req.query.search,
         orderBy: req.query.orderBy,
-        reverse: req.query.reverse
+        reverse: req.query.reverse,
+        collection: req.query.stack
       }
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {

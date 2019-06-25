@@ -175,6 +175,7 @@ class Reader extends BaseModel {
       .modifyEager('replies', builder => {
         // load details of parent publication for each note
         builder.modifyEager('publication', pubBuilder => {
+          pubBuilder.whereNull('Publication.deleted')
           pubBuilder.select(
             'id',
             'name',
@@ -183,6 +184,7 @@ class Reader extends BaseModel {
             'metadata'
           )
         })
+        builder.whereNull('Note.deleted')
 
         // filters
         if (filters.publication) {
@@ -199,6 +201,15 @@ class Reader extends BaseModel {
             'LOWER(content) LIKE ?',
             '%' + filters.search.toLowerCase() + '%'
           )
+        }
+
+        builder.leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
+        builder.leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
+        builder.whereNull('Tag.deleted')
+        if (filters.collection) {
+          builder
+            .where('Tag.name', '=', filters.collection)
+            .andWhere('Tag.type', '=', 'reader:Stack')
         }
 
         // orderBy
