@@ -130,11 +130,6 @@ class Publication extends BaseModel {
     }
   }
 
-  asRef () /*: any */ {
-    const pub = this.toJSON()
-    return _.omit(pub, ['resources', 'readingOrder', 'links', 'json'])
-  }
-
   static async createPublication (
     reader /*: any */,
     publication /*: any */

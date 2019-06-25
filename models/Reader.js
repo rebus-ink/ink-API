@@ -60,195 +60,98 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    const qb = Reader.query(Reader.knex()).where('Reader.id', '=', readerId)
 
-    if (!filter.author && !filter.attribution && !filter.collection) {
-      const readers = await qb
-        .eager('[tags, publications.[tags, attributions]]')
-        .modifyEager('publications', builder => {
-          builder.whereNull('deleted')
-          if (filter.title) {
-            builder.whereRaw(
-              'LOWER(name) LIKE ?',
-              '%' + filter.title.toLowerCase() + '%'
-            )
-          }
-          if (filter.orderBy === 'title') {
-            if (filter.reverse) {
-              builder.orderBy('name', 'desc')
-            } else {
-              builder.orderBy('name')
-            }
-          } else if (filter.orderBy === 'datePublished') {
-            if (filter.reverse) {
-              builder.orderByRaw('"datePublished" NULLS FIRST')
-            } else {
-              builder.orderByRaw('"datePublished" DESC NULLS LAST')
-            }
-          } else {
-            if (filter.reverse) {
-              builder.orderBy('updated')
-            } else {
-              builder.orderBy('updated', 'desc')
-            }
-          }
-          builder.limit(limit).offset(offset)
-        })
-      return readers[0]
+    let author, attribution
+    if (filter.author) author = Attribution.normalizeName(filter.author)
+    if (filter.attribution) {
+      attribution = Attribution.normalizeName(filter.attribution)
     }
 
-    // temporary fix. TODO: make this into a SQL query
-    const readers = await qb.eager('[tags, publications.[tags, attributions]]')
-    if (!readers[0]) return null
-    let publications = readers[0].publications
-    publications = publications.filter(pub => !pub.deleted)
-    if (filter.author) {
-      const author = Attribution.normalizeName(filter.author)
-      publications = publications.filter(pub => {
-        return !!_.find(pub.attributions, {
-          normalizedName: author,
-          role: 'author'
-        })
-      })
-    }
-    if (filter.attribution && filter.role) {
-      const attribution = Attribution.normalizeName(filter.attribution)
-      publications = publications.filter(pub => {
-        return !!_.find(pub.attributions, attr => {
-          return (
-            attr.normalizedName.includes(attribution) &&
-            attr.role === filter.role
+    const readers = await Reader.query(Reader.knex())
+      .where('Reader.id', '=', readerId)
+      .skipUndefined()
+      .eager('[tags, publications]')
+      .modifyEager('publications', builder => {
+        builder
+          .select(
+            'Publication.id',
+            'Publication.description',
+            'Publication.metadata',
+            'Publication.name',
+            'Publication.datePublished',
+            'Publication.json',
+            'Publication.readerId',
+            'Publication.published',
+            'Publication.updated',
+            'Publication.deleted',
+            'Publication.resources'
           )
-        })
-      })
-    } else if (filter.attribution) {
-      const attribution = Attribution.normalizeName(filter.attribution)
-      publications = publications.filter(pub => {
-        return !!_.find(pub.attributions, attr => {
-          return attr.normalizedName.includes(attribution)
-        })
-      })
-    }
-
-    // other filters
-    if (filter.title) {
-      publications = publications.filter(pub => {
-        return pub.name.toLowerCase().includes(filter.title.toLowerCase())
-      })
-    }
-
-    if (filter.collection) {
-      publications = publications.filter(pub => {
-        return !!_.find(pub.tags, {
-          name: filter.collection,
-          type: 'reader:Stack'
-        })
-      })
-    }
-
-    // order
-    if (filter.orderBy === 'title') {
-      if (filter.reverse) {
-        publications = _.orderBy(
-          publications,
-          pub => {
-            return pub.name.toLowerCase()
-          },
-          ['desc']
+          .from('Publication')
+        builder.distinct('Publication.id')
+        builder.whereNull('Publication.deleted')
+        if (filter.title) {
+          const title = filter.title.toLowerCase()
+          builder.where('Publication.name', 'ilike', `%${title}%`)
+        }
+        builder.leftJoin(
+          'Attribution',
+          'Attribution.publicationId',
+          '=',
+          'Publication.id'
         )
-      } else {
-        publications = _.orderBy(
-          publications,
-          pub => {
-            return pub.name.toLowerCase()
-          },
-          ['asc']
+        builder.leftJoin(
+          'publication_tag',
+          'publication_tag.publicationId',
+          '=',
+          'Publication.id'
         )
-      }
-    } else if (filter.orderBy === 'datePublished') {
-      if (filter.reverse) {
-        publications = _.orderBy(
-          publications,
-          [
-            o => {
-              return o.datePublished === null ? -1 : 1
-            },
-            'datePublished'
-          ],
-          ['asc']
-        )
-      } else {
-        publications = _.orderBy(
-          publications,
-          [o => o.datePublished || ''],
-          ['desc']
-        )
-      }
-    } else {
-      if (filter.reverse) {
-        publications = _.orderBy(publications, ['updated'], ['asc'])
-      } else {
-        publications = _.orderBy(publications, ['updated'], ['desc'])
-      }
-    }
-
-    // paginate
-    publications = _.take(_.drop(publications, offset), limit)
-
-    readers[0].publications = publications
+        builder.leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+        builder.whereNull('Tag.deleted')
+        if (filter.author) {
+          builder
+            .where('Attribution.normalizedName', '=', author)
+            .andWhere('Attribution.role', '=', 'author')
+        }
+        if (filter.attribution) {
+          builder.where(
+            'Attribution.normalizedName',
+            'like',
+            `%${attribution}%`
+          )
+          if (filter.role) {
+            builder.andWhere('Attribution.role', '=', filter.role)
+          }
+        }
+        builder.eager('[tags, attributions]')
+        if (filter.collection) {
+          builder
+            .where('Tag.name', '=', filter.collection)
+            .andWhere('Tag.type', '=', 'reader:Stack')
+        }
+        if (filter.orderBy === 'title') {
+          if (filter.reverse) {
+            builder.orderBy('name', 'desc')
+          } else {
+            builder.orderBy('name')
+          }
+        } else if (filter.orderBy === 'datePublished') {
+          if (filter.reverse) {
+            builder.orderByRaw('"datePublished" NULLS FIRST')
+          } else {
+            builder.orderByRaw('"datePublished" DESC NULLS LAST')
+          }
+        } else {
+          if (filter.reverse) {
+            builder.orderBy('updated')
+          } else {
+            builder.orderBy('updated', 'desc')
+          }
+        }
+        builder.limit(limit)
+        builder.offset(offset)
+      })
 
     return readers[0]
-
-    // This was almost working. Almost.
-    // if (filter.author || filter.attribution || filter.collection) {
-    //   let author, attribution
-    //   if (filter.author) author = Attribution.normalizeName(filter.author)
-    //   if (filter.attribution) {
-    //     attribution = Attribution.normalizeName(filter.attribution)
-    //   }
-
-    //   const readers = await qb
-    //     .skipUndefined()
-    //     .eager('[tags, publications]')
-    //     .modifyEager('publications', builder => {
-    //       if (filter.title) {
-    //         const title = filter.title.toLowerCase()
-    //         builder.where('Publication.name', 'like', `%${title}%`)
-    //       }
-    //       builder.leftJoin(
-    //         'Attribution',
-    //         'Attribution.publicationId',
-    //         '=',
-    //         'Publication.id'
-    //       )
-    //       if (filter.author) {
-    //         builder
-    //           .where('Attribution.normalizedName', '=', author)
-    //           .andWhere('Attribution.role', '=', 'author')
-    //       }
-    //       if (filter.attribution) {
-    //         builder.where(
-    //           'Attribution.normalizedName',
-    //           'like',
-    //           `%${attribution}%`
-    //         )
-    //         if (filter.role) {
-    //           builder.andWhere('Attribution.role', '=', filter.role)
-    //         }
-    //       }
-    //       builder.eager('[tags, attributions]')
-    //       if (filter.collection) {
-    //         builder
-    //           .where('Tag.name', '=', filter.collection)
-    //           .andWhere('Tag.type', '=', 'reader:Stack')
-    //       }
-    //       orderBuilder(builder)
-    //       builder.limit(limit)
-    //       builder.offset(offset)
-    //     })
-
-    //   return readers[0]
-    // }
   }
 
   static async checkIfExistsByAuthId (
@@ -286,6 +189,7 @@ class Reader extends BaseModel {
       .modifyEager('replies', builder => {
         // load details of parent publication for each note
         builder.modifyEager('publication', pubBuilder => {
+          pubBuilder.whereNull('Publication.deleted')
           pubBuilder.select(
             'id',
             'name',
@@ -294,6 +198,7 @@ class Reader extends BaseModel {
             'metadata'
           )
         })
+        builder.whereNull('Note.deleted')
 
         // filters
         if (filters.publication) {
@@ -310,6 +215,15 @@ class Reader extends BaseModel {
             'LOWER(content) LIKE ?',
             '%' + filters.search.toLowerCase() + '%'
           )
+        }
+
+        builder.leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
+        builder.leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
+        builder.whereNull('Tag.deleted')
+        if (filters.collection) {
+          builder
+            .where('Tag.name', '=', filters.collection)
+            .andWhere('Tag.type', '=', 'reader:Stack')
         }
 
         // orderBy

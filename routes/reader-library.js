@@ -38,6 +38,12 @@ const boom = require('@hapi/boom')
  *         items:
  *           type: string
  *           format: url
+ *       json:
+ *         type: object
+ *       resources:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
  *       description:
  *         type: string
  *       datePublished:
@@ -217,7 +223,7 @@ module.exports = app => {
                 type: 'Collection',
                 id: getId(`/reader-${id}/library`),
                 totalItems: reader.publications.length,
-                items: reader.publications.map(pub => pub.asRef()),
+                items: reader.publications,
                 tags: reader.tags,
                 page: req.query.page,
                 pageSize: parseInt(req.query.limit)
