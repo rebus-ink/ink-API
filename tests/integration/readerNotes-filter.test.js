@@ -331,6 +331,37 @@ const test = async app => {
     await tap.equal(res.body.items.length, 4)
   })
 
+  // --------------------------------------------- COLLECTION ---------------------------------------
+
+  const tagCreateRes = await createTag(app, token, readerUrl, {
+    name: 'testCollection'
+  })
+  const tagActivityObject = await getActivityFromUrl(
+    app,
+    tagCreateRes.get('Location'),
+    token
+  )
+  const tagId = tagActivityObject.object.id
+
+  // add 3 notes to this collection
+  await addNoteToCollection(app, token, readerUrl, noteId1, tagId)
+  await addNoteToCollection(app, token, readerUrl, noteId2, tagId)
+  await addNoteToCollection(app, token, readerUrl, noteId3, tagId)
+
+  await tap.test('Get Notes by Collection', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/notes?stack=testCollection`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 3)
+  })
+
   // ----------------------------------- COMBINING FILTERS -----------------------------------
 
   await tap.test('Filter Notes by noteType and PubId', async () => {
