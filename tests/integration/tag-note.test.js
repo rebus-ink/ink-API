@@ -7,10 +7,11 @@ const {
   destroyDB,
   getActivityFromUrl,
   createPublication,
-  createNote
+  createNote,
+  createDocument,
+  createTag
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
-const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 
 const test = async app => {
@@ -41,8 +42,8 @@ const test = async app => {
     documentPath: '/inside/the/book.txt',
     json: { property1: 'value1' }
   }
-  const document = await Document.createDocument(
-    reader1,
+  const document = await createDocument(
+    reader1.id,
     publication.id,
     documentObject
   )
@@ -66,28 +67,12 @@ const test = async app => {
   const noteUrl = noteActivityObject.object.id
 
   // create Tag
-  await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'reader:Tag',
-          tagType: 'reader:Stack',
-          name: 'mystack',
-          json: { property: 'value' }
-        }
-      })
-    )
+  await createTag(app, token, readerUrl, {
+    type: 'reader:Tag',
+    tagType: 'reader:Stack',
+    name: 'mystack',
+    json: { property: 'value' }
+  })
 
   // get Tag object by fetching the library
   const libraryRes = await request(app)

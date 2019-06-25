@@ -92,6 +92,24 @@ class Tag extends BaseModel {
     return await Tag.query().deleteById(urlToId(tagId))
   }
 
+  static async update (object /*: any */) /*: Promise<TagType|null> */ {
+    if (!object.id) return null
+
+    const modifications = _.pick(object, ['name', 'json'])
+    let tag = await Tag.query().findById(urlToId(object.id))
+    if (!tag) {
+      return null
+    }
+    try {
+      return await Tag.query().patchAndFetchById(
+        urlToId(object.id),
+        modifications
+      )
+    } catch (err) {
+      return err
+    }
+  }
+
   static async byId (id /*: string */) /*: Promise<TagType> */ {
     return await Tag.query().findById(id)
   }
