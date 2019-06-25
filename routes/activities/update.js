@@ -2,6 +2,7 @@ const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
 const { createActivityObject } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
+const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 
@@ -86,6 +87,35 @@ const handleUpdate = async (req, res, next, reader) => {
       const pubActivity = await Activity.createActivity(activityObjPub)
       res.status(201)
       res.set('Location', pubActivity.id)
+      res.end()
+
+      break
+
+    case 'reader:Tag':
+      const resultTag = await Tag.update(body.object)
+      if (resultTag === null) {
+        return next(
+          boom.notFound(`no tag found with id ${body.object.id}`, {
+            type: 'reader:Tag',
+            id: body.object.id,
+            activity: 'Update Tag'
+          })
+        )
+      }
+      if (resultTag instanceof ValidationError) {
+        return next(
+          boom.badRequest('Validation error on Update Tag: ', {
+            type: 'reader:Tag',
+            activity: 'Update Tag',
+            validation: resultTag.data
+          })
+        )
+      }
+
+      const activityObjTag = createActivityObject(body, resultTag, reader)
+      const noteActivity = await Activity.createActivity(activityObjTag)
+      res.status(201)
+      res.set('Location', noteActivity.id)
       res.end()
 
       break

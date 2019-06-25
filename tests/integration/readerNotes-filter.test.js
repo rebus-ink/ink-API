@@ -7,9 +7,9 @@ const {
   destroyDB,
   getActivityFromUrl,
   createPublication,
-  createNote
+  createNote,
+  createDocument
 } = require('../utils/utils')
-const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
@@ -29,14 +29,6 @@ const test = async app => {
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
   const publicationUrl = pubActivityObject.object.id
 
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
   // create another publication
   const resActivity2 = await createPublication(app, token, readerUrl, {
     name: 'Publication B'
@@ -50,35 +42,19 @@ const test = async app => {
   )
   const publicationUrl2 = pubActivityObject2.object.id
 
-  const resPublication2 = await request(app)
-    .get(urlparse(publicationUrl2).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
-  const createdDocument = await Document.createDocument(
-    { id: urlToId(readerId) },
-    urlToId(resPublication.body.id),
-    {
-      documentPath: '/path/1',
-      mediaType: 'text/html',
-      url: 'http://something/123'
-    }
-  )
+  // creating a document
+  const createdDocument = await createDocument(readerId, publicationUrl, {
+    documentPath: '/path/1',
+    mediaType: 'text/html',
+    url: 'http://something/123'
+  })
 
   // creating a second document
-  const createdDocument2 = await Document.createDocument(
-    { id: urlToId(readerId) },
-    urlToId(resPublication2.body.id),
-    {
-      documentPath: '/path/2',
-      mediaType: 'text/html',
-      url: 'http://something/124'
-    }
-  )
+  const createdDocument2 = await createDocument(readerId, publicationUrl2, {
+    documentPath: '/path/2',
+    mediaType: 'text/html',
+    url: 'http://something/124'
+  })
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
   const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`

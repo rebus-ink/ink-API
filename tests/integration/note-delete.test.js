@@ -7,9 +7,9 @@ const {
   destroyDB,
   getActivityFromUrl,
   createPublication,
-  createNote
+  createNote,
+  createDocument
 } = require('../utils/utils')
-const { Document } = require('../../models/Document')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Note } = require('../../models/Note')
@@ -30,24 +30,7 @@ const test = async app => {
   const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
   const publicationUrl = pubActivityObject.object.id
 
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
-  const createdDocument = await Document.createDocument(
-    { id: urlToId(readerId) },
-    urlToId(resPublication.body.id),
-    {
-      documentPath: '/path/1',
-      mediaType: 'text/html',
-      url: 'http://something/123'
-    }
-  )
+  const createdDocument = await createDocument(readerId, publicationUrl)
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 

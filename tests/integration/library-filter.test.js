@@ -7,7 +7,8 @@ const {
   destroyDB,
   getActivityFromUrl,
   createPublication,
-  addPubToCollection
+  addPubToCollection,
+  createTag
 } = require('../utils/utils')
 const app = require('../../server').app
 
@@ -51,27 +52,7 @@ const test = async () => {
     await createPublicationSimplified({ name: 'Publication 3' })
 
     // create a stack
-    const stackRes = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'reader:Tag',
-            tagType: 'reader:Stack',
-            name: 'mystack'
-          }
-        })
-      )
+    const stackRes = await createTag(app, token, readerUrl)
 
     const stackActivityUrl = stackRes.get('Location')
     const stackActivityObject = await getActivityFromUrl(

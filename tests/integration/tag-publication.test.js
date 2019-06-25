@@ -6,7 +6,8 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication
+  createPublication,
+  createTag
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
 
@@ -26,28 +27,12 @@ const test = async app => {
   const publication = pubActivityObject.object
 
   // create Tag
-  await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'reader:Tag',
-          tagType: 'reader:Stack',
-          name: 'mystack',
-          json: { property: 'value' }
-        }
-      })
-    )
+  await createTag(app, token, readerUrl, {
+    type: 'reader:Tag',
+    tagType: 'reader:Stack',
+    name: 'mystack',
+    json: { property: 'value' }
+  })
 
   // get tag object by fetching the library
   const libraryRes = await request(app)

@@ -6,9 +6,9 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication
+  createPublication,
+  createNote
 } = require('../utils/utils')
-const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
 
 const test = async app => {
@@ -26,7 +26,7 @@ const test = async app => {
     name: 'J. Random Reader'
   }
 
-  const reader1 = await Reader.createReader(readerId, person)
+  await Reader.createReader(readerId, person)
 
   // reader2
   const token2 = getToken()
@@ -38,55 +38,8 @@ const test = async app => {
   const activityObject = await getActivityFromUrl(app, activityUrl, token)
   const publicationUrl = activityObject.object.id
 
-  const resPublication = await request(app)
-    .get(urlparse(publicationUrl).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  // Create a Document for that publication
-  const documentObject = {
-    mediaType: 'txt',
-    url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: '/inside/the/book.txt',
-    json: { property1: 'value1' }
-  }
-  const document = await Document.createDocument(
-    reader1,
-    resPublication.body.id,
-    documentObject
-  )
-
-  // const documentUrl = document.id
-  const documentUrl = `${publicationUrl}${document.documentPath}`
-
   // create Note for reader 1
-  const noteActivity = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Note',
-          content: 'This is the content of note A.',
-          'oa:hasSelector': {},
-          context: publicationUrl,
-          inReplyTo: documentUrl,
-          noteType: 'test'
-        }
-      })
-    )
+  const noteActivity = await createNote(app, token, readerUrl)
 
   // get the urls needed for the tests
   const noteActivityUrl = noteActivity.get('Location')

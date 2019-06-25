@@ -6,7 +6,8 @@ const {
   createUser,
   destroyDB,
   getActivityFromUrl,
-  createPublication
+  createPublication,
+  createDocument
 } = require('../utils/utils')
 
 const { Document } = require('../../models/Document')
@@ -106,8 +107,8 @@ const test = async app => {
       json: { property1: 'value1' }
     }
 
-    const document = await Document.createDocument(
-      reader1,
+    const document = await createDocument(
+      readerCompleteUrl,
       publicationUrl,
       documentObject
     )

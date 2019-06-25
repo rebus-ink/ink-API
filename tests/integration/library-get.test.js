@@ -1,7 +1,12 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, createUser, destroyDB } = require('../utils/utils')
+const {
+  getToken,
+  createUser,
+  destroyDB,
+  createPublication
+} = require('../utils/utils')
 const app = require('../../server').app
 
 const test = async () => {
@@ -35,34 +40,18 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a publication', async () => {
-    await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'Publication',
-            name: 'Publication A',
-            author: ['John Smith'],
-            editor: 'Jane Doe',
-            description: 'this is a description!!',
-            keywords: 'one, two',
-            links: [{ property: 'value' }],
-            readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-            resources: [{ property: 'value' }],
-            json: { property: 'value' }
-          }
-        })
-      )
+    await createPublication(app, token, readerUrl, {
+      type: 'Publication',
+      name: 'Publication A',
+      author: ['John Smith'],
+      editor: 'Jane Doe',
+      description: 'this is a description!!',
+      keywords: 'one, two',
+      links: [{ property: 'value' }],
+      readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+      resources: [{ property: 'value' }],
+      json: { property: 'value' }
+    })
 
     const res = await request(app)
       .get(`${readerUrl}/library`)

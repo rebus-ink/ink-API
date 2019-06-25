@@ -3,6 +3,8 @@ const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
+const { Document } = require('../../models/Document')
+const { urlToId } = require('../../utils/utils')
 
 const getToken = () => {
   const options = {
@@ -200,6 +202,52 @@ const createActivity = async (app, token, readerUrl, object = {}) => {
     .send(JSON.stringify(activityObject))
 }
 
+const createTag = async (app, token, readerUrl, object = {}) => {
+  const tagObject = Object.assign(
+    {
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
+      name: 'mystack'
+    },
+    object
+  )
+
+  return await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Create',
+        object: tagObject
+      })
+    )
+}
+
+const createDocument = async (readerId, publicationId, object = {}) => {
+  const documentObject = Object.assign(
+    {
+      documentPath: '/path/1',
+      mediaType: 'text/html',
+      url: 'http://something/123'
+    },
+    object
+  )
+
+  return await Document.createDocument(
+    { id: urlToId(readerId) },
+    urlToId(publicationId),
+    documentObject
+  )
+}
+
 const addPubToCollection = async (app, token, readerUrl, pubId, tagId) => {
   return await request(app)
     .post(`${readerUrl}/activity`)
@@ -221,6 +269,27 @@ const addPubToCollection = async (app, token, readerUrl, pubId, tagId) => {
     )
 }
 
+const addNoteToCollection = async (app, token, readerUrl, noteId, tagId) => {
+  return await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Add',
+        object: { id: tagId, type: 'reader:Tag' },
+        target: { id: noteId, type: 'Note' }
+      })
+    )
+}
+
 module.exports = {
   getToken,
   createUser,
@@ -229,5 +298,8 @@ module.exports = {
   createPublication,
   createNote,
   createActivity,
-  addPubToCollection
+  createTag,
+  createDocument,
+  addPubToCollection,
+  addNoteToCollection
 }
