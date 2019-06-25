@@ -72,7 +72,20 @@ class Reader extends BaseModel {
       .skipUndefined()
       .eager('[tags, publications]')
       .modifyEager('publications', builder => {
-        builder.select('Publication.*').from('Publication')
+        builder
+          .select(
+            'Publication.id',
+            'Publication.description',
+            'Publication.metadata',
+            'Publication.name',
+            'Publication.datePublished',
+            'Publication.json',
+            'Publication.readerId',
+            'Publication.published',
+            'Publication.updated',
+            'Publication.deleted'
+          )
+          .from('Publication')
         builder.distinct('Publication.id')
         builder.whereNull('Publication.deleted')
         if (filter.title) {

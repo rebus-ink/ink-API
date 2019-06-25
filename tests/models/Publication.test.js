@@ -158,10 +158,6 @@ const test = async app => {
     await tap.ok(publication.reader instanceof Reader)
   })
 
-  await tap.test('Publication asRef', async () => {
-    // asRef is broken. Will fix the test and the code in another PR
-  })
-
   await tap.test('Publication addTag', async () => {
     const res = await Publication_Tag.addTagToPub(
       urlToId(publication.id),
