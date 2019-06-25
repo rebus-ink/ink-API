@@ -115,11 +115,7 @@ const handleRemove = async (req, res, next, reader) => {
         )
 
       default:
-        return next(
-          boom.badRequest(
-            `remove tag from ` + body.target.type + ` error: ${err.message}`
-          )
-        )
+        return next(err)
     }
   }
 
@@ -128,7 +124,7 @@ const handleRemove = async (req, res, next, reader) => {
 
   return res
     .status(201)
-    .set('Location', activity.url)
+    .set('Location', activity.id)
     .end()
 }
 

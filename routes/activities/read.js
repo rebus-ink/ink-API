@@ -42,7 +42,7 @@ const handleRead = async (req, res, next, reader) => {
       )
     }
 
-    return next(boom.badRequest('Read activity error'))
+    return next(result)
   }
 
   if (result instanceof ReadActivity) {

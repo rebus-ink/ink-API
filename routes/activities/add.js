@@ -116,32 +116,16 @@ const handleAdd = async (req, res, next, reader) => {
             )
 
           default:
-            return next(
-              boom.badRequest(
-                `unknown error with add Tag to ${body.target.type}: ${
-                  err.message
-                }`
-              )
-            )
+            return next(err)
         }
       }
 
       const activityObjStack = createActivityObject(body, resultStack, reader)
-      Activity.createActivity(activityObjStack)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          return next(
-            boom.badRequest(
-              `unknown error creating activity for add Tag to ${
-                body.target.type
-              }: ${err.message}`
-            )
-          )
-        })
+      const tagActivity = await Activity.createActivity(activityObjStack)
+      res.status(201)
+      res.set('Location', tagActivity.id)
+      res.end()
+
       break
 
     default:
