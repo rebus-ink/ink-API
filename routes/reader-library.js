@@ -40,6 +40,10 @@ const boom = require('@hapi/boom')
  *           format: url
  *       json:
  *         type: object
+ *       resources:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
  *       description:
  *         type: string
  *       datePublished:

@@ -80,8 +80,8 @@ const test = async () => {
     await tap.equal(body.items[0].editor[0].name, 'Jane Doe')
     await tap.equal(body.items[0].keywords, 'one, two')
     await tap.ok(body.items[0].json)
+    await tap.ok(body.items[0].resources)
     // documents should NOT include:
-    await tap.notOk(body.items[0].resources)
     await tap.notOk(body.items[0].readingOrder)
     await tap.notOk(body.items[0].links)
   })

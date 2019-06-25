@@ -83,7 +83,8 @@ class Reader extends BaseModel {
             'Publication.readerId',
             'Publication.published',
             'Publication.updated',
-            'Publication.deleted'
+            'Publication.deleted',
+            'Publication.resources'
           )
           .from('Publication')
         builder.distinct('Publication.id')
