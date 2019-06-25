@@ -26,6 +26,7 @@ const test = async () => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
+    console.log(res.error)
     await tap.equal(res.status, 200)
 
     const body = res.body
@@ -69,6 +70,7 @@ const test = async () => {
     await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
+    console.log(body.items)
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
