@@ -85,11 +85,21 @@ module.exports = app => {
           // one bucket per publication
           const bucketName = prefix + req.params.id.toLowerCase()
           const publicationId = req.params.id
-          // TODO: check what happens if the bucket already exists
-          let bucket = storage.bucket(bucketName)
-          const exists = await bucket.exists()
-          if (!exists[0]) {
+
+          let bucket
+          try {
             await storage.createBucket(bucketName)
+            bucket = storage.bucket(bucketName)
+          } catch (err) {
+            // 409 = bucket already created. Ignore this error.
+            if (err.response.statusCode !== 409) {
+              return next(
+                boom.failedDependency(err.message, {
+                  service: 'google bucket',
+                  activity: 'Upload File to Publication'
+                })
+              )
+            }
           }
 
           if (!req.file) {

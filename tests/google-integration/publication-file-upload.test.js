@@ -11,6 +11,7 @@ const {
 const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
 const { Document } = require('../../models/Document')
+const crypto = require('crypto')
 
 const { Storage } = require('@google-cloud/storage')
 const storage = new Storage()
@@ -62,6 +63,43 @@ const test = async app => {
   let path = 'very/long/path/to/some/random/useless/file'
   let url
 
+  // create secon publication
+  const resActivity2 = await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Create',
+        object: {
+          type: 'Publication',
+          name: 'Publication B',
+          author: ['John Smith'],
+          editor: 'Jane Doe',
+          description: 'this is a description!!',
+          links: [{ property: 'value' }],
+          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+          resources: [{ property: 'value' }],
+          json: { property: 'value' }
+        }
+      })
+    )
+
+  const pubActivityUrl2 = resActivity2.get('Location')
+  const pubActivityObject2 = await getActivityFromUrl(
+    app,
+    pubActivityUrl2,
+    token
+  )
+  const publicationUrl2 = urlparse(pubActivityObject2.object.id).path
+
   await tap.test('Upload file', async () => {
     const res = await request(app)
       .post(`${publicationUrl}/file-upload`)
@@ -106,6 +144,41 @@ const test = async app => {
     await tap.type(document.json, 'object')
     await tap.equal(document.json.test, 'Value')
     url = document.url
+  })
+
+  await tap.test('Upload multiple files concurrently', async () => {
+    const upload = request(app)
+      .post(`${publicationUrl2}/file-upload`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('name', 'file')
+      .field('documentPath', crypto.randomBytes(8).toString('hex'))
+      .field('mediaType', 'text')
+      .field('json', JSON.stringify({ test: 'Value' }))
+      .attach('file', 'tests/test-files/test-file4.txt')
+
+    const res = await Promise.all([
+      upload,
+      upload,
+      upload,
+      upload,
+      upload,
+      upload,
+      upload,
+      upload,
+      upload,
+      upload
+    ])
+
+    await tap.equal(res[0].statusCode, 200)
+    await tap.equal(res[1].statusCode, 200)
+    await tap.equal(res[2].statusCode, 200)
+    await tap.equal(res[3].statusCode, 200)
+    await tap.equal(res[4].statusCode, 200)
+    await tap.equal(res[5].statusCode, 200)
+    await tap.equal(res[6].statusCode, 200)
+    await tap.equal(res[7].statusCode, 200)
+    await tap.equal(res[8].statusCode, 200)
+    await tap.equal(res[9].statusCode, 200)
   })
 
   await tap.test(
