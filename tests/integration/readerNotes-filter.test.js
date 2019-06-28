@@ -109,7 +109,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
 
-    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.totalItems, 15)
     await tap.equal(body.items.length, 2)
     await tap.equal(body.items[0].type, 'Note')
 
@@ -171,7 +171,6 @@ const test = async app => {
       )
 
     await tap.equal(res2.status, 200)
-    await tap.equal(res2.body.totalItems, 10)
     await tap.equal(res2.body.items.length, 10)
 
     noteId2 = res2.body.items[3].id
@@ -186,7 +185,7 @@ const test = async app => {
       )
 
     await tap.equal(res3.status, 200)
-    await tap.equal(res3.body.totalItems, 3)
+    await tap.equal(res3.body.totalItems, 13)
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
@@ -198,7 +197,7 @@ const test = async app => {
       )
 
     await tap.equal(res4.status, 200)
-    await tap.equal(res4.body.totalItems, 2)
+    await tap.equal(res4.body.totalItems, 13)
     await tap.equal(res4.body.items.length, 2)
   })
 
@@ -214,7 +213,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
 
-    await tap.equal(body.totalItems, 0)
+    await tap.equal(body.totalItems, 13)
     await tap.equal(body.items.length, 0)
   })
 

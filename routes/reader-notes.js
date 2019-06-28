@@ -179,6 +179,7 @@ module.exports = app => {
         reverse: req.query.reverse,
         collection: req.query.stack
       }
+      let returnedReader
       Reader.getNotes(id, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
@@ -198,26 +199,31 @@ module.exports = app => {
               })
             )
           } else {
-            res.setHeader(
-              'Content-Type',
-              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-            )
-            let replies = reader.replies.filter(reply => !reply.deleted)
-            res.end(
-              JSON.stringify({
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                summaryMap: {
-                  en: `Replies for reader with id ${id}`
-                },
-                type: 'Collection',
-                id: getId(`/reader-${id}/notes`),
-                totalItems: replies.length,
-                items: replies,
-                page: req.query.page,
-                pageSize: req.query.limit
-              })
-            )
+            returnedReader = reader
+            return Reader.getNotesCount(id)
           }
+        })
+        .then(count => {
+          let reader = returnedReader
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          let replies = reader.replies.filter(reply => !reply.deleted)
+          res.end(
+            JSON.stringify({
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              summaryMap: {
+                en: `Replies for reader with id ${id}`
+              },
+              type: 'Collection',
+              id: getId(`/reader-${id}/notes`),
+              totalItems: parseInt(count),
+              items: replies,
+              page: req.query.page,
+              pageSize: req.query.limit
+            })
+          )
         })
         .catch(err => {
           next(err)

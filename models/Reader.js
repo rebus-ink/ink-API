@@ -2,6 +2,7 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
+const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
@@ -51,6 +52,14 @@ class Reader extends BaseModel {
     const readers = await qb.eager(eager)
 
     return readers[0]
+  }
+
+  static async getLibraryCount (readerId) {
+    const result = await Publication.query(Publication.knex())
+      .count()
+      .whereNull('deleted')
+      .andWhere('readerId', '=', readerId)
+    return result[0].count
   }
 
   static async getLibrary (
@@ -165,6 +174,14 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
+  static async getNotesCount (readerId) {
+    const result = await Note.query(Note.knex())
+      .count()
+      .whereNull('deleted')
+      .andWhere('readerId', '=', readerId)
+    return result[0].count
+  }
+
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
@@ -246,6 +263,7 @@ class Reader extends BaseModel {
         // paginate
         builder.limit(limit).offset(offset)
       })
+
     return readers[0]
   }
 

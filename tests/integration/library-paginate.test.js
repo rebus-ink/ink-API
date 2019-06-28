@@ -49,7 +49,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 10)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
     await tap.equal(body.items.length, 10)
@@ -72,7 +72,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 11)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
     await tap.equal(body.items.length, 11)
@@ -95,7 +95,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
     await tap.equal(body.items.length, 3)
@@ -118,7 +118,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
     await tap.equal(body.items.length, 2)
@@ -167,7 +167,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 0)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 0)
     await tap.equal(body.page, 3)
@@ -189,7 +189,7 @@ const test = async () => {
 
       const body = res.body
       await tap.type(body, 'object')
-      await tap.equal(body.totalItems, 10)
+      await tap.equal(body.totalItems, 13)
       await tap.ok(Array.isArray(body.items))
       await tap.equal(body.items.length, 10)
       await tap.equal(body.page, 1)
@@ -210,7 +210,7 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.totalItems, 10)
+    await tap.equal(body.totalItems, 13)
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 10)
     await tap.equal(body.page, 1)
@@ -341,7 +341,7 @@ const test = async () => {
 
       const body = res.body
       await tap.type(body, 'object')
-      await tap.equal(body.totalItems, 100)
+      await tap.equal(body.totalItems, 110)
       await tap.ok(Array.isArray(body.items))
       await tap.equal(body.items.length, 100)
       await tap.equal(body.page, 1)
@@ -364,7 +364,7 @@ const test = async () => {
 
       const body = res.body
       await tap.type(body, 'object')
-      await tap.equal(body.totalItems, 10)
+      await tap.equal(body.totalItems, 110)
       await tap.ok(Array.isArray(body.items))
       await tap.equal(body.items.length, 10)
       await tap.equal(body.page, 1)
@@ -387,7 +387,7 @@ const test = async () => {
 
       const body = res.body
       await tap.type(body, 'object')
-      await tap.equal(body.totalItems, 10)
+      await tap.equal(body.totalItems, 110)
       await tap.ok(Array.isArray(body.items))
       await tap.equal(body.items.length, 10)
       await tap.equal(body.page, 1)
