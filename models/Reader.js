@@ -54,11 +54,63 @@ class Reader extends BaseModel {
     return readers[0]
   }
 
-  static async getLibraryCount (readerId) {
-    const result = await Publication.query(Publication.knex())
+  static async getLibraryCount (readerId, filter) {
+    let author, attribution
+    if (filter.author) author = Attribution.normalizeName(filter.author)
+    if (filter.attribution) {
+      attribution = Attribution.normalizeName(filter.attribution)
+    }
+
+    let resultQuery = Publication.query(Publication.knex())
       .count()
-      .whereNull('deleted')
-      .andWhere('readerId', '=', readerId)
+      .whereNull('Publication.deleted')
+      .andWhere('Publication.readerId', '=', readerId)
+
+    if (filter.title) {
+      resultQuery = resultQuery.where(
+        'Publication.name',
+        'ilike',
+        `%${filter.title.toLowerCase()}%`
+      )
+    }
+    if (filter.author) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'Attribution',
+          'Attribution.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .where('Attribution.normalizedName', '=', author)
+        .andWhere('Attribution.role', '=', 'author')
+    }
+    if (filter.attribution) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'Attribution',
+          'Attribution.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .where('Attribution.normalizedName', 'like', `%${attribution}%`)
+      if (filter.role) {
+        resultQuery = resultQuery.andWhere('Attribution.role', '=', filter.role)
+      }
+    }
+    if (filter.collection) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'publication_tag',
+          'publication_tag.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+        .where('Tag.name', '=', filter.collection)
+        .andWhere('Tag.type', '=', 'reader:Stack')
+    }
+
+    const result = await resultQuery
     return result[0].count
   }
 

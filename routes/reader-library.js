@@ -212,7 +212,14 @@ module.exports = app => {
             )
           } else {
             returnedReader = reader
-            return Reader.getLibraryCount(id)
+            // skip count query if we know we are at the last page
+            if (
+              reader.publications.length < req.query.limit &&
+              reader.publications.length > 0
+            ) {
+              return Promise.resolve(reader.publications.length + req.skip)
+            }
+            return Reader.getLibraryCount(id, filters)
           }
         })
         .then(count => {
