@@ -142,9 +142,9 @@ class Reader extends BaseModel {
           }
         } else {
           if (filter.reverse) {
-            builder.orderBy('updated')
+            builder.orderBy('Publication.updated')
           } else {
-            builder.orderBy('updated', 'desc')
+            builder.orderBy('Publication.updated', 'desc')
           }
         }
         builder.limit(limit)
@@ -237,9 +237,9 @@ class Reader extends BaseModel {
 
         if (filters.orderBy === 'updated') {
           if (filters.reverse) {
-            builder.orderBy('updated')
+            builder.orderBy('Publication.updated')
           } else {
-            builder.orderBy('updated', 'desc')
+            builder.orderBy('Publication.updated', 'desc')
           }
         }
 
