@@ -121,15 +121,15 @@ class Note extends BaseModel {
 
     if (note.inReplyTo) {
       // $FlowFixMe
-      const noteParams = match(urlparse(note.inReplyTo).path)
-      note.context = '/publication-' + noteParams.context
-      const document = await Document.byPath(
-        noteParams.context,
-        noteParams.path.join('/')
-      )
+      const { context, path = [] } = match(urlparse(note.inReplyTo).path)
+      note.context = context
+      const document = await Document.byPath(context, path.join('/'))
       if (document) {
         props.documentId = urlToId(document.id)
       } else {
+        const err = new Error('no document')
+        // $FlowFixMe
+        err.note = note
         throw new Error('no document')
       }
     }

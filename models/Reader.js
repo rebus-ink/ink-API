@@ -6,6 +6,12 @@ const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
+const route = require('path-match')({
+  sensitive: false,
+  strict: false,
+  end: false
+})
+const match = route('/publication-:context/:path*')
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -177,10 +183,9 @@ class Reader extends BaseModel {
     let doc
     if (filters.document) {
       // $FlowFixMe
-      const path = urlparse(filters.document).path.substr(45)
+      const { context, path = [] } = match(urlparse(filters.document).path)
       // $FlowFixMe
-      const pubId = urlparse(filters.document).path.substr(13, 32)
-      doc = await Document.byPath(pubId, path)
+      doc = await Document.byPath(context, path)
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
     }
 
