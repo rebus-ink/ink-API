@@ -89,10 +89,9 @@ module.exports = app => {
           let bucket
           try {
             await storage.createBucket(bucketName)
-            bucket = storage.bucket(bucketName)
           } catch (err) {
             // 409 = bucket already created. Ignore this error.
-            if (err.response.statusCode !== 409) {
+            if (err.code !== 409) {
               return next(
                 boom.failedDependency(err.message, {
                   service: 'google bucket',
@@ -101,6 +100,7 @@ module.exports = app => {
               )
             }
           }
+          bucket = storage.bucket(bucketName)
 
           if (!req.file) {
             return next(
