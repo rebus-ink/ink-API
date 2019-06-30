@@ -130,9 +130,9 @@ class Reader extends BaseModel {
         }
         if (filter.orderBy === 'title') {
           if (filter.reverse) {
-            builder.orderBy('name', 'desc')
+            builder.orderBy('Publication.name', 'desc')
           } else {
-            builder.orderBy('name')
+            builder.orderBy('Publication.name')
           }
         } else if (filter.orderBy === 'datePublished') {
           if (filter.reverse) {
@@ -142,9 +142,9 @@ class Reader extends BaseModel {
           }
         } else {
           if (filter.reverse) {
-            builder.orderBy('updated')
+            builder.orderBy('Publication.updated')
           } else {
-            builder.orderBy('updated', 'desc')
+            builder.orderBy('Publication.updated', 'desc')
           }
         }
         builder.limit(limit)
@@ -229,17 +229,17 @@ class Reader extends BaseModel {
         // orderBy
         if (filters.orderBy === 'created') {
           if (filters.reverse) {
-            builder.orderBy('published')
+            builder.orderBy('Note.published')
           } else {
-            builder.orderBy('published', 'desc')
+            builder.orderBy('Note.published', 'desc')
           }
         }
 
         if (filters.orderBy === 'updated') {
           if (filters.reverse) {
-            builder.orderBy('updated')
+            builder.orderBy('Note.updated')
           } else {
-            builder.orderBy('updated', 'desc')
+            builder.orderBy('Note.updated', 'desc')
           }
         }
 
