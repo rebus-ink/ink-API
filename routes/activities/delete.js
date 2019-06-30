@@ -1,73 +1,149 @@
-const { createActivityObject } = require('./utils')
+const { createActivityObject } = require('../../utils/utils')
 const { Publication } = require('../../models/Publication')
 const { Activity } = require('../../models/Activity')
 const { Note } = require('../../models/Note')
-const { urlToShortId } = require('../../routes/utils')
+const { Tag } = require('../../models/Tag')
+const { urlToId } = require('../../utils/utils')
+const boom = require('@hapi/boom')
 
-const handleDelete = async (req, res, reader) => {
+const handleDelete = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot delete without an object`, {
+        missingParams: ['object'],
+        activity: 'Delete'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot delete without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Delete'
+      })
+    )
+  }
+
   switch (body.object.type) {
-    case 'reader:Publication':
-      const returned = await Publication.delete(urlToShortId(body.object.id))
+    case 'Publication':
+      const returned = await Publication.delete(urlToId(body.object.id))
       if (returned === null) {
-        res
-          .status(404)
-          .send(
+        return next(
+          boom.notFound(
             `publication with id ${
               body.object.id
-            } does not exist or has already been deleted`
+            } does not exist or has already been deleted`,
+            {
+              type: 'Publication',
+              id: body.object.id,
+              activity: 'Delete Publication'
+            }
           )
-        break
-      } else if (returned instanceof Error || !returned) {
-        const message = returned
-          ? returned.message
-          : 'publication deletion failed'
-        res.status(400).send(`delete publication error: ${message}`)
-        break
+        )
       }
       const activityObjPub = createActivityObject(body, returned, reader)
-      Activity.createActivity(activityObjPub)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const pubActivity = await Activity.createActivity(activityObjPub)
+
+      res.status(204)
+      res.set('Location', pubActivity.id)
+      res.end()
+
       break
 
     case 'Note':
-      const resultNote = await Note.delete(urlToShortId(body.object.id))
+      const resultNote = await Note.delete(urlToId(body.object.id))
       if (resultNote === null) {
-        res
-          .status(404)
-          .send(
+        return next(
+          boom.notFound(
             `note with id ${
               body.object.id
-            } does not exist or has already been deleted`
+            } does not exist or has already been deleted`,
+            { type: 'Note', id: body.object.id, activity: 'Delete Note' }
           )
-        break
-      } else if (resultNote instanceof Error || !resultNote) {
-        const message = resultNote ? resultNote.message : 'note deletion failed'
-        res.status(400).send(`delete note error: ${message}`)
-        break
+        )
       }
       const activityObjNote = createActivityObject(body, resultNote, reader)
-      Activity.createActivity(activityObjNote)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const noteActivity = await Activity.createActivity(activityObjNote)
+
+      res.status(204)
+      res.set('Location', noteActivity.id)
+      res.end()
+
+      break
+
+    case 'reader:Tag':
+      const resultTag = await Tag.deleteTag(urlToId(body.object.id))
+      if (resultTag === null || resultTag === 0) {
+        return next(
+          boom.notFound(
+            `tag with id ${
+              body.object.id
+            } does not exist or has already been deleted`,
+            { type: 'reader:Tag', id: body.object.id, activity: 'Delete Tag' }
+          )
+        )
+      } else if (resultTag instanceof Error || !resultTag) {
+        if (resultTag.message === 'no tag') {
+          return next(
+            boom.notFound(
+              `tag with id ${
+                body.object.id
+              } does not exist or has already been deleted`,
+              { type: 'reader:Tag', id: body.object.id, activity: 'Delete Tag' }
+            )
+          )
+        } else {
+          return next(err)
+        }
+      }
+      const activityObjTag = createActivityObject(body, body.object, reader)
+      const tagActivity = await Activity.createActivity(activityObjTag)
+
+      res.status(204)
+      res.set('Location', tagActivity.id)
+      res.end()
+
+    case 'Collection':
+      if (body.object.name !== 'Publication Notes') {
+        return next(
+          boom.badRequest(`invalid collection name: ${body.object.name}`, {
+            type: 'Collection',
+            activity: 'Delete Collection',
+            badParams: ['object.name']
+          })
+        )
+      }
+
+      if (!body.object.id) {
+        return next(
+          boom.badRequest(`missing publication id`, {
+            type: 'Collection',
+            activity: 'Delete Collection',
+            missingParams: ['object.id']
+          })
+        )
+      }
+
+      await Publication.deleteNotes(urlToId(body.object.id))
+      const activityObjNotes = createActivityObject(body, body.object, reader)
+      const collectionActivity = await Activity.createActivity(activityObjNotes)
+      res.status(204)
+      res.set('Location', collectionActivity.id)
+      res.end()
+
       break
 
     default:
-      res.status(400).send(`cannot delete ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot delete ${body.object.type}`, {
+          badParams: ['object.type'],
+          type: body.object.type,
+          activity: 'Delete'
+        })
+      )
   }
 }
 

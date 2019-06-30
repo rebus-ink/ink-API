@@ -3,27 +3,35 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:readers')
+const boom = require('@hapi/boom')
+const { ValidationError } = require('objection')
 
-class ReaderExistsError extends Error {
-  constructor (userId) {
-    super(`Reader already exists for user ${userId}`)
-  }
-}
-
-const insertNewReader = (userId, person) => {
-  debug(`Inserting new reader for user ID ${userId}`)
-  return new Promise((resolve, reject) => {
-    debug(`Querying for user with ID ${userId}`)
-    Reader.checkIfExists(userId)
-      .then(response => {
-        if (response) {
-          reject(new ReaderExistsError(userId))
-        } else {
-          return Reader.createReader(userId, person)
-        }
+const insertNewReader = async (readerId, person, next) => {
+  debug(`Inserting new reader for user ID ${readerId}`)
+  debug(`Querying for reader with ID ${readerId}`)
+  const exists = await Reader.checkIfExistsByAuthId(readerId)
+  if (exists) {
+    return next(
+      boom.badRequest(`reader already exists with id ${readerId}`, {
+        type: 'Reader',
+        id: readerId,
+        activity: 'Create Reader'
       })
-      .then(resolve)
-  })
+    )
+  }
+
+  const result = await Reader.createReader(readerId, person)
+  if (result instanceof ValidationError) {
+    return next(
+      boom.badRequest('Validation error on create Reader: ', {
+        type: 'Reader',
+        activity: 'Create Reader',
+        validation: result.data
+      })
+    )
+  }
+
+  return result
 }
 
 /**
@@ -31,13 +39,18 @@ const insertNewReader = (userId, person) => {
  * definition:
  *   readers-request:
  *     properties:
- *       type:
- *         type: string
- *         enum: ['Person']
  *       name:
  *         type: string
+ *         required: true
  *       '@context':
  *         type: array
+ *         required: true
+ *       profile:
+ *         type: object
+ *       preferences:
+ *         type: object,
+ *       json:
+ *         type: object
  *
  */
 
@@ -67,24 +80,20 @@ module.exports = function (app) {
     '/readers',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      insertNewReader(req.user, req.body)
+      insertNewReader(req.user, req.body, next)
         .then(reader => {
           debug(`Got reader ${JSON.stringify(reader)}`)
           res.setHeader(
             'Content-Type',
             'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
           )
-          debug(`Setting location to ${reader.url}`)
-          res.setHeader('Location', reader.url)
+          debug(`Setting location to ${reader.id}`)
+          res.setHeader('Location', reader.id)
           res.sendStatus(201)
           res.end()
         })
         .catch(err => {
-          if (err instanceof ReaderExistsError) {
-            res.status(400).send(err.message)
-          } else {
-            next(err)
-          }
+          next(err)
         })
     }
   )

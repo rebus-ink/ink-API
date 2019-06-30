@@ -1,11 +1,18 @@
-const { Model } = require('objection')
-const { Publication } = require('./Publication')
-const { Tag } = require('./Tag')
-const { urlToShortId } = require('../routes/utils')
+// @flow
+const { BaseModel } = require('./BaseModel')
+const { urlToId } = require('../utils/utils')
 
-class Publications_Tags extends Model {
+/*::
+type PublicationTagType = {
+  id: string,
+  publicationId: string,
+  tagId: string
+};
+*/
+
+class Publication_Tag extends BaseModel {
   static get tableName () {
-    return 'publications_tags'
+    return 'publication_tag'
   }
 
   static get idColumn () {
@@ -13,55 +20,93 @@ class Publications_Tags extends Model {
   }
 
   static async addTagToPub (
-    publicationUrl /*: string */,
-    tagId /*: number */
-  ) /*: any */ {
+    publicationId /*: string */,
+    tagId /*: string */
+  ) /*: Promise<any> */ {
     // check publication
-    if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = urlToShortId(publicationUrl)
-    const publication = await Publication.byShortId(publicationShortId)
-    if (!publication) return new Error('no publication')
+    if (!publicationId) return new Error('no publication')
 
     // check tag
     if (!tagId) return new Error('no tag')
-    const tag = await Tag.byId(tagId)
-    if (!tag) return new Error('no tag')
-    // check if already exists
-    const result = await Publications_Tags.query().where({
-      publicationId: publication.id,
-      tagId
-    })
-    if (result.length > 0) {
-      return new Error('duplicate')
+
+    // // check if already exists - SKIPPED FOR NOW
+    // const result = await Publications_Tags.query().where({
+    //   publicationId: publication.id,
+    //   tagId
+    // })
+    // if (result.length > 0) {
+    //   return new Error('duplicate')
+
+    try {
+      return await Publication_Tag.query().insertAndFetch({
+        publicationId: publicationId,
+        tagId
+      })
+    } catch (err) {
+      if (err.constraint === 'publication_tag_tagid_foreign') {
+        return new Error('no tag')
+      } else if (err.constraint === 'publication_tag_publicationid_foreign') {
+        return new Error('no publication')
+      } else if (
+        err.constraint === 'publication_tag_publicationid_tagid_unique'
+      ) {
+        return new Error('duplicate')
+      }
     }
-    return await Publications_Tags.query().insert({
-      publicationId: publication.id,
-      tagId
-    })
   }
 
   static async removeTagFromPub (
-    publicationUrl /*: string */,
+    publicationId /*: string */,
     tagId /*: string */
-  ) /*: number */ {
+  ) /*: Promise<PublicationTagType|Error> */ {
     // check publication
-    if (!publicationUrl) return new Error('no publication')
-    let publicationShortId = urlToShortId(publicationUrl)
-    const publication = await Publication.byShortId(publicationShortId)
-    if (!publication) return new Error('no publication')
+    if (!publicationId) return new Error('no publication')
 
     // check tag
     if (!tagId) return new Error('no tag')
-    const tag = await Tag.byId(tagId)
-    if (!tag) return new Error('no tag')
 
-    return await Publications_Tags.query()
+    const result = await Publication_Tag.query()
       .delete()
       .where({
-        publicationId: publication.id,
+        publicationId: urlToId(publicationId),
         tagId
       })
+
+    if (result === 0) {
+      return new Error('not found')
+    } else {
+      return result
+    }
+  }
+
+  static async deletePubTagsOfPub (
+    publicationId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!publicationId) return new Error('no publication')
+
+    return await Publication_Tag.query()
+      .delete()
+      .where({ publicationId: urlToId(publicationId) })
+  }
+
+  static async deletePubTagsOfTag (
+    tagId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!tagId) return new Error('no tag')
+
+    return await Publication_Tag.query()
+      .delete()
+      .where({ tagId: urlToId(tagId) })
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.published = undefined
+      doc.id = undefined
+    })
   }
 }
 
-module.exports = { Publications_Tags }
+module.exports = { Publication_Tag }

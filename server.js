@@ -10,18 +10,22 @@ const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const activityRoute = require('./routes/activity')
-const documentRoute = require('./routes/document')
 const publicationRoute = require('./routes/publication')
-const readerLibraryRoute = require('./routes/user-library')
-const userStreamsRoute = require('./routes/user-streams')
-const userRoute = require('./routes/user')
+const readerLibraryRoute = require('./routes/reader-library')
+const readerStreamsRoute = require('./routes/reader-streams')
+const readerRoute = require('./routes/reader')
 const whoamiRoute = require('./routes/whoami')
 const inboxRoute = require('./routes/inbox')
 const readersRoute = require('./routes/readers')
 const getOutboxRoute = require('./routes/outbox-get')
 const postOutboxRoute = require('./routes/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
+const publicationFileUploadRoute = require('./routes/publication-file-upload')
 const noteRoute = require('./routes/note')
+const publicationDocumentRoute = require('./routes/publication-document')
+const readerNotesRoute = require('./routes/reader-notes')
+
+const errorHandling = require('./routes/middleware/error-handling')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -155,18 +159,22 @@ app.terminate = async () => {
 }
 
 activityRoute(app)
-documentRoute(app)
 publicationRoute(app)
 readerLibraryRoute(app)
-userStreamsRoute(app)
-userRoute(app)
+readerStreamsRoute(app)
+readerRoute(app)
 whoamiRoute(app)
 inboxRoute(app)
 readersRoute(app)
 getOutboxRoute(app)
 postOutboxRoute(app)
 fileUploadRoute(app)
+publicationFileUploadRoute(app)
 noteRoute(app)
+publicationDocumentRoute(app)
+readerNotesRoute(app)
+
+app.use(errorHandling)
 
 app.start = port => {
   app.listen(port, () => console.log('Listening'))

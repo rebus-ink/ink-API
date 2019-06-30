@@ -2,20 +2,24 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
+const _ = require('lodash')
+
+/*::
+type AttributionType = {
+  id: string,
+  role: string,
+  isContributor: boolean,
+  name: string,
+  normalizedName: string,
+  type: string,
+  readerId: string,
+  publicationId?: string,
+  published: Date
+};
+*/
 
 /**
- * @property {Document} document - returns the document, if any, that this Person has contributed to.
- * @property {Publication} publication - returns the publication, if any, that this Person has contributed to.
- *
- * This type models all of the creators and contributors that a publication can have.
- *
- * Because of how messy contributor and creator metadata tends to be, these are structured to be specific to the publication (and possibly document) they are found in. To find all publications by an author you need to query for all Attribution objects with the 'name' criteria you have in mind and use eager queries to get the publications and documents that are attributed to them.console. (To speed this up in the future we'll have to add an index for the JSON in Postgresql. [Example from the Objection documentation site.](https://vincit.github.io/objection.js/#indexing-postgresql-jsonb-columns))
- *
- * You should then further group those results based on whichever additional metadata you have such as ORCID and other specific IDs, which would be found as a secondary Link object in the `url` property of the original Activity Streams JSON object using the `canonical` rel value.
- *
- * That url is surfaced in the model as `canonicalId` which should be an ORCID, if available.
- *
- * The `role` property is derived from `schema:` metadata properties on the publication JSON file itself.
+ * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
  */
 class Attribution extends BaseModel {
   static get tableName () /*: string */ {
@@ -28,39 +32,24 @@ class Attribution extends BaseModel {
     return {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid', maxLength: 255 },
-        readerId: { type: 'string', format: 'uuid', maxLength: 255 },
-        canonicalId: { type: ['string', 'null'], format: 'url' },
+        id: { type: 'string' },
+        role: { type: 'string' },
+        name: { type: 'string ' },
+        normalizedName: { type: 'string' },
+        type: { type: 'string' },
+        readerId: { type: 'string' },
         isContributor: { type: 'boolean' },
-        role: { type: ['string', 'null'] },
-        json: {
-          type: 'object',
-          properties: {
-            type: { type: 'string' },
-            name: { type: 'string' }
-          },
-          additionalProperties: true
-        },
-        updated: { type: 'string', format: 'date-time' },
+        publicationId: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['json']
+      required: ['role', 'name', 'normalizedName', 'readerId', 'publicationId']
     }
   }
   static get relationMappings () /*: any */ {
-    const { Publication } = require('./Publication.js')
-    const { Document } = require('./Document.js')
     const { Reader } = require('./Reader')
+    const { Publication } = require('./Publication')
     return {
-      document: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Document,
-        join: {
-          from: 'Attribution.documentId',
-          to: 'Document.id'
-        }
-      },
       reader: {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
@@ -78,6 +67,88 @@ class Attribution extends BaseModel {
         }
       }
     }
+  }
+
+  /*
+  Note: attribution parameter can be either a string (the name of the person) or an object with name, type and isContributor properties (isContributor is optional. Defaults to false)
+  If the attribution is a string, type defaults to 'Person'
+  If attribution is an object, type can be either 'Person' or 'Organization'
+  */
+  static async createAttribution (
+    attribution /*: any */,
+    role /*: string */,
+    publication /*: any */
+  ) /*: Promise<AttributionType> */ {
+    let props
+
+    if (_.isString(attribution)) {
+      props = {
+        name: attribution,
+        type: 'Person',
+        published: undefined,
+        publicationId: publication.id,
+        readerId: publication.readerId,
+        normalizedName: undefined,
+        role: role
+      }
+    } else {
+      if (
+        attribution.type !== 'Person' &&
+        attribution.type !== 'Organization'
+      ) {
+        throw Error(
+          `${
+            attribution.type
+          } is not a valid attribution type. Only 'Person' and 'Organization' are accepted.`
+        )
+      }
+
+      props = _.pick(attribution, ['name', 'type', 'isContributor'])
+      props.role = role
+      props.readerId = publication.readerId
+      props.publicationId = publication.id
+    }
+
+    props.normalizedName = this.normalizeName(props.name)
+
+    return await Attribution.query(Attribution.knex()).insertAndFetch(props)
+  }
+
+  static normalizeName (name /*: string */) /*: string */ {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove accents
+      .replace(/\s/g, '') // remove spaces
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\']/g, '') // remove punctuation
+  }
+
+  static async byId (id /*: string */) /*: Promise<AttributionType> */ {
+    return await Attribution.query().findById(id)
+  }
+
+  static async getAttributionByPubId (
+    publicationId /*: string */
+  ) /*: Promise<AttributionType> */ {
+    if (publicationId === null) {
+      throw Error(`Your publicationId cannot be null`)
+    }
+
+    return await Attribution.query(Attribution.knex()).where(
+      'publicationId',
+      '=',
+      publicationId
+    )
+  }
+
+  static async deleteAttributionOfPub (
+    publicationId /*: string */,
+    role /*: string */
+  ) /*: Promise<number> */ {
+    return await Attribution.query(Attribution.knex())
+      .where('role', '=', role)
+      .andWhere('publicationId', '=', publicationId)
+      .del()
   }
 }
 

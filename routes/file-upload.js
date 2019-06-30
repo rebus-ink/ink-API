@@ -5,30 +5,78 @@ const { Storage } = require('@google-cloud/storage')
 const passport = require('passport')
 const crypto = require('crypto')
 const { Reader } = require('../models/Reader')
-const utils = require('./utils')
+const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 const storage = new Storage()
 
 const m = multer({ storage: multer.memoryStorage() })
-
+/**
+ * @swagger
+ * /reader-{id}/file-upload:
+ *   post:
+ *     tags:
+ *       - readers
+ *     description: POST /reader-:id/file-upload
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: the id of the reader
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: binary
+ *     responses:
+ *       200:
+ *         description: file created
+ *       400:
+ *         description: No file was included with upload OR Error connecting to google bucket
+ *       404:
+ *         description: No reader with ID {id}
+ *       403:
+ *         description: Access to reader {id} disallowed
+ */
 module.exports = app => {
   app.use('/', router)
   router.post(
-    '/reader-:shortId/file-upload',
+    '/reader-:id/file-upload',
     passport.authenticate('jwt', { session: false }),
     m.array('files'),
-    async function (req, res) {
-      const shortId = req.params.shortId
-      Reader.byShortId(shortId).then(async reader => {
+    async function (req, res, next) {
+      const id = req.params.id
+      Reader.byId(id).then(async reader => {
         if (!reader) {
-          res.status(404).send(`No reader with ID ${shortId}`)
+          return next(
+            boom.notFound(`No reader with ID ${id}`, {
+              type: 'Reader',
+              id: id,
+              activity: 'Upload File'
+            })
+          )
         } else if (!utils.checkReader(req, reader)) {
-          res.status(403).send(`Access to reader ${shortId} disallowed`)
+          return next(
+            boom.forbidden(`Access to reader ${id} disallowed`, {
+              type: 'Reader',
+              id: id,
+              activity: 'Upload File'
+            })
+          )
         } else {
           let prefix =
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
 
-          const bucketName = prefix + req.params.shortId.toLowerCase()
+          const bucketName = prefix + req.params.id.toLowerCase()
 
           // TODO: check what happens if the bucket already exists
           let bucket = storage.bucket(bucketName)
@@ -36,9 +84,14 @@ module.exports = app => {
           if (!exists[0]) {
             await storage.createBucket(bucketName)
           }
-
-          if (!req.files) {
-            res.status(400).send('no file was included in this upload')
+          if (req.files.length === 0) {
+            return next(
+              boom.badRequest('no file was included in this upload', {
+                type: 'file-upload',
+                missingParams: ['req.files'],
+                activity: 'Upload File'
+              })
+            )
           } else {
             let promises = []
             let response = {}
@@ -78,7 +131,11 @@ module.exports = app => {
                 res.status(200).json(response)
               })
               .catch(err => {
-                res.status(400).send(err.message)
+                return next(
+                  boom.failedDependency(err.message, {
+                    service: 'google bucket'
+                  })
+                )
               })
           }
         }

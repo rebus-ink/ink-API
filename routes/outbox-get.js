@@ -5,8 +5,9 @@ const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
 // const debug = require('debug')('hobb:routes:outbox')
 const jwtAuth = passport.authenticate('jwt', { session: false })
+const boom = require('@hapi/boom')
 
-const utils = require('./utils')
+const utils = require('../utils/utils')
 /**
  * @swagger
  * definition:
@@ -40,18 +41,18 @@ module.exports = function (app) {
 
     /**
      * @swagger
-     * /reader-{shortId}/activity:
+     * /reader-{id}/activity:
      *   get:
      *     tags:
      *       - readers
-     *     description: GET /reader-:shortId/activity
+     *     description: GET /reader-:readerId/activity
      *     parameters:
      *       - in: path
-     *         name: shortId
+     *         name: readerId
      *         schema:
      *           type: string
      *         required: true
-     *         description: the short id of the reader
+     *         description: the id of the reader
      *     security:
      *       - Bearer: []
      *     produces:
@@ -64,19 +65,31 @@ module.exports = function (app) {
      *             schema:
      *               $ref: '#/definitions/outbox'
      *       404:
-     *         description: 'No Reader with ID {shortId}'
+     *         description: 'No Reader with ID {id}'
      *       403:
-     *         description: 'Access to reader {shortId} disallowed'
+     *         description: 'Access to reader {id} disallowed'
      */
-    .route('/reader-:shortId/activity')
+    .route('/reader-:readerId/activity')
     .get(jwtAuth, function (req, res, next) {
-      const shortId = req.params.shortId
-      Reader.byShortId(shortId, '[outbox]')
+      const id = req.params.readerId
+      Reader.byId(id, '[outbox]')
         .then(reader => {
           if (!reader) {
-            res.status(404).send(`No reader with ID ${shortId}`)
+            return next(
+              boom.notFound(`No reader with ID ${id}`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Outbox'
+              })
+            )
           } else if (!utils.checkReader(req, reader)) {
-            res.status(403).send(`Access to reader ${shortId} disallowed`)
+            return next(
+              boom.forbidden(`Access to reader ${id} disallowed`, {
+                type: 'Reader',
+                id,
+                activity: 'Get Outbox'
+              })
+            )
           } else {
             res.setHeader(
               'Content-Type',
@@ -86,10 +99,10 @@ module.exports = function (app) {
               JSON.stringify({
                 '@context': 'https://www.w3.org/ns/activitystreams',
                 summaryMap: {
-                  en: `Outbox for user with id ${shortId}`
+                  en: `Outbox for reader with id ${id}`
                 },
                 type: 'OrderedCollection',
-                id: getId(`/reader-${shortId}/activity`),
+                id: getId(`/reader-${id}/activity`),
                 totalItems: reader.outbox.length,
                 orderedItems: reader.outbox.map(item => item.toJSON())
               })

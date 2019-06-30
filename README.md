@@ -15,9 +15,9 @@ To start the dev-server (which uses `nodemon` to automatically restart): `npm ru
 
 ## Starting Tests
 
-Unit tests can be run with `npm run test-unit`
 Test for the database models can be run with `npm run test-models`
 Integration test for the routes can be run with `npm run test-integration`
+You can also run more specific integration tests by doing: `npm run test-integration --test=<category>`. Valid categories are 'activity', 'library', 'note', 'outbox', 'publication', 'reader', 'readerNotes' and 'tag'
 
 `npm run test` will run all three sets of tests
 
@@ -50,7 +50,7 @@ Typically only the owner of a resource can access a resource.
 
 Requests without a JWT token will fail with a 401 status code.
 
-Requests with a valid JWT token for access to another user's resources will fail
+Requests with a valid JWT token for access to another reader's resources will fail
 with a 403 status code.
 
 ### Representation
@@ -73,12 +73,12 @@ The server can handle the following activity types.
 #### Create Publication
 
 To upload a publication, use an activity with type `Create` and object type
-`reader:Publication`. The publication should include all of its `Document`
+`Publication`. The publication should include all of its `Document`
 members by value, with their full content.
 
 #### Read Document
 
-To note that a user has read a document, use an activity with type `Read` and
+To note that a reader has read a document, use an activity with type `Read` and
 object type `Document`.
 
 ## Administration

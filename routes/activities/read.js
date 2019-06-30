@@ -1,32 +1,55 @@
-const { createActivityObject } = require('./utils')
-const { Activity } = require('../../models/Activity')
-const { Document } = require('../../models/Document')
-const { urlToShortId } = require('../utils')
+const { ReadActivity } = require('../../models/ReadActivity')
+const boom = require('@hapi/boom')
+const { ValidationError } = require('objection')
 
-const handleRead = async (req, res, reader) => {
+const handleRead = async (req, res, next, reader) => {
   const body = req.body
-  switch (body.object.type) {
-    case 'Document':
-      const resultDoc = await Document.byShortId(urlToShortId(body.object.id))
-      if (!resultDoc) {
-        res.status(404).send(`document with id ${body.object.id} not found`)
-        break
-      }
-      const activityObjStack = createActivityObject(body, resultDoc, reader)
-      Activity.createActivity(activityObjStack)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create read activity error: ${err.message}`)
-        })
-      break
+  const object = {
+    selector: body['oa:hasSelector'],
+    json: body.json
+  }
 
-    default:
-      res.status(400).send(`cannot read ${body.object.type}`)
-      break
+  const result = await ReadActivity.createReadActivity(
+    reader.id,
+    body.context,
+    object
+  )
+
+  if (!result || result instanceof Error) {
+    if (result && result.message === 'no publication') {
+      return next(
+        boom.notFound(`no publication found with id ${body.context}`, {
+          type: 'Publication',
+          id: body.context,
+          activity: 'Read'
+        })
+      )
+    }
+    if (result instanceof ValidationError) {
+      // rename selector to oa:hasSelector
+      if (result.data && result.data.selector) {
+        result.data['oa:hasSelector'] = result.data.selector
+        result.data['oa:hasSelector'][0].params.missingProperty =
+          'oa:hasSelector'
+        delete result.data.selector
+      }
+      return next(
+        boom.badRequest('Validation error on create ReadActivity: ', {
+          type: 'Publication',
+          activity: 'Read',
+          validation: result.data
+        })
+      )
+    }
+
+    return next(result)
+  }
+
+  if (result instanceof ReadActivity) {
+    return res
+      .status(201)
+      .set('Location', result.id)
+      .end()
   }
 }
 

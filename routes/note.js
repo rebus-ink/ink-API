@@ -3,7 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Note } = require('../models/Note')
 const debug = require('debug')('hobb:routes:document')
-const utils = require('./utils')
+const utils = require('../utils/utils')
+const boom = require('@hapi/boom')
 
 /**
  * @swagger
@@ -16,6 +17,8 @@ const utils = require('./utils')
  *       type:
  *         type: string
  *         enum: ['Note']
+ *       noteType:
+ *         type: string
  *       'oa:hasSelector':
  *         type: object
  *       content:
@@ -36,6 +39,8 @@ const utils = require('./utils')
  *         type: string
  *         format: url
  *         description: The url of the publication
+ *       json:
+ *         type: object
  *
  */
 
@@ -44,14 +49,14 @@ module.exports = app => {
 
   /**
    * @swagger
-   * /note-{shortId}:
+   * /note-{id}:
    *   get:
    *     tags:
    *       - notes
-   *     description: GET /note-:shortId
+   *     description: GET /note-:id
    *     parameters:
    *       - in: path
-   *         name: shortId
+   *         name: id
    *         schema:
    *           type: string
    *         required: true
@@ -68,22 +73,34 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/note'
    *       404:
-   *         description: 'No Note with ID {shortId}'
+   *         description: 'No Note with ID {id}'
    *       403:
-   *         description: 'Access to note {shortId} disallowed'
+   *         description: 'Access to note {id} disallowed'
    */
 
   router.get(
-    '/note-:shortId',
+    '/note-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const shortId = req.params.shortId
-      Note.byShortId(shortId)
+      const id = req.params.id
+      Note.byId(id)
         .then(note => {
           if (!note || note.deleted) {
-            res.status(404).send(`No note with ID ${shortId}`)
+            return next(
+              boom.notFound(`No note with ID ${id}`, {
+                type: 'Note',
+                id,
+                activity: 'Get Note'
+              })
+            )
           } else if (!utils.checkReader(req, note.reader)) {
-            res.status(403).send(`Access to note ${shortId} disallowed`)
+            return next(
+              boom.forbidden(`Access to note ${id} disallowed`, {
+                type: 'Note',
+                id,
+                activity: 'Get Note'
+              })
+            )
           } else {
             debug(note)
             res.setHeader(
@@ -96,9 +113,7 @@ module.exports = app => {
                   '@context': [
                     'https://www.w3.org/ns/activitystreams',
                     { reader: 'https://rebus.foundation/ns/reader' }
-                  ],
-                  // not sure why context disapears when .toJSON is run
-                  context: note.json.context
+                  ]
                 })
               )
             )

@@ -1,7 +1,7 @@
 class NoSuchReaderError extends Error {
-  constructor ({ shortId, userId } = {}) {
-    if (userId) {
-      super(`No reader for user ${userId}`)
+  constructor ({ shortId, userId: readerId } = {}) {
+    if (readerId) {
+      super(`No reader for user ${readerId}`)
     } else if (shortId) {
       super(`No reader for shortId ${shortId}`)
     } else {

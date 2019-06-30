@@ -1,150 +1,176 @@
-const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
-const { createActivityObject } = require('./utils')
+const { Publication } = require('../../models/Publication')
+const { Note } = require('../../models/Note')
+const { createActivityObject } = require('../../utils/utils')
+const boom = require('@hapi/boom')
+const { ValidationError } = require('objection')
 
-const handleCreate = async (req, res, reader) => {
+const handleCreate = async (req, res, next, reader) => {
   const body = req.body
+
+  if (!body.object) {
+    return next(
+      boom.badRequest(`cannot create without an object`, {
+        missingParams: ['object'],
+        activity: 'Create'
+      })
+    )
+  }
+
+  if (!body.object.type) {
+    return next(
+      boom.badRequest(`cannot create without an object type`, {
+        missingParams: ['object.type'],
+        activity: 'Create'
+      })
+    )
+  }
+
   switch (body.object.type) {
-    case 'reader:Publication':
-      const resultPub = await Reader.addPublication(reader, body.object)
+    case 'Publication':
+      const resultPub = await Publication.createPublication(reader, body.object)
       if (resultPub instanceof Error || !resultPub) {
-        const message = resultPub
-          ? resultPub.message
-          : 'publication creation failed'
-        res.status(400).send(`create publication error: ${message}`)
+        if (resultPub instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation Error on Create Publication: ', {
+              type: 'Publication',
+              activity: 'Create Publication',
+              validation: resultPub.data
+            })
+          )
+        }
+
+        // since readingOrder is stored nested in an object, normal validation does not kick in.
+        if (resultPub.message === 'no readingOrder') {
+          return next(
+            boom.badRequest('Validation Error on Create Publication: ', {
+              type: 'Publication',
+              activity: 'Create Publication',
+              validation: {
+                readingOrder: [
+                  {
+                    message: 'is a required property',
+                    keyword: 'required',
+                    params: { missingProperty: 'readingOrder' }
+                  }
+                ]
+              }
+            })
+          )
+        }
+        return next(err)
       }
       const activityObjPub = createActivityObject(body, resultPub, reader)
-      Activity.createActivity(activityObjPub)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
-      break
+      const pubActivity = await Activity.createActivity(activityObjPub)
+      res.status(201)
+      res.set('Location', pubActivity.id)
+      res.end()
 
-    case 'Document':
-      const resultDoc = await Reader.addDocument(reader, body.object)
-      if (
-        resultDoc instanceof Error &&
-        resultDoc.message === 'no publication'
-      ) {
-        res
-          .status(404)
-          .send(
-            `no publication found for ${
-              body.object.context
-            }. Document must belong to an existing publication.`
-          )
-        break
-      }
-      if (resultDoc instanceof Error || !resultDoc) {
-        const message = resultDoc
-          ? resultDoc.message
-          : 'document creation failed'
-        res.status(400).send(`create document error: ${message}`)
-        break
-      }
-      const activityObjDoc = createActivityObject(body, resultDoc, reader)
-      Activity.createActivity(activityObjDoc)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
       break
 
     case 'Note':
-      const resultNote = await Reader.addNote(reader, body.object)
-      if (!resultNote) res.status.send('create note error')
-      if (resultNote instanceof Error) {
-        switch (resultNote.message) {
-          case 'no publication':
-            res
-              .status(404)
-              .send(
-                `note creation failed: no publication found with id ${
-                  body.object.context
-                }`
-              )
-            break
-
-          case 'no document':
-            res
-              .status(404)
-              .send(
-                `note creation failed: no document found with id ${
-                  body.object.inReplyTo
-                }`
-              )
-            break
-
-          case 'wrong publication':
-            res
-              .status(400)
-              .send(
-                `note creation failed: document ${
-                  body.object.inReplyTo
-                } does not belong to publication ${body.object.context}`
-              )
-            break
-
-          default:
-            res.status(400).send(`note creation failed: ${resultNote.message}`)
-            break
+      let resultNote
+      try {
+        resultNote = await Note.createNote(reader, body.object)
+      } catch (err) {
+        if (err.message === 'no document') {
+          return next(
+            boom.notFound(
+              `note creation failed: no document found with url ${
+                body.object.inReplyTo
+              }`,
+              {
+                type: 'Document',
+                id: body.object.inReplyTo,
+                activity: 'Create Note'
+              }
+            )
+          )
+        } else if (err.message === 'no publication') {
+          return next(
+            boom.notFound(
+              `note creation failed: no publication found with id ${
+                body.object.context
+              }`,
+              {
+                type: 'Publication',
+                id: body.object.context,
+                activity: 'Create Note'
+              }
+            )
+          )
+        } else if (err instanceof ValidationError) {
+          // rename selector to oa:hasSelector
+          if (err.data && err.data.selector) {
+            err.data['oa:hasSelector'] = err.data.selector
+            err.data['oa:hasSelector'][0].params.missingProperty =
+              'oa:hasSelector'
+            delete err.data.selector
+          }
+          return next(
+            boom.badRequest('Validation Error on Create Note: ', {
+              activity: 'Create Note',
+              type: 'Note',
+              validation: err.data
+            })
+          )
+        } else {
+          return next(err)
         }
-        break
       }
-      if (resultNote instanceof Error || !resultNote) {
-        const message = resultNote ? resultNote.message : 'note creation failed'
-        res.status(400).send(`create note error: ${message}`)
-      }
+
       const activityObjNote = createActivityObject(body, resultNote, reader)
-      Activity.createActivity(activityObjNote)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+      const noteActivity = await Activity.createActivity(activityObjNote)
+      res.status(201)
+      res.set('Location', noteActivity.id)
+      res.end()
+
       break
 
-    case 'reader:Stack':
+    case 'reader:Tag':
       const resultStack = await Tag.createTag(reader.id, body.object)
-      if (resultStack instanceof Error && resultStack.message === 'duplicate') {
-        res
-          .status(400)
-          .send(`duplicate error: stack ${body.object.name} already exists`)
-      }
+
       if (resultStack instanceof Error || !resultStack) {
-        const message = resultStack
-          ? resultStack.message
-          : 'stack creation failed'
-        res.status(400).send(`create stack error: ${message}`)
+        if (resultStack.message === 'duplicate') {
+          return next(
+            boom.badRequest(
+              `duplicate error: stack ${body.object.name} already exists`,
+              { activity: 'Create Tag', type: 'reader:Tag' }
+            )
+          )
+        }
+
+        if (resultStack instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation error on create Tag: ', {
+              type: 'reader:Tag',
+              activity: 'Create Tag',
+              validation: resultStack.data
+            })
+          )
+        }
+
+        return next(err)
       }
+
       const activityObjStack = createActivityObject(body, resultStack, reader)
-      Activity.createActivity(activityObjStack)
-        .then(activity => {
-          res.status(201)
-          res.set('Location', activity.url)
-          res.end()
-        })
-        .catch(err => {
-          res.status(400).send(`create activity error: ${err.message}`)
-        })
+
+      const tagActivity = await Activity.createActivity(activityObjStack)
+      res.status(201)
+      res.set('Location', tagActivity.id)
+      res.end()
+
       break
 
     default:
-      res.status(400).send(`cannot create ${body.object.type}`)
-      break
+      return next(
+        boom.badRequest(`cannot create ${body.object.type}`, {
+          badParams: ['object.type'],
+          type: body.object.type,
+          activity: 'Create'
+        })
+      )
   }
 }
 
