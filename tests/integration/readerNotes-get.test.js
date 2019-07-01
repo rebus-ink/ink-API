@@ -29,12 +29,12 @@ const test = async app => {
   const publicationUrl = pubActivityObject.object.id
 
   const createdDocument = await createDocument(readerId, publicationUrl, {
-    documentPath: '/path/1',
+    documentPath: 'path/1',
     mediaType: 'text/html',
     url: 'http://something/123'
   })
 
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
