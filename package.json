@@ -50,7 +50,7 @@
     "proxyquire": "^2.1.0",
     "sinon": "^6.3.3",
     "spectacle-docs": "^1.0.7",
-    "sqlite3": "^4.0.4",
+    "sqlite3": "^4.0.9",
     "standard": "^11.0.1",
     "supertest": "^3.3.0",
     "tap": "^12.7.0"
@@ -77,6 +77,7 @@
     "objection-guid": "^3.0.2",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "path-match": "^1.2.4",
     "pg": "^7.4.3",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0",

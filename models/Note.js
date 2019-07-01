@@ -5,6 +5,12 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
+const route = require('path-match')({
+  sensitive: false,
+  strict: false,
+  end: false
+})
+const match = route('/publication-:context/:path*')
 
 /*::
 type NoteType = {
@@ -115,15 +121,15 @@ class Note extends BaseModel {
 
     if (note.inReplyTo) {
       // $FlowFixMe
-      const path = urlparse(note.inReplyTo).path.substr(45)
-      note.context = note.inReplyTo.substr(
-        0,
-        note.inReplyTo.length - path.length
-      )
-      const document = await Document.byPath(urlToId(note.context), path)
+      const { context, path = [] } = match(urlparse(note.inReplyTo).path)
+      note.context = context
+      const document = await Document.byPath(context, path.join('/'))
       if (document) {
         props.documentId = urlToId(document.id)
       } else {
+        const err = new Error('no document')
+        // $FlowFixMe
+        err.note = note
         throw new Error('no document')
       }
     }

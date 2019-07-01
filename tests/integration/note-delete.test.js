@@ -32,7 +32,7 @@ const test = async app => {
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
   const response = await createNote(app, token, readerUrl, {
     content: 'This is the content of note A.',

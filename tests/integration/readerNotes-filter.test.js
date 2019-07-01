@@ -46,20 +46,20 @@ const test = async app => {
 
   // creating a document
   const createdDocument = await createDocument(readerId, publicationUrl, {
-    documentPath: '/path/1',
+    documentPath: 'path/1',
     mediaType: 'text/html',
     url: 'http://something/123'
   })
 
   // creating a second document
   const createdDocument2 = await createDocument(readerId, publicationUrl2, {
-    documentPath: '/path/2',
+    documentPath: 'path/2',
     mediaType: 'text/html',
     url: 'http://something/124'
   })
 
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-  const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`
+  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
+  const documentUrl2 = `${publicationUrl2}/${createdDocument2.documentPath}`
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
@@ -228,7 +228,6 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.items.length, 10)

@@ -234,7 +234,7 @@ const createTag = async (app, token, readerUrl, object = {}) => {
 const createDocument = async (readerId, publicationId, object = {}) => {
   const documentObject = Object.assign(
     {
-      documentPath: '/path/1',
+      documentPath: 'path/1',
       mediaType: 'text/html',
       url: 'http://something/123'
     },

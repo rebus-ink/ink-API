@@ -30,7 +30,7 @@ const test = async app => {
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(

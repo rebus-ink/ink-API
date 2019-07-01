@@ -55,12 +55,12 @@ const test = async app => {
     createdReader,
     urlToId(publication.id),
     {
-      documentPath: '/path/1',
+      documentPath: 'path/1',
       mediaType: 'text/html',
       url: 'http://something/123'
     }
   )
-  const documentUrl = `${publication.id}${createdDocument.documentPath}`
+  const documentUrl = `${publication.id}/${createdDocument.documentPath}`
 
   const noteObject = {
     noteType: 'highlight',

@@ -26,7 +26,7 @@ const test = async app => {
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
   await tap.test('Create Note with inReplyTo', async () => {
     const res = await request(app)
@@ -46,7 +46,7 @@ const test = async app => {
           object: {
             type: 'Note',
             content: 'This is the content of note A.',
-            'oa:hasSelector': { propety: 'value' },
+            'oa:hasSelector': { property: 'value' },
             inReplyTo: documentUrl,
             noteType: 'test',
             json: { property1: 'value1' }
