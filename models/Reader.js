@@ -185,7 +185,7 @@ class Reader extends BaseModel {
       // $FlowFixMe
       const { context, path = [] } = match(urlparse(filters.document).path)
       // $FlowFixMe
-      doc = await Document.byPath(context, path)
+      doc = await Document.byPath(context, path.join('/'))
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
     }
 
