@@ -39,7 +39,7 @@ const test = async app => {
   const documentObject = {
     mediaType: 'txt',
     url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: '/inside/the/book.txt',
+    documentPath: 'inside/the/book.txt',
     json: { property1: 'value1' }
   }
   const document = await createDocument(
@@ -48,14 +48,13 @@ const test = async app => {
     documentObject
   )
 
-  const documentUrl = `${publication.id}${document.documentPath}`
+  const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
   const noteActivity = await createNote(app, token, readerUrl, {
     inReplyTo: documentUrl,
     context: publication.id
   })
-
   // get the urls needed for the tests
   const noteActivityUrl = noteActivity.get('Location')
 
