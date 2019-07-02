@@ -415,8 +415,6 @@ class Reader extends BaseModel {
   }
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
-
-    const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
     const { Tag } = require('./Tag.js')
     return {
