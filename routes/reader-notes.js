@@ -115,7 +115,7 @@ module.exports = app => {
    *         name: document
    *         schema:
    *           type: string
-   *         description: the url of the document the note is associated with
+   *         description: the url of the document the note is associated with. Note: will return all results: no pagination
    *       - in: query
    *         name: publication
    *         schema:

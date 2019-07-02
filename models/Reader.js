@@ -356,7 +356,9 @@ class Reader extends BaseModel {
         }
 
         // paginate
-        builder.limit(limit).offset(offset)
+        if (!filters.document) {
+          builder.limit(limit).offset(offset)
+        }
       })
 
     return readers[0]
