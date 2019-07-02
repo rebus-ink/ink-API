@@ -226,11 +226,54 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
-  static async getNotesCount (readerId) {
-    const result = await Note.query(Note.knex())
+  static async getNotesCount (readerId, filters) {
+    const { Document } = require('./Document')
+    let doc
+    if (filters.document) {
+      // $FlowFixMe
+      const path = urlparse(filters.document).path.substr(45)
+      // $FlowFixMe
+      const pubId = urlparse(filters.document).path.substr(13, 32)
+      doc = await Document.byPath(pubId, path)
+      if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
+    }
+
+    let resultQuery = Note.query(Note.knex())
       .count()
-      .whereNull('deleted')
-      .andWhere('readerId', '=', readerId)
+      .whereNull('Note.deleted')
+      .andWhere('Note.readerId', '=', readerId)
+
+    if (filters.publication) {
+      resultQuery = resultQuery.where(
+        'Note.publicationId',
+        '=',
+        urlToId(filters.publication)
+      )
+    }
+    if (filters.document) {
+      resultQuery = resultQuery.where('documentId', '=', urlToId(doc.id))
+    }
+    if (filters.type) {
+      resultQuery = resultQuery.where('noteType', '=', filters.type)
+    }
+    if (filters.search) {
+      resultQuery = resultQuery.whereRaw(
+        'LOWER(content) LIKE ?',
+        '%' + filters.search.toLowerCase() + '%'
+      )
+    }
+
+    if (filters.collection) {
+      resultQuery = resultQuery
+        .leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
+        .leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
+        .whereNull('Tag.deleted')
+        .where('Tag.name', '=', filters.collection)
+        .andWhere('Tag.type', '=', 'reader:Stack')
+    }
+
+    const result = await resultQuery
+
     return result[0].count
   }
 

@@ -200,7 +200,11 @@ module.exports = app => {
             )
           } else {
             returnedReader = reader
-            return Reader.getNotesCount(id)
+            const length = reader.replies.length
+            if (length < req.query.limit && length !== 0) {
+              return Promise.resolve(length + req.skip)
+            }
+            return Reader.getNotesCount(id, filters)
           }
         })
         .then(count => {
@@ -209,7 +213,7 @@ module.exports = app => {
             'Content-Type',
             'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
           )
-          let replies = reader.replies.filter(reply => !reply.deleted)
+          let replies = reader.replies
           res.end(
             JSON.stringify({
               '@context': 'https://www.w3.org/ns/activitystreams',
