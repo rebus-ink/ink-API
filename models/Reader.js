@@ -358,6 +358,8 @@ class Reader extends BaseModel {
         // paginate
         if (!filters.document) {
           builder.limit(limit).offset(offset)
+        } else {
+          builder.limit(1000000).offset(0)
         }
       })
 
