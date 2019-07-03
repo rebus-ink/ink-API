@@ -115,7 +115,7 @@ module.exports = app => {
    *         name: document
    *         schema:
    *           type: string
-   *         description: the url of the document the note is associated with. Note: will return all results: no pagination
+   *         description: the url of the document the note is associated with. When this filter is used, will not paginate. Will return all results.
    *       - in: query
    *         name: publication
    *         schema:
