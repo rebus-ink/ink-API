@@ -294,6 +294,10 @@ class Reader extends BaseModel {
       const pubId = urlparse(filters.document).path.substr(13, 32)
       doc = await Document.byPath(pubId, path)
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
+
+      // no pagination for filter by document
+      offset = 0
+      limit = 1000000
     }
 
     const readers = await qb
@@ -356,11 +360,7 @@ class Reader extends BaseModel {
         }
 
         // paginate
-        if (!filters.document) {
-          builder.limit(limit).offset(offset)
-        } else {
-          builder.limit(1000000).offset(0)
-        }
+        builder.limit(limit).offset(offset)
       })
 
     return readers[0]
