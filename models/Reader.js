@@ -227,16 +227,7 @@ class Reader extends BaseModel {
   }
 
   static async getNotesCount (readerId, filters) {
-    const { Document } = require('./Document')
-    let doc
-    if (filters.document) {
-      // $FlowFixMe
-      const path = urlparse(filters.document).path.substr(45)
-      // $FlowFixMe
-      const pubId = urlparse(filters.document).path.substr(13, 32)
-      doc = await Document.byPath(pubId, path)
-      if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
-    }
+    // note: not applied with filters.document
 
     let resultQuery = Note.query(Note.knex())
       .count()
@@ -249,9 +240,6 @@ class Reader extends BaseModel {
         '=',
         urlToId(filters.publication)
       )
-    }
-    if (filters.document) {
-      resultQuery = resultQuery.where('documentId', '=', urlToId(doc.id))
     }
     if (filters.type) {
       resultQuery = resultQuery.where('noteType', '=', filters.type)
