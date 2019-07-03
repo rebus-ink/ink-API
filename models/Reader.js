@@ -297,7 +297,7 @@ class Reader extends BaseModel {
 
       // no pagination for filter by document
       offset = 0
-      limit = 1000000
+      limit = 100000
     }
 
     const readers = await qb
