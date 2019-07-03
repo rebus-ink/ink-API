@@ -201,6 +201,9 @@ module.exports = app => {
           } else {
             returnedReader = reader
             const length = reader.replies.length
+            if (filters.document) {
+              return Promise.resolve(length)
+            }
             if (length < req.query.limit && length !== 0) {
               return Promise.resolve(length + req.skip)
             }
