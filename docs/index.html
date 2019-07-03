@@ -1778,13 +1778,13 @@ fetch(<span class="hljs-string">'/activity-{id}'</span>,
     <span class="hljs-attr">"profile"</span>: {},
     <span class="hljs-attr">"preferences"</span>: {},
     <span class="hljs-attr">"json"</span>: {},
-    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
   },
   <span class="hljs-attr">"summaryMap"</span>: {
     <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
   },
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
 }
 </code></pre>
 <h3 id="get__activity-{id}-responses">Responses</h3>
@@ -2326,13 +2326,13 @@ fetch(<span class="hljs-string">'/reader-{id}/activity'</span>,
         <span class="hljs-attr">"profile"</span>: {},
         <span class="hljs-attr">"preferences"</span>: {},
         <span class="hljs-attr">"json"</span>: {},
-        <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-        <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+        <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+        <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
       },
       <span class="hljs-attr">"summaryMap"</span>: {
         <span class="hljs-attr">"en"</span>: <span class="hljs-string">"string"</span>
       },
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
     }
   ]
 }
@@ -3006,6 +3006,18 @@ fetch(<span class="hljs-string">'/reader-{id}/library'</span>,
       <span class="hljs-attr">"replies"</span>: [
         <span class="hljs-string">"string"</span>
       ],
+      <span class="hljs-attr">"json"</span>: {},
+      <span class="hljs-attr">"resources"</span>: [
+        {
+          <span class="hljs-attr">"href"</span>: <span class="hljs-string">"string"</span>,
+          <span class="hljs-attr">"mediaType"</span>: <span class="hljs-string">"string"</span>,
+          <span class="hljs-attr">"rel"</span>: <span class="hljs-string">"string"</span>,
+          <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+          <span class="hljs-attr">"hreflang"</span>: <span class="hljs-string">"string"</span>,
+          <span class="hljs-attr">"height"</span>: <span class="hljs-number">0</span>,
+          <span class="hljs-attr">"width"</span>: <span class="hljs-number">0</span>
+        }
+      ],
       <span class="hljs-attr">"description"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"datePublished"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"readerId"</span>: <span class="hljs-string">"string"</span>,
@@ -3228,6 +3240,69 @@ fetch(<span class="hljs-string">'/reader-{id}/library'</span>,
 <td>none</td>
 </tr>
 <tr>
+<td>»» json</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»» resources</td>
+<td>[<a href="#schema#/definitions/link">#/definitions/link</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» href</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» mediaType</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» rel</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» name</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» hreflang</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» height</td>
+<td>integer</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» width</td>
+<td>integer</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
 <td>»» description</td>
 <td>string</td>
 <td>false</td>
@@ -3364,7 +3439,7 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
 <td>query</td>
 <td>string</td>
 <td>false</td>
-<td>the url of the document the note is associated with</td>
+<td>the url of the document the note is associated with. When this filter is used, will not paginate. Will return all results.</td>
 </tr>
 <tr>
 <td>publication</td>
@@ -3386,6 +3461,13 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
 <td>string</td>
 <td>false</td>
 <td>keyword to search for in the content of notes. Not case sensitive.</td>
+</tr>
+<tr>
+<td>stack</td>
+<td>query</td>
+<td>string</td>
+<td>false</td>
+<td>the collection (tag with type 'reader:Stack')</td>
 </tr>
 <tr>
 <td>orderBy</td>
@@ -3444,8 +3526,25 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
       <span class="hljs-attr">"oa:hasSelector"</span>: {},
       <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"@context"</span>: [],
-      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
+      <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+      <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+      <span class="hljs-attr">"publication"</span>: {
+        <span class="hljs-attr">"id"</span>: <span class="hljs-string">"string"</span>,
+        <span class="hljs-attr">"author"</span>: [
+          {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+            <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Person"</span>
+          }
+        ],
+        <span class="hljs-attr">"editor"</span>: [
+          {
+            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"string"</span>,
+            <span class="hljs-attr">"type"</span>: <span class="hljs-string">"Person"</span>
+          }
+        ],
+        <span class="hljs-attr">"description"</span>: <span class="hljs-string">"string"</span>,
+        <span class="hljs-attr">"datePublished"</span>: <span class="hljs-string">"string"</span>
+      },
       <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>,
       <span class="hljs-attr">"json"</span>: {}
@@ -3541,7 +3640,7 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
 </tr>
 <tr>
 <td>» items</td>
-<td>[<a href="#schema#/definitions/note">#/definitions/note</a>]</td>
+<td>[<a href="#schema#/definitions/notewithpub">#/definitions/noteWithPub</a>]</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>
@@ -3603,6 +3702,62 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
 <td>none</td>
 </tr>
 <tr>
+<td>»» publication</td>
+<td>object</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» id</td>
+<td>string(url)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» author</td>
+<td>[<a href="#schema#/definitions/annotation">#/definitions/annotation</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»»» name</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»»» type</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» editor</td>
+<td>[<a href="#schema#/definitions/annotation">#/definitions/annotation</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» description</td>
+<td>string</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>»»» datePublished</td>
+<td>string(timestamp)</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
 <td>»» inReplyTo</td>
 <td>string(url)</td>
 <td>false</td>
@@ -3641,6 +3796,14 @@ fetch(<span class="hljs-string">'/reader-{id}/notes'</span>,
 <tr>
 <td>type</td>
 <td>Note</td>
+</tr>
+<tr>
+<td>type</td>
+<td>Person</td>
+</tr>
+<tr>
+<td>type</td>
+<td>Organization</td>
 </tr>
 </tbody>
 </table>
@@ -3715,8 +3878,8 @@ fetch(<span class="hljs-string">'/reader-{id}'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
 }
 </code></pre>
 <h3 id="get__reader-{id}-responses">Responses</h3>
@@ -4015,8 +4178,8 @@ fetch(<span class="hljs-string">'/whoami'</span>,
   <span class="hljs-attr">"profile"</span>: {},
   <span class="hljs-attr">"preferences"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
 }
 </code></pre>
 <h3 id="get__whoami-responses">Responses</h3>
@@ -4231,8 +4394,8 @@ fetch(<span class="hljs-string">'/note-{id}'</span>,
   <span class="hljs-attr">"oa:hasSelector"</span>: {},
   <span class="hljs-attr">"content"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"@context"</span>: [],
-  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
+  <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+  <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
   <span class="hljs-attr">"inReplyTo"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"context"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"json"</span>: {}
@@ -4719,6 +4882,7 @@ fetch(<span class="hljs-string">'/publication-{id}'</span>,
       <span class="hljs-attr">"width"</span>: <span class="hljs-number">0</span>
     }
   ],
+  <span class="hljs-attr">"position"</span>: {},
   <span class="hljs-attr">"json"</span>: {},
   <span class="hljs-attr">"readerId"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"reader"</span>: {
@@ -4734,8 +4898,8 @@ fetch(<span class="hljs-string">'/publication-{id}'</span>,
     <span class="hljs-attr">"profile"</span>: {},
     <span class="hljs-attr">"preferences"</span>: {},
     <span class="hljs-attr">"json"</span>: {},
-    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>,
-    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-06-12T17:39:46Z"</span>
+    <span class="hljs-attr">"published"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>,
+    <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"2019-07-03T17:34:23Z"</span>
   },
   <span class="hljs-attr">"published"</span>: <span class="hljs-string">"string"</span>,
   <span class="hljs-attr">"updated"</span>: <span class="hljs-string">"string"</span>
@@ -4935,6 +5099,13 @@ fetch(<span class="hljs-string">'/publication-{id}'</span>,
 <tr>
 <td>» links</td>
 <td>[<a href="#schema#/definitions/link">#/definitions/link</a>]</td>
+<td>false</td>
+<td>none</td>
+<td>none</td>
+</tr>
+<tr>
+<td>» position</td>
+<td>object</td>
 <td>false</td>
 <td>none</td>
 <td>none</td>

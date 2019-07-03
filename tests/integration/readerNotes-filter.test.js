@@ -171,7 +171,6 @@ const test = async app => {
       )
 
     await tap.equal(res2.status, 200)
-    await tap.equal(res2.body.totalItems, 10)
     await tap.equal(res2.body.items.length, 10)
 
     noteId2 = res2.body.items[3].id
@@ -186,7 +185,7 @@ const test = async app => {
       )
 
     await tap.equal(res3.status, 200)
-    await tap.equal(res3.body.totalItems, 3)
+    await tap.equal(res3.body.totalItems, 13)
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
@@ -198,7 +197,7 @@ const test = async app => {
       )
 
     await tap.equal(res4.status, 200)
-    await tap.equal(res4.body.totalItems, 2)
+    await tap.equal(res4.body.totalItems, 13)
     await tap.equal(res4.body.items.length, 2)
   })
 
@@ -230,22 +229,27 @@ const test = async app => {
       )
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
-    await tap.equal(res.body.items.length, 10)
+    await tap.equal(res.body.totalItems, 13)
+    await tap.equal(res.body.items.length, 13) // no pagination with documentUrl filter
   })
 
-  await tap.test('Filter Notes by documentUrl with pagination', async () => {
-    const res2 = await request(app)
-      .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+  await tap.test(
+    'Filter Notes by documentUrl should not work with pagination',
+    async () => {
+      const res2 = await request(app)
+        .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
 
-    await tap.equal(res2.status, 200)
-    await tap.ok(res2.body)
-    await tap.equal(res2.body.items.length, 3)
-  })
+      await tap.equal(res2.status, 200)
+      await tap.ok(res2.body)
+      await tap.equal(res2.body.totalItems, 13)
+      await tap.equal(res2.body.items.length, 13)
+    }
+  )
 
   await tap.test('Filter Notes by a nonexistant documentUrl', async () => {
     const res = await request(app)
@@ -287,6 +291,7 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 3)
     await tap.equal(res.body.items.length, 3)
   })
 
@@ -336,6 +341,7 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 4)
     await tap.equal(res.body.items.length, 4)
   })
 
@@ -367,6 +373,7 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 3)
     await tap.equal(res.body.items.length, 3)
   })
 
@@ -383,6 +390,7 @@ const test = async app => {
 
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
     await tap.equal(res2.body.items.length, 2)
   })
 
@@ -397,6 +405,7 @@ const test = async app => {
 
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
+    await tap.equal(res2.body.totalItems, 1)
     await tap.equal(res2.body.items.length, 1)
   })
 
@@ -411,6 +420,7 @@ const test = async app => {
 
     await tap.equal(res3.status, 200)
     await tap.ok(res3.body)
+    await tap.ok(res3.body.totalItems, 3)
     await tap.equal(res3.body.items.length, 3)
   })
 

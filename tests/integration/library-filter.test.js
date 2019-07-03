@@ -79,6 +79,7 @@ const test = async () => {
     await tap.type(body, 'object')
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 1)
     // documents should include:
     await tap.equal(body.items[0].name, 'Publication 2')
   })
@@ -130,7 +131,7 @@ const test = async () => {
 
     // get library with filter for collection with pagination
     const res = await request(app)
-      .get(`${readerUrl}/library?stack=mystack&limit=11`)
+      .get(`${readerUrl}/library?stack=mystack&limit=10`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -142,7 +143,7 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.equal(body.totalItems, 11)
-    await tap.equal(body.items.length, 11)
+    await tap.equal(body.items.length, 10)
   })
 
   await tap.test('Filter Library with a non-existing collection', async () => {
@@ -160,6 +161,7 @@ const test = async () => {
     await tap.type(body, 'object')
     await tap.equal(body.totalItems, 0)
     await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 0)
   })
 
   // ---------------------------------------- TITLE ------------------------------------
@@ -180,6 +182,7 @@ const test = async () => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 2)
     await tap.ok(res.body.items)
+    await tap.equal(res.body.items.length, 2)
     await tap.equal(res.body.items[0].name, 'Super great book!')
   })
 
@@ -192,7 +195,8 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(res2.body.totalItems, 10)
+    await tap.equal(res2.body.totalItems, 13)
+    await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
       .get(`${readerUrl}/library?title=publication&limit=11`)
@@ -202,7 +206,8 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(res3.body.totalItems, 11)
+    await tap.equal(res3.body.totalItems, 13)
+    await tap.equal(res3.body.items.length, 11)
   })
 
   await tap.test('Filter Library by title using inexistant title', async () => {
@@ -215,6 +220,7 @@ const test = async () => {
       )
 
     await tap.equal(res4.body.totalItems, 0)
+    await tap.equal(res4.body.items.length, 0)
   })
 
   // ------------------------------------ ATTRIBUTION ------------------------------------
@@ -251,6 +257,7 @@ const test = async () => {
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 3)
     await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 3)
     // documents should include:
     await tap.equal(body.items[0].type, 'Publication')
     await tap.type(body.items[0].id, 'string')
@@ -458,6 +465,7 @@ const test = async () => {
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 2)
     await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 2)
     // documents should include:
     await tap.equal(body.items[0].type, 'Publication')
     await tap.type(body.items[0].id, 'string')
@@ -514,7 +522,7 @@ const test = async () => {
       const body = res.body
       await tap.type(body, 'object')
       await tap.equal(body.type, 'Collection')
-      await tap.equal(body.totalItems, 0)
+      await tap.equal(body.items.length, 0)
     }
   )
 

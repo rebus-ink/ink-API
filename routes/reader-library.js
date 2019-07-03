@@ -190,6 +190,7 @@ module.exports = app => {
         reverse: req.query.reverse,
         collection: req.query.stack
       }
+      let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
       Reader.getLibrary(id, req.query.limit, req.skip, filters)
         .then(reader => {
@@ -210,26 +211,38 @@ module.exports = app => {
               })
             )
           } else {
-            res.setHeader(
-              'Content-Type',
-              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-            )
-            res.end(
-              JSON.stringify({
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                summaryMap: {
-                  en: `Streams for reader with id ${id}`
-                },
-                type: 'Collection',
-                id: getId(`/reader-${id}/library`),
-                totalItems: reader.publications.length,
-                items: reader.publications,
-                tags: reader.tags,
-                page: req.query.page,
-                pageSize: parseInt(req.query.limit)
-              })
-            )
+            returnedReader = reader
+            // skip count query if we know we are at the last page
+            if (
+              reader.publications.length < req.query.limit &&
+              reader.publications.length > 0
+            ) {
+              return Promise.resolve(reader.publications.length + req.skip)
+            }
+            return Reader.getLibraryCount(id, filters)
           }
+        })
+        .then(count => {
+          let reader = returnedReader
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          res.end(
+            JSON.stringify({
+              '@context': 'https://www.w3.org/ns/activitystreams',
+              summaryMap: {
+                en: `Streams for reader with id ${id}`
+              },
+              type: 'Collection',
+              id: getId(`/reader-${id}/library`),
+              totalItems: parseInt(count),
+              items: reader.publications,
+              tags: reader.tags,
+              page: req.query.page,
+              pageSize: parseInt(req.query.limit)
+            })
+          )
         })
         .catch(err => {
           next(err)

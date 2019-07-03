@@ -2,6 +2,7 @@ const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
 const { Publication } = require('./Publication')
+const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
@@ -57,6 +58,66 @@ class Reader extends BaseModel {
     const readers = await qb.eager(eager)
 
     return readers[0]
+  }
+
+  static async getLibraryCount (readerId, filter) {
+    let author, attribution
+    if (filter.author) author = Attribution.normalizeName(filter.author)
+    if (filter.attribution) {
+      attribution = Attribution.normalizeName(filter.attribution)
+    }
+
+    let resultQuery = Publication.query(Publication.knex())
+      .count()
+      .whereNull('Publication.deleted')
+      .andWhere('Publication.readerId', '=', readerId)
+
+    if (filter.title) {
+      resultQuery = resultQuery.where(
+        'Publication.name',
+        'ilike',
+        `%${filter.title.toLowerCase()}%`
+      )
+    }
+    if (filter.author) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'Attribution',
+          'Attribution.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .where('Attribution.normalizedName', '=', author)
+        .andWhere('Attribution.role', '=', 'author')
+    }
+    if (filter.attribution) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'Attribution',
+          'Attribution.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .where('Attribution.normalizedName', 'like', `%${attribution}%`)
+      if (filter.role) {
+        resultQuery = resultQuery.andWhere('Attribution.role', '=', filter.role)
+      }
+    }
+    if (filter.collection) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'publication_tag',
+          'publication_tag.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+        .where('Tag.name', '=', filter.collection)
+        .andWhere('Tag.type', '=', 'reader:Stack')
+    }
+
+    const result = await resultQuery
+    return result[0].count
   }
 
   static async getLibrary (
@@ -171,6 +232,45 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
+  static async getNotesCount (readerId, filters) {
+    // note: not applied with filters.document
+
+    let resultQuery = Note.query(Note.knex())
+      .count()
+      .whereNull('Note.deleted')
+      .andWhere('Note.readerId', '=', readerId)
+
+    if (filters.publication) {
+      resultQuery = resultQuery.where(
+        'Note.publicationId',
+        '=',
+        urlToId(filters.publication)
+      )
+    }
+    if (filters.type) {
+      resultQuery = resultQuery.where('noteType', '=', filters.type)
+    }
+    if (filters.search) {
+      resultQuery = resultQuery.whereRaw(
+        'LOWER(content) LIKE ?',
+        '%' + filters.search.toLowerCase() + '%'
+      )
+    }
+
+    if (filters.collection) {
+      resultQuery = resultQuery
+        .leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
+        .leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
+        .whereNull('Tag.deleted')
+        .where('Tag.name', '=', filters.collection)
+        .andWhere('Tag.type', '=', 'reader:Stack')
+    }
+
+    const result = await resultQuery
+
+    return result[0].count
+  }
+
   static async getNotes (
     readerId /*: string */,
     limit /*: number */,
@@ -187,6 +287,10 @@ class Reader extends BaseModel {
       // $FlowFixMe
       doc = await Document.byPath(context, path.join('/'))
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
+
+      // no pagination for filter by document
+      offset = 0
+      limit = 100000
     }
 
     const readers = await qb
@@ -251,6 +355,7 @@ class Reader extends BaseModel {
         // paginate
         builder.limit(limit).offset(offset)
       })
+
     return readers[0]
   }
 
@@ -305,8 +410,6 @@ class Reader extends BaseModel {
   }
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
-
-    const { Note } = require('./Note.js')
     const { Activity } = require('./Activity.js')
     const { Tag } = require('./Tag.js')
     return {

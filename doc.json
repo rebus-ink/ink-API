@@ -573,7 +573,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "the url of the document the note is associated with"
+            "description": "the url of the document the note is associated with. When this filter is used, will not paginate. Will return all results."
           },
           {
             "in": "query",
@@ -598,6 +598,14 @@
               "type": "string"
             },
             "description": "keyword to search for in the content of notes. Not case sensitive."
+          },
+          {
+            "in": "query",
+            "name": "stack",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the collection (tag with type 'reader:Stack')"
           },
           {
             "in": "query",
@@ -1086,6 +1094,9 @@
             "$ref": "#/definitions/link"
           }
         },
+        "position": {
+          "type": "object"
+        },
         "json": {
           "type": "object"
         },
@@ -1146,6 +1157,15 @@
           "items": {
             "type": "string",
             "format": "url"
+          }
+        },
+        "json": {
+          "type": "object"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/link"
           }
         },
         "description": {
@@ -1237,6 +1257,80 @@
         }
       }
     },
+    "noteWithPub": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "url"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Note"
+          ]
+        },
+        "noteType": {
+          "type": "string"
+        },
+        "oa:hasSelector": {
+          "type": "object"
+        },
+        "content": {
+          "type": "string"
+        },
+        "@context": {
+          "type": "array"
+        },
+        "published": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publication": {
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "url"
+            },
+            "author": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/annotation"
+              }
+            },
+            "editor": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/annotation"
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "datePublished": {
+              "type": "string",
+              "format": "timestamp"
+            }
+          }
+        },
+        "inReplyTo": {
+          "type": "string",
+          "format": "url",
+          "description": "The url of the document"
+        },
+        "context": {
+          "type": "string",
+          "format": "url",
+          "description": "The url of the publication"
+        },
+        "json": {
+          "type": "object"
+        }
+      }
+    },
     "notes": {
       "properties": {
         "id": {
@@ -1266,7 +1360,7 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/note"
+            "$ref": "#/definitions/noteWithPub"
           }
         }
       }
