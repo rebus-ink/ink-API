@@ -1,6 +1,5 @@
 const paginate = (req, res, next) => {
   let limit = req.query.limit || 10
-
   if (typeof limit !== 'number' && !parseInt(limit)) limit = 10 // use default if input not valid
 
   if (limit < 10) limit = 10

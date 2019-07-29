@@ -11,13 +11,13 @@ const app = require('../../server').app
 require('dotenv').config()
 
 const allTests = async () => {
-  if (process.env.POSTGRE_INSTANCE) {
-    await app.initialize(true)
-    await app.knex.migrate.rollback()
-    if (process.env.POSTGRE_DB === 'travis_ci_test') {
-      await app.knex.migrate.latest()
-    }
-  }
+  // if (process.env.POSTGRE_INSTANCE) {
+  //   await app.initialize(true)
+  //   await app.knex.migrate.rollback()
+  //   if (process.env.POSTGRE_DB === 'travis_ci_test') {
+  //     await app.knex.migrate.latest()
+  //   }
+  // }
 
   await libraryTests(app)
   await readerProfileTests(app)
@@ -27,10 +27,10 @@ const allTests = async () => {
   await addPubToCollectionTests(app)
   await getReaderNotesTests(app)
 
-  if (process.env.POSTGRE_INSTANCE) {
-    await app.knex.migrate.rollback()
-    await app.terminate()
-  }
+  // if (process.env.POSTGRE_INSTANCE) {
+  //   await app.knex.migrate.rollback()
+  //   await app.terminate()
+  // }
 }
 
 allTests()
