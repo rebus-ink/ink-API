@@ -8,6 +8,10 @@ const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
+const axios = require('axios')
+const util = require('util')
+const fs = require('fs')
+const readFile = util.promisify(fs.readFile)
 
 const storage = new Storage()
 
@@ -61,6 +65,7 @@ module.exports = app => {
     m.single('file'),
     async function (req, res, next) {
       const id = req.params.id
+      let createdDocument
       Publication.byId(id).then(async publication => {
         if (!publication) {
           return next(
@@ -151,9 +156,43 @@ module.exports = app => {
                     document
                   )
                 })
-                .then(createdDocument => {
-                  res.setHeader('Content-Type', 'application/json;')
-                  res.end(JSON.stringify(createdDocument))
+                .then(doc => {
+                  createdDocument = doc
+
+                  const readingFileStream = storage
+                    .bucket(bucketName)
+                    .file(file.name)
+                    .createReadStream()
+                  let buf = ''
+                  return readingFileStream
+                    .on('data', function (d) {
+                      buf += d
+                    })
+                    .on('end', function () {
+                      axios
+                        .post(
+                          'https://b653897204ef452cb03eb4c99c3f2dd3.us-central1.gcp.cloud.es.io:9243/document/default/',
+                          {
+                            name: file.name,
+                            content: buf
+                          },
+                          {
+                            auth: {
+                              username: 'elastic',
+                              password: 'LKHQ8Tkp0inXDu83kM3DnZmr'
+                            }
+                          }
+                        )
+                        .then(() => {
+                          res.setHeader('Content-Type', 'application/json;')
+                          res.end(JSON.stringify(createdDocument))
+                        })
+                      console.log(buf)
+                      console.log('End')
+                    })
+                })
+                .catch(err => {
+                  console.log(err)
                 })
             })
 
