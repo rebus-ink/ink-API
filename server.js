@@ -24,6 +24,7 @@ const publicationFileUploadRoute = require('./routes/publication-file-upload')
 const noteRoute = require('./routes/note')
 const publicationDocumentRoute = require('./routes/publication-document')
 const readerNotesRoute = require('./routes/reader-notes')
+const searchRoute = require('./routes/search')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -173,6 +174,7 @@ publicationFileUploadRoute(app)
 noteRoute(app)
 publicationDocumentRoute(app)
 readerNotesRoute(app)
+searchRoute(app)
 
 app.use(errorHandling)
 

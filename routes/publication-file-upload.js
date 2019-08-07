@@ -8,10 +8,7 @@ const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
-const axios = require('axios')
-const util = require('util')
-const fs = require('fs')
-const readFile = util.promisify(fs.readFile)
+const request = require('request')
 
 const storage = new Storage()
 
@@ -118,8 +115,10 @@ module.exports = app => {
           } else {
             let document = {
               documentPath: req.body.documentPath,
-              mediaType: req.body.mediaType,
-              json: JSON.parse(req.body.json)
+              mediaType: req.body.mediaType
+            }
+            if (req.body.json) {
+              document.json = req.body.json
             }
             // //
             const file = req.file
@@ -159,6 +158,7 @@ module.exports = app => {
                 .then(doc => {
                   createdDocument = doc
 
+                  // store in elastic search, but first get content of file:
                   const readingFileStream = storage
                     .bucket(bucketName)
                     .file(file.name)
@@ -169,26 +169,28 @@ module.exports = app => {
                       buf += d
                     })
                     .on('end', function () {
-                      axios
-                        .post(
-                          'https://b653897204ef452cb03eb4c99c3f2dd3.us-central1.gcp.cloud.es.io:9243/document/default/',
-                          {
-                            name: file.name,
-                            content: buf
+                      request.post(
+                        `${process.env.ELASTIC_SEARCH_URL}/document/_doc/`,
+                        {
+                          auth: {
+                            username: process.env.ELASTIC_SEARCH_LOGIN,
+                            password: process.env.ELASTIC_SEARCH_PASSWORD
                           },
-                          {
-                            auth: {
-                              username: 'elastic',
-                              password: 'LKHQ8Tkp0inXDu83kM3DnZmr'
-                            }
-                          }
-                        )
-                        .then(() => {
+                          body: JSON.stringify({
+                            name: file.name,
+                            readerId: utils.urlToId(createdDocument.readerId),
+                            publicationId: id,
+                            documentUrl: createdDocument.url,
+                            documentId: createdDocument.id,
+                            content: buf
+                          }),
+                          headers: { 'content-type': 'application/json' }
+                        },
+                        (err, data) => {
                           res.setHeader('Content-Type', 'application/json;')
                           res.end(JSON.stringify(createdDocument))
-                        })
-                      console.log(buf)
-                      console.log('End')
+                        }
+                      )
                     })
                 })
                 .catch(err => {
