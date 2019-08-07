@@ -1,10 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const passport = require('passport')
-const { Reader } = require('../models/Reader')
-const { getId } = require('../utils/get-id.js')
-const utils = require('../utils/utils')
-const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 const request = require('request')
 
@@ -98,11 +93,11 @@ module.exports = app => {
 
       let query
 
-      // filter by publicationId?
-      if (req.query.publicationId) {
+      // filter by publication?
+      if (req.query.publication) {
         filter = [
           { term: { readerId: id } },
-          { term: { publicationId: req.query.publicationId } }
+          { term: { publicationId: req.query.publication } }
         ]
       } else {
         filter = [{ term: { readerId: id } }]

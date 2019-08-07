@@ -233,7 +233,7 @@ const test = async app => {
 
   await tap.test('search by publication', async () => {
     const res = await request(app).get(
-      `${readerUrl}/search?search=hat&publicationId=${publicationId}`
+      `${readerUrl}/search?search=hat&publication=${publicationId}`
     )
 
     const body = res.body
