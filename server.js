@@ -9,6 +9,8 @@ const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
+const elasticSearchQueue = require('./utils/queue')
+
 const activityRoute = require('./routes/activity')
 const publicationRoute = require('./routes/publication')
 const readerLibraryRoute = require('./routes/reader-library')
@@ -155,7 +157,7 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-
+  elasticSearchQueue.close()
   return await app.knex.destroy()
 }
 

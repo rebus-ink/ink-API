@@ -10,6 +10,10 @@ const {
 
 const { urlToId } = require('../../utils/utils')
 
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
     await app.initialize()
@@ -138,6 +142,8 @@ const test = async app => {
     .attach('file', 'tests/test-files/file4.html')
   const docId4 = urlToId(res4.body.id)
 
+  await sleep(6000)
+
   await tap.test('simple search', async () => {
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
 
@@ -258,7 +264,6 @@ const test = async app => {
       body.hits.hits[1].highlight.content[0].includes(expectedHighlight)
     )
   })
-
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

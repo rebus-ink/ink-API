@@ -11,6 +11,7 @@ const boom = require('@hapi/boom')
 const request = require('request')
 
 const storage = new Storage()
+const elasticSearchQueue = require('../utils/queue')
 
 const m = multer({ storage: multer.memoryStorage() })
 /**
@@ -62,7 +63,7 @@ module.exports = app => {
     m.single('file'),
     async function (req, res, next) {
       const id = req.params.id
-      let createdDocument
+      let bucketName
       Publication.byId(id).then(async publication => {
         if (!publication) {
           return next(
@@ -85,7 +86,7 @@ module.exports = app => {
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
 
           // one bucket per publication
-          const bucketName = prefix + req.params.id.toLowerCase()
+          bucketName = prefix + req.params.id.toLowerCase()
           const publicationId = req.params.id
 
           let bucket
@@ -156,42 +157,14 @@ module.exports = app => {
                   )
                 })
                 .then(doc => {
-                  createdDocument = doc
-
-                  // store in elastic search, but first get content of file:
-                  const readingFileStream = storage
-                    .bucket(bucketName)
-                    .file(file.name)
-                    .createReadStream()
-                  let buf = ''
-                  return readingFileStream
-                    .on('data', function (d) {
-                      buf += d
-                    })
-                    .on('end', function () {
-                      request.post(
-                        `${process.env.ELASTIC_SEARCH_URL}/document/_doc/`,
-                        {
-                          auth: {
-                            username: process.env.ELASTIC_SEARCH_LOGIN,
-                            password: process.env.ELASTIC_SEARCH_PASSWORD
-                          },
-                          body: JSON.stringify({
-                            name: file.name,
-                            readerId: utils.urlToId(createdDocument.readerId),
-                            publicationId: id,
-                            documentUrl: createdDocument.url,
-                            documentId: createdDocument.id,
-                            content: buf
-                          }),
-                          headers: { 'content-type': 'application/json' }
-                        },
-                        (err, data) => {
-                          res.setHeader('Content-Type', 'application/json;')
-                          res.end(JSON.stringify(createdDocument))
-                        }
-                      )
-                    })
+                  elasticSearchQueue.add({
+                    fileName: file.name,
+                    bucketName: bucketName,
+                    document: doc,
+                    pubId: id
+                  })
+                  res.setHeader('Content-Type', 'application/json;')
+                  res.end(JSON.stringify(doc))
                 })
                 .catch(err => {
                   console.log(err)
