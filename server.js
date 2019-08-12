@@ -157,7 +157,9 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-  elasticSearchQueue.close()
+  if (elasticSearchQueue) {
+    elasticSearchQueue.close()
+  }
   return await app.knex.destroy()
 }
 
