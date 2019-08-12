@@ -147,9 +147,11 @@ module.exports = app => {
             })
 
             stream.on('finish', () => {
+              console.log(document)
               blob
                 .makePublic()
                 .then(() => {
+                  if (document.json) document.json = JSON.parse(document.json)
                   return Document.createDocument(
                     publication.reader,
                     publicationId,

@@ -3,8 +3,15 @@ const request = require('request')
 const { Storage } = require('@google-cloud/storage')
 const utils = require('../utils/utils')
 const storage = new Storage()
+require('dotenv').config()
 
-const elasticSearchQueue = new Queue('elasticsearch')
+const elasticSearchQueue = new Queue('elasticsearch', {
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
+  }
+})
 
 elasticSearchQueue.process(async (data, done) => {
   data = data.data
