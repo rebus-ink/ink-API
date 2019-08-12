@@ -5,6 +5,7 @@ const utils = require('../utils/utils')
 const storage = new Storage()
 require('dotenv').config()
 
+console.log(process.env)
 const elasticSearchQueue = new Queue('elasticsearch', {
   redis: {
     host: process.env.REDIS_HOST,
