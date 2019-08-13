@@ -103,7 +103,7 @@ const test = async app => {
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .field('documentPath', path)
-    .field('mediaType', 'text')
+    .field('mediaType', 'text/html')
     .attach('file', 'tests/test-files/file1.html')
 
   const docId1 = urlToId(res1.body.id)
@@ -114,7 +114,7 @@ const test = async app => {
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .field('documentPath', path)
-    .field('mediaType', 'text')
+    .field('mediaType', 'text/html')
     .attach('file', 'tests/test-files/file2.html')
 
   const docId2 = urlToId(res2.body.id)
@@ -127,18 +127,18 @@ const test = async app => {
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .field('documentPath', path)
-    .field('mediaType', 'text')
+    .field('mediaType', 'application/xhtml+xml')
     .attach('file', 'tests/test-files/file3.html')
 
   const docId3 = urlToId(res3.body.id)
 
   // doc4 does not contain the word hat
   const res4 = await request(app)
-    .post(`${publicationUrl}/file-upload`)
+    .post(`${publicationUrl2}/file-upload`)
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .field('documentPath', path)
-    .field('mediaType', 'text')
+    .field('mediaType', 'application/xhtml+xml')
     .attach('file', 'tests/test-files/file4.html')
   const docId4 = urlToId(res4.body.id)
 
@@ -264,6 +264,48 @@ const test = async app => {
       body.hits.hits[1].highlight.content[0].includes(expectedHighlight)
     )
   })
+
+  await tap.test('Search after publication is deleted', async () => {
+    // delete publication2
+    await request(app)
+      .post(`${readerUrl}/activity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Publication',
+            id: publicationId2
+          }
+        })
+      )
+
+    await sleep(2000)
+    const res = await request(app).get(`${readerUrl}/search?search=hat`)
+
+    const body = res.body
+
+    await tap.equal(body.hits.total.value, 2)
+    // make sure the documents are those expected
+    const expectedDocuments = [docId1, docId2]
+    await tap.notEqual(
+      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      -1
+    )
+    await tap.notEqual(
+      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      -1
+    )
+  })
+
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()

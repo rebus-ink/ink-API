@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const boom = require('@hapi/boom')
 const request = require('request')
+const { urlToId } = require('../utils/utils')
 
 /**
  * @swagger
@@ -95,6 +96,9 @@ module.exports = app => {
 
       // filter by publication?
       if (req.query.publication) {
+        if (req.query.publication.startsWith('http:')) {
+          req.query.publication = urlToId(req.query.publication)
+        }
         filter = [
           { term: { readerId: id } },
           { term: { publicationId: req.query.publication } }

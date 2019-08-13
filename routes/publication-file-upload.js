@@ -11,7 +11,7 @@ const boom = require('@hapi/boom')
 const request = require('request')
 
 const storage = new Storage()
-const elasticSearchQueue = require('../utils/queue')
+const elasticsearchQueue = require('../utils/queue')
 
 const m = multer({ storage: multer.memoryStorage() })
 /**
@@ -158,12 +158,19 @@ module.exports = app => {
                   )
                 })
                 .then(doc => {
-                  elasticSearchQueue.add({
-                    fileName: file.name,
-                    bucketName: bucketName,
-                    document: doc,
-                    pubId: id
-                  })
+                  if (
+                    document.mediaType === 'text/html' ||
+                    document.mediaType === 'application/xhtml+xml'
+                  ) {
+                    elasticsearchQueue.add({
+                      type: 'add',
+                      fileName: file.name,
+                      bucketName: bucketName,
+                      document: doc,
+                      pubId: id
+                    })
+                  }
+
                   res.setHeader('Content-Type', 'application/json;')
                   res.end(JSON.stringify(doc))
                 })

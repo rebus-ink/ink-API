@@ -5,11 +5,11 @@ const utils = require('../utils/utils')
 const storage = new Storage()
 require('dotenv').config()
 
-let elasticSearchQueue
+let elasticsearchQueue
 
 // skipping this in travis in pull requests because it doesn't have access to redis password
 if (!process.env.TRAVIS_PULL_REQUEST) {
-  elasticSearchQueue = new Queue('elasticsearch', {
+  elasticsearchQueue = new Queue('elasticsearch', {
     redis: {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
@@ -17,41 +17,63 @@ if (!process.env.TRAVIS_PULL_REQUEST) {
     }
   })
 
-  elasticSearchQueue.process(async (data, done) => {
+  elasticsearchQueue.process(async (data, done) => {
     data = data.data
-    const readingFileStream = storage
-      .bucket(data.bucketName)
-      .file(data.fileName)
-      .createReadStream()
-    let buf = ''
-    readingFileStream
-      .on('data', function (d) {
-        buf += d
-      })
-      .on('end', async () => {
-        request.post(
-          `${process.env.ELASTIC_SEARCH_URL}/document/_doc/`,
-          {
-            auth: {
-              username: process.env.ELASTIC_SEARCH_LOGIN,
-              password: process.env.ELASTIC_SEARCH_PASSWORD
+    if (data.type === 'add') {
+      const readingFileStream = storage
+        .bucket(data.bucketName)
+        .file(data.fileName)
+        .createReadStream()
+      let buf = ''
+      readingFileStream
+        .on('data', function (d) {
+          buf += d
+        })
+        .on('end', async () => {
+          request.post(
+            `${process.env.ELASTIC_SEARCH_URL}/document/_doc/`,
+            {
+              auth: {
+                username: process.env.ELASTIC_SEARCH_LOGIN,
+                password: process.env.ELASTIC_SEARCH_PASSWORD
+              },
+              body: JSON.stringify({
+                name: data.fileName,
+                readerId: utils.urlToId(data.document.readerId),
+                publicationId: utils.urlToId(data.pubId),
+                documentUrl: data.document.url,
+                documentId: data.document.id,
+                content: buf
+              }),
+              headers: { 'content-type': 'application/json' }
             },
-            body: JSON.stringify({
-              name: data.fileName,
-              readerId: utils.urlToId(data.document.readerId),
-              publicationId: data.pubId,
-              documentUrl: data.document.url,
-              documentId: data.document.id,
-              content: buf
-            }),
-            headers: { 'content-type': 'application/json' }
+            () => {
+              done()
+            }
+          )
+        })
+    } else if (data.type === 'delete') {
+      request.post(
+        `${process.env.ELASTIC_SEARCH_URL}/document/_delete_by_query`,
+        {
+          auth: {
+            username: process.env.ELASTIC_SEARCH_LOGIN,
+            password: process.env.ELASTIC_SEARCH_PASSWORD
           },
-          () => {
-            done()
-          }
-        )
-      })
+          body: JSON.stringify({
+            query: {
+              term: { publicationId: data.publicationId }
+            }
+          }),
+          headers: { 'content-type': 'application/json' }
+        },
+        (err, result) => {
+          console.log(result.body)
+          done()
+        }
+      )
+    }
   })
 }
 
-module.exports = elasticSearchQueue
+module.exports = elasticsearchQueue
