@@ -16,8 +16,8 @@ const allTests = async () => {
   }
 
   await searchTests(app)
-  // await fileUploadTests(app)
-  // await publicationFileUploadTests(app)
+  await fileUploadTests(app)
+  await publicationFileUploadTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()

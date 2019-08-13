@@ -8,7 +8,6 @@ const { Publication } = require('../models/Publication')
 const { Document } = require('../models/Document')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
-const request = require('request')
 
 const storage = new Storage()
 const elasticsearchQueue = require('../utils/queue')

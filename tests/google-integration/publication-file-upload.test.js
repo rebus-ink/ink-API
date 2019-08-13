@@ -106,7 +106,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .field('name', 'file')
       .field('documentPath', path)
-      .field('mediaType', 'text')
+      .field('mediaType', 'text/html')
       .field('json', JSON.stringify({ test: 'Value' }))
       .attach('file', 'tests/test-files/test-file1.txt')
 

@@ -12,7 +12,6 @@ const attributionTypes = ['author', 'editor']
 const { urlToId } = require('../utils/utils')
 
 const elasticsearchQueue = require('../utils/queue')
-const request = require('request')
 
 /*::
 type PublicationType = {

@@ -67,8 +67,7 @@ if (!process.env.TRAVIS_PULL_REQUEST) {
           }),
           headers: { 'content-type': 'application/json' }
         },
-        (err, result) => {
-          console.log(result.body)
+        () => {
           done()
         }
       )

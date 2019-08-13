@@ -133,14 +133,13 @@ const test = async app => {
   const docId3 = urlToId(res3.body.id)
 
   // doc4 does not contain the word hat
-  const res4 = await request(app)
+  await request(app)
     .post(`${publicationUrl2}/file-upload`)
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .field('documentPath', path)
     .field('mediaType', 'application/xhtml+xml')
     .attach('file', 'tests/test-files/file4.html')
-  const docId4 = urlToId(res4.body.id)
 
   await sleep(6000)
 
