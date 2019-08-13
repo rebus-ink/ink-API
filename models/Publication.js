@@ -224,7 +224,9 @@ class Publication extends BaseModel {
     await Publication_Tag.deletePubTagsOfPub(id)
 
     // remove documents from elasticsearch index
-    elasticsearchQueue.add({ type: 'delete', publicationId: id })
+    if (elasticsearchQueue) {
+      elasticsearchQueue.add({ type: 'delete', publicationId: id })
+    }
 
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })

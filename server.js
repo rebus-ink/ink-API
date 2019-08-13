@@ -158,7 +158,6 @@ app.terminate = async () => {
   }
   app.initialized = false
   if (elasticsearchQueue) {
-    console.log('closing?')
     elasticsearchQueue.close()
   }
   return await app.knex.destroy()
