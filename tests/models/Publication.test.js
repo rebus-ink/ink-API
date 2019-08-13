@@ -9,6 +9,7 @@ const { Tag } = require('../../models/Tag')
 const { Document } = require('../../models/Document')
 const { Note } = require('../../models/Note')
 const crypto = require('crypto')
+const _ = require('lodash')
 
 const test = async app => {
   if (!process.env.POSTGRE_INSTANCE) {
@@ -120,6 +121,7 @@ const test = async app => {
   })
 
   let publicationId
+  let publicationId2
   let publication
 
   await tap.test('Create Publication', async () => {
@@ -134,7 +136,7 @@ const test = async app => {
     await tap.ok(response.author[0] instanceof Attribution)
     await tap.equal(response.editor.length, 1)
     await tap.ok(response.editor[0] instanceof Attribution)
-    publicationId = response.id
+    publicationId2 = response.id
   })
 
   await tap.test('Create simple publication', async () => {
@@ -592,6 +594,37 @@ const test = async app => {
 
     const note2 = await Note.byId(urlToId(createdNote2.id))
     await tap.ok(note2.deleted)
+  })
+
+  await tap.test('Get PublicationIds By Collection', async () => {
+    // create a third publication:
+    let response = await Publication.createPublication(
+      createdReader,
+      simplePublication
+    )
+    publicationId3 = urlToId(response.id)
+
+    // add tag to publications 2 and 3:
+    await Publication_Tag.addTagToPub(urlToId(publicationId2), createdTag.id)
+    await Publication_Tag.addTagToPub(urlToId(publicationId3), createdTag.id)
+
+    // add tag2 to publication1
+    const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
+      name: 'mystack9'
+    })
+
+    await Publication_Tag.addTagToPub(urlToId(publicationId), createdTag2.id)
+    // get publicationIds by collection:
+    let pubIdsResponse = await Publication_Tag.getIdsByCollection(
+      createdTag.name,
+      createdReader.id
+    )
+    await tap.ok(_.isArray(pubIdsResponse))
+    await tap.equal(pubIdsResponse.length, 2)
+    await tap.notEqual(pubIdsResponse.indexOf(urlToId(publicationId2)), -1)
+    await tap.notEqual(pubIdsResponse.indexOf(urlToId(publicationId3)), -1)
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

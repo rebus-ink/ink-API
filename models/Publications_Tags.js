@@ -99,6 +99,20 @@ class Publication_Tag extends BaseModel {
       .where({ tagId: urlToId(tagId) })
   }
 
+  static async getIdsByCollection (
+    tagName /*: string */,
+    readerId /*: string */
+  ) /*: Promise<Array<string>> */ {
+    const res = await Publication_Tag.query()
+      .select('publication_tag.publicationId')
+      .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+      .where('Tag.name', '=', tagName)
+      .andWhere('Tag.readerId', '=', urlToId(readerId))
+      .andWhere('Tag.type', '=', 'reader:Stack')
+
+    return res.map(object => urlToId(object.publicationId))
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
