@@ -9,7 +9,6 @@ const createReader = async token => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     }
   }
-
   return axios
     .post(
       `${process.env.DOMAIN}/readers`,
