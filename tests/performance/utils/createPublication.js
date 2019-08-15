@@ -10,7 +10,7 @@ const createPublication = async (token, readerUrl, number = 1) => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
     }
   }
-
+  console.log('create publication???')
   for (let i = 0; i < number; i++) {
     promises.push(
       axios.post(
@@ -77,7 +77,9 @@ const createPublication = async (token, readerUrl, number = 1) => {
     )
   }
 
-  await Promise.all(promises)
+  try {
+    await Promise.all(promises)
+  } catch (err) {}
 }
 
 module.exports = createPublication

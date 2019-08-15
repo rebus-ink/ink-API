@@ -20,12 +20,12 @@ const allTests = async () => {
   // }
 
   await libraryTests(app)
-  await readerProfileTests(app)
-  await createPublicationTests(app)
-  await createNotesTests(app)
-  await createTagsTests(app)
-  await addPubToCollectionTests(app)
-  await getReaderNotesTests(app)
+  // await readerProfileTests(app)
+  // await createPublicationTests(app)
+  // await createNotesTests(app)
+  // await createTagsTests(app)
+  // await addPubToCollectionTests(app)
+  // await getReaderNotesTests(app)
 
   // if (process.env.POSTGRE_INSTANCE) {
   //   await app.knex.migrate.rollback()

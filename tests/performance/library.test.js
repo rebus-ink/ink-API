@@ -9,8 +9,12 @@ const createPublication = require('./utils/createPublication')
 const createReader = require('./utils/createReader')
 
 const test = async () => {
-  const token = getToken()
-  const readerUrl = await createReader(token)
+  // const token = getToken()
+  const token =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJFNTU2Q0JCOS0zRTAwLTQ4NDctQjAxQy00MTVBODFDRTNBQzEiLCJpYXQiOjE1NjU4NzY3NTQsImV4cCI6MTU2NjQ4MTU1NCwiYXVkIjoiUkVCVVNfQVBJIiwiaXNzIjoiUkVCVVNfUkVBREVSIn0.lj5JNWZjlY0WXqSD-ljMR7QCsBW3f_R0fextkbhZZf8'
+  // const readerUrl = await createReader(token)
+  const readerUrl =
+    'https://rr-dev.rebus.works/reader-9afdf8ec99ff1fce7d38e0df08726c9e'
   let config = {
     headers: {
       Host: process.env.DOMAIN,

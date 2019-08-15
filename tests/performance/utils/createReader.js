@@ -25,7 +25,7 @@ const createReader = async token => {
       return res.data.id
     })
     .catch(err => {
-      console.log('error in createReader: ', err.toJSON())
+      console.log('error in createReader: ', err.message)
     })
 }
 

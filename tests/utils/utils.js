@@ -16,8 +16,9 @@ const getToken = () => {
     expiresIn: '24h',
     issuer: process.env.ISSUER
   }
+  console.log(options, process.env.SECRETORKEY, process.env.DOMAIN)
   return jwt.sign(
-    { id: 'google-oauth2|116984424909483864529' },
+    { id: crypto.randomBytes(16).toString('hex') },
     process.env.SECRETORKEY,
     options
   )
@@ -133,7 +134,7 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-
+  console.log('creating pub?')
   return await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
