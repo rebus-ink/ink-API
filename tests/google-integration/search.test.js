@@ -141,11 +141,11 @@ const test = async app => {
     .field('mediaType', 'application/xhtml+xml')
     .attach('file', 'tests/test-files/file4.html')
 
-  await sleep(10000)
+  await sleep(15000)
 
   await tap.test('simple search', async () => {
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
-
+console.log(res)
     const body = res.body
 
     await tap.equal(body.hits.total.value, 3)
