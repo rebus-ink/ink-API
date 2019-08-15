@@ -158,8 +158,9 @@ module.exports = app => {
                 })
                 .then(doc => {
                   if (
-                    document.mediaType === 'text/html' ||
-                    document.mediaType === 'application/xhtml+xml'
+                    (document.mediaType === 'text/html' ||
+                      document.mediaType === 'application/xhtml+xml') &&
+                    elasticsearchQueue
                   ) {
                     elasticsearchQueue.add({
                       type: 'add',
