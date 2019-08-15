@@ -47,8 +47,9 @@ if (!process.env.TRAVIS_PULL_REQUEST) {
               }),
               headers: { 'content-type': 'application/json' }
             },
-            (err) => {
+            (err, res) => {
               if (err) console.log(err)
+              console.log('response?', res)
               done()
             }
           )
@@ -70,7 +71,6 @@ if (!process.env.TRAVIS_PULL_REQUEST) {
         },
         (err, res) => {
           if (err) console.log(err)
-          console.log('response',res)
           done()
         }
       )
