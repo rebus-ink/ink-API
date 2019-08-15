@@ -141,7 +141,7 @@ const test = async app => {
     .field('mediaType', 'application/xhtml+xml')
     .attach('file', 'tests/test-files/file4.html')
 
-  await sleep(6000)
+  await sleep(10000)
 
   await tap.test('simple search', async () => {
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
@@ -287,7 +287,7 @@ const test = async app => {
         })
       )
 
-    await sleep(2000)
+    await sleep(5000)
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
 
     const body = res.body
