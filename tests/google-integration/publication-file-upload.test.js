@@ -106,7 +106,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .field('name', 'file')
       .field('documentPath', path)
-      .field('mediaType', 'text')
+      .field('mediaType', 'text/html')
       .field('json', JSON.stringify({ test: 'Value' }))
       .attach('file', 'tests/test-files/test-file1.txt')
 
@@ -115,7 +115,7 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.url, 'string')
     await tap.equal(body.documentPath, path)
-    await tap.equal(body.mediaType, 'text')
+    await tap.equal(body.mediaType, 'text/html')
     await tap.type(body.json, 'object')
     await tap.equal(body.json.test, 'Value')
 
@@ -152,7 +152,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .field('name', 'file')
       .field('documentPath', crypto.randomBytes(8).toString('hex'))
-      .field('mediaType', 'text')
+      .field('mediaType', 'text/html')
       .field('json', JSON.stringify({ test: 'Value' }))
       .attach('file', 'tests/test-files/test-file4.txt')
 
@@ -189,7 +189,7 @@ const test = async app => {
         .set('Authorization', `Bearer ${token}`)
         .field('name', 'file')
         .field('documentPath', path)
-        .field('mediaType', 'text')
+        .field('mediaType', 'text/html')
         .field('json', JSON.stringify({ test: 'Value' }))
         .attach('file', 'tests/test-files/test-file1.txt')
       await tap.equal(res.status, 404)
@@ -210,7 +210,7 @@ const test = async app => {
         .set('Authorization', `Bearer ${token}`)
         .field('name', 'file')
         .field('documentPath', path)
-        .field('mediaType', 'text')
+        .field('mediaType', 'text/html')
         .field('json', JSON.stringify({ test: 'Value' }))
 
       await tap.equal(res.status, 400)

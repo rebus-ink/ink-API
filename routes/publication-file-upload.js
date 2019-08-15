@@ -10,6 +10,7 @@ const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 
 const storage = new Storage()
+const elasticsearchQueue = require('../utils/queue')
 
 const m = multer({ storage: multer.memoryStorage() })
 /**
@@ -61,6 +62,7 @@ module.exports = app => {
     m.single('file'),
     async function (req, res, next) {
       const id = req.params.id
+      let bucketName
       Publication.byId(id).then(async publication => {
         if (!publication) {
           return next(
@@ -83,7 +85,7 @@ module.exports = app => {
             process.env.NODE_ENV === 'test' ? 'reader-test-' : 'reader-storage-'
 
           // one bucket per publication
-          const bucketName = prefix + req.params.id.toLowerCase()
+          bucketName = prefix + req.params.id.toLowerCase()
           const publicationId = req.params.id
 
           let bucket
@@ -113,8 +115,10 @@ module.exports = app => {
           } else {
             let document = {
               documentPath: req.body.documentPath,
-              mediaType: req.body.mediaType,
-              json: JSON.parse(req.body.json)
+              mediaType: req.body.mediaType
+            }
+            if (req.body.json) {
+              document.json = req.body.json
             }
             // //
             const file = req.file
@@ -145,15 +149,32 @@ module.exports = app => {
               blob
                 .makePublic()
                 .then(() => {
+                  if (document.json) document.json = JSON.parse(document.json)
                   return Document.createDocument(
                     publication.reader,
                     publicationId,
                     document
                   )
                 })
-                .then(createdDocument => {
+                .then(doc => {
+                  if (
+                    document.mediaType === 'text/html' ||
+                    document.mediaType === 'application/xhtml+xml'
+                  ) {
+                    elasticsearchQueue.add({
+                      type: 'add',
+                      fileName: file.name,
+                      bucketName: bucketName,
+                      document: doc,
+                      pubId: id
+                    })
+                  }
+
                   res.setHeader('Content-Type', 'application/json;')
-                  res.end(JSON.stringify(createdDocument))
+                  res.end(JSON.stringify(doc))
+                })
+                .catch(err => {
+                  console.log(err)
                 })
             })
 

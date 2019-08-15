@@ -1,5 +1,6 @@
 const fileUploadTests = require('./file-upload.test')
 const publicationFileUploadTests = require('./publication-file-upload.test')
+const searchTests = require('./search.test')
 
 const app = require('../../server').app
 
@@ -14,6 +15,7 @@ const allTests = async () => {
     }
   }
 
+  await searchTests(app)
   await fileUploadTests(app)
   await publicationFileUploadTests(app)
 

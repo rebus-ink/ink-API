@@ -9,6 +9,8 @@ const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
+const elasticsearchQueue = require('./utils/queue')
+
 const activityRoute = require('./routes/activity')
 const publicationRoute = require('./routes/publication')
 const readerLibraryRoute = require('./routes/reader-library')
@@ -24,6 +26,7 @@ const publicationFileUploadRoute = require('./routes/publication-file-upload')
 const noteRoute = require('./routes/note')
 const publicationDocumentRoute = require('./routes/publication-document')
 const readerNotesRoute = require('./routes/reader-notes')
+const searchRoute = require('./routes/search')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -154,7 +157,9 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-
+  if (elasticsearchQueue) {
+    elasticsearchQueue.close()
+  }
   return await app.knex.destroy()
 }
 
@@ -173,6 +178,7 @@ publicationFileUploadRoute(app)
 noteRoute(app)
 publicationDocumentRoute(app)
 readerNotesRoute(app)
+searchRoute(app)
 
 app.use(errorHandling)
 

@@ -9,6 +9,7 @@ addons:
   postgresql: '9.6'
 services:
 - postgresql
+- redis-server
 before_install:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && openssl aes-256-cbc -K $encrypted_6def506fdf9f_key -iv $encrypted_6def506fdf9f_iv -in google-keyfile.json.enc -out google-keyfile.json -d || true'
 - psql -c 'create database travis_ci_test;' -U postgres

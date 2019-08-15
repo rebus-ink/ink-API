@@ -56,10 +56,11 @@
     "tap": "^12.7.0"
   },
   "dependencies": {
-    "@google-cloud/storage": "^2.3.1",
+    "@google-cloud/storage": "^2.5.0",
     "@hapi/boom": "^7.4.2",
     "accesscontrol": "^2.2.1",
     "arrify": "^1.0.1",
+    "bull": "^3.10.0",
     "compression": "^1.7.3",
     "connect-ensure-login": "^0.1.1",
     "cookie-session": "^2.0.0-beta.3",
@@ -79,6 +80,7 @@
     "passport-jwt": "^4.0.0",
     "path-match": "^1.2.4",
     "pg": "^7.4.3",
+    "request": "^2.88.0",
     "sanitize-html": "^1.19.0",
     "short-uuid": "^3.0.0",
     "swagger-jsdoc": "^3.2.9"

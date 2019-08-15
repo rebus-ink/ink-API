@@ -11,6 +11,8 @@ const metadataProps = ['inLanguage', 'keywords']
 const attributionTypes = ['author', 'editor']
 const { urlToId } = require('../utils/utils')
 
+const elasticsearchQueue = require('../utils/queue')
+
 /*::
 type PublicationType = {
   id: string,
@@ -220,6 +222,11 @@ class Publication extends BaseModel {
     // Delete Publication_Tag associated with pub
     const { Publication_Tag } = require('./Publications_Tags')
     await Publication_Tag.deletePubTagsOfPub(id)
+
+    // remove documents from elasticsearch index
+    if (elasticsearchQueue) {
+      elasticsearchQueue.add({ type: 'delete', publicationId: id })
+    }
 
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })
