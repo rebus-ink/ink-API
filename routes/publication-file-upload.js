@@ -157,11 +157,14 @@ module.exports = app => {
                   )
                 })
                 .then(doc => {
+                console.log(document.mediaType)
+                console.log('queue?', !!elasticsearchQueue)
                   if (
                     (document.mediaType === 'text/html' ||
                       document.mediaType === 'application/xhtml+xml') &&
                     elasticsearchQueue
                   ) {
+                    console.log('adding!')
                     elasticsearchQueue.add({
                       type: 'add',
                       fileName: file.name,
