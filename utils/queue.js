@@ -8,7 +8,7 @@ require('dotenv').config()
 let elasticsearchQueue
 
 // skipping this in travis in pull requests because it doesn't have access to redis password
-if (!process.env.TRAVIS_PULL_REQUEST) {
+if (process.env.REDIS_PASSWORD) {
   elasticsearchQueue = new Queue('elasticsearch', {
     redis: {
       host: process.env.REDIS_HOST,
