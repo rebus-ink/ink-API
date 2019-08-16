@@ -20,7 +20,6 @@ if (process.env.REDIS_PASSWORD) {
   elasticsearchQueue.process(async (data, done) => {
     data = data.data
     if (data.type === 'add') {
-      console.log('type: add')
       const readingFileStream = storage
         .bucket(data.bucketName)
         .file(data.fileName)
@@ -31,7 +30,6 @@ if (process.env.REDIS_PASSWORD) {
           buf += d
         })
         .on('end', async () => {
-        console.log('buffer complete')
           request.post(
             `${process.env.ELASTIC_SEARCH_URL}/document/_doc/`,
             {
@@ -50,9 +48,7 @@ if (process.env.REDIS_PASSWORD) {
               headers: { 'content-type': 'application/json' }
             },
             (err, res) => {
-              console.log('finished???')
               if (err) console.log(err)
-              console.log('response?', res)
               done()
             }
           )

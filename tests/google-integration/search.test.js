@@ -145,7 +145,6 @@ const test = async app => {
 
   await tap.test('simple search', async () => {
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
-console.log(res)
     const body = res.body
 
     await tap.equal(body.hits.total.value, 3)
