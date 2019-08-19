@@ -308,7 +308,7 @@ const test = async app => {
 
     // upload files to publication 3:
 
-    // doc3 contains 'top hat'
+    // doc5 contains 'top hat'
     const res5 = await request(app)
       .post(`${publicationUrl3}/file-upload`)
       .set('Authorization', `Bearer ${token}`)
@@ -319,7 +319,7 @@ const test = async app => {
 
     docId5 = urlToId(res5.body.id)
 
-    // doc4 does not contain the word hat
+    // doc6 does not contain the word hat
     await request(app)
       .post(`${publicationUrl3}/file-upload`)
       .set('Authorization', `Bearer ${token}`)
@@ -344,9 +344,11 @@ const test = async app => {
     await addPubToCollection(app, token, readerUrl, publicationId, stack.id)
     await addPubToCollection(app, token, readerUrl, publicationId3, stack.id)
 
+    // search by collection
     const res = await request(app).get(
       `${readerUrl}/search?search=hat&collection=my_test`
     )
+
     const body = res.body
     await tap.equal(res.body.hits.total.value, 3)
 
