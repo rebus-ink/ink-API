@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-      env = {
+      env: {
         GOOGLE_CLOUD_PROJECT: thematic-cider-139815,
         POSTGRES_DB: github_action_test,
         POSTGRE_INSTANCE: localhost
