@@ -1,24 +1,16 @@
-const request = require('supertest')
-const app = require('../../../server').app
 const crypto = require('crypto')
-const axios = require('axios')
+const request = require('request')
+const util = require('util')
+
+const requestPost = util.promisify(request.post)
 
 const createTags = async (token, readerUrl, number = 1) => {
   let promises = []
-  let config = {
-    headers: {
-      Host: process.env.DOMAIN,
-      Authorization: `Bearer ${token}`,
-      'Content-type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    }
-  }
 
   for (let i = 0; i < number; i++) {
     promises.push(
-      axios.post(
-        `${readerUrl}/activity`,
-        {
+      requestPost(`${readerUrl}/activity`, {
+        body: JSON.stringify({
           '@context': [
             'https://www.w3.org/ns/activitystreams',
             { reader: 'https://rebus.foundation/ns/reader' }
@@ -29,9 +21,15 @@ const createTags = async (token, readerUrl, number = 1) => {
             tagType: 'reader:Stack',
             name: crypto.randomBytes(8).toString('hex')
           }
+        }),
+        auth: {
+          bearer: token
         },
-        config
-      )
+        headers: {
+          'content-type':
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        }
+      })
     )
   }
 

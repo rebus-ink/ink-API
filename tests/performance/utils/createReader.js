@@ -1,31 +1,28 @@
-const axios = require('axios')
+const request = require('request')
+const util = require('util')
+
+const requestPost = util.promisify(request.post)
 
 const createReader = async token => {
-  let config = {
+  return requestPost(`${process.env.DOMAIN}/readers`, {
+    auth: {
+      bearer: token
+    },
     headers: {
-      Host: process.env.DOMAIN,
-      Authorization: `Bearer ${token}`,
-      'Content-type':
+      //   Host: process.eventNames.DOMAIN,
+      'content-type':
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    }
-  }
-  return axios
-    .post(
-      `${process.env.DOMAIN}/readers`,
-      {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        name: 'J. Random Reader'
-      },
-      config
-    )
-    .then(() => {
-      return axios.get(`${process.env.DOMAIN}/whoami`, config)
+    },
+    body: JSON.stringify({
+      name: 'J. Random Reader',
+      '@context': 'https://www.w3.org/ns/activitystreams'
     })
+  })
     .then(res => {
-      return res.data.id
+      return res.headers.location
     })
     .catch(err => {
-      console.log('error in createReader: ', err.message)
+      console.log('create reader error: ', err)
     })
 }
 

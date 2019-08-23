@@ -16,7 +16,6 @@ const getToken = () => {
     expiresIn: '24h',
     issuer: process.env.ISSUER
   }
-  console.log(options, process.env.SECRETORKEY, process.env.DOMAIN)
   return jwt.sign(
     { id: crypto.randomBytes(16).toString('hex') },
     process.env.SECRETORKEY,
@@ -134,7 +133,6 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-  console.log('creating pub?')
   return await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')

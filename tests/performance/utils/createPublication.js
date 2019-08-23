@@ -1,21 +1,23 @@
-const axios = require('axios')
+const request = require('request')
+const util = require('util')
+
+const requestPost = util.promisify(request.post)
 
 const createPublication = async (token, readerUrl, number = 1) => {
   let promises = []
-  let config = {
-    headers: {
-      Host: process.env.DOMAIN,
-      Authorization: `Bearer ${token}`,
-      'Content-type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    }
-  }
-  console.log('create publication???')
+
   for (let i = 0; i < number; i++) {
     promises.push(
-      axios.post(
-        `${readerUrl}/activity`,
-        {
+      requestPost(`${readerUrl}/activity`, {
+        auth: {
+          bearer: token
+        },
+        headers: {
+          Host: process.eventNames.DOMAIN,
+          'content-type':
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        },
+        body: JSON.stringify({
           '@context': [
             'https://www.w3.org/ns/activitystreams',
             { reader: 'https://rebus.foundation/ns/reader' }
@@ -71,15 +73,15 @@ const createPublication = async (token, readerUrl, number = 1) => {
             ],
             json: { property: 'value' }
           }
-        },
-        config
-      )
+        })
+      })
     )
   }
-
   try {
     await Promise.all(promises)
-  } catch (err) {}
+  } catch (err) {
+    console.log('error: ', err)
+  }
 }
 
 module.exports = createPublication
