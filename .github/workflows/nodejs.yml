@@ -17,9 +17,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, and integration test
+      env = {
+        GOOGLE_CLOUD_PROJECT: thematic-cider-139815,
+        POSTGRES_DB: github_action_test,
+        POSTGRE_INSTANCE: localhost
+      }
+    - name: npm lint
       run: |
-        npm install
-        npm test-integration
+        npm lint
       env:
         CI: true
