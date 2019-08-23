@@ -3,6 +3,7 @@ const router = express.Router()
 const boom = require('@hapi/boom')
 const request = require('request')
 const { urlToId } = require('../utils/utils')
+const { Publication_Tag } = require('../models/Publications_Tags')
 
 /**
  * @swagger
@@ -60,7 +61,12 @@ module.exports = app => {
    *         name: publication
    *         schema:
    *           type: string
-   *         description: the id of the publication to search
+   *         description: the id of the publication to search. Should not be used with a collection filter.
+   *       - in: query
+   *         name: collection
+   *         schema:
+   *           type: string
+   *         description: the name of the collection. Should not be used with a publication filter.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -81,7 +87,7 @@ module.exports = app => {
   router.get(
     '/reader-:id/search',
     //  passport.authenticate('jwt', { session: false }),
-    function (req, res, next) {
+    async function (req, res, next) {
       const id = req.params.id
       if (!req.query.search) {
         return next(
@@ -92,7 +98,7 @@ module.exports = app => {
         )
       }
 
-      let query
+      let query, filter
 
       // filter by publication?
       if (req.query.publication) {
@@ -105,6 +111,18 @@ module.exports = app => {
         ]
       } else {
         filter = [{ term: { readerId: id } }]
+      }
+
+      // filter by collection?
+      if (req.query.collection) {
+        const list = await Publication_Tag.getIdsByCollection(
+          req.query.collection,
+          id
+        )
+        filter = [
+          { term: { readerId: id } },
+          { terms: { publicationId: list } }
+        ]
       }
 
       // exact search?
