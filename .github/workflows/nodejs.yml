@@ -3,18 +3,17 @@ name: Node CI
 on: [push]
 
 jobs:
-  services:
-    postgres:
-      image: postgres:10.8
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_DB: postgres
-        ports:
-        - 5432:5432
   build:
 
     runs-on: ubuntu-latest
-
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          ports:
+          - 5432:5432
     strategy:
       matrix:
         node-version: [8.x, 10.x, 12.x]
