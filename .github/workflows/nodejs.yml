@@ -28,3 +28,6 @@ jobs:
         npm run lint
       env:
         CI: true
+    - name: npm test-integration
+      run: |
+        npm run test-integration
