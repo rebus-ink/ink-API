@@ -3,6 +3,14 @@ name: Node CI
 on: [push]
 
 jobs:
+  services:
+    postgres:
+      image: postgres:10.8
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+        ports:
+        - 5432:5432
   build:
 
     runs-on: ubuntu-latest
