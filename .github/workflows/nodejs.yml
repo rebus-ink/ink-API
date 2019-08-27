@@ -34,8 +34,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_INSTANCE: localhost
           POSTGRES_DB: github-actiont-tests
-          ports:
-          - 5432:5432
+        ports:
+        - 5432:5432
     strategy:
       matrix:
         node-version: [10.x]
