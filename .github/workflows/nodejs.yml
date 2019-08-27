@@ -41,6 +41,8 @@ jobs:
         POSTGRE_USER: postgres
         POSTGRE_PASSWORD: postgres
         CI: true
+        POSTGRES_HOST: postgres
+        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
       run: |
         npm run test-integration
 
