@@ -40,8 +40,8 @@ jobs:
         POSTGRE_DB: postgres
         POSTGRE_USER: postgres
         POSTGRE_PASSWORD: postgres
+        CI: true
       run: |
         npm run test-integration
-      env:
-        CI: true
+
     
