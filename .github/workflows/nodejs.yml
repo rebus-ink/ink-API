@@ -10,9 +10,9 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          POSTGRE_USER: postgres
-          POSTGRE_PASSWORD: postgres
-          POSTGRE_DB: github_actions_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions_test
         ports:
         - 5432:5432
     strategy:
@@ -37,7 +37,7 @@ jobs:
     - name: npm test-integration
       env:
         POSTGRE_INSTANCE: postgres
-        POSTGRE_DB: postgres
+        POSTGRE_DB: github_actions_test
         POSTGRE_USER: postgres
         POSTGRE_PASSWORD: postgres
         CI: true
