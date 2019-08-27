@@ -3,27 +3,7 @@ name: Node CI
 on: [push, pull_request]
 
 jobs:
-  install:
-
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x]
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-      env: {
-        GOOGLE_CLOUD_PROJECT: thematic-cider-139815
-      }
-    - name: npm install
-      run: |
-        npm install
-      env:
-        CI: true
+  
   tests:
     runs-on: ubuntu-latest
     needs: [install]
@@ -51,6 +31,7 @@ jobs:
       }
     - name: npm lint
       run: |
+        npm install
         npm run lint
       env:
         CI: true 
