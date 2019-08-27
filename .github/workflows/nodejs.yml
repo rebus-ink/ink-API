@@ -36,7 +36,7 @@ jobs:
         CI: true 
     - name: npm test-integration
       env:
-        POSTGRE_INSTANCE: localhost
+        POSTGRE_INSTANCE: postgres
         POSTGRE_DB: postgres
         POSTGRE_USER: postgres
         POSTGRE_PASSWORD: postgres
