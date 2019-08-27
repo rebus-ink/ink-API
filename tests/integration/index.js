@@ -39,8 +39,6 @@ const app = require('../../server').app
 
 require('dotenv').config()
 
-console.log(process.env)
-
 const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
     await app.initialize(true)
