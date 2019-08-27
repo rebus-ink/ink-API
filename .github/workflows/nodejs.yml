@@ -34,7 +34,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_INSTANCE: localhost
           POSTGRES_DB: github-actiont-tests
-          POSTGRES_DB: postgres
           ports:
           - 5432:5432
     strategy:
