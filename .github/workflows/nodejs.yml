@@ -13,6 +13,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: github_actions_test
+          POSTGRES_INSTANCE: postgres
         ports:
         - 5432:5432
     strategy:
