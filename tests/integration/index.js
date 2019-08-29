@@ -41,13 +41,17 @@ require('dotenv').config()
 
 const allTests = async () => {
   if (process.env.POSTGRE_INSTANCE) {
-    await app.initialize(true)
-    await app.knex.migrate.rollback()
-    if (
-      process.env.POSTGRE_DB === 'travis_ci_test' ||
-      process.env.POSTGRE_DB === 'github_actions_test'
-    ) {
-      await app.knex.migrate.latest()
+    try {
+      await app.initialize(true)
+      await app.knex.migrate.rollback()
+      if (
+        process.env.POSTGRE_DB === 'travis_ci_test' ||
+        process.env.POSTGRE_DB === 'github_actions_test'
+      ) {
+        await app.knex.migrate.latest()
+      }
+    } catch (err) {
+      console.log(err)
     }
   }
 
