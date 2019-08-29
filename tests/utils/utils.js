@@ -5,15 +5,22 @@ const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
+require('dotenv').config()
+const crypto = require('crypto')
 
 const getToken = () => {
   const options = {
+    algorithm: 'HS256',
+    audience: 'REBUS_API',
     subject: `foo${Date.now()}`,
     expiresIn: '24h',
     issuer: process.env.ISSUER
   }
-
-  return jwt.sign({}, process.env.SECRETORKEY, options)
+  return jwt.sign(
+    { id: crypto.randomBytes(16).toString('hex') },
+    process.env.SECRETORKEY,
+    options
+  )
 }
 
 const createUser = async (app, token) => {
@@ -126,7 +133,6 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-
   return await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')

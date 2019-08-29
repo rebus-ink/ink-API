@@ -127,7 +127,6 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-
     let author, attribution
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
@@ -217,7 +216,6 @@ class Reader extends BaseModel {
         builder.limit(limit)
         builder.offset(offset)
       })
-
     return readers[0]
   }
 
