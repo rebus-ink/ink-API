@@ -1,0 +1,12 @@
+config:
+  target: "{{ $processEnvironment.DOMAIN }}"
+  phases:
+    - duration: 300
+      arrivalRate: 20
+  defaults:
+    headers:
+      Authorization: "Bearer {{ $processEnvironment.TOKEN }}"
+scenarios:
+  - flow:
+      - get:
+          url: "{{ $processEnvironment.READER_URL}}/library?limit=100"
