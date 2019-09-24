@@ -2,6 +2,7 @@ const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
 const { Publication } = require('../../models/Publication')
 const { Note } = require('../../models/Note')
+const { Document } = require('../../models/Document')
 const { createActivityObject } = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
@@ -159,6 +160,36 @@ const handleCreate = async (req, res, next, reader) => {
       const tagActivity = await Activity.createActivity(activityObjStack)
       res.status(201)
       res.set('Location', tagActivity.id)
+      res.end()
+
+      break
+
+    case 'Document':
+      const resultDoc = await Document.createDocument(
+        reader,
+        body.object.publicationId,
+        body.object
+      )
+
+      if (resultDoc instanceof Error || !resultDoc) {
+        if (resultDoc instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation error on create Document: ', {
+              type: 'Document',
+              activity: 'Create Document',
+              validation: resultStack.data
+            })
+          )
+        }
+
+        return next(err)
+      }
+
+      const activityObjDoc = createActivityObject(body, resultDoc, reader)
+
+      const docActivity = await Activity.createActivity(activityObjDoc)
+      res.status(201)
+      res.set('Location', docActivity.id)
       res.end()
 
       break
