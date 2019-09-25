@@ -23,7 +23,13 @@ const test = async app => {
     publicationId: 'pub123'
   }
 
-  let id
+  const jobObject2 = {
+    type: 'epub',
+    readerId: createdReader.id,
+    publicationId: 'pub1234'
+  }
+
+  let id, id2
 
   await tap.test('Create Job', async () => {
     let response = await Job.createJob(jobObject)
@@ -43,12 +49,13 @@ const test = async app => {
 
   await tap.test('Get job status by id - incomplete', async () => {
     const response = await Job.getStatusById(id)
-    await tap.equal(response, 304)
+    await tap.equal(response.status, 304)
   })
 
   await tap.test('Finish a job', async () => {
-    const response = await Job.finish(id)
-
+    const response = await Job.updateJob(id, {
+      finished: new Date().toISOString()
+    })
     await tap.ok(response)
     await tap.ok(response.published)
     await tap.ok(response.finished)
@@ -57,7 +64,28 @@ const test = async app => {
 
   await tap.test('Get job status by id - finished', async () => {
     const response = await Job.getStatusById(id)
-    await tap.equal(response, 201)
+    await tap.equal(response.status, 201)
+  })
+
+  await tap.test('Error on a job', async () => {
+    // first create a new job
+    const job2 = await Job.createJob(jobObject2)
+    id2 = job2.id
+
+    const response = await Job.updateJob(id2, {
+      finished: new Date().toISOString(),
+      error: 'error 123'
+    })
+    await tap.ok(response)
+    await tap.ok(response.published)
+    await tap.ok(response.finished)
+    await tap.ok(response.error)
+  })
+
+  await tap.test('Get job status by id - error', async () => {
+    const response = await Job.getStatusById(id2)
+    await tap.equal(response.status, 500)
+    await tap.equal(response.message, 'error 123')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {

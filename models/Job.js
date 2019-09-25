@@ -55,15 +55,17 @@ class Job extends Model {
     }
   }
 
-  static async getStatusById (id /*: string */) /*: Promise<number> */ {
+  static async getStatusById (
+    id /*: string */
+  ) /*: Promise<{status: number, message?: string}> */ {
     const job = await Job.query().findById(id)
 
     if (job.error) {
-      return 500
+      return { status: 500, message: job.error }
     } else if (job.finished) {
-      return 201
+      return { status: 201 }
     } else {
-      return 304
+      return { status: 304 }
     }
   }
 
@@ -78,6 +80,20 @@ class Job extends Model {
     return await Job.query()
       .insert(props)
       .returning('*')
+  }
+
+  static async updateJob (
+    id /*: string */,
+    changes /*: any */
+  ) /*: Promise<JobType> */ {
+    const modifications = _.pick(changes, ['finished', 'error'])
+
+    // if error, should mark as finished too
+    if (modifications.error && !modifications.finished) {
+      modifications.finished = new Date().toISOString()
+    }
+
+    return await Job.query().patchAndFetchById(id, modifications)
   }
 }
 
