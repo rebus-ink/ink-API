@@ -4,6 +4,7 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
+const { Job } = require('./Job')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
@@ -433,6 +434,14 @@ class Reader extends BaseModel {
         join: {
           from: 'Reader.id',
           to: 'readActivity.readerId'
+        }
+      },
+      jobs: {
+        relation: Model.HasManyRelation,
+        modelClass: Job,
+        join: {
+          from: 'Reader.id',
+          to: 'job.readerId'
         }
       },
       replies: {

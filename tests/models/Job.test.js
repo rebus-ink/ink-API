@@ -1,0 +1,69 @@
+const tap = require('tap')
+const { destroyDB } = require('../utils/utils')
+const { Job } = require('../../models/Job')
+const { Reader } = require('../../models/Reader')
+const crypto = require('crypto')
+const { urlToId } = require('../../utils/utils')
+
+const test = async app => {
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.initialize()
+  }
+
+  const reader = {
+    name: 'J. Random Reader'
+  }
+  const random = crypto.randomBytes(13).toString('hex')
+
+  const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
+
+  const jobObject = {
+    type: 'epub',
+    readerId: createdReader.id,
+    publicationId: 'pub123'
+  }
+
+  let id
+
+  await tap.test('Create Job', async () => {
+    let response = await Job.createJob(jobObject)
+
+    await tap.ok(response)
+    await tap.type(response, 'object')
+    await tap.ok(response.id)
+    await tap.type(response.type, 'string')
+    await tap.equal(response.type, 'epub')
+    await tap.equal(response.readerId, urlToId(createdReader.id))
+    await tap.equal(response.publicationId, 'pub123')
+    await tap.ok(response.published)
+    await tap.notOk(response.finished)
+    await tap.notOk(response.error)
+    id = response.id
+  })
+
+  await tap.test('Get job status by id - incomplete', async () => {
+    const response = await Job.getStatusById(id)
+    await tap.equal(response, 304)
+  })
+
+  await tap.test('Finish a job', async () => {
+    const response = await Job.finish(id)
+
+    await tap.ok(response)
+    await tap.ok(response.published)
+    await tap.ok(response.finished)
+    await tap.notOk(response.error)
+  })
+
+  await tap.test('Get job status by id - finished', async () => {
+    const response = await Job.getStatusById(id)
+    await tap.equal(response, 201)
+  })
+
+  if (!process.env.POSTGRE_INSTANCE) {
+    await app.terminate()
+  }
+  await destroyDB(app)
+}
+
+module.exports = test

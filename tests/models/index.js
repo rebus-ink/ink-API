@@ -6,6 +6,7 @@ const noteTests = require('./Note.test')
 const tagTests = require('./Tag.test')
 const readActivityTests = require('./ReadActivity.test')
 const attributionTests = require('./Attribution.test')
+const jobTests = require('./Job.test')
 
 const app = require('../../server').app
 
@@ -29,6 +30,7 @@ const allTests = async () => {
   await noteTests(app)
   await tagTests(app)
   await readActivityTests(app)
+  await jobTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()
