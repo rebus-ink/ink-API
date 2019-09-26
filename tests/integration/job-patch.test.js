@@ -35,7 +35,8 @@ const test = async app => {
       )
       .send(
         JSON.stringify({
-          finished: new Date().toISOString()
+          finished: new Date().toISOString(),
+          publicationUrl: 'http://www.google.ca'
         })
       )
 
@@ -49,6 +50,7 @@ const test = async app => {
     await tap.ok(body.finished)
     await tap.equal(body.publicationId, 'pub123')
     await tap.equal(body.readerId, urlToId(readerId))
+    await tap.equal(body.publicationUrl, 'http://www.google.ca')
   })
 
   await tap.test('Get Job to check status', async () => {
@@ -67,10 +69,11 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'number')
     await tap.equal(body.type, 'epub')
-    await tap.equal(body.status, 201)
+    await tap.equal(body.status, 302)
     await tap.ok(body.finished)
     await tap.equal(body.publicationId, 'pub123')
     await tap.equal(body.readerId, urlToId(readerId))
+    await tap.equal(body.publicationUrl, 'http://www.google.ca')
   })
 
   await tap.test('Set error for Job', async () => {

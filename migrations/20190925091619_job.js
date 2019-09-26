@@ -17,6 +17,8 @@ exports.up = function(knex, Promise) {
       .defaultTo(knex.fn.now())
     table
       .timestamp('finished')
+    table
+      .string('publicationUrl')
   })
 };
 

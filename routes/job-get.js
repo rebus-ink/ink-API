@@ -26,7 +26,7 @@ const { Job } = require('../models/Job')
  *         type: string
  *       status:
  *         type: integer
- *         enum: [201, 304, 500]
+ *         enum: [302, 304, 500]
  *
  */
 module.exports = function (app) {

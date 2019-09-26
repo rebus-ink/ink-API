@@ -1,6 +1,5 @@
 // @flow
 'use strict'
-const { BaseModel } = require('./BaseModel.js')
 const Model = require('objection').Model
 const { Reader } = require('./Reader')
 const _ = require('lodash')
@@ -64,7 +63,7 @@ class Job extends Model {
     if (job.error) {
       job.status = 500
     } else if (job.finished) {
-      job.status = 201
+      job.status = 302
     } else {
       job.status = 304
     }
