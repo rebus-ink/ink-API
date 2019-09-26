@@ -75,6 +75,9 @@ module.exports = function (app) {
               })
             )
           } else {
+            // if (job.publicationUrl && job.status === 302) {
+            //   res.redirect(302, job.publicationUrl)
+            // }
             res.setHeader('Content-Type', 'application/ld+json;')
             res.end(JSON.stringify(job))
           }
