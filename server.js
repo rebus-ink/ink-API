@@ -27,6 +27,8 @@ const noteRoute = require('./routes/note')
 const publicationDocumentRoute = require('./routes/publication-document')
 const readerNotesRoute = require('./routes/reader-notes')
 const searchRoute = require('./routes/search')
+const getJobRoute = require('./routes/job-get')
+const patchJobRoute = require('./routes/job-patch')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -179,6 +181,8 @@ noteRoute(app)
 publicationDocumentRoute(app)
 readerNotesRoute(app)
 searchRoute(app)
+getJobRoute(app)
+patchJobRoute(app)
 
 app.use(errorHandling)
 

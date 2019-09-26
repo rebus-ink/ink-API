@@ -14,7 +14,8 @@ type JobType = {
     publicationId?: string,
     error?: string,
     published: Date,
-    finished?: Date
+    finished?: Date,
+    publicationUrl?: string
   }
 */
 
@@ -36,7 +37,8 @@ class Job extends Model {
         readerId: { type: 'string' },
         error: { type: 'string' },
         published: { type: 'string', format: 'date-time' },
-        finished: { type: 'string', format: 'date-time' }
+        finished: { type: 'string', format: 'date-time' },
+        publicationUrl: { type: 'string' }
       },
       required: ['type', 'readerId']
     }
@@ -55,18 +57,18 @@ class Job extends Model {
     }
   }
 
-  static async getStatusById (
-    id /*: string */
-  ) /*: Promise<{status: number, message?: string}> */ {
+  static async byId (id /*: string */) /*: Promise<any> */ {
     const job = await Job.query().findById(id)
+    if (!job) return undefined
 
     if (job.error) {
-      return { status: 500, message: job.error }
+      job.status = 500
     } else if (job.finished) {
-      return { status: 201 }
+      job.status = 201
     } else {
-      return { status: 304 }
+      job.status = 304
     }
+    return job
   }
 
   static async createJob (
@@ -86,8 +88,11 @@ class Job extends Model {
     id /*: string */,
     changes /*: any */
   ) /*: Promise<JobType> */ {
-    const modifications = _.pick(changes, ['finished', 'error'])
-
+    const modifications = _.pick(changes, [
+      'finished',
+      'error',
+      'publicationUrl'
+    ])
     // if error, should mark as finished too
     if (modifications.error && !modifications.finished) {
       modifications.finished = new Date().toISOString()

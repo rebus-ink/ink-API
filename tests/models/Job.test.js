@@ -47,8 +47,8 @@ const test = async app => {
     id = response.id
   })
 
-  await tap.test('Get job status by id - incomplete', async () => {
-    const response = await Job.getStatusById(id)
+  await tap.test('Get by id - incomplete', async () => {
+    const response = await Job.byId(id)
     await tap.equal(response.status, 304)
   })
 
@@ -63,7 +63,7 @@ const test = async app => {
   })
 
   await tap.test('Get job status by id - finished', async () => {
-    const response = await Job.getStatusById(id)
+    const response = await Job.byId(id)
     await tap.equal(response.status, 201)
   })
 
@@ -83,9 +83,10 @@ const test = async app => {
   })
 
   await tap.test('Get job status by id - error', async () => {
-    const response = await Job.getStatusById(id2)
+    const response = await Job.byId(id2)
+
     await tap.equal(response.status, 500)
-    await tap.equal(response.message, 'error 123')
+    await tap.equal(response.error, 'error 123')
   })
 
   if (!process.env.POSTGRE_INSTANCE) {
