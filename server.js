@@ -29,6 +29,7 @@ const readerNotesRoute = require('./routes/reader-notes')
 const searchRoute = require('./routes/search')
 const getJobRoute = require('./routes/job-get')
 const patchJobRoute = require('./routes/job-patch')
+const fileUploadPubRoute = require('./routes/file-upload-pub')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -183,6 +184,7 @@ readerNotesRoute(app)
 searchRoute(app)
 getJobRoute(app)
 patchJobRoute(app)
+fileUploadPubRoute(app)
 
 app.use(errorHandling)
 

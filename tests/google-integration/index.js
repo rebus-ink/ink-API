@@ -1,6 +1,7 @@
 const fileUploadTests = require('./file-upload.test')
 const publicationFileUploadTests = require('./publication-file-upload.test')
 const searchTests = require('./search.test')
+const fileUploadPubTests = require('./file-upload-pub.test')
 
 const app = require('../../server').app
 
@@ -15,9 +16,10 @@ const allTests = async () => {
     }
   }
 
-  await searchTests(app)
-  await fileUploadTests(app)
-  await publicationFileUploadTests(app)
+  // await searchTests(app)
+  await fileUploadPubTests(app)
+  // await fileUploadTests(app)
+  // await publicationFileUploadTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
     await app.knex.migrate.rollback()

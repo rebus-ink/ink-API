@@ -56,13 +56,13 @@ const m = multer({ storage: multer.memoryStorage() })
 module.exports = app => {
   app.use('/', router)
   router.post(
-    '/publication-:id/file-upload',
+    '/reader-:id/file-upload-pub',
     passport.authenticate('jwt', { session: false }),
     m.single('file'),
     async function (req, res, next) {
       let bucketName = 'publication-file-uploads'
       let bucket = storage.bucket(bucketName)
-
+      let file = req.file
       if (!req.file) {
         return next(
           boom.badRequest('no file was included in this upload', {
@@ -72,16 +72,12 @@ module.exports = app => {
           })
         )
       } else {
-        // ???? probably don't need to rename here ??
-        // const file = req.file
-        // const extension = file.originalname.split('.').pop()
-        // const randomFileName = `${crypto
-        //   .randomBytes(15)
-        //   .toString('hex')}.${extension}`
-        // file.name = randomFileName
-
         // check extension
         const extension = file.originalname.split('.').pop()
+        const randomName = `${crypto
+          .randomBytes(15)
+          .toString('hex')}.${extension}`
+        file.name = randomName
 
         // for now, only accept epub
         if (extension !== 'epub') {
@@ -95,7 +91,7 @@ module.exports = app => {
         }
 
         // upload
-        const blob = bucket.file(file.originalname)
+        const blob = bucket.file(file.name)
 
         const stream = blob.createWriteStream({
           metadata: {
