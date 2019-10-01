@@ -37,6 +37,9 @@ const tagNoteTests = require('./tag-note.test')
 const tagDeleteTests = require('./tag-delete.test')
 const tagUpdateTests = require('./tag-update.test')
 
+const jobGetTests = require('./job-get.test')
+const jobPatchTests = require('./job-patch.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -104,6 +107,11 @@ const allTests = async () => {
     await readerNotesPaginateTests(app)
     await readerNotesFilterTests(app)
     await readerNotesOrderByTests(app)
+  }
+
+  if (!test || test === 'jobs') {
+    await jobGetTests(app)
+    await jobPatchTests(app)
   }
 
   if (process.env.POSTGRE_INSTANCE) {
