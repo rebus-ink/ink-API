@@ -1,17 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const {
-  getToken,
-  createUser,
-  destroyDB,
-  getActivityFromUrl
-} = require('../utils/utils')
-
-const { urlToId } = require('../../utils/utils')
-const _ = require('lodash')
-const { Document } = require('../../models/Document')
-const crypto = require('crypto')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
 
 const { Storage } = require('@google-cloud/storage')
 const storage = new Storage()
@@ -24,8 +14,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
-  const readerId = urlToId(readerCompleteUrl)
-  let file1Name
 
   await tap.test('Upload file', async () => {
     // check bucket before to see number of files

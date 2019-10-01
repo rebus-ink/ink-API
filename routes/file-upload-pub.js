@@ -4,14 +4,10 @@ const multer = require('multer')
 const { Storage } = require('@google-cloud/storage')
 const passport = require('passport')
 const crypto = require('crypto')
-const { Publication } = require('../models/Publication')
-const { Document } = require('../models/Document')
-const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 const { Job } = require('../models/Job')
 
 const storage = new Storage()
-const elasticsearchQueue = require('../utils/queue')
 
 const m = multer({ storage: multer.memoryStorage() })
 /**
@@ -77,7 +73,7 @@ module.exports = app => {
         const randomName = `${crypto
           .randomBytes(15)
           .toString('hex')}.${extension}`
-        file.name = randomName
+        file.name = `reader-${req.params.id}/${randomName}`
 
         // for now, only accept epub
         if (extension !== 'epub') {
