@@ -70,10 +70,6 @@ module.exports = app => {
       } else {
         // check extension
         const extension = file.originalname.split('.').pop()
-        const randomName = `${crypto
-          .randomBytes(15)
-          .toString('hex')}.${extension}`
-        file.name = `reader-${req.params.id}/${randomName}`
 
         // for now, only accept epub
         if (extension !== 'epub') {
@@ -85,6 +81,18 @@ module.exports = app => {
             })
           )
         }
+
+        // create job
+        const job = await Job.createJob({
+          type: 'epub',
+          readerId: req.params.id
+        })
+
+        // file name: `job-{jobId}/reader-{readerId}/${randomfilename}.epub
+        const randomName = `${crypto
+          .randomBytes(15)
+          .toString('hex')}.${extension}`
+        file.name = `reader-${req.params.id}/job-${job.id}/${randomName}`
 
         // upload
         const blob = bucket.file(file.name)
@@ -108,27 +116,6 @@ module.exports = app => {
           blob
             .makePublic()
             .then(() => {
-              return Job.createJob({
-                type: 'epub',
-                readerId: req.params.id
-              })
-            })
-            .then(job => {
-              // TODO: figure out what to do with elasticsearch
-              // if (
-              //   (document.mediaType === 'text/html' ||
-              //     document.mediaType === 'application/xhtml+xml') &&
-              //   elasticsearchQueue
-              // ) {
-              //   elasticsearchQueue.add({
-              //     type: 'add',
-              //     fileName: file.name,
-              //     bucketName: bucketName,
-              //     document: doc,
-              //     pubId: id
-              //   })
-              // }
-
               res.setHeader('Content-Type', 'application/json;')
               res.end(JSON.stringify(job))
             })
