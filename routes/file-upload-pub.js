@@ -92,7 +92,7 @@ module.exports = app => {
         const randomName = `${crypto
           .randomBytes(15)
           .toString('hex')}.${extension}`
-        file.name = `job-${job.id}/reader-${req.params.id}/${randomName}`
+        file.name = `reader-${req.params.id}/job-${job.id}/${randomName}`
 
         // upload
         const blob = bucket.file(file.name)
