@@ -15,6 +15,8 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
 
+  let jobId, publicationId
+
   await tap.test('Upload file', async () => {
     // check bucket before to see number of files
     const bucket = await storage.bucket('publication-file-uploads')
@@ -32,10 +34,67 @@ const test = async app => {
     await tap.equal(body.type, 'epub')
     await tap.ok(body.id)
 
+    jobId = body.id
+
     // check files
     const [filesAfter] = await bucket.getFiles()
     await tap.equal(filesAfter.length, lengthBefore + 1)
   })
+
+  await tap.test('Get job - should be incomplete', async () => {
+    const res = await request(app)
+      .get(`/job-${jobId}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.notOk(body.finished)
+    await tap.equal(body.status, 304)
+  })
+
+  await tap.test('Job should eventually be complete', async () => {
+    let finished = false
+    let timestamp = new Date().getTime()
+    // should time out if it doesn't work
+    let timeoutTime = timestamp + 5 * 1000 // should be more than that.
+    let error, status
+
+    async function delay (ms) {
+      return await new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    while (!finished && timestamp < timeoutTime) {
+      timestamp = new Date().getTime()
+      const res = await request(app)
+        .get(`/job-${jobId}`)
+        .set('Authorization', `Bearer ${token}`)
+      finished = !!res.body.finished
+      error = res.body.error
+      status = res.body.status
+      publicationId = res.body.publicationId // for use in next test
+
+      await delay(1000) // should be 10000
+    }
+
+    await tap.ok(finished)
+    await tap.notOk(error)
+    await tap.equal(status, 302)
+  })
+
+  await tap.test(
+    'Once complete, should be able to get the publication',
+    async () => {
+      const res = await request(app)
+        .get(urlparse(publicationUrl).path)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.statusCode, 200)
+    }
+  )
 
   // await tap.test('Upload multiple files concurrently', async () => {
   //   const upload = request(app)

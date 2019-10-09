@@ -18,7 +18,7 @@ const allTests = async () => {
 
   //  await searchTests(app)
   await fileUploadPubTests(app)
-  await fileUploadTests(app)
+  // await fileUploadTests(app)
   // await publicationFileUploadTests(app)
 
   if (process.env.POSTGRE_INSTANCE) {
