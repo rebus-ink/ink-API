@@ -12,13 +12,10 @@
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
     "test-performance": "cross-env ISSUER=REBUS_READER DOMAIN=https://rr-dev.rebus.works NODE_ENV=test tap --timeout=10000 -c -R  min tests/performance/index.js",
     "test-performance-dev": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 NODE_ENV=test tap -c -R min tests/performance/index.js",
-
     "before-test-load-dev": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 NODE_ENV=test node tests/performance/load-tests/index.js",
     "test-load-dev": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 NODE_ENV=test READER_URL=http://localhost:8080/reader-c9bddfd51cfb258ebb88e6900fe6af98 TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRhOWUxODMwZTI4ZjAyMDJiOTFmM2RmMTg0ZmYwYjdmIiwiaWF0IjoxNTY3MTg2NTk2LCJleHAiOjE1NjcyNzI5OTYsImF1ZCI6IlJFQlVTX0FQSSIsImlzcyI6ImF1dGgucmVhZGVyLWFwaS50ZXN0Iiwic3ViIjoiZm9vMTU2NzE4NjU5Njg3MCJ9.Qod1UScBhzeioiNwZ9wzZN3iT11o4fSjAOGUMKWoUow artillery run tests/performance/load-tests/load-test.yml",
-
     "before-test-load": "cross-env ISSUER=REBUS_READER DOMAIN=https://rr-dev.rebus.works NODE_ENV=test node tests/performance/load-tests/index.js",
     "test-load": "cross-env ISSUER=REBUS_READER DOMAIN=https://rr-dev.rebus.works NODE_ENV=test  READER_URL=https://rr-dev.rebus.works/reader-7bacd7ecd3589a94b8d6616bbe81f326 TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhiYTc5YjdhZGQxZWFhNDFkOWYyMDVlMzJhMTJhZDg4IiwiaWF0IjoxNTY3MTkxMTQyLCJleHAiOjE1NjcyNzc1NDIsImF1ZCI6IlJFQlVTX0FQSSIsImlzcyI6IlJFQlVTX1JFQURFUiIsInN1YiI6ImZvbzE1NjcxOTExNDIzNTkifQ.WtvMRsKx9Q0YHDKjQwrTqCnxyrKUl_sGr5mJ1J6E7fU artillery run tests/performance/load-tests/load-test.yml",
-
     "test": "npm run test-integration && npm run test-models && npm run test-google",
     "start": "node index.js",
     "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
@@ -78,6 +75,8 @@
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "helmet": "^3.13.0",
+    "jsdom": "^15.1.1",
+    "jszip": "^3.2.2",
     "knex": "^0.16.5",
     "lodash": "^4.17.11",
     "morgan": "^1.9.1",

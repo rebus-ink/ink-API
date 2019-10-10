@@ -63,7 +63,7 @@ class BaseModel extends Model {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
-      doc.id = crypto.randomBytes(16).toString('hex')
+      if (!doc.id) doc.id = crypto.randomBytes(16).toString('hex')
       const time = new Date().toISOString()
       doc.published = time
       doc.readerId = urlToId(doc.readerId)
