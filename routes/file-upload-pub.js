@@ -6,6 +6,7 @@ const passport = require('passport')
 const crypto = require('crypto')
 const boom = require('@hapi/boom')
 const { Job } = require('../models/Job')
+const epubQueue = require('../processFiles/index')
 
 const storage = new Storage()
 
@@ -56,7 +57,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     m.single('file'),
     async function (req, res, next) {
-      let bucketName = 'publication-file-uploads'
+      let bucketName = 'publication-file-uploads-test'
       let bucket = storage.bucket(bucketName)
       let file = req.file
       if (!req.file) {
@@ -82,18 +83,20 @@ module.exports = app => {
           )
         }
 
+        const publicationId = crypto.randomBytes(15).toString('hex')
+
         // create job
         const job = await Job.createJob({
           type: 'epub',
-          readerId: req.params.id
+          readerId: req.params.id,
+          publicationId
         })
 
         // file name: `job-{jobId}/reader-{readerId}/${randomfilename}.epub
         const randomName = `${crypto
           .randomBytes(15)
           .toString('hex')}.${extension}`
-        file.name = `reader-${req.params.id}/job-${job.id}/${randomName}`
-
+        file.name = `reader-${req.params.id}/${randomName}`
         // upload
         const blob = bucket.file(file.name)
 
@@ -116,6 +119,12 @@ module.exports = app => {
           blob
             .makePublic()
             .then(() => {
+              epubQueue.add({
+                readerId: req.params.id,
+                jobId: job.id,
+                fileName: file.name,
+                publicationId
+              })
               res.setHeader('Content-Type', 'application/json;')
               res.end(JSON.stringify(job))
             })

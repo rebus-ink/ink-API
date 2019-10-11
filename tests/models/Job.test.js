@@ -54,26 +54,17 @@ const test = async app => {
 
   await tap.test('Finish a job', async () => {
     const response = await Job.updateJob(id, {
-      finished: new Date().toISOString(),
-      publicationUrl: 'http://somewhere.over.the.rainbow'
+      finished: new Date().toISOString()
     })
     await tap.ok(response)
     await tap.ok(response.published)
     await tap.ok(response.finished)
     await tap.notOk(response.error)
-    await tap.equal(
-      response.publicationUrl,
-      'http://somewhere.over.the.rainbow'
-    )
   })
 
   await tap.test('Get job status by id - finished', async () => {
     const response = await Job.byId(id)
     await tap.equal(response.status, 302)
-    await tap.equal(
-      response.publicationUrl,
-      'http://somewhere.over.the.rainbow'
-    )
   })
 
   await tap.test('Error on a job', async () => {

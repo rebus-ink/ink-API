@@ -90,7 +90,7 @@ class Job extends Model {
     const modifications = _.pick(changes, [
       'finished',
       'error',
-      'publicationUrl'
+      'publicationId'
     ])
     // if error, should mark as finished too
     if (modifications.error && !modifications.finished) {

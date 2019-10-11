@@ -2,6 +2,7 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../utils/utils')
+const { urlToId } = require('../../utils/utils')
 
 const { Storage } = require('@google-cloud/storage')
 const storage = new Storage()
@@ -14,10 +15,13 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
+
+  let jobId, publicationId, documentPath
 
   await tap.test('Upload file', async () => {
     // check bucket before to see number of files
-    const bucket = await storage.bucket('publication-file-uploads')
+    const bucket = await storage.bucket('publication-file-uploads-test')
     const [filesBefore] = await bucket.getFiles()
     const lengthBefore = filesBefore.length
 
@@ -32,9 +36,86 @@ const test = async app => {
     await tap.equal(body.type, 'epub')
     await tap.ok(body.id)
 
+    jobId = body.id
+
     // check files
     const [filesAfter] = await bucket.getFiles()
     await tap.equal(filesAfter.length, lengthBefore + 1)
+  })
+
+  await tap.test('Get job - should be incomplete', async () => {
+    const res = await request(app)
+      .get(`/job-${jobId}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.notOk(body.finished)
+    await tap.equal(body.status, 304)
+  })
+
+  await tap.test('Job should eventually be complete', async () => {
+    let finished = false
+    let error, status
+
+    function sleep (ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    await sleep(10000)
+
+    //  const tryGetJob = async () => {
+    //    timestamp = new Date().getTime()
+    const res = await request(app)
+      .get(`/job-${jobId}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    //  if (res.body.finished || timestamp > timeoutTime) {
+    finished = !!res.body.finished
+    error = res.body.error
+    status = res.body.status
+    publicationId = res.body.publicationId
+    await tap.ok(finished)
+    await tap.notOk(error)
+    await tap.equal(status, 302)
+    // } else {
+    //   await sleep(1000)
+    //   await tryGetJob()
+    // }
+    // }
+    //   await tryGetJob()
+  })
+
+  await tap.test(
+    'Once complete, should be able to get the publication',
+    async () => {
+      const res = await request(app)
+        .get(`/publication-${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.equal(body.name, 'Minimal Test File')
+      documentPath = body.readingOrder[0].url
+    }
+  )
+
+  await tap.test('Should be able to get document', async () => {
+    const res = await request(app)
+      .get(`/publication-${publicationId}/${documentPath}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    const expectedUrl = `https://storage.cloud.google.com/publication-file-storage-test/reader-${readerId}/publication-${publicationId}/${documentPath}`
+
+    await tap.equal(res.statusCode, 302)
+    await tap.equal(res.text, `Found. Redirecting to ${expectedUrl}`)
   })
 
   // await tap.test('Upload multiple files concurrently', async () => {
