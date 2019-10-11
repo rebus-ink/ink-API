@@ -41,12 +41,15 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
         console.log('error creating document: ', err)
         await updateJob(jobId, err.toString())
       }
+      const content = await zip
+        .file(documentFile.documentPath)
+        .async('nodebuffer')
       promises.push(
         uploadFile(
           `reader-${book.readerId}/publication-${book.id}/${
             documentFile.documentPath
           }`,
-          zip.files[documentFile.documentPath]._data.compressedContent
+          content
         )
       )
     }
