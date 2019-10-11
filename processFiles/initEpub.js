@@ -35,7 +35,7 @@ exports.initEpub = async file => {
     {
       type: 'LinkedResource',
       rel: ['alternate'],
-      url: 'original.opf',
+      url: opfPath,
       encodingFormat: 'application/oebps-package+xml'
     }
   )

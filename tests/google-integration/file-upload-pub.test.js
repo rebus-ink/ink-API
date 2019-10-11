@@ -57,9 +57,6 @@ const test = async app => {
 
   await tap.test('Job should eventually be complete', async () => {
     let finished = false
-    let timestamp = new Date().getTime()
-    // should time out if it doesn't work
-    let timeoutTime = timestamp + 60 * 1000 // should be more than that.
     let error, status
 
     function sleep (ms) {
