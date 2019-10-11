@@ -14,7 +14,8 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
         console.log('error moving file', err)
         reject()
       })
-      stream.on('finish', () => {
+      stream.on('finish', async () => {
+        await blob.makePublic()
         resolve()
       })
       stream.end(content)
@@ -26,7 +27,7 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
   media.forEach(async documentFile => {
     if (zip.files[documentFile.documentPath]) {
       // create document
-      const name = `https://storage.cloud.google.com/${bucketName}/reader-${
+      const name = `https://storage.googleapis.com/${bucketName}/reader-${
         book.readerId
       }/publication-${book.id}/${documentFile.documentPath}`
       // create document
