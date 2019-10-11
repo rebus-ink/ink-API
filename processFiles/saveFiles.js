@@ -15,7 +15,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
         reject()
       })
       stream.on('finish', () => {
-        console.log('finished moving a file')
         resolve()
       })
       stream.end(content)
@@ -37,7 +36,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
           url: name,
           documentPath: documentFile.documentPath
         })
-        console.log('created document')
       } catch (err) {
         console.log('error creating document: ', err)
         await updateJob(jobId, err.toString())
@@ -50,18 +48,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
           zip.files[documentFile.documentPath]._data.compressedContent
         )
       )
-
-      // const blob = bucket.file(`reader-${book.readerId}/publication-${book.id}/${documentFile.documentPath}`)
-      // const stream = blob.createWriteStream()
-      // stream.on('error', async (err) => {
-      //   // error on job
-      //   console.log('error moving file', err)
-      //   await updateJob(jobId, err.toString())
-      // })
-      // stream.on('finish', () => {
-      //   console.log('finished moving a file')
-      // })
-      // stream.end(zip.files[documentFile.documentPath]._data.compressedContent)
     }
   })
 
@@ -73,16 +59,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
       file[0]
     )
   )
-  // const name = `reader-/${book.readerId}/publication-${book.id}/original.epub`
-  // const blob = bucket.file(name)
-  // const stream = blob.createWriteStream()
-  // stream.on('error', async (err) => {
-  //   console.log('error with original file', err)
-  //   await updateJob(jobId, err.toString())
-  // })
-  // stream.end(file[0])
-
-  // save opf file
 
   promises.push(
     uploadFile(
@@ -90,14 +66,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
       zip.files['META-INF/container.xml']._data.compressedContent
     )
   )
-  // const opfName = `${book.id}/META-INF/container.xml`
-  // const opfBlob = bucket.file(opfName)
-  // const opfStream = opfBlob.createWriteStream()
-  // opfStream.on('error', async (err) => {
-  //   console.log('error with opf file', err)
-  //   await updateJob(jobId, err.toString())
-  // })
-  // opfStream.end(zip.files["META-INF/container.xml"]._data.compressedContent)
 
   await Promise.all(promises)
 }

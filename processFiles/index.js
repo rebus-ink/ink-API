@@ -24,7 +24,6 @@ if (process.env.REDIS_PASSWORD) {
     const jobId = data.data.jobId
     const publicationId = data.data.publicationId
     const fileName = data.data.fileName
-    // let /*file, */book, media, zip
 
     bucket = storage.bucket(bucketName)
     const file = await bucket.file(fileName).download()
@@ -34,46 +33,13 @@ if (process.env.REDIS_PASSWORD) {
     book.readerId = readerId
     try {
       await Publication.createPublication({ id: readerId }, book)
-      console.log('publication created?')
       await saveFiles(book, result.media, result.zip, storage, file, jobId)
-      console.log('saveFiles finished')
       await bucket.file(fileName).delete()
       await updateJob(jobId, null, book.id)
-      console.log('done?')
       done()
     } catch (err) {
       await updateJob(jobId, err)
     }
-
-    /*
-    bucket.file(fileName).download().then((fileDownloaded) => {
-      file = fileDownloaded
-      return initEpub(file[0])
-    }).then((result) => {
-      book = result.book
-      book.id = publicationId
-      book.readerId = readerId
-      media = result.media
-      zip = result.zip
-      return Publication.createPublication({id: readerId}, book)
-    }).then(() => {
-      return saveFiles(book, media, zip, storage, file, jobId)
-    }).then(() => {
-      // remove original file
-      return bucket.file(fileName).delete()
-    }).then(() => {
-      // set job as finished
-      return updateJob(jobId, null, book.id)
-    }).then(() => {
-      console.log('job updated?')
-      done()
-    }).catch(async (err) => {
-      console.log(`general error: ${err}`)
-      // error on job
-      await updateJob(jobId, err.toString())
-      done()
-    })
-    */
   })
 }
 
