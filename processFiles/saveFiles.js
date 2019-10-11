@@ -5,10 +5,14 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
   const bucketName = 'publication-file-storage-test'
   const bucket = storage.bucket(bucketName)
 
-  const uploadFile = (fileName, content) => {
+  const uploadFile = (fileName, content, type) => {
     return new Promise((resolve, reject) => {
       const blob = bucket.file(fileName)
-      const stream = blob.createWriteStream()
+      const stream = blob.createWriteStream({
+        metadata: {
+          contentType: type
+        }
+      })
       stream.on('error', async err => {
         // error on job
         console.log('error moving file', err)
@@ -33,7 +37,7 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
       // create document
       try {
         await Document.createDocument({ id: book.readerId }, book.id, {
-          mediaType: 'text/html',
+          mediaType: documentFile.mediaType,
           url: name,
           documentPath: documentFile.documentPath
         })
@@ -49,7 +53,8 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
           `reader-${book.readerId}/publication-${book.id}/${
             documentFile.documentPath
           }`,
-          content
+          content,
+          documentFile.mediaType
         )
       )
     }
