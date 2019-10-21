@@ -19,7 +19,7 @@ if (process.env.REDIS_PASSWORD) {
       password: process.env.REDIS_PASSWORD
     }
   })
-  epubQueue.process(async (data, done) => {
+  epubQueue.process(async function (data, done) {
     const readerId = data.data.readerId
     const jobId = data.data.jobId
     const publicationId = data.data.publicationId
@@ -36,10 +36,10 @@ if (process.env.REDIS_PASSWORD) {
       await saveFiles(book, result.media, result.zip, storage, file, jobId)
       await bucket.file(fileName).delete()
       await updateJob(jobId, null, book.id)
-      done()
     } catch (err) {
       await updateJob(jobId, err)
     }
+    done()
   })
 }
 

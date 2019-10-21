@@ -28,7 +28,8 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
 
   const promises = []
 
-  media.forEach(async documentFile => {
+  for (index in media) {
+    const documentFile = media[index]
     if (zip.files[documentFile.documentPath]) {
       // create document
       const name = `https://storage.googleapis.com/${bucketName}/reader-${
@@ -42,7 +43,6 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
           documentPath: documentFile.documentPath
         })
       } catch (err) {
-        console.log('error creating document: ', err)
         await updateJob(jobId, err.toString())
       }
       const content = await zip
@@ -58,7 +58,7 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
         )
       )
     }
-  })
+  }
 
   // save original file
 
@@ -75,6 +75,5 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
       zip.files['META-INF/container.xml']._data.compressedContent
     )
   )
-
-  await Promise.all(promises)
+  return await Promise.all(promises)
 }
