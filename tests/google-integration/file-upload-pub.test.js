@@ -56,9 +56,6 @@ const test = async app => {
   })
 
   await tap.test('Job should eventually be complete', async () => {
-    let finished = false
-    let error, status
-
     function sleep (ms) {
       return new Promise(resolve => setTimeout(resolve, ms))
     }
@@ -72,9 +69,9 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
 
     //  if (res.body.finished || timestamp > timeoutTime) {
-    finished = !!res.body.finished
-    error = res.body.error
-    status = res.body.status
+    const finished = !!res.body.finished
+    const error = res.body.error
+    const status = res.body.status
     publicationId = res.body.publicationId
     await tap.ok(finished)
     await tap.notOk(error)
@@ -112,7 +109,7 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-    const expectedUrl = `https://storage.cloud.google.com/publication-file-storage-test/reader-${readerId}/publication-${publicationId}/${documentPath}`
+    const expectedUrl = `https://storage.googleapis.com/publication-file-storage-test/reader-${readerId}/publication-${publicationId}/${documentPath}`
 
     await tap.equal(res.statusCode, 302)
     await tap.equal(res.text, `Found. Redirecting to ${expectedUrl}`)

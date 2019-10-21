@@ -10,6 +10,7 @@ const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const elasticsearchQueue = require('./utils/queue')
+const epubQueue = require('./processFiles/index')
 
 const activityRoute = require('./routes/activity')
 const publicationRoute = require('./routes/publication')
@@ -162,6 +163,9 @@ app.terminate = async () => {
   app.initialized = false
   if (elasticsearchQueue) {
     elasticsearchQueue.close()
+  }
+  if (epubQueue) {
+    epubQueue.close()
   }
   return await app.knex.destroy()
 }
