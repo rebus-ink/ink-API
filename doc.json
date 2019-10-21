@@ -89,6 +89,65 @@
         }
       }
     },
+    "/reader-:id/file-upload-pub": {
+      "post": {
+        "tags": [
+          "publications"
+        ],
+        "description": "POST /reader-:id/file-upload-pub",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the id of the publication"
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "binary"
+                  },
+                  "documentPath": {
+                    "type": "string"
+                  },
+                  "mediaType": {
+                    "type": "string"
+                  },
+                  "json": {
+                    "type": "string",
+                    "description": "stringified json data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "file created"
+          },
+          "400": {
+            "description": "No file was included with upload OR Error connecting to google bucket"
+          },
+          "403": {
+            "description": "Access to publication {id} disallowed"
+          }
+        }
+      }
+    },
     "/reader-{id}/file-upload": {
       "post": {
         "tags": [
@@ -140,6 +199,48 @@
           },
           "404": {
             "description": "No reader with ID {id}"
+          }
+        }
+      }
+    },
+    "/job-{id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "description": "GET /job-:id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the id of the job"
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "A Job Object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/job"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No Job with ID {id}"
           }
         }
       }
@@ -731,6 +832,87 @@
         }
       }
     },
+    "/reader-{id}/search": {
+      "get": {
+        "tags": [
+          "readers"
+        ],
+        "description": "GET /reader-:id/search",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "the short id of the reader"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the string to search against"
+          },
+          {
+            "in": "query",
+            "name": "exact",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publication",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the id of the publication to search. Should not be used with a collection filter."
+          },
+          {
+            "in": "query",
+            "name": "collection",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the name of the collection. Should not be used with a publication filter."
+          }
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/search-results"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to reader {id} disallowed"
+          },
+          "404": {
+            "description": "No Reader with ID {id}"
+          }
+        }
+      }
+    },
     "/whoami": {
       "get": {
         "tags": [
@@ -853,6 +1035,41 @@
         "published": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "job": {
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "epub"
+          ]
+        },
+        "published": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finished": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "error": {
+          "type": "string"
+        },
+        "publicationId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "enum": [
+            302,
+            304,
+            500
+          ]
         }
       }
     },
@@ -1436,6 +1653,39 @@
         },
         "json": {
           "type": "object"
+        }
+      }
+    },
+    "search-result": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "documentUrl": {
+          "type": "string",
+          "format": "url"
+        },
+        "@context": {
+          "type": "array"
+        },
+        "highlights": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "search-results": {
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/search-result"
+          }
         }
       }
     }
