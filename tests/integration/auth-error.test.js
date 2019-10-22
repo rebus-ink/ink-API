@@ -32,7 +32,7 @@ const test = async app => {
   const token2 = getToken()
 
   // create publication and documents for reader 1
-  const publication = await createPublication(app, token, readerUrl)
+  const publication = await createPublication(readerUrl)
   const publicationUrl = publication.id
 
   // create Note for reader 1

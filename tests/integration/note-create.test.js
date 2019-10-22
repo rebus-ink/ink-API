@@ -19,7 +19,7 @@ const test = async app => {
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
 
-  const publication = await createPublication(app, token, readerUrl)
+  const publication = await createPublication(readerUrl)
   const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl)

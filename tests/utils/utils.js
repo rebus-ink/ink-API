@@ -3,6 +3,7 @@ const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
+const _ = require('lodash')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
@@ -64,9 +65,11 @@ const getActivityFromUrl = async (app, url, token) => {
   return res.body
 }
 
-const createPublication = async (app, token, readerUrl, object = {}) => {
-  const publicationDate = new Date(2002, 12, 25).toISOString()
+const createPublication = async (readerUrl, object = {}) => {
+  let readerId
+  if (_.isString(readerUrl)) readerId = readerUrl.substring(8)
 
+  const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
       type: 'Publication',
@@ -134,10 +137,7 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-  return await Publication.createPublication(
-    { id: readerUrl.substring(8) },
-    pubObject
-  )
+  return await Publication.createPublication({ id: readerId }, pubObject)
 }
 
 const createNote = async (app, token, readerUrl, object = {}) => {

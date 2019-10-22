@@ -85,16 +85,11 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(
-    app,
-    token,
-    readerUrl,
-    publicationObject
-  )
+  const resCreatePub = await createPublication(readerUrl, publicationObject)
   const publicationUrl = resCreatePub.id
 
   // second publication
-  await createPublication(app, token, readerUrl)
+  await createPublication(readerUrl)
 
   await tap.test('Delete Publication', async () => {
     // Create a Document for that publication

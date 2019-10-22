@@ -22,7 +22,7 @@ const test = async () => {
   const readerUrl = urlparse(readerCompleteUrl).path
 
   const createPublicationSimplified = async object => {
-    return await createPublication(app, token, readerUrl, object)
+    return await createPublication(readerUrl, object)
   }
 
   await createPublicationSimplified({

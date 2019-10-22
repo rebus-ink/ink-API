@@ -74,12 +74,7 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(
-    app,
-    token,
-    readerUrl,
-    publicationObject
-  )
+  const resCreatePub = await createPublication(readerUrl, publicationObject)
   const publicationUrl = resCreatePub.id
 
   await tap.test('Update a Publication', async () => {

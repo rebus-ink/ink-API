@@ -27,7 +27,7 @@ const test = async app => {
   const readerUrl = urlparse(readerCompleteUrl).path
 
   // create publication
-  const publication = await createPublication(app, token, readerUrl, {
+  const publication = await createPublication(readerUrl, {
     type: 'Publication',
     name: 'Publication A',
     author: ['John Smith'],
@@ -45,7 +45,7 @@ const test = async app => {
 
   // create second publication
 
-  const publication2 = await createPublication(app, token, readerUrl, {
+  const publication2 = await createPublication(readerUrl, {
     type: 'Publication',
     name: 'Publication B',
     author: ['John Smith'],

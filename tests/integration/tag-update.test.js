@@ -31,7 +31,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(app, token, readerUrl)
+  const publication = await createPublication(readerUrl)
 
   // Create a Document for that publication
   const documentObject = {

@@ -23,13 +23,13 @@ const test = async app => {
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
 
-  const publication = await createPublication(app, token, readerUrl, {
+  const publication = await createPublication(readerUrl, {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
 
   // create another publication
-  const publication2 = await createPublication(app, token, readerUrl, {
+  const publication2 = await createPublication(readerUrl, {
     name: 'Publication B'
   })
   const publicationUrl2 = publication2.id
