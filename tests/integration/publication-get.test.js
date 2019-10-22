@@ -19,8 +19,6 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
 
-  let publicationUrl
-
   const now = new Date().toISOString()
 
   const publicationObject = {
@@ -81,12 +79,9 @@ const test = async app => {
     readerUrl,
     publicationObject
   )
-  const activityUrl = resCreatePub.get('Location')
+  const publicationUrl = resCreatePub.id
 
   await tap.test('Get Publication', async () => {
-    const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    publicationUrl = activityObject.object.id
-
     const res = await request(app)
       .get(urlparse(publicationUrl).path)
       .set('Host', 'reader-api.test')

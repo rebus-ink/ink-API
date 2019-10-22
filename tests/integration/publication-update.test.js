@@ -80,9 +80,7 @@ const test = async app => {
     readerUrl,
     publicationObject
   )
-  const activityUrl = resCreatePub.get('Location')
-  const activityObject = await getActivityFromUrl(app, activityUrl, token)
-  const publicationUrl = activityObject.object.id
+  const publicationUrl = resCreatePub.id
 
   await tap.test('Update a Publication', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()

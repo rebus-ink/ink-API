@@ -7,6 +7,7 @@ const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
 const crypto = require('crypto')
+const { Publication } = require('../../models/Publication')
 
 const getToken = () => {
   const options = {
@@ -133,23 +134,10 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-  return await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: pubObject
-      })
-    )
+  return await Publication.createPublication(
+    { id: readerUrl.substring(8) },
+    pubObject
+  )
 }
 
 const createNote = async (app, token, readerUrl, object = {}) => {

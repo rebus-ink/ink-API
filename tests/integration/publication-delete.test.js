@@ -91,9 +91,7 @@ const test = async app => {
     readerUrl,
     publicationObject
   )
-  const activityUrl = resCreatePub.get('Location')
-  const activityObject = await getActivityFromUrl(app, activityUrl, token)
-  const publicationUrl = activityObject.object.id
+  const publicationUrl = resCreatePub.id
 
   // second publication
   await createPublication(app, token, readerUrl)
