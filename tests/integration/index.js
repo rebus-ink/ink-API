@@ -38,7 +38,6 @@ const tagDeleteTests = require('./tag-delete.test')
 const tagUpdateTests = require('./tag-update.test')
 
 const jobGetTests = require('./job-get.test')
-const jobPatchTests = require('./job-patch.test')
 
 const app = require('../../server').app
 
@@ -111,7 +110,6 @@ const allTests = async () => {
 
   if (!test || test === 'jobs') {
     await jobGetTests(app)
-    await jobPatchTests(app)
   }
 
   if (process.env.POSTGRE_INSTANCE) {
