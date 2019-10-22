@@ -3,8 +3,6 @@
 const express = require('express')
 const app = express()
 const compression = require('compression')
-// const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn
-// const cookieSession = require('cookie-session')
 const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
