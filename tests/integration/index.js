@@ -21,8 +21,6 @@ const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
 const publicationDeleteTests = require('./publication-delete.test')
 
-const documentCreateTests = require('./document-create.test')
-
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader-get.test')
 
@@ -75,10 +73,6 @@ const allTests = async () => {
     await publicationGetTests(app)
     await publicationUpdateTests(app)
     await publicationDeleteTests(app)
-  }
-
-  if (!test || test === 'document') {
-    await documentCreateTests(app)
   }
 
   if (!test || test === 'reader') {
