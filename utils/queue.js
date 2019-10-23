@@ -7,6 +7,24 @@ require('dotenv').config()
 
 let elasticsearchQueue
 
+/*
+code that was in upload endpoint
+                  if (
+                    (document.mediaType === 'text/html' ||
+                      document.mediaType === 'application/xhtml+xml') &&
+                    elasticsearchQueue
+                  ) {
+                    elasticsearchQueue.add({
+                      type: 'add',
+                      fileName: file.name,
+                      bucketName: bucketName,
+                      document: doc,
+                      pubId: id
+                    })
+                  }
+
+*/
+
 // skipping this in travis in pull requests because it doesn't have access to redis password
 if (process.env.REDIS_PASSWORD) {
   elasticsearchQueue = new Queue('elasticsearch', {

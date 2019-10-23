@@ -28,73 +28,10 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'Publication',
-            name: 'Publication A',
-            description: 'description of publication A',
-            author: [
-              { type: 'Person', name: 'Sample Author' },
-              { type: 'Organization', name: 'Org inc.' }
-            ],
-            editor: ['Sample editor'],
-            inLanguage: ['English'],
-            keywords: ['key', 'words'],
-            json: {
-              property1: 'value1'
-            },
-            readingOrder: [
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link'
-              },
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc2',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link2'
-              }
-            ],
-            links: [
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc3',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link3'
-              },
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc4',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link4'
-              }
-            ],
-            resources: [
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc5',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link5'
-              },
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc6',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link6'
-              }
-            ]
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
+            name: 'mystack',
+            json: { property: 'value' }
           }
         })
       )
@@ -119,26 +56,10 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'Publication',
-            name: 'Publication A',
-            readingOrder: [
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link'
-              },
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc2',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link2'
-              }
-            ]
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
+            name: 'mystack',
+            json: { property: 'value' }
           }
         })
       )
@@ -186,26 +107,10 @@ const test = async app => {
             ],
             type: 'InvalidActivity123',
             object: {
-              type: 'Publication',
-              name: 'Publication A',
-              readingOrder: [
-                {
-                  '@context': 'https://www.w3.org/ns/activitystreams',
-                  type: 'Link',
-                  href: 'http://example.org/abc',
-                  hreflang: 'en',
-                  mediaType: 'text/html',
-                  name: 'An example link'
-                },
-                {
-                  '@context': 'https://www.w3.org/ns/activitystreams',
-                  type: 'Link',
-                  href: 'http://example.org/abc2',
-                  hreflang: 'en',
-                  mediaType: 'text/html',
-                  name: 'An example link2'
-                }
-              ]
+              type: 'reader:Tag',
+              tagType: 'reader:Stack',
+              name: 'mystack',
+              json: { property: 'value' }
             }
           })
         )
@@ -236,26 +141,10 @@ const test = async app => {
               { reader: 'https://rebus.foundation/ns/reader' }
             ],
             object: {
-              type: 'Publication',
-              name: 'Publication A',
-              readingOrder: [
-                {
-                  '@context': 'https://www.w3.org/ns/activitystreams',
-                  type: 'Link',
-                  href: 'http://example.org/abc',
-                  hreflang: 'en',
-                  mediaType: 'text/html',
-                  name: 'An example link'
-                },
-                {
-                  '@context': 'https://www.w3.org/ns/activitystreams',
-                  type: 'Link',
-                  href: 'http://example.org/abc2',
-                  hreflang: 'en',
-                  mediaType: 'text/html',
-                  name: 'An example link2'
-                }
-              ]
+              type: 'reader:Tag',
+              tagType: 'reader:Stack',
+              name: 'mystack',
+              json: { property: 'value' }
             }
           })
         )

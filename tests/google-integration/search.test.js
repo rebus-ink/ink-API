@@ -7,7 +7,8 @@ const {
   destroyDB,
   getActivityFromUrl,
   createTag,
-  addPubToCollection
+  addPubToCollection,
+  createPublication
 } = require('../utils/utils')
 
 const { urlToId } = require('../../utils/utils')
@@ -26,77 +27,37 @@ const test = async app => {
   const readerUrl = urlparse(readerCompleteUrl).path
 
   // create publication
-  const resActivity = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Publication',
-          name: 'Publication A',
-          author: ['John Smith'],
-          editor: 'Jane Doe',
-          description: 'this is a description!!',
-          links: [{ property: 'value' }],
-          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-          resources: [{ property: 'value' }],
-          json: { property: 'value' }
-        }
-      })
-    )
+  const publication = await createPublication(readerUrl, {
+    type: 'Publication',
+    name: 'Publication A',
+    author: ['John Smith'],
+    editor: 'Jane Doe',
+    description: 'this is a description!!',
+    links: [{ property: 'value' }],
+    readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+    resources: [{ property: 'value' }],
+    json: { property: 'value' }
+  })
 
-  const pubActivityUrl = resActivity.get('Location')
-  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publicationUrl = urlparse(pubActivityObject.object.id).path
-  const publicationId = urlToId(pubActivityObject.object.id)
+  const publicationUrl = `/publication-${publication.id}`
+  const publicationId = publication.id
   let path = 'very/long/path/to/some/random/useless/file'
 
   // create second publication
-  const resActivity2 = await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'Publication',
-          name: 'Publication B',
-          author: ['John Smith'],
-          editor: 'Jane Doe',
-          description: 'this is a description!!',
-          links: [{ property: 'value' }],
-          readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-          resources: [{ property: 'value' }],
-          json: { property: 'value' }
-        }
-      })
-    )
 
-  const pubActivityUrl2 = resActivity2.get('Location')
-  const pubActivityObject2 = await getActivityFromUrl(
-    app,
-    pubActivityUrl2,
-    token
-  )
-  const publicationUrl2 = urlparse(pubActivityObject2.object.id).path
-  const publicationId2 = urlToId(pubActivityObject2.object.id)
+  const publication2 = await createPublication(readerUrl, {
+    type: 'Publication',
+    name: 'Publication B',
+    author: ['John Smith'],
+    editor: 'Jane Doe',
+    description: 'this is a description!!',
+    links: [{ property: 'value' }],
+    readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
+    resources: [{ property: 'value' }],
+    json: { property: 'value' }
+  })
+  const publicationUrl2 = `/publication-${publication2.id}`
+  const publicationId2 = publication2.id
 
   // upload files to publication 1:
   // doc1 contains 'top hat'

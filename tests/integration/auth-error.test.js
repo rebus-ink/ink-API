@@ -32,11 +32,8 @@ const test = async app => {
   const token2 = getToken()
 
   // create publication and documents for reader 1
-  const resActivity = await createPublication(app, token, readerUrl)
-
-  const activityUrl = resActivity.get('Location')
-  const activityObject = await getActivityFromUrl(app, activityUrl, token)
-  const publicationUrl = activityObject.object.id
+  const publication = await createPublication(readerUrl)
+  const publicationUrl = publication.id
 
   // create Note for reader 1
   const noteActivity = await createNote(app, token, readerUrl)
@@ -56,7 +53,7 @@ const test = async app => {
     'Try to get activity belonging to another reader',
     async () => {
       const res = await request(app)
-        .get(urlparse(activityUrl).path)
+        .get(urlparse(noteActivityUrl).path)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type(
@@ -184,26 +181,10 @@ const test = async app => {
           ],
           type: 'Create',
           object: {
-            type: 'Publication',
-            name: 'Publication A',
-            readingOrder: [
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link'
-              },
-              {
-                '@context': 'https://www.w3.org/ns/activitystreams',
-                type: 'Link',
-                href: 'http://example.org/abc2',
-                hreflang: 'en',
-                mediaType: 'text/html',
-                name: 'An example link2'
-              }
-            ]
+            type: 'reader:Tag',
+            tagType: 'reader:Stack',
+            name: 'mystack',
+            json: { property: 'value' }
           }
         })
       )
@@ -277,7 +258,7 @@ const test = async app => {
 
     // activity
     const res6 = await request(app)
-      .get(urlparse(activityUrl).path)
+      .get(urlparse(noteActivityUrl).path)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'

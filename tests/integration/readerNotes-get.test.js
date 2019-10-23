@@ -20,13 +20,10 @@ const test = async app => {
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
 
-  const resActivity = await createPublication(app, token, readerUrl, {
+  const publication = await createPublication(readerUrl, {
     name: 'Publication A'
   })
-
-  const pubActivityUrl = resActivity.get('Location')
-  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publicationUrl = pubActivityObject.object.id
+  const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl, {
     documentPath: 'path/1',

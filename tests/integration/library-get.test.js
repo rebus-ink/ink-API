@@ -40,7 +40,7 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a publication', async () => {
-    await createPublication(app, token, readerUrl, {
+    await createPublication(readerUrl, {
       type: 'Publication',
       name: 'Publication A',
       author: ['John Smith'],

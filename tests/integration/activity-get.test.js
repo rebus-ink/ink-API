@@ -25,9 +25,10 @@ const test = async app => {
     ],
     type: 'Create',
     object: {
-      type: 'Publication',
-      name: 'Publication A',
-      readingOrder: [{ property: 'value' }]
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
+      name: 'mystack',
+      json: { property: 'value' }
     }
   })
 

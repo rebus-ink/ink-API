@@ -4,7 +4,7 @@ exports.updateJob = async (id, error, publicationId) => {
   if (error) {
     return await Job.updateJob(id, {
       finished: new Date().toISOString(),
-      error: error
+      error: error.toString()
     })
   } else {
     const result = await Job.updateJob(id.toString(), {

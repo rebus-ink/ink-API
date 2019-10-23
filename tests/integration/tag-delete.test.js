@@ -30,11 +30,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const resActivity = await createPublication(app, token, readerUrl)
-
-  const pubActivityUrl = resActivity.get('Location')
-  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publication = pubActivityObject.object
+  const publication = await createPublication(readerUrl)
 
   // Create a Document for that publication
   const documentObject = {

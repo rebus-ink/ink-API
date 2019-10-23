@@ -28,11 +28,8 @@ const test = async app => {
   const reader1 = await Reader.createReader(readerId, person)
 
   // Create Publication
-  const resActivity = await createPublication(app, token, readerUrl)
-
-  const activityUrl2 = resActivity.get('Location')
-  const activityObject = await getActivityFromUrl(app, activityUrl2, token)
-  const publicationUrl = activityObject.object.id
+  const publication = await createPublication(readerUrl)
+  const publicationUrl = publication.id
 
   await tap.test('Create Read activity with only a selector', async () => {
     const readActivity = await request(app)

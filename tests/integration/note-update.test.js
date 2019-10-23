@@ -21,10 +21,8 @@ const test = async app => {
   const readerUrl = urlparse(readerId).path
   let noteUrl
 
-  const resActivity = await createPublication(app, token, readerUrl)
-  const pubActivityUrl = resActivity.get('Location')
-  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publicationUrl = pubActivityObject.object.id
+  const publication = await createPublication(readerUrl)
+  const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 

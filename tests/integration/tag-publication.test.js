@@ -20,11 +20,7 @@ const test = async app => {
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
 
-  const resActivity = await createPublication(app, token, readerUrl)
-
-  const pubActivityUrl = resActivity.get('Location')
-  const pubActivityObject = await getActivityFromUrl(app, pubActivityUrl, token)
-  const publication = pubActivityObject.object
+  const publication = await createPublication(readerUrl)
 
   // create Tag
   await createTag(app, token, readerUrl, {

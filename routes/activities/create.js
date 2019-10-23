@@ -29,47 +29,6 @@ const handleCreate = async (req, res, next, reader) => {
   }
 
   switch (body.object.type) {
-    case 'Publication':
-      const resultPub = await Publication.createPublication(reader, body.object)
-      if (resultPub instanceof Error || !resultPub) {
-        if (resultPub instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation Error on Create Publication: ', {
-              type: 'Publication',
-              activity: 'Create Publication',
-              validation: resultPub.data
-            })
-          )
-        }
-
-        // since readingOrder is stored nested in an object, normal validation does not kick in.
-        if (resultPub.message === 'no readingOrder') {
-          return next(
-            boom.badRequest('Validation Error on Create Publication: ', {
-              type: 'Publication',
-              activity: 'Create Publication',
-              validation: {
-                readingOrder: [
-                  {
-                    message: 'is a required property',
-                    keyword: 'required',
-                    params: { missingProperty: 'readingOrder' }
-                  }
-                ]
-              }
-            })
-          )
-        }
-        return next(err)
-      }
-      const activityObjPub = createActivityObject(body, resultPub, reader)
-      const pubActivity = await Activity.createActivity(activityObjPub)
-      res.status(201)
-      res.set('Location', pubActivity.id)
-      res.end()
-
-      break
-
     case 'Note':
       let resultNote
       try {
@@ -160,36 +119,6 @@ const handleCreate = async (req, res, next, reader) => {
       const tagActivity = await Activity.createActivity(activityObjStack)
       res.status(201)
       res.set('Location', tagActivity.id)
-      res.end()
-
-      break
-
-    case 'Document':
-      const resultDoc = await Document.createDocument(
-        reader,
-        body.object.publicationId,
-        body.object
-      )
-
-      if (resultDoc instanceof Error || !resultDoc) {
-        if (resultDoc instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation error on create Document: ', {
-              type: 'Document',
-              activity: 'Create Document',
-              validation: resultStack.data
-            })
-          )
-        }
-
-        return next(err)
-      }
-
-      const activityObjDoc = createActivityObject(body, resultDoc, reader)
-
-      const docActivity = await Activity.createActivity(activityObjDoc)
-      res.status(201)
-      res.set('Location', docActivity.id)
       res.end()
 
       break

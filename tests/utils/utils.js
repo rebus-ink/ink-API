@@ -3,10 +3,12 @@ const request = require('supertest')
 const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
+const _ = require('lodash')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
 const crypto = require('crypto')
+const { Publication } = require('../../models/Publication')
 
 const getToken = () => {
   const options = {
@@ -63,9 +65,11 @@ const getActivityFromUrl = async (app, url, token) => {
   return res.body
 }
 
-const createPublication = async (app, token, readerUrl, object = {}) => {
-  const publicationDate = new Date(2002, 12, 25).toISOString()
+const createPublication = async (readerUrl, object = {}) => {
+  let readerId
+  if (_.isString(readerUrl)) readerId = readerUrl.substring(8)
 
+  const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
       type: 'Publication',
@@ -133,23 +137,7 @@ const createPublication = async (app, token, readerUrl, object = {}) => {
     },
     object
   )
-  return await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: pubObject
-      })
-    )
+  return await Publication.createPublication({ id: readerId }, pubObject)
 }
 
 const createNote = async (app, token, readerUrl, object = {}) => {

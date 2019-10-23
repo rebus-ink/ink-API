@@ -16,12 +16,9 @@ const noteDeleteTests = require('./note-delete.test')
 
 const outboxGetTests = require('./outbox-get.test')
 
-const publicationCreateTests = require('./publication-create.test')
 const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
 const publicationDeleteTests = require('./publication-delete.test')
-
-const documentCreateTests = require('./document-create.test')
 
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader-get.test')
@@ -38,7 +35,6 @@ const tagDeleteTests = require('./tag-delete.test')
 const tagUpdateTests = require('./tag-update.test')
 
 const jobGetTests = require('./job-get.test')
-const jobPatchTests = require('./job-patch.test')
 
 const app = require('../../server').app
 
@@ -72,14 +68,9 @@ const allTests = async () => {
   if (!test || test === 'outbox') await outboxGetTests(app)
 
   if (!test || test === 'publication') {
-    await publicationCreateTests(app)
     await publicationGetTests(app)
     await publicationUpdateTests(app)
     await publicationDeleteTests(app)
-  }
-
-  if (!test || test === 'document') {
-    await documentCreateTests(app)
   }
 
   if (!test || test === 'reader') {
@@ -111,7 +102,6 @@ const allTests = async () => {
 
   if (!test || test === 'jobs') {
     await jobGetTests(app)
-    await jobPatchTests(app)
   }
 
   if (process.env.POSTGRE_INSTANCE) {

@@ -22,7 +22,7 @@ const test = async () => {
   const readerUrl = urlparse(readerCompleteUrl).path
 
   const createPublicationSimplified = async object => {
-    return await createPublication(app, token, readerUrl, object)
+    return await createPublication(readerUrl, object)
   }
 
   await createPublicationSimplified({
@@ -38,15 +38,9 @@ const test = async () => {
   await tap.test('Filter Library by collection', async () => {
     // add more publications
     // publication 2
-    const pubBres = await createPublicationSimplified({ name: 'Publication 2' })
-
-    const pubActivityUrl = pubBres.get('Location')
-    const pubActivityObject = await getActivityFromUrl(
-      app,
-      pubActivityUrl,
-      token
-    )
-    const publication = pubActivityObject.object
+    const publication = await createPublicationSimplified({
+      name: 'Publication 2'
+    })
 
     // publication 3
     await createPublicationSimplified({ name: 'Publication 3' })

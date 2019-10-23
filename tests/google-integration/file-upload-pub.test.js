@@ -60,7 +60,7 @@ const test = async app => {
       return new Promise(resolve => setTimeout(resolve, ms))
     }
 
-    await sleep(10000)
+    await sleep(20000)
 
     //  const tryGetJob = async () => {
     //    timestamp = new Date().getTime()

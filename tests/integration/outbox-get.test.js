@@ -42,9 +42,10 @@ const test = async app => {
   await createActivity(app, token, readerUrl, {
     type: 'Create',
     object: {
-      type: 'Publication',
-      name: 'Publication A',
-      readingOrder: [{ something: 'value' }]
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
+      name: 'mystack',
+      json: { property: 'value' }
     }
   })
 
