@@ -26,18 +26,19 @@ if (process.env.REDIS_PASSWORD) {
     const fileName = data.data.fileName
 
     bucket = storage.bucket(bucketName)
-    const file = await bucket.file(fileName).download()
-    const result = await initEpub(file[0])
-    const book = result.book
-    book.id = publicationId
-    book.readerId = readerId
     try {
+      const file = await bucket.file(fileName).download()
+      const result = await initEpub(file[0])
+      const book = result.book
+      book.id = publicationId
+      book.readerId = readerId
       await Publication.createPublication({ id: readerId }, book)
       await saveFiles(book, result.media, result.zip, storage, file, jobId)
       await bucket.file(fileName).delete()
       await updateJob(jobId, null, book.id)
     } catch (err) {
       await updateJob(jobId, err)
+      done(err)
     }
     done()
   })

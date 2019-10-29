@@ -15,7 +15,7 @@ const allTests = async () => {
     }
   }
 
-  //  await searchTests(app)
+  await searchTests(app)
   await fileUploadPubTests(app)
   // await fileUploadTests(app)
 

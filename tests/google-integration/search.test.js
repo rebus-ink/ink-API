@@ -7,8 +7,7 @@ const {
   destroyDB,
   getActivityFromUrl,
   createTag,
-  addPubToCollection,
-  createPublication
+  addPubToCollection
 } = require('../utils/utils')
 
 const { urlToId } = require('../../utils/utils')
@@ -26,105 +25,107 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
 
-  // create publication
-  const publication = await createPublication(readerUrl, {
-    type: 'Publication',
-    name: 'Publication A',
-    author: ['John Smith'],
-    editor: 'Jane Doe',
-    description: 'this is a description!!',
-    links: [{ property: 'value' }],
-    readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-    resources: [{ property: 'value' }],
-    json: { property: 'value' }
-  })
-
-  const publicationUrl = `/publication-${publication.id}`
-  const publicationId = publication.id
-  let path = 'very/long/path/to/some/random/useless/file'
-
-  // create second publication
-
-  const publication2 = await createPublication(readerUrl, {
-    type: 'Publication',
-    name: 'Publication B',
-    author: ['John Smith'],
-    editor: 'Jane Doe',
-    description: 'this is a description!!',
-    links: [{ property: 'value' }],
-    readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-    resources: [{ property: 'value' }],
-    json: { property: 'value' }
-  })
-  const publicationUrl2 = `/publication-${publication2.id}`
-  const publicationId2 = publication2.id
-
-  // upload files to publication 1:
-  // doc1 contains 'top hat'
+  // upload files:
+  // publication1 has two documents:
+  //    doc1 contains 'silly hat'
+  //    doc2 contains 'hat'
+  // will be in collection my_test
   const res1 = await request(app)
-    .post(`${publicationUrl}/file-upload`)
+    .post(`${readerUrl}/file-upload-pub`)
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
-    .field('documentPath', path)
-    .field('mediaType', 'text/html')
-    .attach('file', 'tests/test-files/file1.html')
-
-  const docId1 = urlToId(res1.body.id)
-
-  // doc2 contains 'hat'
+    .attach('file', 'tests/test-files/epub1.epub')
+  // publication2 has two documents:
+  //   doc1 contains 'silly hat'
+  //   doc2 contains neither 'silly' nor 'hat'
+  // not in any collection
+  //  await sleep(5000)
   const res2 = await request(app)
-    .post(`${publicationUrl}/file-upload`)
+    .post(`${readerUrl}/file-upload-pub`)
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
-    .field('documentPath', path)
-    .field('mediaType', 'text/html')
-    .attach('file', 'tests/test-files/file2.html')
+    .attach('file', 'tests/test-files/epub2.epub')
 
-  const docId2 = urlToId(res2.body.id)
-
-  // and then to publication2:
-
-  // doc3 contains 'top hat'
+  //  await sleep(5000)
+  // publication3 has two documents:
+  //   doc1 contains 'silly hat'
+  //   doc2 contains neither 'silly' nor 'hat'
+  // will be in collection my_test
   const res3 = await request(app)
-    .post(`${publicationUrl2}/file-upload`)
+    .post(`${readerUrl}/file-upload-pub`)
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
-    .field('documentPath', path)
-    .field('mediaType', 'application/xhtml+xml')
-    .attach('file', 'tests/test-files/file3.html')
+    .attach('file', 'tests/test-files/epub2.epub')
 
-  const docId3 = urlToId(res3.body.id)
+  await sleep(20000)
 
-  // doc4 does not contain the word hat
-  await request(app)
-    .post(`${publicationUrl2}/file-upload`)
+  // create collection:
+  const stackRes = await createTag(app, token, readerUrl, { name: 'my_test' })
+  const stackActivityUrl = stackRes.get('Location')
+  const stackActivityObject = await getActivityFromUrl(
+    app,
+    stackActivityUrl,
+    token
+  )
+  const stack = stackActivityObject.object
+
+  // get jobs to get publicationIds
+  const job1 = await request(app)
+    .get(`/job-${res1.body.id}`)
     .set('Authorization', `Bearer ${token}`)
-    .field('name', 'file')
-    .field('documentPath', path)
-    .field('mediaType', 'application/xhtml+xml')
-    .attach('file', 'tests/test-files/file4.html')
+  const publicationId = job1.body.publicationId
 
-  let docId5 // to be used later
+  const job2 = await request(app)
+    .get(`/job-${res2.body.id}`)
+    .set('Authorization', `Bearer ${token}`)
+  const publicationId2 = job2.body.publicationId
+
+  const job3 = await request(app)
+    .get(`/job-${res3.body.id}`)
+    .set('Authorization', `Bearer ${token}`)
+  const publicationId3 = job3.body.publicationId
+
+  await addPubToCollection(app, token, readerUrl, publicationId, stack.id)
+  await addPubToCollection(app, token, readerUrl, publicationId3, stack.id)
+
+  // for testing purposes, we will compare the search results to the expected
+  // results, as defined by their publicationId and their path
+  // here I will concatenate them for easy comparison.
+
+  // pub1, chapter 1, etc.
+  const pub1ch1 = `${publicationId}-EPUB/text/ch001.xhtml`
+  const pub1ch2 = `${publicationId}-EPUB/text/ch002.xhtml`
+  const pub2ch1 = `${publicationId2}-EPUB/text/ch001.xhtml`
+  const pub3ch1 = `${publicationId3}-EPUB/text/ch001.xhtml`
 
   await sleep(6000)
 
   await tap.test('simple search', async () => {
     const res = await request(app).get(`${readerUrl}/search?search=hat`)
     const body = res.body
-
-    await tap.equal(body.hits.total.value, 3)
+    await tap.equal(body.hits.total.value, 4)
     // make sure the documents are those expected
-    const expectedDocuments = [docId1, docId2, docId3]
+    const expectedDocuments = [pub1ch1, pub1ch2, pub2ch1, pub3ch1]
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+    const hit3 = body.hits.hits[2]._source
+    const hit4 = body.hits.hits[3]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[2]._source.documentId),
+      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      -1
+    )
+
+    await tap.notEqual(
+      expectedDocuments.indexOf(`${hit4.publicationId}-${hit4.documentPath}`),
       -1
     )
 
@@ -138,26 +139,38 @@ const test = async app => {
     )
     await tap.ok(
       body.hits.hits[2].highlight.content[0].includes(expectedHighlight)
+    )
+    await tap.ok(
+      body.hits.hits[3].highlight.content[0].includes(expectedHighlight)
     )
   })
 
   await tap.test('search for phrase, not exact', async () => {
-    const res = await request(app).get(`${readerUrl}/search?search=top%20hat`)
+    const res = await request(app).get(`${readerUrl}/search?search=silly%20hat`)
 
     const body = res.body
-    await tap.equal(body.hits.total.value, 3)
+    await tap.equal(body.hits.total.value, 4)
     // make sure the documents are those expected
-    const expectedDocuments = [docId1, docId3]
+    const expectedDocuments = [pub1ch1, pub2ch1, pub3ch1]
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+    const hit3 = body.hits.hits[2]._source
+    const hit4 = body.hits.hits[3]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
-    // doc3 should be last because it only matches 'hat' and not 'top'
-    await tap.equal(body.hits.hits[2]._source.documentId, docId2)
+    await tap.notEqual(
+      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      -1
+    )
+    // doc3 should be last because it only matches 'hat' and not 'silly'
+    await tap.equal(`${hit4.publicationId}-${hit4.documentPath}`, pub1ch2)
 
     // make sure the highlight is working
     const expectedHighlight = '<mark>hat</mark>'
@@ -169,34 +182,50 @@ const test = async app => {
     )
     await tap.ok(
       body.hits.hits[2].highlight.content[0].includes(expectedHighlight)
+    )
+    await tap.ok(
+      body.hits.hits[3].highlight.content[0].includes(expectedHighlight)
     )
   })
 
   await tap.test('search for phrase, exact', async () => {
     const res = await request(app).get(
-      `${readerUrl}/search?search=top%20hat&exact=true`
+      `${readerUrl}/search?search=silly%20hat&exact=true`
     )
 
     const body = res.body
-    await tap.equal(body.hits.total.value, 2)
+    await tap.equal(body.hits.total.value, 3)
     // make sure the documents are those expected
-    const expectedDocuments = [docId1, docId3]
+    const expectedDocuments = [pub1ch1, pub2ch1, pub3ch1]
+
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+    const hit3 = body.hits.hits[2]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      -1
+    )
+
+    await tap.notEqual(
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
       -1
     )
 
     // make sure the highlight is working
-    const expectedHighlight = '<mark>top</mark> <mark>hat</mark>'
+    const expectedHighlight = '<mark>silly</mark> <mark>hat</mark>'
     await tap.ok(
       body.hits.hits[0].highlight.content[0].includes(expectedHighlight)
     )
     await tap.ok(
       body.hits.hits[1].highlight.content[0].includes(expectedHighlight)
+    )
+    await tap.ok(
+      body.hits.hits[2].highlight.content[0].includes(expectedHighlight)
     )
   })
 
@@ -208,13 +237,16 @@ const test = async app => {
     const body = res.body
     await tap.equal(body.hits.total.value, 2)
     // make sure the documents are those expected
-    const expectedDocuments = [docId1, docId2]
+    const expectedDocuments = [pub1ch1, pub1ch2]
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
 
@@ -229,82 +261,6 @@ const test = async app => {
   })
 
   await tap.test('search by collection', async () => {
-    // create third publication
-    const resActivity3 = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'Publication',
-            name: 'Publication B',
-            author: ['John Smith'],
-            editor: 'Jane Doe',
-            description: 'this is a description!!',
-            links: [{ property: 'value' }],
-            readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-            resources: [{ property: 'value' }],
-            json: { property: 'value' }
-          }
-        })
-      )
-
-    const pubActivityUrl3 = resActivity3.get('Location')
-    const pubActivityObject3 = await getActivityFromUrl(
-      app,
-      pubActivityUrl3,
-      token
-    )
-    const publicationUrl3 = urlparse(pubActivityObject3.object.id).path
-    const publicationId3 = urlToId(pubActivityObject3.object.id)
-
-    // upload files to publication 3:
-
-    // doc5 contains 'top hat'
-    const res5 = await request(app)
-      .post(`${publicationUrl3}/file-upload`)
-      .set('Authorization', `Bearer ${token}`)
-      .field('name', 'file')
-      .field('documentPath', path)
-      .field('mediaType', 'application/xhtml+xml')
-      .attach('file', 'tests/test-files/file3.html')
-
-    docId5 = urlToId(res5.body.id)
-
-    // doc6 does not contain the word hat
-    await request(app)
-      .post(`${publicationUrl3}/file-upload`)
-      .set('Authorization', `Bearer ${token}`)
-      .field('name', 'file')
-      .field('documentPath', path)
-      .field('mediaType', 'application/xhtml+xml')
-      .attach('file', 'tests/test-files/file4.html')
-
-    await sleep(6000)
-
-    // create collection:
-    const stackRes = await createTag(app, token, readerUrl, { name: 'my_test' })
-    const stackActivityUrl = stackRes.get('Location')
-    const stackActivityObject = await getActivityFromUrl(
-      app,
-      stackActivityUrl,
-      token
-    )
-    stack = stackActivityObject.object
-
-    // add publication1 and publication3 to collection:
-    await addPubToCollection(app, token, readerUrl, publicationId, stack.id)
-    await addPubToCollection(app, token, readerUrl, publicationId3, stack.id)
-
     // search by collection
     const res = await request(app).get(
       `${readerUrl}/search?search=hat&collection=my_test`
@@ -313,17 +269,22 @@ const test = async app => {
     const body = res.body
     await tap.equal(res.body.hits.total.value, 3)
 
-    const expectedDocuments = [docId1, docId2, docId5]
+    const expectedDocuments = [pub1ch1, pub1ch2, pub3ch1]
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+    const hit3 = body.hits.hits[2]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      -1
+    )
+
+    await tap.notEqual(
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
-      -1
-    )
-    await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[2]._source.documentId),
+      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
       -1
     )
   })
@@ -358,20 +319,67 @@ const test = async app => {
 
     await tap.equal(body.hits.total.value, 3)
     // make sure the documents are those expected
-    const expectedDocuments = [docId1, docId2, docId5]
+    const expectedDocuments = [pub1ch1, pub1ch2, pub3ch1]
+    const hit1 = body.hits.hits[0]._source
+    const hit2 = body.hits.hits[1]._source
+    const hit3 = body.hits.hits[2]._source
+
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[0]._source.documentId),
+      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[1]._source.documentId),
+      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(body.hits.hits[2]._source.documentId),
+      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
       -1
     )
   })
+
+  // not part of the tests, deleting other publications to limit the junk stored in elasticsearch
+  await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Delete',
+        object: {
+          type: 'Publication',
+          id: publicationId
+        }
+      })
+    )
+
+  await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Delete',
+        object: {
+          type: 'Publication',
+          id: publicationId3
+        }
+      })
+    )
 
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {

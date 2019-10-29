@@ -119,12 +119,14 @@ module.exports = app => {
           blob
             .makePublic()
             .then(() => {
-              epubQueue.add({
+              return epubQueue.add({
                 readerId: req.params.id,
                 jobId: job.id,
                 fileName: file.name,
                 publicationId
               })
+            })
+            .then(() => {
               res.setHeader('Content-Type', 'application/json;')
               res.end(JSON.stringify(job))
             })
