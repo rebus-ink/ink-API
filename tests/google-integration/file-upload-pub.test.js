@@ -60,28 +60,31 @@ const test = async app => {
   })
 
   await tap.test('Job should eventually be complete', async () => {
-    await sleep(20000)
+    let res
+    let timestamp = new Date().getTime()
+    let timeoutTime = timestamp + 20000
 
-    //  const tryGetJob = async () => {
-    //    timestamp = new Date().getTime()
-    const res = await request(app)
-      .get(`/job-${jobId}`)
-      .set('Authorization', `Bearer ${token}`)
+    const tryGetJob = async () => {
+      timestamp = new Date().getTime()
+      res = await request(app)
+        .get(`/job-${jobId}`)
+        .set('Authorization', `Bearer ${token}`)
 
-    //  if (res.body.finished || timestamp > timeoutTime) {
-    const finished = !!res.body.finished
-    const error = res.body.error
-    const status = res.body.status
-    publicationId = res.body.publicationId
-    await tap.ok(finished)
-    await tap.notOk(error)
-    await tap.equal(status, 302)
-    // } else {
-    //   await sleep(1000)
-    //   await tryGetJob()
-    // }
-    // }
-    //   await tryGetJob()
+      if (res.body.finished || timestamp > timeoutTime) {
+        const finished = !!res.body.finished
+        const error = res.body.error
+        const status = res.body.status
+        publicationId = res.body.publicationId
+        await tap.ok(finished)
+        await tap.notOk(error)
+        await tap.equal(status, 302)
+      } else {
+        await sleep(1000)
+        await tryGetJob()
+      }
+    }
+
+    await tryGetJob()
   })
 
   await tap.test(
@@ -150,11 +153,11 @@ const test = async app => {
 
     // check files
     const [filesAfter] = await bucket.getFiles()
-    // await tap.equal(filesAfter.length, lengthBefore + 2)
+    await tap.equal(filesAfter.length, lengthBefore + 2)
   })
 
   await tap.test('Get job - should eventually be complete', async () => {
-    await sleep(10000)
+    await sleep(5000)
 
     // job1
     const res1 = await request(app)

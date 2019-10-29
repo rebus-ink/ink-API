@@ -97,7 +97,6 @@ module.exports = app => {
           })
         )
       }
-      console.log(req.query)
 
       let query, filter
 

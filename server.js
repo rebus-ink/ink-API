@@ -167,7 +167,6 @@ app.terminate = async () => {
     await epubQueue.clean(0)
     await epubQueue.clean(0, 'failed')
     await epubQueue.empty()
-    console.log('closing queue')
     epubQueue.close()
   }
   return await app.knex.destroy()

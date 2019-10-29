@@ -20,7 +20,6 @@ if (process.env.REDIS_PASSWORD) {
     }
   })
   epubQueue.process(async function (data, done) {
-    console.log('processing something in the epub Queue')
     const readerId = data.data.readerId
     const jobId = data.data.jobId
     const publicationId = data.data.publicationId
@@ -41,7 +40,6 @@ if (process.env.REDIS_PASSWORD) {
       await updateJob(jobId, err)
       done(err)
     }
-    console.log('one file processing queue done')
     done()
   })
 }

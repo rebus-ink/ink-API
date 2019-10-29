@@ -36,7 +36,6 @@ if (process.env.REDIS_PASSWORD) {
   })
 
   elasticsearchQueue.process(async (job, done) => {
-    console.log('processing something on the elasticsearch queue')
     data = job.data
     if (data.type === 'add') {
       const readingFileStream = storage
@@ -68,7 +67,6 @@ if (process.env.REDIS_PASSWORD) {
             },
             (err, res) => {
               if (err) console.log('indexing error: ', err)
-              console.log('finished indexing ', data.fileName)
               done()
             }
           )

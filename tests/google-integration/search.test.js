@@ -338,6 +338,49 @@ const test = async app => {
     )
   })
 
+  // not part of the tests, deleting other publications to limit the junk stored in elasticsearch
+  await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Delete',
+        object: {
+          type: 'Publication',
+          id: publicationId
+        }
+      })
+    )
+
+  await request(app)
+    .post(`${readerUrl}/activity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type(
+      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
+    .send(
+      JSON.stringify({
+        '@context': [
+          'https://www.w3.org/ns/activitystreams',
+          { reader: 'https://rebus.foundation/ns/reader' }
+        ],
+        type: 'Delete',
+        object: {
+          type: 'Publication',
+          id: publicationId3
+        }
+      })
+    )
+
   await destroyDB(app)
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
