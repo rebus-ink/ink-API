@@ -1,5 +1,6 @@
 const { updateJob } = require('./updateJob')
 const { Document } = require('../models/Document')
+const elasticsearchQueue = require('./searchQueue')
 
 exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
   const bucketName = 'publication-file-storage-test'
@@ -26,7 +27,9 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
     })
   }
 
-  const promises = []
+  const filesToIndex = [] // {fileName, document, publicationId}
+
+  const promisesUpload = []
 
   for (index in media) {
     const documentFile = media[index]
@@ -35,45 +38,69 @@ exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
       const name = `https://storage.googleapis.com/${bucketName}/reader-${
         book.readerId
       }/publication-${book.id}/${documentFile.documentPath}`
+      const fileName = `reader-${book.readerId}/publication-${book.id}/${
+        documentFile.documentPath
+      }`
       // create document
+      let document
       try {
-        await Document.createDocument({ id: book.readerId }, book.id, {
-          mediaType: documentFile.mediaType,
-          url: name,
-          documentPath: documentFile.documentPath
-        })
+        document = await Document.createDocument(
+          { id: book.readerId },
+          book.id,
+          {
+            mediaType: documentFile.mediaType,
+            url: name,
+            documentPath: documentFile.documentPath
+          }
+        )
       } catch (err) {
-        await updateJob(jobId, err.toString())
+        throw new Error(err)
       }
       const content = await zip
         .file(documentFile.documentPath)
         .async('nodebuffer')
-      promises.push(
-        uploadFile(
-          `reader-${book.readerId}/publication-${book.id}/${
-            documentFile.documentPath
-          }`,
-          content,
-          documentFile.mediaType
-        )
-      )
+      promisesUpload.push(uploadFile(fileName, content, documentFile.mediaType))
+
+      // add to elasticsearch queue
+      if (
+        (documentFile.mediaType === 'text/html' ||
+          documentFile.mediaType === 'application/xhtml+xml') &&
+        elasticsearchQueue
+      ) {
+        filesToIndex.push({
+          fileName,
+          document,
+          pubId: book.id
+        })
+      }
     }
   }
 
   // save original file
 
-  promises.push(
+  promisesUpload.push(
     uploadFile(
       `reader-/${book.readerId}/publication-${book.id}/original.epub`,
       file[0]
     )
   )
 
-  promises.push(
+  promisesUpload.push(
     uploadFile(
       `${book.id}/META-INF/container.xml`,
       zip.files['META-INF/container.xml']._data.compressedContent
     )
   )
-  return await Promise.all(promises)
+  await Promise.all(promisesUpload)
+
+  for (index in filesToIndex) {
+    const fileObject = filesToIndex[index]
+    await elasticsearchQueue.add({
+      type: 'add',
+      fileName: fileObject.fileName,
+      bucketName: bucketName,
+      document: fileObject.document,
+      pubId: fileObject.pubId
+    })
+  }
 }

@@ -20,25 +20,28 @@ if (process.env.REDIS_PASSWORD) {
     }
   })
   epubQueue.process(async function (data, done) {
+    console.log('processing something in the epub Queue')
     const readerId = data.data.readerId
     const jobId = data.data.jobId
     const publicationId = data.data.publicationId
     const fileName = data.data.fileName
 
     bucket = storage.bucket(bucketName)
-    const file = await bucket.file(fileName).download()
-    const result = await initEpub(file[0])
-    const book = result.book
-    book.id = publicationId
-    book.readerId = readerId
     try {
+      const file = await bucket.file(fileName).download()
+      const result = await initEpub(file[0])
+      const book = result.book
+      book.id = publicationId
+      book.readerId = readerId
       await Publication.createPublication({ id: readerId }, book)
       await saveFiles(book, result.media, result.zip, storage, file, jobId)
       await bucket.file(fileName).delete()
       await updateJob(jobId, null, book.id)
     } catch (err) {
       await updateJob(jobId, err)
+      done(err)
     }
+    console.log('one file processing queue done')
     done()
   })
 }

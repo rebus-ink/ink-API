@@ -35,8 +35,9 @@ if (process.env.REDIS_PASSWORD) {
     }
   })
 
-  elasticsearchQueue.process(async (data, done) => {
-    data = data.data
+  elasticsearchQueue.process(async (job, done) => {
+    console.log('processing something on the elasticsearch queue')
+    data = job.data
     if (data.type === 'add') {
       const readingFileStream = storage
         .bucket(data.bucketName)
@@ -60,13 +61,14 @@ if (process.env.REDIS_PASSWORD) {
                 readerId: utils.urlToId(data.document.readerId),
                 publicationId: utils.urlToId(data.pubId),
                 documentUrl: data.document.url,
-                documentId: data.document.id,
+                documentPath: data.document.documentPath,
                 content: buf
               }),
               headers: { 'content-type': 'application/json' }
             },
             (err, res) => {
-              if (err) console.log(err)
+              if (err) console.log('indexing error: ', err)
+              console.log('finished indexing ', data.fileName)
               done()
             }
           )
@@ -86,7 +88,7 @@ if (process.env.REDIS_PASSWORD) {
           }),
           headers: { 'content-type': 'application/json' }
         },
-        (err, res) => {
+        async (err, res) => {
           if (err) console.log(err)
           done()
         }

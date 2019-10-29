@@ -19,6 +19,10 @@ const test = async app => {
 
   let jobId, publicationId, documentPath
 
+  function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   await tap.test('Upload file', async () => {
     // check bucket before to see number of files
     const bucket = await storage.bucket('publication-file-uploads-test')
@@ -56,10 +60,6 @@ const test = async app => {
   })
 
   await tap.test('Job should eventually be complete', async () => {
-    function sleep (ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
     await sleep(20000)
 
     //  const tryGetJob = async () => {
@@ -114,6 +114,74 @@ const test = async app => {
     await tap.equal(res.statusCode, 302)
     await tap.equal(res.text, `Found. Redirecting to ${expectedUrl}`)
   })
+
+  let jobId1, jobId2
+
+  await tap.test('Upload more than one file', async () => {
+    // check bucket before to see number of files
+    const bucket = await storage.bucket('publication-file-uploads-test')
+    const [filesBefore] = await bucket.getFiles()
+    const lengthBefore = filesBefore.length
+
+    const res = await request(app)
+      .post(`${readerUrl}/file-upload-pub`)
+      .set('Authorization', `Bearer ${token}`)
+      .attach('file', 'tests/test-files/file.epub')
+
+    const res2 = await request(app)
+      .post(`${readerUrl}/file-upload-pub`)
+      .set('Authorization', `Bearer ${token}`)
+      .attach('file', 'tests/test-files/file.epub')
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.type, 'epub')
+    await tap.ok(body.id)
+
+    await tap.equal(res2.status, 200)
+    const body2 = res2.body
+    await tap.type(body2, 'object')
+    await tap.equal(body2.type, 'epub')
+    await tap.ok(body2.id)
+
+    jobId1 = body.id
+    jobId2 = body2.id
+
+    // check files
+    const [filesAfter] = await bucket.getFiles()
+    // await tap.equal(filesAfter.length, lengthBefore + 2)
+  })
+
+  await tap.test('Get job - should eventually be complete', async () => {
+    await sleep(10000)
+
+    // job1
+    const res1 = await request(app)
+      .get(`/job-${jobId1}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res1.status, 200)
+    const body1 = res1.body
+    await tap.type(body1, 'object')
+    await tap.ok(body1.finished)
+    await tap.equal(body1.status, 302)
+    await tap.notOk(body1.error)
+
+    // job2
+    const res2 = await request(app)
+      .get(`/job-${jobId2}`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await tap.equal(res2.status, 200)
+    const body2 = res2.body
+    await tap.type(body2, 'object')
+    await tap.ok(body2.finished)
+    await tap.equal(body2.status, 302)
+    await tap.notOk(body2.error)
+  })
+
+  // await sleep(10000)
 
   // await tap.test('Upload multiple files concurrently', async () => {
   //   const upload = request(app)

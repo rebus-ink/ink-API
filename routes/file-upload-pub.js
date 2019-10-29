@@ -57,6 +57,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     m.single('file'),
     async function (req, res, next) {
+      console.log('request received')
       let bucketName = 'publication-file-uploads-test'
       let bucket = storage.bucket(bucketName)
       let file = req.file
@@ -119,12 +120,15 @@ module.exports = app => {
           blob
             .makePublic()
             .then(() => {
-              epubQueue.add({
+              console.log('file uploaded')
+              return epubQueue.add({
                 readerId: req.params.id,
                 jobId: job.id,
                 fileName: file.name,
                 publicationId
               })
+            })
+            .then(() => {
               res.setHeader('Content-Type', 'application/json;')
               res.end(JSON.stringify(job))
             })
