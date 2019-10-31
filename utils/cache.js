@@ -1,7 +1,9 @@
 const redis = require('redis')
 const { urlToId } = require('./utils')
 
-let libraryCacheGet, libraryCacheUpdate, quitCache
+let libraryCacheGet = () => undefined
+let libraryCacheUpdate = () => undefined
+let quitCache
 
 if (process.env.REDIS_PASSWORD) {
   const client = redis.createClient({
