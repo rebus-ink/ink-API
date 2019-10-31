@@ -5,6 +5,7 @@ const { Note } = require('../../models/Note')
 const { Tag } = require('../../models/Tag')
 const { urlToId } = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 const handleDelete = async (req, res, next, reader) => {
   const body = req.body
@@ -46,6 +47,8 @@ const handleDelete = async (req, res, next, reader) => {
       }
       const activityObjPub = createActivityObject(body, returned, reader)
       const pubActivity = await Activity.createActivity(activityObjPub)
+
+      await libraryCacheUpdate(reader.id)
 
       res.status(204)
       res.set('Location', pubActivity.id)
@@ -101,6 +104,8 @@ const handleDelete = async (req, res, next, reader) => {
       }
       const activityObjTag = createActivityObject(body, body.object, reader)
       const tagActivity = await Activity.createActivity(activityObjTag)
+
+      await libraryCacheUpdate(reader.id)
 
       res.status(204)
       res.set('Location', tagActivity.id)

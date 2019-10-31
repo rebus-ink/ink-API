@@ -82,6 +82,7 @@
     "passport-jwt": "^4.0.0",
     "path-match": "^1.2.4",
     "pg": "^7.4.3",
+    "redis": "^2.8.0",
     "request": "^2.88.0",
     "swagger-jsdoc": "^3.2.9"
   },
