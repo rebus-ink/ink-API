@@ -1,9 +1,12 @@
 const redis = require('redis')
-const client = redis.createClient({
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
-  password: process.env.REDIS_PASSWORD
-})
+let client
+if (process.env.REDIS_PASSWORD) {
+  client = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
+  })
+}
 
 const { promisify } = require('util')
 const getAsync = promisify(client.get).bind(client)
@@ -13,7 +16,7 @@ const { urlToId } = require('./utils')
 
 const libraryCacheUpdate = async readerId => {
   readerId = urlToId(readerId)
-  return await setASync(`${readerId}-library`, new Date().getTime(), 'EX', 100)
+  return await setASync(`${readerId}-library`, new Date().getTime(), 'EX', 3600)
 }
 
 const libraryCacheGet = async (readerId, check) => {

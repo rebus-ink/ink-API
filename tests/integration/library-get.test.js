@@ -110,310 +110,312 @@ const test = async () => {
     }
   )
 
-  await tap.test(
-    'Get Library with if-modified-since header - not modified',
-    async () => {
-      time = new Date().getTime()
-      // with time at beginning - so it will be modified
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 304)
-      await tap.notOk(res.body)
-    }
-  )
+  if (process.env.REDIS_PASSWORD) {
+    await tap.test(
+      'Get Library with if-modified-since header - not modified',
+      async () => {
+        time = new Date().getTime()
+        // with time at beginning - so it will be modified
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 304)
+        await tap.notOk(res.body)
+      }
+    )
 
-  let collectionId
+    let collectionId
 
-  await tap.test(
-    'Get Library with if-modified-since header - after collection created',
-    async () => {
-      await createTag(app, token, readerUrl)
+    await tap.test(
+      'Get Library with if-modified-since header - after collection created',
+      async () => {
+        await createTag(app, token, readerUrl)
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
-      time = new Date().getTime()
-      collectionId = body.tags[0].id
-    }
-  )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
+        time = new Date().getTime()
+        collectionId = body.tags[0].id
+      }
+    )
 
-  await tap.test(
-    'Get Library with if-modified-since header - after collection updated',
-    async () => {
-      await request(app)
-        .post(`${readerUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Update',
-            object: {
-              type: 'reader:Tag',
-              id: collectionId,
-              name: 'new collection name'
-            }
-          })
-        )
+    await tap.test(
+      'Get Library with if-modified-since header - after collection updated',
+      async () => {
+        await request(app)
+          .post(`${readerUrl}/activity`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          .send(
+            JSON.stringify({
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
+              type: 'Update',
+              object: {
+                type: 'reader:Tag',
+                id: collectionId,
+                name: 'new collection name'
+              }
+            })
+          )
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
-      time = new Date().getTime()
-    }
-  )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
+        time = new Date().getTime()
+      }
+    )
 
-  let publication
+    let publication
 
-  await tap.test(
-    'Get Library with if-modified-since header - after publication created',
-    async () => {
-      publication = await createPublication(readerUrl)
+    await tap.test(
+      'Get Library with if-modified-since header - after publication created',
+      async () => {
+        publication = await createPublication(readerUrl)
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
 
-      time = new Date().getTime()
-    }
-  )
+        time = new Date().getTime()
+      }
+    )
 
-  await tap.test(
-    'Get Library with if-modified-since header - after publication updated',
-    async () => {
-      await request(app)
-        .post(`${readerUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Update',
-            object: {
-              type: 'Publication',
-              id: publication.id,
-              description: 'new description!'
-            }
-          })
-        )
+    await tap.test(
+      'Get Library with if-modified-since header - after publication updated',
+      async () => {
+        await request(app)
+          .post(`${readerUrl}/activity`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          .send(
+            JSON.stringify({
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
+              type: 'Update',
+              object: {
+                type: 'Publication',
+                id: publication.id,
+                description: 'new description!'
+              }
+            })
+          )
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
-      time = new Date().getTime()
-    }
-  )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
+        time = new Date().getTime()
+      }
+    )
 
-  await tap.test(
-    'Get Library with if-modified-since header - after publication added to collection',
-    async () => {
-      await addPubToCollection(
-        app,
-        token,
-        readerUrl,
-        publication.id,
-        collectionId
-      )
-
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
-
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
-
-      time = new Date().getTime()
-    }
-  )
-
-  await tap.test(
-    'Get Library with if-modified-since header - after publication removed from collection',
-    async () => {
-      const removeRes = await request(app)
-        .post(`${readerUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Remove',
-            object: { id: collectionId, type: 'reader:Tag' },
-            target: { id: publication.id, type: 'Publication' }
-          })
+    await tap.test(
+      'Get Library with if-modified-since header - after publication added to collection',
+      async () => {
+        await addPubToCollection(
+          app,
+          token,
+          readerUrl,
+          publication.id,
+          collectionId
         )
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
 
-      time = new Date().getTime()
-    }
-  )
+        time = new Date().getTime()
+      }
+    )
 
-  await tap.test(
-    'Get Library with if-modified-since header - after publication deleted',
-    async () => {
-      await request(app)
-        .post(`${readerUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Delete',
-            object: {
-              type: 'Publication',
-              id: publication.id
-            }
-          })
-        )
+    await tap.test(
+      'Get Library with if-modified-since header - after publication removed from collection',
+      async () => {
+        const removeRes = await request(app)
+          .post(`${readerUrl}/activity`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          .send(
+            JSON.stringify({
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
+              type: 'Remove',
+              object: { id: collectionId, type: 'reader:Tag' },
+              target: { id: publication.id, type: 'Publication' }
+            })
+          )
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
 
-      time = new Date().getTime()
-    }
-  )
+        time = new Date().getTime()
+      }
+    )
 
-  await tap.test(
-    'Get Library with if-modified-since header - after collection deleted',
-    async () => {
-      await request(app)
-        .post(`${readerUrl}/activity`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Delete',
-            object: {
-              type: 'reader:Tag',
-              id: collectionId
-            }
-          })
-        )
+    await tap.test(
+      'Get Library with if-modified-since header - after publication deleted',
+      async () => {
+        await request(app)
+          .post(`${readerUrl}/activity`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          .send(
+            JSON.stringify({
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
+              type: 'Delete',
+              object: {
+                type: 'Publication',
+                id: publication.id
+              }
+            })
+          )
 
-      const res = await request(app)
-        .get(`${readerUrl}/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .set('If-Modified-Since', time)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-      await tap.equal(res.statusCode, 200)
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
 
-      const body = res.body
-      await tap.type(body, 'object')
-      await tap.equal(body.type, 'Collection')
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
 
-      time = new Date().getTime()
-    }
-  )
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after collection deleted',
+      async () => {
+        await request(app)
+          .post(`${readerUrl}/activity`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+          .send(
+            JSON.stringify({
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
+              type: 'Delete',
+              object: {
+                type: 'reader:Tag',
+                id: collectionId
+              }
+            })
+          )
+
+        const res = await request(app)
+          .get(`${readerUrl}/library`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.type, 'Collection')
+
+        time = new Date().getTime()
+      }
+    )
+  }
 
   if (!process.env.POSTGRE_INSTANCE) {
     await app.terminate()
