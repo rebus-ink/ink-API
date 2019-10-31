@@ -170,7 +170,9 @@ app.terminate = async () => {
     await epubQueue.empty()
     epubQueue.close()
   }
-  cache.quitCache()
+  if (cache) {
+    cache.quitCache()
+  }
   return await app.knex.destroy()
 }
 
