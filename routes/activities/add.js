@@ -4,6 +4,7 @@ const { Note_Tag } = require('../../models/Note_Tag')
 const { Activity } = require('../../models/Activity')
 // const { urlToId } = require('./utils')
 const boom = require('@hapi/boom')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 const handleAdd = async (req, res, next, reader) => {
   const body = req.body
@@ -53,6 +54,7 @@ const handleAdd = async (req, res, next, reader) => {
           body.target.id,
           body.object.id
         )
+        await libraryCacheUpdate(reader.id)
       } else if (body.target.type === 'Note') {
         resultStack = await Note_Tag.addTagToNote(
           body.target.id,

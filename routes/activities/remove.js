@@ -3,6 +3,7 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Activity } = require('../../models/Activity')
 const { Note_Tag } = require('../../models/Note_Tag')
 const boom = require('@hapi/boom')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 const handleRemove = async (req, res, next, reader) => {
   const body = req.body
@@ -60,6 +61,7 @@ const handleRemove = async (req, res, next, reader) => {
       body.target.id,
       body.object.id
     )
+    await libraryCacheUpdate(reader.id)
   } else if (body.target.type === 'Note') {
     resultStack = await Note_Tag.removeTagFromNote(
       body.target.id,

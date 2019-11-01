@@ -6,6 +6,7 @@ const { Document } = require('../../models/Document')
 const { createActivityObject } = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 const handleCreate = async (req, res, next, reader) => {
   const body = req.body
@@ -113,6 +114,9 @@ const handleCreate = async (req, res, next, reader) => {
 
         return next(err)
       }
+
+      // update cache - TODO: make this conditional to the type of tag??
+      await libraryCacheUpdate(reader.id)
 
       const activityObjStack = createActivityObject(body, resultStack, reader)
 

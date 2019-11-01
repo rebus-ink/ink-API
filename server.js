@@ -9,6 +9,7 @@ const helmet = require('helmet')
 const { Strategy, ExtractJwt } = require('passport-jwt')
 const elasticsearchQueue = require('./processFiles/searchQueue')
 const epubQueue = require('./processFiles/index')
+const cache = require('./utils/cache')
 
 const activityRoute = require('./routes/activity')
 const publicationRoute = require('./routes/publication')
@@ -168,6 +169,9 @@ app.terminate = async () => {
     await epubQueue.clean(0, 'failed')
     await epubQueue.empty()
     epubQueue.close()
+  }
+  if (cache) {
+    cache.quitCache()
   }
   return await app.knex.destroy()
 }

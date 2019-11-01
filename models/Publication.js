@@ -13,6 +13,8 @@ const { urlToId } = require('../utils/utils')
 
 const elasticsearchQueue = require('../processFiles/searchQueue')
 
+const { libraryCacheUpdate } = require('../utils/cache')
+
 /*::
 type PublicationType = {
   id: string,
@@ -187,6 +189,10 @@ class Publication extends BaseModel {
         }
       }
     }
+
+    // exceptionally, doing this instead of in the routes because of the complexity of
+    // the whole file upload thing.
+    await libraryCacheUpdate(reader.id)
 
     return createdPublication
   }

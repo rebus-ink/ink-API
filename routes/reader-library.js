@@ -7,6 +7,8 @@ const utils = require('../utils/utils')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 
+const { libraryCacheGet } = require('../utils/cache')
+
 /**
  * @swagger
  * definition:
@@ -192,7 +194,18 @@ module.exports = app => {
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
-      Reader.getLibrary(id, req.query.limit, req.skip, filters)
+
+      libraryCacheGet(id, !!req.headers['if-modified-since'])
+        .then(value => {
+          if (
+            value &&
+            req.headers['if-modified-since'] &&
+            req.headers['if-modified-since'] > value
+          ) {
+            res.status(304)
+          }
+          return Reader.getLibrary(id, req.query.limit, req.skip, filters)
+        })
         .then(reader => {
           if (!reader) {
             return next(
