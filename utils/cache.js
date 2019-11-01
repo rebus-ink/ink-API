@@ -1,9 +1,11 @@
 const redis = require('redis')
 const { urlToId } = require('./utils')
 
-let libraryCacheGet = () => undefined
+// this is to make sure that the tests work properly on pull requests:
+// the cache is not used in pull requests because travis does not have access to the redis password
+let libraryCacheGet = async () => Promise.resolve()
 let libraryCacheUpdate = () => undefined
-let quitCache
+let quitCache = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
   const client = redis.createClient({
