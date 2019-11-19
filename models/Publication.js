@@ -18,11 +18,14 @@ const { libraryCacheUpdate } = require('../utils/cache')
 /*::
 type PublicationType = {
   id: string,
-  description?: string,
+  abstract?: string,
   name: string,
+  type: string,
   datePublished?: Date,
+  numberOfPages: number,
+  encodingFormat: string,
   metadata?: Object,
-  readingOrder: Object,
+  readingOrder?: Object,
   resources?: Object,
   links?: Object,
   json?: Object,
@@ -57,12 +60,15 @@ class Publication extends BaseModel {
         id: { type: 'string' },
         readerId: { type: 'string' },
         name: { type: 'string' },
+        type: { type: 'string' },
         author: { type: 'array' },
-        description: { type: 'string' },
+        abstract: { type: 'string' },
         editor: { type: 'array' },
         datePublished: { type: 'string', format: 'date-time' },
         inLanguage: { type: 'array' },
         keywords: { type: 'array' },
+        numberOfPages: { type: 'integer' },
+        encodingFormat: { type: 'string' },
         readingOrder: { type: 'object' },
         resources: { type: 'object' },
         links: { type: 'object' },
@@ -71,7 +77,7 @@ class Publication extends BaseModel {
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
-      required: ['name', 'readerId', 'readingOrder']
+      required: ['name', 'readerId', 'type']
     }
   }
   static get relationMappings () /*: any */ {
@@ -146,7 +152,10 @@ class Publication extends BaseModel {
     const props = _.pick(publication, [
       'id',
       'name',
-      'description',
+      'type',
+      'numberOfPages',
+      'encodingFormat',
+      'abstract',
       'datePublished',
       'json',
       'readingOrder',
@@ -155,10 +164,7 @@ class Publication extends BaseModel {
     ])
     props.readerId = reader.id
     props.metadata = metadata
-    // since this is stored under data:, the validation does not kick in if it is missing.
-    if (!props.readingOrder || props.readingOrder.length === 0) {
-      return Error('no readingOrder')
-    }
+
     props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }
@@ -262,7 +268,8 @@ class Publication extends BaseModel {
 
     const modifications = _.pick(newPubObj, [
       'name',
-      'description',
+      'abstract',
+      'type',
       'datePublished',
       'json',
       'readingOrder',
@@ -326,7 +333,6 @@ class Publication extends BaseModel {
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     json.id = json.id + '/'
-    json.type = 'Publication'
     if (json.attributions) {
       attributionTypes.forEach(type => {
         json[type] = json.attributions.filter(

@@ -142,10 +142,13 @@ class Reader extends BaseModel {
         builder
           .select(
             'Publication.id',
-            'Publication.description',
+            'Publication.abstract',
             'Publication.metadata',
             'Publication.name',
             'Publication.datePublished',
+            'Publication.type',
+            'Publication.numberOfPages',
+            'Publication.encodingFormat',
             'Publication.json',
             'Publication.readerId',
             'Publication.published',
@@ -301,9 +304,10 @@ class Reader extends BaseModel {
           pubBuilder.select(
             'id',
             'name',
-            'description',
+            'abstract',
             'datePublished',
-            'metadata'
+            'metadata',
+            'type'
           )
         })
         builder.whereNull('Note.deleted')

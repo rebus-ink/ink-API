@@ -24,11 +24,11 @@ const createPublication = async (token, readerUrl, number = 1) => {
           ],
           type: 'Create',
           object: {
-            type: 'Publication',
+            type: 'Book',
             name: 'Publication ' + i,
             author: ['John Smith'],
             editor: 'Jané S. Doe',
-            description: 'this is a description!!',
+            abstract: 'this is a description!!',
             inLanguage: 'English',
             links: [
               {
