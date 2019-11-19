@@ -1,9 +1,12 @@
 exports.up = function (knex, Promise) {
   return knex.schema.createTable('Publication', function (table) {
     table.string('id').primary()
-    table.text('description')
+    table.text('abstract')
     table.string('name').notNullable()
+    table.string('type').notNullable()
     table.timestamp('datePublished')
+    table.integer('numberOfPages')
+    table.string('encodingFormat')
     table.jsonb('metadata')
     table.jsonb('readingOrder').notNullable()
     table.jsonb('resources')
