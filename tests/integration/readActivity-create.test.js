@@ -13,10 +13,6 @@ const { ReadActivity } = require('../../models/ReadActivity')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
@@ -208,9 +204,6 @@ const test = async app => {
   )
 
   await destroyDB(app)
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
 }
 
 module.exports = test

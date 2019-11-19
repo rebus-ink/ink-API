@@ -10,10 +10,6 @@ const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const reader = {
     name: 'J. Random Reader'
   }
@@ -358,9 +354,6 @@ const test = async app => {
     await tap.ok(!noteDeleted.tags)
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

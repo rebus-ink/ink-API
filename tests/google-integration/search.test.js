@@ -17,10 +17,6 @@ function sleep (ms) {
 }
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
@@ -382,9 +378,6 @@ const test = async app => {
     )
 
   await destroyDB(app)
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
 }
 
 module.exports = test

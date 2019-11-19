@@ -12,10 +12,6 @@ const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
@@ -247,9 +243,6 @@ const test = async app => {
     }
   )
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

@@ -12,10 +12,6 @@ const crypto = require('crypto')
 const _ = require('lodash')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const reader = {
     name: 'J. Random Reader'
   }
@@ -626,10 +622,6 @@ const test = async app => {
     await tap.notEqual(pubIdsResponse.indexOf(urlToId(publicationId2)), -1)
     await tap.notEqual(pubIdsResponse.indexOf(urlToId(publicationId3)), -1)
   })
-
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
 
   await destroyDB(app)
 }
