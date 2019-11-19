@@ -12,10 +12,6 @@ const {
 const { Reader } = require('../../models/Reader')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   // reader1
   const token = getToken()
   const readerId = await createUser(app, token)
@@ -277,9 +273,6 @@ const test = async app => {
   })
 
   await destroyDB(app)
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
 }
 
 module.exports = test

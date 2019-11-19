@@ -4,10 +4,6 @@ const urlparse = require('url').parse
 const { getToken, destroyDB } = require('../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
 
   const createReaderRes = await request(app)
@@ -103,9 +99,6 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Get Reader')
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

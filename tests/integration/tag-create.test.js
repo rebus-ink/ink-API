@@ -4,10 +4,6 @@ const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   const readerId = await createUser(app, token)
   const readerUrl = urlparse(readerId).path
@@ -153,9 +149,6 @@ const test = async app => {
     stack = body.tags[0]
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

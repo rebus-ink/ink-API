@@ -8,9 +8,6 @@ const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
   const random = crypto.randomBytes(13).toString('hex')
 
   const reader = {
@@ -242,9 +239,6 @@ const test = async app => {
     await tap.ok(responseDeleteTag.message, 'no tag')
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

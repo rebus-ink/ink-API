@@ -3,10 +3,6 @@ const tap = require('tap')
 const { getToken, destroyDB } = require('../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   // to avoid duplicate tokens:
   await new Promise(_func => setTimeout(_func, 50))
@@ -106,9 +102,6 @@ const test = async app => {
 
   // TODO: add test for incomplete reader object (once incoming json is validated)
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

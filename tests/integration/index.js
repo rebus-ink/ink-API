@@ -41,12 +41,10 @@ const app = require('../../server').app
 require('dotenv').config()
 
 const allTests = async () => {
-  if (process.env.POSTGRE_INSTANCE) {
-    await app.initialize(true)
-    await app.knex.migrate.rollback()
-    if (process.env.POSTGRE_DB === 'travis_ci_test') {
-      await app.knex.migrate.latest()
-    }
+  await app.initialize(true)
+  await app.knex.migrate.rollback()
+  if (process.env.POSTGRE_DB === 'travis_ci_test') {
+    await app.knex.migrate.latest()
   }
 
   const test = process.env.npm_config_test
@@ -104,10 +102,7 @@ const allTests = async () => {
     await jobGetTests(app)
   }
 
-  if (process.env.POSTGRE_INSTANCE) {
-    await app.knex.migrate.rollback()
-    await app.terminate()
-  }
+  await app.knex.migrate.rollback()
+  await app.terminate()
 }
-
 allTests()

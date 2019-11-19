@@ -16,10 +16,6 @@ const { Tag } = require('../../models/Tag')
 const { Publication_Tag } = require('../../models/Publications_Tags')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
@@ -253,9 +249,6 @@ const test = async app => {
     }
   )
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 

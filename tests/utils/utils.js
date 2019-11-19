@@ -46,9 +46,7 @@ const createUser = async (app, token) => {
 }
 
 const destroyDB = async app => {
-  if (!process.env.POSTGRE_INSTANCE && process.env.NODE_ENV === 'test') {
-    await fs.unlinkSync('./test.sqlite3')
-  } else if (process.env.NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'test') {
     await knexCleaner.clean(app.knex)
   }
 }

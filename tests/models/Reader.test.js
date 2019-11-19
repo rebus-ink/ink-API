@@ -5,10 +5,6 @@ const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.initialize()
-  }
-
   const random1 = crypto.randomBytes(13).toString('hex')
   const random2 = crypto.randomBytes(13).toString('hex')
 
@@ -145,9 +141,6 @@ const test = async app => {
     await tap.ok(Array.isArray(readerWithNotes.replies))
   })
 
-  if (!process.env.POSTGRE_INSTANCE) {
-    await app.terminate()
-  }
   await destroyDB(app)
 }
 
