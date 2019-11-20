@@ -19,7 +19,6 @@ const { libraryCacheGet } = require('../utils/cache')
  *         format: url
  *       type:
  *         type: string
- *         enum: ['Publication']
  *       summaryMap:
  *         type: object
  *         properties:
@@ -42,11 +41,15 @@ const { libraryCacheGet } = require('../utils/cache')
  *           format: url
  *       json:
  *         type: object
+ *       numberOfPages:
+ *         type: number
+ *       encodingFormat:
+ *         type: string
  *       resources:
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
- *       description:
+ *       abstract:
  *         type: string
  *       datePublished:
  *         type: string

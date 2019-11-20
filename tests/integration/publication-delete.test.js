@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createDocument
 } = require('../utils/utils')
@@ -34,7 +33,7 @@ const test = async app => {
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
-    description: 'this is a description!!',
+    abstract: 'this is a description!!',
     inLanguage: 'English',
     datePublished: now,
     links: [

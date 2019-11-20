@@ -414,68 +414,6 @@
         }
       }
     },
-    "/publication-{id}/file-upload": {
-      "post": {
-        "tags": [
-          "publications"
-        ],
-        "description": "POST /publication-:id/file-upload",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "schema": {
-              "type": "string"
-            },
-            "required": true,
-            "description": "the id of the publication"
-          }
-        ],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "binary"
-                  },
-                  "documentPath": {
-                    "type": "string"
-                  },
-                  "mediaType": {
-                    "type": "string"
-                  },
-                  "json": {
-                    "type": "string",
-                    "description": "stringified json data"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "file created"
-          },
-          "400": {
-            "description": "No file was included with upload OR Error connecting to google bucket"
-          },
-          "403": {
-            "description": "Access to publication {id} disallowed"
-          },
-          "404": {
-            "description": "No publication with ID {id}"
-          }
-        }
-      }
-    },
     "/publication-{id}": {
       "get": {
         "tags": [
@@ -1251,10 +1189,7 @@
           "format": "url"
         },
         "type": {
-          "type": "string",
-          "enum": [
-            "Publication"
-          ]
+          "type": "string"
         },
         "summaryMap": {
           "type": "object",
@@ -1286,12 +1221,18 @@
             "format": "url"
           }
         },
-        "description": {
+        "abstract": {
           "type": "string"
         },
         "datePublished": {
           "type": "string",
           "format": "timestamp"
+        },
+        "numberOfPages": {
+          "type": "number"
+        },
+        "encodingFormat": {
+          "type": "string"
         },
         "readingOrder": {
           "type": "array",
@@ -1341,10 +1282,7 @@
           "format": "url"
         },
         "type": {
-          "type": "string",
-          "enum": [
-            "Publication"
-          ]
+          "type": "string"
         },
         "summaryMap": {
           "type": "object",
@@ -1379,13 +1317,19 @@
         "json": {
           "type": "object"
         },
+        "numberOfPages": {
+          "type": "number"
+        },
+        "encodingFormat": {
+          "type": "string"
+        },
         "resources": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/link"
           }
         },
-        "description": {
+        "abstract": {
           "type": "string"
         },
         "datePublished": {

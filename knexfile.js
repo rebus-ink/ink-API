@@ -1,9 +1,10 @@
 // Update with your config settings.
+require('dotenv').config()
 
 const path = require('path')
 module.exports = {
   postgresql: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
       host: process.env.POSTGRE_INSTANCE,
       database: process.env.POSTGRE_DB,

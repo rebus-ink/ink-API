@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication
 } = require('../utils/utils')
 const _ = require('lodash')
@@ -18,11 +17,13 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    type: 'Publication',
+    type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
-    description: 'this is a description!!',
+    abstract: 'this is a description!!',
+    numberOfPages: 250,
+    encodingFormat: 'epub',
     inLanguage: 'English',
     datePublished: now,
     links: [
@@ -87,12 +88,12 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.ok(body.id.endsWith('/'))
-    await tap.equal(body.type, 'Publication')
+    await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
     await tap.equal(body.editor[0].name, 'Jané S. Doe')
-    await tap.equal(body.description, 'this is a description!!')
+    await tap.equal(body.abstract, 'this is a description!!')
     await tap.ok(body.datePublished)
     await tap.equal(body.links[0].name, 'An example link')
     await tap.equal(
@@ -105,6 +106,8 @@ const test = async app => {
     await tap.ok(body.published)
     await tap.ok(body.updated)
     await tap.equal(body.inLanguage, 'English')
+    await tap.equal(body.numberOfPages, 250)
+    await tap.equal(body.encodingFormat, 'epub')
     // should not have a position
     await tap.notOk(body.position)
   })
@@ -171,7 +174,7 @@ const test = async app => {
 
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    await tap.equal(body.type, 'Publication')
+    await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Publication A')
     await tap.type(body.position, 'object')
     await tap.equal(body.position.property, 'last')

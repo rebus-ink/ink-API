@@ -41,11 +41,13 @@ const test = async () => {
 
   await tap.test('Get Library containing a publication', async () => {
     await createPublication(readerUrl, {
-      type: 'Publication',
+      type: 'Book',
       name: 'Publication A',
       author: ['John Smith'],
       editor: 'Jane Doe',
-      description: 'this is a description!!',
+      abstract: 'this is a description!!',
+      numberOfPages: 99,
+      encodingFormat: 'epub',
       keywords: 'one, two',
       links: [{ property: 'value' }],
       readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
@@ -72,7 +74,7 @@ const test = async () => {
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
-    await tap.equal(body.items[0].type, 'Publication')
+    await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
     await tap.equal(body.items[0].name, 'Publication A')
@@ -81,6 +83,9 @@ const test = async () => {
     await tap.equal(body.items[0].keywords, 'one, two')
     await tap.ok(body.items[0].json)
     await tap.ok(body.items[0].resources)
+    await tap.equal(body.items[0].abstract, 'this is a description!!')
+    await tap.equal(body.items[0].numberOfPages, 99)
+    await tap.equal(body.items[0].encodingFormat, 'epub')
     // documents should NOT include:
     await tap.notOk(body.items[0].readingOrder)
     await tap.notOk(body.items[0].links)
@@ -237,7 +242,7 @@ const test = async () => {
               object: {
                 type: 'Publication',
                 id: publication.id,
-                description: 'new description!'
+                abstract: 'new description!'
               }
             })
           )
@@ -291,7 +296,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after publication removed from collection',
       async () => {
-        const removeRes = await request(app)
+        await request(app)
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
