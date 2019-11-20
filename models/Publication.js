@@ -165,6 +165,10 @@ class Publication extends BaseModel {
     props.readerId = reader.id
     props.metadata = metadata
 
+    if (!props.type) {
+      return Error('no type')
+    }
+
     if (props.readingOrder) props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }
