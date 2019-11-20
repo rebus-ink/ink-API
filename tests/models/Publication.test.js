@@ -33,6 +33,14 @@ const test = async app => {
     numberOfPages: 666,
     encodingFormat: 'epub',
     datePublished: new Date(2011, 3, 20).toISOString(),
+    url: 'http://www.something.com',
+    dateModified: new Date(2012, 4, 25).toISOString(),
+    bookEdition: 'second edition',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1923,
+    genre: 'romance',
+    license: 'http://www.mylicense.com',
     json: {
       property1: 'value1'
     },
@@ -162,6 +170,17 @@ const test = async app => {
       await tap.equal(publication.readingOrder.length, 2)
       await tap.equal(publication.links.length, 2)
       await tap.equal(publication.resources.length, 2)
+
+      // metadata
+      const metadata = publication.metadata
+      await tap.equal(metadata.url, 'http://www.something.com')
+      await tap.ok(metadata.dateModified)
+      await tap.equal(metadata.bookEdition, 'second edition')
+      await tap.equal(metadata.bookFormat, 'EBook')
+      await tap.equal(metadata.isbn, '1234')
+      await tap.equal(metadata.copyrightYear, 1923)
+      await tap.equal(metadata.genre, 'romance')
+      await tap.equal(metadata.license, 'http://www.mylicense.com')
     }
   )
 

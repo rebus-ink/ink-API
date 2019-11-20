@@ -6,14 +6,23 @@ const _ = require('lodash')
 const { Attribution } = require('./Attribution')
 const { ReadActivity } = require('./ReadActivity')
 const { Note } = require('./Note')
-
-const metadataProps = ['inLanguage', 'keywords']
-const attributionTypes = ['author', 'editor']
 const { urlToId } = require('../utils/utils')
-
 const elasticsearchQueue = require('../processFiles/searchQueue')
-
 const { libraryCacheUpdate } = require('../utils/cache')
+
+const metadataProps = [
+  'inLanguage',
+  'keywords',
+  'url',
+  'dateModified',
+  'bookEdition',
+  'bookFormat',
+  'isbn',
+  'copyrightYear',
+  'genre',
+  'license'
+]
+const attributionTypes = ['author', 'editor']
 
 /*::
 type PublicationType = {
@@ -67,6 +76,14 @@ class Publication extends BaseModel {
         datePublished: { type: 'string', format: 'date-time' },
         inLanguage: { type: 'array' },
         keywords: { type: 'array' },
+        url: { type: 'string', format: 'url' },
+        dateModified: { type: 'string', format: 'date-time' },
+        bookEdition: { type: 'string' },
+        bookFormat: { type: 'string ' },
+        isbn: { type: 'string' },
+        copyrightYear: { type: 'integer' },
+        genre: { type: 'romance' },
+        license: { type: 'string' },
         numberOfPages: { type: 'integer' },
         encodingFormat: { type: 'string' },
         readingOrder: { type: 'object' },
