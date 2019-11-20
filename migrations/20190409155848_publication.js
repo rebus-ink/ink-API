@@ -8,7 +8,7 @@ exports.up = function (knex, Promise) {
     table.integer('numberOfPages')
     table.string('encodingFormat')
     table.jsonb('metadata')
-    table.jsonb('readingOrder').notNullable()
+    table.jsonb('readingOrder')
     table.jsonb('resources')
     table.jsonb('links')
     table.jsonb('json')

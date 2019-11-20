@@ -165,7 +165,7 @@ class Publication extends BaseModel {
     props.readerId = reader.id
     props.metadata = metadata
 
-    props.readingOrder = { data: props.readingOrder }
+    if (props.readingOrder) props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }
 
@@ -214,7 +214,7 @@ class Publication extends BaseModel {
     if (latestReadActivity && latestReadActivity.selector) {
       pub.position = latestReadActivity.selector
     }
-    pub.readingOrder = pub.readingOrder.data
+    if (pub.readingOrder) pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
 
@@ -274,7 +274,9 @@ class Publication extends BaseModel {
       'json',
       'readingOrder',
       'resources',
-      'links'
+      'links',
+      'numberOfPages',
+      'encodingFormat'
     ])
 
     if (metadata) {
