@@ -45,6 +45,11 @@ const test = async () => {
       name: 'Publication A',
       author: ['John Smith'],
       editor: 'Jane Doe',
+      contributor: ['Sample Contributor'],
+      creator: ['Sample Creator'],
+      illustrator: ['Sample Illustrator'],
+      publisher: ['Sample Publisher'],
+      translator: ['Sample Translator'],
       abstract: 'this is a description!!',
       numberOfPages: 99,
       encodingFormat: 'epub',
@@ -89,6 +94,11 @@ const test = async () => {
     await tap.equal(pub.name, 'Publication A')
     await tap.equal(pub.author[0].name, 'John Smith')
     await tap.equal(pub.editor[0].name, 'Jane Doe')
+    await tap.equal(pub.contributor[0].name, 'Sample Contributor')
+    await tap.equal(pub.creator[0].name, 'Sample Creator')
+    await tap.equal(pub.illustrator[0].name, 'Sample Illustrator')
+    await tap.equal(pub.publisher[0].name, 'Sample Publisher')
+    await tap.equal(pub.translator[0].name, 'Sample Translator')
     await tap.equal(pub.keywords, 'one, two')
     await tap.ok(pub.json)
     await tap.ok(pub.resources)

@@ -23,6 +23,11 @@ const test = async app => {
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
+    contributor: ['Sample Contributor'],
+    creator: ['Sample Creator'],
+    illustrator: ['Sample Illustrator'],
+    publisher: ['Sample Publisher'],
+    translator: ['Sample Translator'],
     abstract: 'this is a description!!',
     inLanguage: 'English',
     url: 'http://www.something.com',
@@ -122,7 +127,12 @@ const test = async app => {
               { type: 'Person', name: 'New Sample Author' },
               { type: 'Organization', name: 'New Org inc.' }
             ],
-            editor: [{ type: 'Person', name: 'New Sample Editor' }]
+            editor: [{ type: 'Person', name: 'New Sample Editor' }],
+            contributor: ['Sample Contributor2'],
+            creator: ['Sample Creator2'],
+            illustrator: ['Sample Illustrator2'],
+            publisher: ['Sample Publisher2'],
+            translator: ['Sample Translator2']
           }
         })
       )
@@ -181,14 +191,14 @@ const test = async app => {
         body.author[1].name === 'New Sample Author'
     )
     await tap.equal(body.editor[0].name, 'New Sample Editor')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+    await tap.equal(body.creator[0].name, 'Sample Creator2')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+    await tap.equal(body.translator[0].name, 'Sample Translator2')
     await tap.ok(attributions)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 3)
-    await tap.ok(
-      attributions[0].name === 'New Sample Author' ||
-        attributions[0].name === 'New Org inc.' ||
-        attributions[0].name === 'New Sample Editor'
-    )
+    await tap.equal(attributions.length, 8)
   })
 
   await tap.test(

@@ -21,6 +21,11 @@ const test = async app => {
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
+    contributor: ['Sample Contributor'],
+    creator: ['Sample Creator'],
+    illustrator: ['Sample Illustrator'],
+    publisher: ['Sample Publisher'],
+    translator: ['Sample Translator'],
     abstract: 'this is a description!!',
     numberOfPages: 250,
     encodingFormat: 'epub',
@@ -101,6 +106,11 @@ const test = async app => {
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
     await tap.equal(body.editor[0].name, 'Jané S. Doe')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher')
+    await tap.equal(body.translator[0].name, 'Sample Translator')
     await tap.equal(body.abstract, 'this is a description!!')
     await tap.ok(body.datePublished)
     await tap.equal(body.links[0].name, 'An example link')
