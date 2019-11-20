@@ -296,7 +296,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after publication removed from collection',
       async () => {
-        const removeRes = await request(app)
+        await request(app)
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)

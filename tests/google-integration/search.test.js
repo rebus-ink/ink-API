@@ -10,8 +10,6 @@ const {
   addPubToCollection
 } = require('../utils/utils')
 
-const { urlToId } = require('../../utils/utils')
-
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }

@@ -261,7 +261,7 @@ const test = async app => {
   )
 
   await tap.test('Update publication datePublished', async () => {
-    const timestamp = new Date(2018, 01, 30).toISOString()
+    const timestamp = new Date(2018, 1, 30).toISOString()
     const newPubObj = {
       id: publication.id,
       datePublished: timestamp

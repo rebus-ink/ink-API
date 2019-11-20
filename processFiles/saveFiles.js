@@ -1,8 +1,7 @@
-const { updateJob } = require('./updateJob')
 const { Document } = require('../models/Document')
 const elasticsearchQueue = require('./searchQueue')
 
-exports.saveFiles = async (book, media, zip, storage, file, jobId) => {
+exports.saveFiles = async (book, media, zip, storage, file) => {
   const bucketName = 'publication-file-storage-test'
   const bucket = storage.bucket(bucketName)
 

@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication
 } = require('../utils/utils')
 const _ = require('lodash')
