@@ -39,7 +39,6 @@ const boom = require('@hapi/boom')
  *         format: url
  *       type:
  *         type: string
- *         enum: ['Publication']
  *       summaryMap:
  *         type: object
  *         properties:
@@ -60,11 +59,15 @@ const boom = require('@hapi/boom')
  *         items:
  *           type: string
  *           format: url
- *       description:
+ *       abstract:
  *         type: string
  *       datePublished:
  *         type: string
  *         format: timestamp
+ *       numberOfPages:
+ *         type: number
+ *       encodingFormat:
+ *         type: string
  *       readingOrder:
  *         type: array
  *         items:
