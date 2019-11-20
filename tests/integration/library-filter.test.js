@@ -249,7 +249,7 @@ const test = async () => {
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 3)
     // documents should include:
-    await tap.equal(body.items[0].type, 'book')
+    await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
     await tap.equal(body.items[0].name, 'new book 3')
@@ -457,7 +457,7 @@ const test = async () => {
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 2)
     // documents should include:
-    await tap.equal(body.items[0].type, 'book')
+    await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
     await tap.equal(body.items[0].name, 'new book 2 - the sequel')

@@ -70,7 +70,7 @@ const createPublication = async (readerUrl, object = {}) => {
   const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
-      type: 'book',
+      type: 'Book',
       name: 'publication name',
       author: 'generic author',
       editor: 'generic editor',

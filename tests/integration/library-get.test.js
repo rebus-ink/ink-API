@@ -41,7 +41,7 @@ const test = async () => {
 
   await tap.test('Get Library containing a publication', async () => {
     await createPublication(readerUrl, {
-      type: 'book',
+      type: 'Book',
       name: 'Publication A',
       author: ['John Smith'],
       editor: 'Jane Doe',
@@ -74,7 +74,7 @@ const test = async () => {
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
-    await tap.equal(body.items[0].type, 'book')
+    await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
     await tap.equal(body.items[0].name, 'Publication A')

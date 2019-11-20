@@ -19,7 +19,7 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    type: 'book',
+    type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',

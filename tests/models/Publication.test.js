@@ -22,7 +22,7 @@ const test = async app => {
   const createPublicationObj = {
     name: 'Publication A',
     abstract: 'description of publication A',
-    type: 'book',
+    type: 'Book',
     author: [
       { type: 'Person', name: 'Sample Author' },
       { type: 'Organization', name: 'Org inc.' }
@@ -94,7 +94,7 @@ const test = async app => {
 
   const simplePublication = {
     name: 'Publication A',
-    type: 'book'
+    type: 'Book'
   }
 
   const createdTag = await Tag.createTag(urlToId(createdReader.id), {
@@ -150,7 +150,7 @@ const test = async app => {
       await tap.type(publication, 'object')
       await tap.ok(publication instanceof Publication)
       await tap.equal(publication.readerId, createdReader.id)
-      await tap.equal(publication.type, 'book')
+      await tap.equal(publication.type, 'Book')
       await tap.equal(publication.abstract, 'description of publication A')
       await tap.ok(publication.datePublished)
       await tap.equal(publication.name, 'Publication A')

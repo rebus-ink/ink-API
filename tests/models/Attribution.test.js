@@ -15,7 +15,7 @@ const test = async app => {
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
   const simplePublication = {
-    type: 'book',
+    type: 'Book',
     name: 'Publication A',
     readingOrder: [
       {

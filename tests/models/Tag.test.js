@@ -25,7 +25,7 @@ const test = async app => {
 
   const simplePublication = {
     name: 'Publication A',
-    type: 'book',
+    type: 'Book',
     readingOrder: [
       {
         '@context': 'https://www.w3.org/ns/activitystreams',

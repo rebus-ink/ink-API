@@ -17,7 +17,7 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    type: 'book',
+    type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
@@ -88,7 +88,7 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.ok(body.id.endsWith('/'))
-    await tap.equal(body.type, 'book')
+    await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
@@ -174,7 +174,7 @@ const test = async app => {
 
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    await tap.equal(body.type, 'book')
+    await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Publication A')
     await tap.type(body.position, 'object')
     await tap.equal(body.position.property, 'last')
