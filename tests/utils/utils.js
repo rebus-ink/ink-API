@@ -70,11 +70,13 @@ const createPublication = async (readerUrl, object = {}) => {
   const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
-      type: 'Book',
+      type: 'book',
       name: 'publication name',
       author: 'generic author',
       editor: 'generic editor',
       abstract: 'this is a description!!',
+      numberOfPages: 100,
+      encodingFormat: 'epub',
       keywords: 'one, two',
       datePublished: publicationDate,
       readingOrder: [

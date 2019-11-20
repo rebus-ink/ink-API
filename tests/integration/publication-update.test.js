@@ -19,12 +19,14 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    type: 'Publication',
+    type: 'book',
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
-    description: 'this is a description!!',
+    abstract: 'this is a description!!',
     inLanguage: 'English',
+    numberOfPages: 333,
+    encodingFormat: 'epub',
     datePublished: now,
     links: [
       {
@@ -94,7 +96,9 @@ const test = async app => {
             id: publicationUrl,
             name: 'New name for pub A',
             // datePublished: timestamp,
-            description: 'New description for Publication',
+            abstract: 'New description for Publication',
+            numberOfPages: 444,
+            encodingFormat: 'new',
             json: { property: 'New value for json property' },
             inLanguage: ['Swahili', 'French'],
             keywords: ['newKeyWord1', 'newKeyWord2'],
@@ -136,9 +140,11 @@ const test = async app => {
     )
 
     await tap.equal(body.name, 'New name for pub A')
-    await tap.equal(body.description, 'New description for Publication')
+    await tap.equal(body.abstract, 'New description for Publication')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
+    await tap.equal(body.numberOfPages, 444)
+    await tap.equal(body.encodingFormat, 'new')
     await tap.equal(body.inLanguage[0], 'Swahili')
     await tap.equal(body.inLanguage[1], 'French')
     await tap.equal(body.keywords[0], 'newKeyWord1')
@@ -221,7 +227,7 @@ const test = async app => {
               id: publicationUrl + 'abc',
               name: 'New name for pub A',
               // datePublished: timestamp,
-              description: 'New description for Publication',
+              abstract: 'New description for Publication',
               json: { property: 'New value for json property' },
               inLanguage: ['Swahili', 'French'],
               keywords: ['newKeyWord1', 'newKeyWord2'],
