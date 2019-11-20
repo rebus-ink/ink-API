@@ -22,7 +22,15 @@ const metadataProps = [
   'genre',
   'license'
 ]
-const attributionTypes = ['author', 'editor']
+const attributionTypes = [
+  'author',
+  'editor',
+  'contributor',
+  'creator',
+  'illustrator',
+  'publisher',
+  'translator'
+]
 
 /*::
 type PublicationType = {
