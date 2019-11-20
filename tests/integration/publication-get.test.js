@@ -25,6 +25,14 @@ const test = async app => {
     numberOfPages: 250,
     encodingFormat: 'epub',
     inLanguage: 'English',
+    url: 'http://www.something.com',
+    dateModified: now,
+    bookEdition: 'third',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1977,
+    genre: 'vampire romance',
+    license: 'http://www.mylicense.com',
     datePublished: now,
     links: [
       {
@@ -108,6 +116,14 @@ const test = async app => {
     await tap.equal(body.inLanguage, 'English')
     await tap.equal(body.numberOfPages, 250)
     await tap.equal(body.encodingFormat, 'epub')
+    await tap.equal(body.url, 'http://www.something.com')
+    await tap.ok(body.dateModified)
+    await tap.equal(body.bookEdition, 'third')
+    await tap.equal(body.bookFormat, 'EBook')
+    await tap.equal(body.isbn, '1234')
+    await tap.equal(body.copyrightYear, 1977)
+    await tap.equal(body.genre, 'vampire romance')
+    await tap.equal(body.license, 'http://www.mylicense.com')
     // should not have a position
     await tap.notOk(body.position)
   })

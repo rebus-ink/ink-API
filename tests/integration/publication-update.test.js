@@ -25,6 +25,14 @@ const test = async app => {
     editor: 'Jané S. Doe',
     abstract: 'this is a description!!',
     inLanguage: 'English',
+    url: 'http://www.something.com',
+    dateModified: now,
+    bookEdition: 'third',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1977,
+    genre: 'vampire romance',
+    license: 'http://www.mylicense.com',
     numberOfPages: 333,
     encodingFormat: 'epub',
     datePublished: now,
@@ -101,6 +109,14 @@ const test = async app => {
             encodingFormat: 'new',
             json: { property: 'New value for json property' },
             inLanguage: ['Swahili', 'French'],
+            url: 'http://www.something2.com',
+            dateModified: new Date(2012, 3, 22).toISOString(),
+            bookEdition: 'fourth',
+            bookFormat: 'Paperback',
+            isbn: '12345',
+            copyrightYear: 1978,
+            genre: 'elf romance',
+            license: 'http://www.mylicense2.com',
             keywords: ['newKeyWord1', 'newKeyWord2'],
             author: [
               { type: 'Person', name: 'New Sample Author' },
@@ -145,6 +161,13 @@ const test = async app => {
     await tap.equal(body.json.property, 'New value for json property')
     await tap.equal(body.numberOfPages, 444)
     await tap.equal(body.encodingFormat, 'new')
+    await tap.equal(body.url, 'http://www.something2.com')
+    await tap.equal(body.dateModified, new Date(2012, 03, 22).toISOString())
+    await tap.equal(body.bookEdition, 'fourth')
+    await tap.equal(body.isbn, '12345')
+    await tap.equal(body.copyrightYear, 1978)
+    await tap.equal(body.genre, 'elf romance')
+    await tap.equal(body.license, 'http://www.mylicense2.com')
     await tap.equal(body.inLanguage[0], 'Swahili')
     await tap.equal(body.inLanguage[1], 'French')
     await tap.equal(body.keywords[0], 'newKeyWord1')
