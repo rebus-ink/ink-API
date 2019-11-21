@@ -172,7 +172,7 @@ const test = async app => {
     await tap.equal(body.numberOfPages, 444)
     await tap.equal(body.encodingFormat, 'new')
     await tap.equal(body.url, 'http://www.something2.com')
-    await tap.equal(body.dateModified, new Date(2012, 03, 22).toISOString())
+    await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
     await tap.equal(body.bookEdition, 'fourth')
     await tap.equal(body.isbn, '12345')
     await tap.equal(body.copyrightYear, 1978)
