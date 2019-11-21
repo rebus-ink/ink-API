@@ -54,6 +54,26 @@ const boom = require('@hapi/boom')
  *         type: array
  *         items:
  *           $ref: '#/definitions/annotation'
+ *       creator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       contributor:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       illustrator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       publisher:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       translator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
  *       replies:
  *         type: array
  *         items:
@@ -67,6 +87,21 @@ const boom = require('@hapi/boom')
  *       numberOfPages:
  *         type: number
  *       encodingFormat:
+ *         type: string
+ *       url:
+ *         type: string
+ *       dateModified:
+ *         type: string
+ *         format: timestamp
+ *       bookEdition:
+ *         type: string
+ *       isbn:
+ *         type: string
+ *       copyrightYear:
+ *         type: number
+ *       genre:
+ *         type: string
+ *       license:
  *         type: string
  *       readingOrder:
  *         type: array
