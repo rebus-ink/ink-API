@@ -1,0 +1,239 @@
+const request = require('supertest')
+const tap = require('tap')
+const { getToken, createUser, destroyDB } = require('../utils/utils')
+const { urlToId } = require('../../utils/utils')
+
+const test = async app => {
+  const token = getToken()
+  const readerCompleteUrl = await createUser(app, token)
+  const readerId = urlToId(readerCompleteUrl)
+
+  const now = new Date().toISOString()
+
+  // TODO: add more properties when Pull Request is merged
+  const publicationObject = {
+    '@context': [
+      'https://www.w3.org/ns/activitystreams',
+      { reader: 'https://rebus.foundation/ns/reader' }
+    ],
+    type: 'Book',
+    name: 'Publication A',
+    author: ['John Smith'],
+    editor: 'Jane Doe',
+    abstract: 'this is a description!!',
+    numberOfPages: 250,
+    encodingFormat: 'epub',
+    inLanguage: 'English',
+    datePublished: now,
+    links: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example link'
+      }
+    ],
+    readingOrder: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example reading order object1'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example reading order object2'
+      },
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example reading order object3'
+      }
+    ],
+    resources: [
+      {
+        '@context': 'https://www.w3.org/ns/activitystreams',
+        href: 'http://example.org/abc',
+        hreflang: 'en',
+        mediaType: 'text/html',
+        name: 'An example resource'
+      }
+    ],
+    json: { property: 'value' }
+  }
+
+  await tap.test('Create a Simple Publication', async () => {
+    const res = await request(app)
+      .post(`readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          name: 'Publication Simple',
+          type: 'Book'
+        })
+      )
+
+    await tap.equal(res.status, 201)
+
+    const body = res.body
+
+    await tap.equal(body.name, 'Publication Simple')
+    await tap.equal(body.type, 'Book')
+  })
+
+  await tap.test('Create a Publication', async () => {
+    const res = await request(app)
+      .post(`readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(JSON.stringify(publicationObject))
+
+    await tap.equal(res.status, 201)
+
+    const body = res.body
+
+    await tap.equal(body.name, 'Publication A')
+    await tap.equal(body.type, 'Book')
+    await tap.equal(body.abstract, 'this is a descriptio!')
+    await tap.equal(body.json.property, 'value')
+    await tap.equal(body.numberOfPages, 250)
+    await tap.equal(body.encodingFormat, 'epub')
+    await tap.equal(body.inLanguage[0], 'English')
+    await tap.equal(body.author[0].name, 'John Smith')
+    await tap.equal(body.editor[0].name, 'Jane Doe')
+    await tap.equal(body.links.length, 1)
+    await tap.equal(body.readingOrder.length, 3)
+    await tap.equal(body.resources.length, 1)
+  })
+
+  await tap.test('invalid properties should be ignored', async () => {
+    const res = await request(app)
+      .post(`readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          type: 'Book',
+          name: 'Publication B',
+          invalidProp: 'blah blah'
+        })
+      )
+
+    await tap.equal(res.status, 201)
+
+    const body = res.body
+    await tap.equal(body.name, 'Publication B')
+    await tap.notOk(body.invalidProp)
+  })
+
+  await tap.test('trying to create a Publication without a name', async () => {
+    const res = await request(app)
+      .post(`readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          type: 'Book',
+          numberOfPages: 199
+        })
+      )
+
+    await tap.equal(res.status, 400)
+
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.equal(error.details.activity, 'Create Publication')
+    await tap.type(error.details.validation, 'object')
+    await tap.equal(error.details.validation.noteType[0].keyword, 'required')
+    await tap.equal(
+      error.details.validation.noteType[0].params.missingProperty,
+      'name'
+    )
+  })
+
+  await tap.test('trying to create a Publication without a type', async () => {
+    const res = await request(app)
+      .post(`readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          name: 'Publication C',
+          numberOfPages: 199
+        })
+      )
+
+    await tap.equal(res.status, 400)
+
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.details.type, 'Publication')
+    await tap.equal(error.details.activity, 'Create Publication')
+    await tap.type(error.details.validation, 'object')
+    await tap.equal(error.details.validation.noteType[0].keyword, 'required')
+    await tap.equal(
+      error.details.validation.noteType[0].params.missingProperty,
+      'type'
+    )
+  })
+
+  await tap.test(
+    'Try to create a Publication without an invalid json',
+    async () => {
+      const res = await request(app)
+        .post(`readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            json: 'a string'
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.type(error.details.validation, 'object')
+      await tap.equal(error.details.validation.json[0].keyword, 'type')
+      await tap.equal(error.details.validation.json[0].params.type, 'object')
+    }
+  )
+
+  await destroyDB(app)
+}
+
+module.exports = test
