@@ -21,12 +21,23 @@ const test = async app => {
     type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],
+    contributor: ['Sample Contributor'],
+    creator: ['Sample Creator'],
+    illustrator: ['Sample Illustrator'],
+    publisher: ['Sample Publisher'],
+    translator: ['Sample Translator'],
     editor: 'Jane Doe',
     abstract: 'this is a description!!',
     numberOfPages: 250,
     encodingFormat: 'epub',
     inLanguage: 'English',
     datePublished: now,
+    bookEdition: 'third',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1977,
+    genre: 'vampire romance',
+    license: 'http://www.mylicense.com',
     links: [
       {
         '@context': 'https://www.w3.org/ns/activitystreams',
@@ -119,6 +130,17 @@ const test = async app => {
     await tap.equal(body.links.length, 1)
     await tap.equal(body.readingOrder.length, 3)
     await tap.equal(body.resources.length, 1)
+    await tap.equal(body.contributor[0].name, 'Sample Contributor')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher')
+    await tap.equal(body.translator[0].name, 'Sample Translator')
+    await tap.equal(body.bookEdition, 'third')
+    await tap.equal(body.bookFormat, 'EBook')
+    await tap.equal(body.isbn, '1234')
+    await tap.equal(body.copyrightYear, 1977)
+    await tap.equal(body.genre, 'vampire romance')
+    await tap.equal(body.license, 'http://www.mylicense.com')
   })
 
   await tap.test('invalid properties should be ignored', async () => {
