@@ -19,6 +19,7 @@ const outboxGetTests = require('./outbox-get.test')
 const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
 const publicationDeleteTests = require('./publication-delete.test')
+const publicationPostTests = require('./publication-post.test')
 
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader-get.test')
@@ -69,6 +70,7 @@ const allTests = async () => {
     await publicationGetTests(app)
     await publicationUpdateTests(app)
     await publicationDeleteTests(app)
+    await publicationPostTests(app)
   }
 
   if (!test || test === 'reader') {

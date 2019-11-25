@@ -190,9 +190,12 @@ class Publication extends BaseModel {
     props.readerId = reader.id
     props.metadata = metadata
 
-    if (!props.type) {
-      return Error('no type')
-    }
+    // if (!props.type) {
+    //   throw new Error('no type')
+    // }
+    // if (!props.name) {
+    //   throw new Error('no name')
+    // }
 
     if (props.readingOrder) props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
@@ -371,6 +374,16 @@ class Publication extends BaseModel {
         )
       })
       json.attributions = undefined
+    }
+
+    if (json.links && json.links.data) {
+      json.links = json.links.data
+    }
+    if (json.resources && json.resources.data) {
+      json.resources = json.resources.data
+    }
+    if (json.readingOrder && json.readingOrder.data) {
+      json.readingOrder = json.readingOrder.data
     }
 
     if (json.metadata) {
