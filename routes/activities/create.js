@@ -1,8 +1,6 @@
 const { Tag } = require('../../models/Tag')
 const { Activity } = require('../../models/Activity')
-const { Publication } = require('../../models/Publication')
 const { Note } = require('../../models/Note')
-const { Document } = require('../../models/Document')
 const { createActivityObject } = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')

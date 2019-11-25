@@ -190,10 +190,6 @@ class Publication extends BaseModel {
     props.readerId = reader.id
     props.metadata = metadata
 
-    if (!props.type) {
-      return Error('no type')
-    }
-
     if (props.readingOrder) props.readingOrder = { data: props.readingOrder }
     if (props.links) props.links = { data: props.links }
     if (props.resources) props.resources = { data: props.resources }
@@ -210,17 +206,24 @@ class Publication extends BaseModel {
     // create attributions
     for (const type of attributionTypes) {
       if (publication[type]) {
+        if (!_.isString(publication[type]) && !_.isObject(publication[type])) {
+          return new Error(`invalid attribution for ${type}`)
+        }
         if (_.isString(publication[type])) {
           publication[type] = [{ type: 'Person', name: publication[type] }]
         }
         createdPublication[type] = []
         for (const instance of publication[type]) {
-          const createdAttribution = await Attribution.createAttribution(
-            instance,
-            type,
-            createdPublication
-          )
-          createdPublication[type].push(createdAttribution)
+          try {
+            const createdAttribution = await Attribution.createAttribution(
+              instance,
+              type,
+              createdPublication
+            )
+            createdPublication[type].push(createdAttribution)
+          } catch (err) {
+            return err
+          }
         }
       }
     }
@@ -371,6 +374,16 @@ class Publication extends BaseModel {
         )
       })
       json.attributions = undefined
+    }
+
+    if (json.links && json.links.data) {
+      json.links = json.links.data
+    }
+    if (json.resources && json.resources.data) {
+      json.resources = json.resources.data
+    }
+    if (json.readingOrder && json.readingOrder.data) {
+      json.readingOrder = json.readingOrder.data
     }
 
     if (json.metadata) {

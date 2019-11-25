@@ -29,6 +29,9 @@ const searchRoute = require('./routes/search')
 const getJobRoute = require('./routes/job-get')
 const fileUploadPubRoute = require('./routes/file-upload-pub')
 
+// new routes
+const publicationPostRoute = require('./routes/publication-post')
+
 const errorHandling = require('./routes/middleware/error-handling')
 
 const setupKnex = async skip_migrate => {
@@ -187,6 +190,9 @@ readerNotesRoute(app)
 searchRoute(app)
 getJobRoute(app)
 fileUploadPubRoute(app)
+
+// new routes
+publicationPostRoute(app)
 
 app.use(errorHandling)
 

@@ -10,12 +10,14 @@ const {
   createNote
 } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   // reader1
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
   const person = {
@@ -194,6 +196,30 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Activity')
   })
 
+  await tap.test('Try to create a publication for another user', async () => {
+    const res = await request(app)
+      .post(`/readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          name: 'Publication 1',
+          type: 'Book'
+        })
+      )
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Create Publication')
+  })
+
   await tap.test(
     'Try to upload files to a folder belonging to another reader',
     async () => {
@@ -270,6 +296,15 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res7.statusCode, 401)
+
+    // post publication
+    const res8 = await request(app)
+      .post(`/readers/${readerId}/publications`)
+      .set('Host', 'reader-api.test')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res8.statusCode, 401)
   })
 
   await destroyDB(app)
