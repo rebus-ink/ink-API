@@ -23,8 +23,21 @@ const test = async app => {
     name: 'Publication A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
+    contributor: ['Sample Contributor'],
+    creator: ['Sample Creator'],
+    illustrator: ['Sample Illustrator'],
+    publisher: ['Sample Publisher'],
+    translator: ['Sample Translator'],
     abstract: 'this is a description!!',
     inLanguage: 'English',
+    url: 'http://www.something.com',
+    dateModified: now,
+    bookEdition: 'third',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1977,
+    genre: 'vampire romance',
+    license: 'http://www.mylicense.com',
     numberOfPages: 333,
     encodingFormat: 'epub',
     datePublished: now,
@@ -101,12 +114,25 @@ const test = async app => {
             encodingFormat: 'new',
             json: { property: 'New value for json property' },
             inLanguage: ['Swahili', 'French'],
+            url: 'http://www.something2.com',
+            dateModified: new Date(2012, 3, 22).toISOString(),
+            bookEdition: 'fourth',
+            bookFormat: 'Paperback',
+            isbn: '12345',
+            copyrightYear: 1978,
+            genre: 'elf romance',
+            license: 'http://www.mylicense2.com',
             keywords: ['newKeyWord1', 'newKeyWord2'],
             author: [
               { type: 'Person', name: 'New Sample Author' },
               { type: 'Organization', name: 'New Org inc.' }
             ],
-            editor: [{ type: 'Person', name: 'New Sample Editor' }]
+            editor: [{ type: 'Person', name: 'New Sample Editor' }],
+            contributor: ['Sample Contributor2'],
+            creator: ['Sample Creator2'],
+            illustrator: ['Sample Illustrator2'],
+            publisher: ['Sample Publisher2'],
+            translator: ['Sample Translator2']
           }
         })
       )
@@ -145,6 +171,13 @@ const test = async app => {
     await tap.equal(body.json.property, 'New value for json property')
     await tap.equal(body.numberOfPages, 444)
     await tap.equal(body.encodingFormat, 'new')
+    await tap.equal(body.url, 'http://www.something2.com')
+    await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
+    await tap.equal(body.bookEdition, 'fourth')
+    await tap.equal(body.isbn, '12345')
+    await tap.equal(body.copyrightYear, 1978)
+    await tap.equal(body.genre, 'elf romance')
+    await tap.equal(body.license, 'http://www.mylicense2.com')
     await tap.equal(body.inLanguage[0], 'Swahili')
     await tap.equal(body.inLanguage[1], 'French')
     await tap.equal(body.keywords[0], 'newKeyWord1')
@@ -158,14 +191,14 @@ const test = async app => {
         body.author[1].name === 'New Sample Author'
     )
     await tap.equal(body.editor[0].name, 'New Sample Editor')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+    await tap.equal(body.creator[0].name, 'Sample Creator2')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+    await tap.equal(body.translator[0].name, 'Sample Translator2')
     await tap.ok(attributions)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 3)
-    await tap.ok(
-      attributions[0].name === 'New Sample Author' ||
-        attributions[0].name === 'New Org inc.' ||
-        attributions[0].name === 'New Sample Editor'
-    )
+    await tap.equal(attributions.length, 8)
   })
 
   await tap.test(

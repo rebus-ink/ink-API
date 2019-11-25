@@ -45,10 +45,23 @@ const test = async () => {
       name: 'Publication A',
       author: ['John Smith'],
       editor: 'Jane Doe',
+      contributor: ['Sample Contributor'],
+      creator: ['Sample Creator'],
+      illustrator: ['Sample Illustrator'],
+      publisher: ['Sample Publisher'],
+      translator: ['Sample Translator'],
       abstract: 'this is a description!!',
       numberOfPages: 99,
       encodingFormat: 'epub',
       keywords: 'one, two',
+      url: 'http://www.something.com',
+      dateModified: new Date(2020, 11, 11).toISOString(),
+      bookEdition: 'third',
+      bookFormat: 'EBook',
+      isbn: '1234',
+      copyrightYear: 1977,
+      genre: 'vampire romance',
+      license: 'http://www.mylicense.com',
       links: [{ property: 'value' }],
       readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
       resources: [{ property: 'value' }],
@@ -74,21 +87,35 @@ const test = async () => {
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
-    await tap.equal(body.items[0].type, 'Book')
-    await tap.type(body.items[0].id, 'string')
-    await tap.type(body.items[0].name, 'string')
-    await tap.equal(body.items[0].name, 'Publication A')
-    await tap.equal(body.items[0].author[0].name, 'John Smith')
-    await tap.equal(body.items[0].editor[0].name, 'Jane Doe')
-    await tap.equal(body.items[0].keywords, 'one, two')
-    await tap.ok(body.items[0].json)
-    await tap.ok(body.items[0].resources)
-    await tap.equal(body.items[0].abstract, 'this is a description!!')
-    await tap.equal(body.items[0].numberOfPages, 99)
-    await tap.equal(body.items[0].encodingFormat, 'epub')
+    const pub = body.items[0]
+    await tap.equal(pub.type, 'Book')
+    await tap.type(pub.id, 'string')
+    await tap.type(pub.name, 'string')
+    await tap.equal(pub.name, 'Publication A')
+    await tap.equal(pub.author[0].name, 'John Smith')
+    await tap.equal(pub.editor[0].name, 'Jane Doe')
+    await tap.equal(pub.contributor[0].name, 'Sample Contributor')
+    await tap.equal(pub.creator[0].name, 'Sample Creator')
+    await tap.equal(pub.illustrator[0].name, 'Sample Illustrator')
+    await tap.equal(pub.publisher[0].name, 'Sample Publisher')
+    await tap.equal(pub.translator[0].name, 'Sample Translator')
+    await tap.equal(pub.keywords, 'one, two')
+    await tap.ok(pub.json)
+    await tap.ok(pub.resources)
+    await tap.equal(pub.abstract, 'this is a description!!')
+    await tap.equal(pub.numberOfPages, 99)
+    await tap.equal(pub.encodingFormat, 'epub')
+    await tap.equal(pub.url, 'http://www.something.com')
+    await tap.ok(pub.dateModified)
+    await tap.equal(pub.bookEdition, 'third')
+    await tap.equal(pub.bookFormat, 'EBook')
+    await tap.equal(pub.isbn, '1234')
+    await tap.equal(pub.copyrightYear, 1977)
+    await tap.equal(pub.genre, 'vampire romance')
+    await tap.equal(pub.license, 'http://www.mylicense.com')
     // documents should NOT include:
-    await tap.notOk(body.items[0].readingOrder)
-    await tap.notOk(body.items[0].links)
+    await tap.notOk(pub.readingOrder)
+    await tap.notOk(pub.links)
   })
 
   await tap.test(

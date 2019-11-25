@@ -229,6 +229,28 @@ const test = async () => {
     editor: 'John doe'
   })
 
+  // adding for other attribution types
+  await createPublicationSimplified({
+    name: 'new book 3b',
+    contributor: 'John Doe'
+  })
+  await createPublicationSimplified({
+    name: 'new book 3c',
+    creator: 'John Doe'
+  })
+  await createPublicationSimplified({
+    name: 'new book 3d',
+    illustrator: 'John Doe'
+  })
+  await createPublicationSimplified({
+    name: 'new book 3e',
+    publisher: 'John Doe'
+  })
+  await createPublicationSimplified({
+    name: 'new book 3f',
+    translator: 'John Doe'
+  })
+
   await tap.test('Filter Library by attribution', async () => {
     const res = await request(app)
       .get(`${readerUrl}/library?attribution=John%20Doe`)
@@ -245,15 +267,20 @@ const test = async () => {
     await tap.type(body.id, 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
-    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.totalItems, 8)
     await tap.ok(Array.isArray(body.items))
-    await tap.equal(body.items.length, 3)
+    await tap.equal(body.items.length, 8)
     // documents should include:
-    await tap.equal(body.items[0].type, 'Book')
-    await tap.type(body.items[0].id, 'string')
-    await tap.type(body.items[0].name, 'string')
-    await tap.equal(body.items[0].name, 'new book 3')
-    await tap.equal(body.items[0].author[0].name, 'John Smith')
+    await tap.equal(body.items[0].name, 'new book 3f')
+    await tap.equal(body.items[1].name, 'new book 3e')
+    await tap.equal(body.items[2].name, 'new book 3d')
+    await tap.equal(body.items[3].name, 'new book 3c')
+    await tap.equal(body.items[4].name, 'new book 3b')
+    await tap.equal(body.items[5].type, 'Book')
+    await tap.type(body.items[5].id, 'string')
+    await tap.type(body.items[5].name, 'string')
+    await tap.equal(body.items[5].name, 'new book 3')
+    await tap.equal(body.items[5].author[0].name, 'John Smith')
   })
 
   await tap.test(
@@ -267,7 +294,7 @@ const test = async () => {
           'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
         )
 
-      await tap.equal(res1.body.items.length, 3)
+      await tap.equal(res1.body.items.length, 8)
     }
   )
 
@@ -361,7 +388,7 @@ const test = async () => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(res4.body.items.length, 4)
+    await tap.equal(res4.body.items.length, 9)
   })
 
   await tap.test(
@@ -382,18 +409,122 @@ const test = async () => {
 
   // ---------------------------------------- ATTRIBUTION + ROLE -----------------------------------
 
-  await tap.test('Filter Library by attribution and role', async () => {
-    const res = await request(app)
-      .get(`${readerUrl}/library?attribution=John%20D&role=author`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(res.status, 200)
-    await tap.ok(res.body)
-    await tap.equal(res.body.items.length, 2)
-  })
+  await tap.test(
+    'Filter Library by attribution and role - author',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=author`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 2)
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - editor',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=editor`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 10)
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - contributor',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=contributor`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 1)
+      await tap.equal(res.body.items[0].name, 'new book 3b')
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - creator',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=creator`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 1)
+      await tap.equal(res.body.items[0].name, 'new book 3c')
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - illustrator',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=illustrator`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 1)
+      await tap.equal(res.body.items[0].name, 'new book 3d')
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - publisher',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=publisher`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 1)
+      await tap.equal(res.body.items[0].name, 'new book 3e')
+    }
+  )
+
+  await tap.test(
+    'Filter Library by attribution and role - translator',
+    async () => {
+      const res = await request(app)
+        .get(`${readerUrl}/library?attribution=John%20D&role=translator`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.items.length, 1)
+      await tap.equal(res.body.items[0].name, 'new book 3f')
+    }
+  )
 
   await tap.test(
     'Filter Library by attribution and role with pagination',

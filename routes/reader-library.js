@@ -34,6 +34,26 @@ const { libraryCacheGet } = require('../utils/cache')
  *         type: array
  *         items:
  *           $ref: '#/definitions/annotation'
+ *       creator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       contributor:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       illustrator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       publisher:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
+ *       translator:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
  *       replies:
  *         type: array
  *         items:
@@ -44,6 +64,21 @@ const { libraryCacheGet } = require('../utils/cache')
  *       numberOfPages:
  *         type: number
  *       encodingFormat:
+ *         type: string
+ *       url:
+ *         type: string
+ *       dateModified:
+ *         type: string
+ *         format: timestamp
+ *       bookEdition:
+ *         type: string
+ *       isbn:
+ *         type: string
+ *       copyrightYear:
+ *         type: number
+ *       genre:
+ *         type: string
+ *       license:
  *         type: string
  *       resources:
  *         type: array
@@ -145,7 +180,7 @@ module.exports = app => {
    *         name: role
    *         schema:
    *           type: string
-   *           enum: ['author', 'editor']
+   *           enum: ['author', 'editor', 'contributor', 'creator', 'illustrator', 'publisher', 'translator']
    *         description: a modifier for attribution to specify the type of attribution
    *       - in: query
    *         name: author

@@ -28,11 +28,24 @@ const test = async app => {
       { type: 'Organization', name: 'Org inc.' }
     ],
     editor: ['Sample editor'],
+    contributor: ['Sample Contributor'],
+    creator: ['Sample Creator'],
+    illustrator: ['Sample Illustrator'],
+    publisher: ['Sample Publisher'],
+    translator: ['Sample Translator'],
     inLanguage: ['English'],
     keywords: ['key', 'words'],
     numberOfPages: 666,
     encodingFormat: 'epub',
     datePublished: new Date(2011, 3, 20).toISOString(),
+    url: 'http://www.something.com',
+    dateModified: new Date(2012, 4, 25).toISOString(),
+    bookEdition: 'second edition',
+    bookFormat: 'EBook',
+    isbn: '1234',
+    copyrightYear: 1923,
+    genre: 'romance',
+    license: 'http://www.mylicense.com',
     json: {
       property1: 'value1'
     },
@@ -154,14 +167,27 @@ const test = async app => {
       await tap.equal(publication.abstract, 'description of publication A')
       await tap.ok(publication.datePublished)
       await tap.equal(publication.name, 'Publication A')
-      // does not extract attributions yet.
-      await tap.ok(publication.attributions)
       await tap.equal(publication.numberOfPages, 666)
       await tap.equal(publication.encodingFormat, 'epub')
       await tap.equal(publication.json.property1, 'value1')
       await tap.equal(publication.readingOrder.length, 2)
       await tap.equal(publication.links.length, 2)
       await tap.equal(publication.resources.length, 2)
+
+      // attributions
+      const attributions = publication.attributions
+      await tap.ok(attributions)
+      await tap.equal(attributions.length, 8)
+      // metadata
+      const metadata = publication.metadata
+      await tap.equal(metadata.url, 'http://www.something.com')
+      await tap.ok(metadata.dateModified)
+      await tap.equal(metadata.bookEdition, 'second edition')
+      await tap.equal(metadata.bookFormat, 'EBook')
+      await tap.equal(metadata.isbn, '1234')
+      await tap.equal(metadata.copyrightYear, 1923)
+      await tap.equal(metadata.genre, 'romance')
+      await tap.equal(metadata.license, 'http://www.mylicense.com')
     }
   )
 
@@ -449,7 +475,7 @@ const test = async app => {
     )
     await tap.equal(newPub.editor[0].name, 'New Sample Editor')
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 3)
+    await tap.equal(attributions.length, 8)
     await tap.ok(newAuthor1Exists)
     await tap.ok(newAuthor2Exists)
     await tap.ok(newEditorExists)
@@ -459,7 +485,12 @@ const test = async app => {
     const newPubObj = {
       id: publication.id,
       author: ['Sample String Author1', 'Sample String Author2'],
-      editor: ['Sample String Editor1', 'Sample String Editor2']
+      editor: ['Sample String Editor1', 'Sample String Editor2'],
+      contributor: ['New Sample Contributor'],
+      creator: ['New Sample Creator'],
+      illustrator: ['New Sample Illustrator'],
+      publisher: ['New Sample Publisher'],
+      translator: ['New Sample Translator']
     }
 
     const newPub = await Publication.update(newPubObj)
@@ -471,6 +502,11 @@ const test = async app => {
     let author2Exists = false
     let editor1Exists = false
     let editor2Exists = false
+    let contributorExists = false
+    let creatorExists = false
+    let illustratorExists = false
+    let publisherExists = false
+    let translatorExists = false
 
     for (let i = 0; i < attributions.length; i++) {
       if (
@@ -500,16 +536,51 @@ const test = async app => {
       ) {
         editor2Exists = true
       }
+      if (
+        attributions[i].role === 'contributor' &&
+        attributions[i].name === 'New Sample Contributor'
+      ) {
+        contributorExists = true
+      }
+      if (
+        attributions[i].role === 'creator' &&
+        attributions[i].name === 'New Sample Creator'
+      ) {
+        creatorExists = true
+      }
+      if (
+        attributions[i].role === 'illustrator' &&
+        attributions[i].name === 'New Sample Illustrator'
+      ) {
+        illustratorExists = true
+      }
+      if (
+        attributions[i].role === 'publisher' &&
+        attributions[i].name === 'New Sample Publisher'
+      ) {
+        publisherExists = true
+      }
+      if (
+        attributions[i].role === 'translator' &&
+        attributions[i].name === 'New Sample Translator'
+      ) {
+        translatorExists = true
+      }
     }
 
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 4)
+    await tap.equal(attributions.length, 9)
     await tap.ok(author1Exists)
     await tap.ok(author2Exists)
     await tap.ok(editor1Exists)
     await tap.ok(editor2Exists)
+    await tap.ok(contributorExists)
+    await tap.ok(creatorExists)
+    await tap.ok(illustratorExists)
+    await tap.ok(publisherExists)
+    await tap.ok(translatorExists)
   })
 
   await tap.test(
