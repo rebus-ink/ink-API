@@ -22,8 +22,8 @@ const test = async app => {
     name: 'Publication A',
     author: ['John Smith'],
     contributor: ['Sample Contributor'],
-    creator: ['Sample Creator'],
-    illustrator: ['Sample Illustrator'],
+    creator: [{ name: 'Sample Creator' }],
+    illustrator: [{ name: 'Sample Illustrator', type: 'Person' }],
     publisher: ['Sample Publisher'],
     translator: ['Sample Translator'],
     editor: 'Jane Doe',
@@ -251,7 +251,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to create a Publication without an invalid json',
+    'Try to create a Publication with an invalid json',
     async () => {
       const res = await request(app)
         .post(`/readers/${readerId}/publications`)
@@ -277,6 +277,85 @@ const test = async app => {
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.json[0].keyword, 'type')
       await tap.equal(error.details.validation.json[0].params.type, 'object')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid attribution',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            illustrator: 123
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid attribution type',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            creator: [{ name: 'John Smith', type: 'invalid' }]
+          })
+        )
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid attribution object',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            creator: [{ prop: 'value' }]
+          })
+        )
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
     }
   )
 

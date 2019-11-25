@@ -96,6 +96,24 @@ module.exports = function (app) {
                     )
                   )
                 }
+
+                if (createdPub instanceof Error) {
+                  if (createdPub.message.startsWith('invalid attribution')) {
+                    return next(
+                      boom.badRequest(createdPub.message, {
+                        activity: 'Create Publication',
+                        type: 'Publication'
+                      })
+                    )
+                  } else if (createdPub.message === 'no attribution name') {
+                    return next(
+                      boom.badRequest('Attributions should have a name', {
+                        activity: 'Create Publication',
+                        type: 'Publication'
+                      })
+                    )
+                  }
+                }
                 res.setHeader(
                   'Content-Type',
                   'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'

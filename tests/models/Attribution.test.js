@@ -89,10 +89,7 @@ const test = async app => {
         publication
       )
     } catch (err) {
-      await tap.equal(
-        err.message,
-        "Robot is not a valid attribution type. Only 'Person' and 'Organization' are accepted."
-      )
+      await tap.equal(err.message, 'invalid attribution type')
     }
   })
 
