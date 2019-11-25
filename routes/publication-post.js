@@ -34,7 +34,7 @@ module.exports = function (app) {
    *     responses:
    *       201:
    *         description: Successfully created Publication
-   *       404:
+   *       400:
    *         description: Validation error
    *       403:
    *         description: 'Access to reader {id} disallowed'
