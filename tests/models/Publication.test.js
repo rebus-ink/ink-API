@@ -33,7 +33,7 @@ const test = async app => {
     illustrator: ['Sample Illustrator'],
     publisher: ['Sample Publisher'],
     translator: ['Sample Translator'],
-    inLanguage: ['English'],
+    inLanguage: ['en'],
     keywords: ['key', 'words'],
     numberOfPages: 666,
     encodingFormat: 'epub',
@@ -389,7 +389,7 @@ const test = async app => {
   await tap.test('Update publication metadata', async () => {
     const newPubObj = {
       id: publication.id,
-      inLanguage: ['Swahili', 'French'],
+      inLanguage: ['en', 'fr'],
       keywords: ['newKeyWord1', 'newKeyWord2']
     }
 

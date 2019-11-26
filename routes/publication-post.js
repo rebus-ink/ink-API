@@ -112,6 +112,15 @@ module.exports = function (app) {
                         type: 'Publication'
                       })
                     )
+                  } else if (
+                    createdPub.message.startsWith('invalid language')
+                  ) {
+                    return next(
+                      boom.badRequest(createdPub.message, {
+                        activity: 'Create Publication',
+                        type: 'Publication'
+                      })
+                    )
                   }
                 }
                 res.setHeader(

@@ -29,7 +29,7 @@ const createPublication = async (token, readerUrl, number = 1) => {
             author: ['John Smith'],
             editor: 'Jané S. Doe',
             abstract: 'this is a description!!',
-            inLanguage: 'English',
+            inLanguage: 'en',
             links: [
               {
                 '@context': 'https://www.w3.org/ns/activitystreams',

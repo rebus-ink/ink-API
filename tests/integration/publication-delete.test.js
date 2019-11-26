@@ -34,7 +34,7 @@ const test = async app => {
     author: ['John Smith'],
     editor: 'Jané S. Doe',
     abstract: 'this is a description!!',
-    inLanguage: 'English',
+    inLanguage: 'en',
     datePublished: now,
     links: [
       {

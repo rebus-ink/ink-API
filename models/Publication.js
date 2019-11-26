@@ -32,6 +32,8 @@ const attributionTypes = [
   'translator'
 ]
 
+const languagesList = ['en', 'fr', 'de']
+
 /*::
 type PublicationType = {
   id: string,
@@ -169,6 +171,23 @@ class Publication extends BaseModel {
     reader /*: any */,
     publication /*: any */
   ) /*: Promise<PublicationType|Error> */ {
+    if (_.isString(publication.inLanguage)) {
+      publication.inLanguage = [publication.inLanguage]
+    }
+    // check languages
+    let invalid = []
+    if (publication.inLanguage) {
+      publication.inLanguage.forEach(lg => {
+        if (languagesList.indexOf(lg) === -1) {
+          invalid.push(lg)
+        }
+      })
+    }
+    if (invalid.length > 0) {
+      return new Error('invalid language(s): ' + invalid.toString())
+    }
+
+    // store metadata
     const metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]

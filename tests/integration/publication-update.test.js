@@ -29,7 +29,7 @@ const test = async app => {
     publisher: ['Sample Publisher'],
     translator: ['Sample Translator'],
     abstract: 'this is a description!!',
-    inLanguage: 'English',
+    inLanguage: ['en'],
     url: 'http://www.something.com',
     dateModified: now,
     bookEdition: 'third',
@@ -113,7 +113,7 @@ const test = async app => {
             numberOfPages: 444,
             encodingFormat: 'new',
             json: { property: 'New value for json property' },
-            inLanguage: ['Swahili', 'French'],
+            inLanguage: ['en', 'fr'],
             url: 'http://www.something2.com',
             dateModified: new Date(2012, 3, 22).toISOString(),
             bookEdition: 'fourth',
@@ -178,8 +178,8 @@ const test = async app => {
     await tap.equal(body.copyrightYear, 1978)
     await tap.equal(body.genre, 'elf romance')
     await tap.equal(body.license, 'http://www.mylicense2.com')
-    await tap.equal(body.inLanguage[0], 'Swahili')
-    await tap.equal(body.inLanguage[1], 'French')
+    await tap.equal(body.inLanguage[0], 'en')
+    await tap.equal(body.inLanguage[1], 'fr')
     await tap.equal(body.keywords[0], 'newKeyWord1')
     await tap.equal(body.keywords[1], 'newKeyWord2')
     await tap.ok(
@@ -262,7 +262,7 @@ const test = async app => {
               // datePublished: timestamp,
               abstract: 'New description for Publication',
               json: { property: 'New value for json property' },
-              inLanguage: ['Swahili', 'French'],
+              inLanguage: ['en', 'fr'],
               keywords: ['newKeyWord1', 'newKeyWord2'],
               author: [
                 { type: 'Person', name: 'New Sample Author' },

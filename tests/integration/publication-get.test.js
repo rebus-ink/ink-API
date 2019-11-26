@@ -29,7 +29,7 @@ const test = async app => {
     abstract: 'this is a description!!',
     numberOfPages: 250,
     encodingFormat: 'epub',
-    inLanguage: 'English',
+    inLanguage: 'en',
     url: 'http://www.something.com',
     dateModified: now,
     bookEdition: 'third',
@@ -123,7 +123,7 @@ const test = async app => {
     await tap.ok(body.readerId)
     await tap.ok(body.published)
     await tap.ok(body.updated)
-    await tap.equal(body.inLanguage, 'English')
+    await tap.equal(body.inLanguage[0], 'en')
     await tap.equal(body.numberOfPages, 250)
     await tap.equal(body.encodingFormat, 'epub')
     await tap.equal(body.url, 'http://www.something.com')
