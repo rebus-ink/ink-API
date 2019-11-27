@@ -121,6 +121,8 @@ module.exports = function (app) {
                         type: 'Publication'
                       })
                     )
+                  } else {
+                    return next(err)
                   }
                 }
                 res.setHeader(
