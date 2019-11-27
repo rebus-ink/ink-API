@@ -81,10 +81,19 @@ const test = async () => {
     await createPublicationSimplified({ name: 'Publication 7 test' })
     await createPublicationSimplified({ name: 'Publication 8' })
     await createPublicationSimplified({ name: 'Publication 9' })
-    await createPublicationSimplified({ name: 'Publication 10' })
-    await createPublicationSimplified({ name: 'Publication 11' })
+    await createPublicationSimplified({
+      name: 'Publication 10',
+      inLanguage: ['de', 'km']
+    })
+    await createPublicationSimplified({
+      name: 'Publication 11',
+      inLanguage: 'km'
+    })
     await createPublicationSimplified({ name: 'Publication 12' })
-    await createPublicationSimplified({ name: 'Publication 13' })
+    await createPublicationSimplified({
+      name: 'Publication 13',
+      inLanguage: ['km']
+    })
 
     // get whole library to get ids:
     const resLibrary = await request(app)
@@ -301,62 +310,74 @@ const test = async () => {
   await createPublicationSimplified({
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 5',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 6',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 7',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 8 - the sequel',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 9',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en', 'km']
   })
   await createPublicationSimplified({
     name: 'new book 10',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 11',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 12',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 13',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en']
   })
   await createPublicationSimplified({
     name: 'new book 14',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['en', 'fr']
   })
   await createPublicationSimplified({
     name: 'new book 15 - the sequel',
     author: 'Jane Smith',
-    editor: 'John Doe'
+    editor: 'John Doe',
+    inLanguage: ['fr']
   })
 
   await tap.test('Filter by attribution with pagination', async () => {
@@ -647,6 +668,67 @@ const test = async () => {
     }
   )
 
+  // ----------------------------------------------LANGUAGE ------------------------------------
+
+  await tap.test('Filter Library by language', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?language=fr`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.type, 'Collection')
+    await tap.type(body.totalItems, 'number')
+    await tap.equal(body.totalItems, 2)
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 2)
+    // documents should include:
+    await tap.equal(body.items[0].type, 'Book')
+    await tap.type(body.items[0].id, 'string')
+    await tap.type(body.items[0].name, 'string')
+    await tap.equal(body.items[0].name, 'new book 15 - the sequel')
+  })
+
+  await tap.test('Filter by language with pagination', async () => {
+    const res2 = await request(app)
+      .get(`${readerUrl}/library?language=en`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.body.items.length, 10)
+    await tap.equal(res2.body.totalItems, 11)
+
+    const res3 = await request(app)
+      .get(`${readerUrl}/library?language=en&limit=11`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res3.body.items.length, 11)
+
+    const res4 = await request(app)
+      .get(`${readerUrl}/library?language=en&limit=10&page=2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res4.body.items.length, 1)
+    await tap.equal(res4.body.totalItems, 11)
+  })
+
   // ------------------------------------------- COMBINED FILTERS ------------------------------
 
   await tap.test('filter by author and title', async () => {
@@ -661,6 +743,34 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
+  })
+
+  await tap.test('filter by collection and language', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?stack=mystack&language=km`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    const body = res.body
+    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.items.length, 3)
+  })
+
+  await tap.test('filter by author and language', async () => {
+    const res = await request(app)
+      .get(`${readerUrl}/library?author=Jane%20Smith&language=km`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    const body = res.body
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
   })
 
   await tap.test('filter by attribution and title', async () => {
