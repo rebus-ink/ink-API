@@ -81,55 +81,43 @@ const createPublication = async (readerUrl, object = {}) => {
       datePublished: publicationDate,
       readingOrder: [
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
           name: 'An example link'
         },
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc2',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc2',
+          encodingFormat: 'text/html',
           name: 'An example link2'
         }
       ],
       links: [
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc3',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc3',
+          encodingFormat: 'text/html',
           name: 'An example link3'
         },
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc4',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc4',
+          encodingFormat: 'text/html',
           name: 'An example link4'
         }
       ],
       resources: [
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc5',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc5',
+          encodingFormat: 'text/html',
           name: 'An example link5'
         },
         {
-          '@context': 'https://www.w3.org/ns/activitystreams',
           type: 'Link',
-          href: 'http://example.org/abc6',
-          hreflang: 'en',
-          mediaType: 'text/html',
+          url: 'http://example.org/abc6',
+          encodingFormat: 'text/html',
           name: 'An example link6'
         }
       ],

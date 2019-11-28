@@ -62,9 +62,9 @@ const test = async () => {
       copyrightYear: 1977,
       genre: 'vampire romance',
       license: 'http://www.mylicense.com',
-      links: [{ property: 'value' }],
-      readingOrder: [{ name: 'one' }, { name: 'two' }, { name: 'three' }],
-      resources: [{ property: 'value' }],
+      links: [{ url: 'value' }],
+      readingOrder: [{ url: 'one' }, { url: 'two' }, { url: 'three' }],
+      resources: [{ url: 'value' }],
       json: { property: 'value' }
     })
 

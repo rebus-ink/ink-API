@@ -166,6 +166,16 @@ class Publication extends BaseModel {
     }
   }
 
+  static _isValidLink (link /*: any */) /*: boolean */ {
+    if (_.isObject(link) && !link.url) {
+      return false
+    }
+    if (!_.isObject(link) && !_.isString(link)) {
+      return false
+    }
+    return true
+  }
+
   static _validateIncomingPub (publication /*: any */) /*: any */ {
     // check languages
     if (_.isString(publication.inLanguage)) {
@@ -183,7 +193,50 @@ class Publication extends BaseModel {
       throw new Error('invalid language(s): ' + invalid.toString())
     }
 
-    // TODO: add more metadata validation?
+    // check link objects
+    let linksError
+    if (publication.links) {
+      if (!_.isArray(publication.links)) {
+        linksError = `links must be an array of links`
+      } else {
+        publication.links.forEach(link => {
+          if (!this._isValidLink(link)) {
+            linksError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (linksError) throw new Error(linksError)
+
+    // check resources objects
+    let resourcesError
+    if (publication.resources) {
+      if (!_.isArray(publication.resources)) {
+        resourcesError = `links must be an array of links`
+      } else {
+        publication.resources.forEach(link => {
+          if (!this._isValidLink(link)) {
+            resourcesError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (resourcesError) throw new Error(resourcesError)
+
+    // check readingOrder objects
+    let readingOrderError
+    if (publication.readingOrder) {
+      if (!_.isArray(publication.readingOrder)) {
+        readingOrderError = `links must be an array of links`
+      } else {
+        publication.readingOrder.forEach(link => {
+          if (!this._isValidLink(link)) {
+            readingOrderError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (readingOrderError) throw new Error(readingOrderError)
   }
 
   static _formatIncomingPub (
@@ -219,10 +272,27 @@ class Publication extends BaseModel {
     publication.readerId = urlToId(reader.id)
 
     if (publication.readingOrder) {
+      publication.readingOrder.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.readingOrder[i] = { url: link }
+        }
+      })
       publication.readingOrder = { data: publication.readingOrder }
     }
-    if (publication.links) publication.links = { data: publication.links }
-    if (publication.resources) {
+    if (publication.links) {
+      publication.links.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.links[i] = { url: link }
+        }
+      })
+      publication.links = { data: publication.links }
+    }
+    if (publication.resources && _.isArray(publication.resources)) {
+      publication.resources.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.resources[i] = { url: link }
+        }
+      })
       publication.resources = { data: publication.resources }
     }
 
