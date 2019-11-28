@@ -30,7 +30,7 @@ const test = async app => {
     abstract: 'this is a description!!',
     numberOfPages: 250,
     encodingFormat: 'epub',
-    inLanguage: 'English',
+    inLanguage: 'en',
     datePublished: now,
     bookEdition: 'third',
     bookFormat: 'EBook',
@@ -124,7 +124,7 @@ const test = async app => {
     await tap.equal(body.json.property, 'value')
     await tap.equal(body.numberOfPages, 250)
     await tap.equal(body.encodingFormat, 'epub')
-    await tap.equal(body.inLanguage, 'English')
+    await tap.equal(body.inLanguage[0], 'en')
     await tap.equal(body.author[0].name, 'John Smith')
     await tap.equal(body.editor[0].name, 'Jane Doe')
     await tap.equal(body.links.length, 1)
@@ -277,6 +277,33 @@ const test = async app => {
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.json[0].keyword, 'type')
       await tap.equal(error.details.validation.json[0].params.type, 'object')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid language code',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            inLanguage: ['not a valid code', 'another invalid thing']
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
     }
   )
 

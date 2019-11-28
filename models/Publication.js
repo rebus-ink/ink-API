@@ -9,6 +9,7 @@ const { Note } = require('./Note')
 const { urlToId } = require('../utils/utils')
 const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
+const languagesList = require('../utils/languages')
 
 const metadataProps = [
   'inLanguage',
@@ -165,16 +166,42 @@ class Publication extends BaseModel {
     }
   }
 
-  static async createPublication (
+  static _validateIncomingPub (publication /*: any */) /*: any */ {
+    // check languages
+    if (_.isString(publication.inLanguage)) {
+      publication.inLanguage = [publication.inLanguage]
+    }
+    let invalid = []
+    if (publication.inLanguage) {
+      publication.inLanguage.forEach(lg => {
+        if (languagesList.indexOf(lg) === -1) {
+          invalid.push(lg)
+        }
+      })
+    }
+    if (invalid.length > 0) {
+      throw new Error('invalid language(s): ' + invalid.toString())
+    }
+
+    // TODO: add more metadata validation?
+  }
+
+  static _formatIncomingPub (
     reader /*: any */,
     publication /*: any */
-  ) /*: Promise<PublicationType|Error> */ {
+  ) /*: any */ {
+    if (_.isString(publication.inLanguage)) {
+      publication.inLanguage = [publication.inLanguage]
+    }
+
+    // store metadata
     const metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]
     })
+    publication.metadata = metadata
 
-    const props = _.pick(publication, [
+    publication = _.pick(publication, [
       'id',
       'name',
       'type',
@@ -185,20 +212,39 @@ class Publication extends BaseModel {
       'json',
       'readingOrder',
       'resources',
-      'links'
+      'links',
+      'metadata'
     ])
-    props.readerId = reader.id
-    props.metadata = metadata
 
-    if (props.readingOrder) props.readingOrder = { data: props.readingOrder }
-    if (props.links) props.links = { data: props.links }
-    if (props.resources) props.resources = { data: props.resources }
+    publication.readerId = urlToId(reader.id)
 
+    if (publication.readingOrder) {
+      publication.readingOrder = { data: publication.readingOrder }
+    }
+    if (publication.links) publication.links = { data: publication.links }
+    if (publication.resources) {
+      publication.resources = { data: publication.resources }
+    }
+
+    return publication
+  }
+
+  static async createPublication (
+    reader /*: any */,
+    publication /*: any */
+  ) /*: Promise<PublicationType|Error> */ {
+    try {
+      this._validateIncomingPub(publication)
+    } catch (err) {
+      return err
+    }
+
+    const pub = this._formatIncomingPub(reader, publication)
     let createdPublication
     try {
       createdPublication = await Publication.query(
         Publication.knex()
-      ).insertAndFetch(props)
+      ).insertAndFetch(pub)
     } catch (err) {
       return err
     }

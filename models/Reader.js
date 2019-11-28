@@ -80,6 +80,12 @@ class Reader extends BaseModel {
         `%${filter.title.toLowerCase()}%`
       )
     }
+    if (filter.language) {
+      resultQuery = resultQuery.whereJsonSupersetOf(
+        'Publication.metadata:inLanguage',
+        [filter.language]
+      )
+    }
     if (filter.author) {
       resultQuery = resultQuery
         .leftJoin(
@@ -162,6 +168,11 @@ class Reader extends BaseModel {
         if (filter.title) {
           const title = filter.title.toLowerCase()
           builder.where('Publication.name', 'ilike', `%${title}%`)
+        }
+        if (filter.language) {
+          builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
+            filter.language
+          ])
         }
         builder.leftJoin(
           'Attribution',

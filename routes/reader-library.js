@@ -188,6 +188,10 @@ module.exports = app => {
    *           type: string
    *         description: will return only exact matches.
    *       - in: query
+   *         name: language
+   *         schema:
+   *           type: string
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -228,7 +232,8 @@ module.exports = app => {
         title: req.query.title,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack
+        collection: req.query.stack,
+        language: req.query.language
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
