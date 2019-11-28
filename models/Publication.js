@@ -44,6 +44,35 @@ const linkProperties = [
   'type'
 ]
 
+const types = [
+  'Article',
+  'Blog',
+  'Book',
+  'Chapter',
+  'Collection',
+  'Comment',
+  'Conversation',
+  'Course',
+  'Dataset',
+  'Drawing',
+  'Episode',
+  'Manuscript',
+  'Map',
+  'MediaObject',
+  'MusicRecordig',
+  'Painting',
+  'Photograph',
+  'Play',
+  'Poster',
+  'PublicationIssue',
+  'PublicationVolume',
+  'Review',
+  'ShortStory',
+  'Thesis',
+  'VisualArtwork',
+  'WebContent'
+]
+
 /*::
 type PublicationType = {
   id: string,
@@ -202,6 +231,13 @@ class Publication extends BaseModel {
     }
     if (invalid.length > 0) {
       throw new Error('invalid language(s): ' + invalid.toString())
+    }
+
+    // check type -- does not check if type is here. That is checked by objection.js
+    if (publication.type && types.indexOf(publication.type) === -1) {
+      throw new Error(
+        `${publication.type} is not a valid type for a publication`
+      )
     }
 
     // check link objects
