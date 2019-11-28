@@ -73,6 +73,14 @@ const types = [
   'WebContent'
 ]
 
+const bookFormats = [
+  'AudiobookFormat',
+  'EBook',
+  'GraphicNovel',
+  'Hardcover',
+  'Paperback'
+]
+
 /*::
 type PublicationType = {
   id: string,
@@ -240,6 +248,49 @@ class Publication extends BaseModel {
       )
     }
 
+    // check dateModified - should be a timestamp
+    if (
+      publication.dateModified &&
+      !(new Date(publication.dateModified).getTime() > 0)
+    ) {
+      throw new Error(`${publication.dateModified} is not a valid timestamp`)
+    }
+
+    // check bookEdition - should be a string
+    if (publication.bookEdition && !_.isString(publication.bookEdition)) {
+      throw new Error('bookEdition should be a string')
+    }
+
+    // check bookFormat
+    if (
+      publication.bookFormat &&
+      bookFormats.indexOf(publication.bookFormat) === -1
+    ) {
+      throw new Error(`${publication.bookFormat} is not avalid bookFormat`)
+    }
+
+    // check isbn - should be string.
+    if (publication.isbn && !_.isString(publication.isbn)) {
+      throw new Error('isbn should be a string')
+    }
+
+    // check keywords - should be a string or an array of strings
+    if (publication.keywords) {
+      let keywordError
+      if (_.isArray(publication.keywords)) {
+        publication.keywords.forEach(word => {
+          if (!_.isString(word)) {
+            keywordError = 'keywords should be strings'
+          }
+        })
+      } else if (!_.isString(publication.keywords)) {
+        keywordError = 'keywords should be a string or an array of strings'
+      }
+      if (keywordError) {
+        throw new Error(keywordError)
+      }
+    }
+
     // check link objects
     let linksError
     if (publication.links) {
@@ -290,8 +341,16 @@ class Publication extends BaseModel {
     reader /*: any */,
     publication /*: any */
   ) /*: any */ {
+    // IMPORTANT: formating for the metadata property should be done here, before it is stored in a metadata object
+
+    // language
     if (_.isString(publication.inLanguage)) {
       publication.inLanguage = [publication.inLanguage]
+    }
+
+    // keywords
+    if (publication.keywords && _.isString(publication.keywords)) {
+      publication.keywords = [publication.keywords]
     }
 
     // store metadata

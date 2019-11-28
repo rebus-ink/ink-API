@@ -34,6 +34,7 @@ const test = async app => {
     dateModified: now,
     bookEdition: 'third',
     bookFormat: 'EBook',
+    keywords: ['one', 'two'],
     isbn: '1234',
     copyrightYear: 1977,
     genre: 'vampire romance',
@@ -126,7 +127,7 @@ const test = async app => {
           }
         })
       )
-
+    console.log(res.error)
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
 
