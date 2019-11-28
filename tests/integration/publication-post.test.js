@@ -213,6 +213,100 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Link objects should only save recognized properties',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication Links',
+            type: 'Book',
+            links: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my link',
+                description: 'this is a link to a thing',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 42,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ],
+            resources: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my resource',
+                description: 'this is a link to a resource',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 43,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ],
+            readingOrder: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my reading',
+                description: 'this is a link to a reading',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 44,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ]
+          })
+        )
+
+      await tap.equal(res.status, 201)
+
+      const body = res.body
+      const link = body.links[0]
+      await tap.equal(link.url, 'http://www.something.com')
+      await tap.equal(link.encodingFormat, 'text')
+      await tap.equal(link.name, 'my link')
+      await tap.equal(link.description, 'this is a link to a thing')
+      await tap.equal(link.rel, 'something')
+      await tap.equal(link.integrity, 'unknown')
+      await tap.equal(link.length, 42)
+      await tap.equal(link.type, 'Link')
+      await tap.notOk(link.property1)
+
+      const resource = body.resources[0]
+      await tap.equal(resource.url, 'http://www.something.com')
+      await tap.equal(resource.encodingFormat, 'text')
+      await tap.equal(resource.name, 'my resource')
+      await tap.equal(resource.description, 'this is a link to a resource')
+      await tap.equal(resource.rel, 'something')
+      await tap.equal(resource.integrity, 'unknown')
+      await tap.equal(resource.length, 43)
+      await tap.equal(resource.type, 'Link')
+      await tap.notOk(resource.property1)
+
+      const reading = body.readingOrder[0]
+      await tap.equal(reading.url, 'http://www.something.com')
+      await tap.equal(reading.encodingFormat, 'text')
+      await tap.equal(reading.name, 'my reading')
+      await tap.equal(reading.description, 'this is a link to a reading')
+      await tap.equal(reading.rel, 'something')
+      await tap.equal(reading.integrity, 'unknown')
+      await tap.equal(reading.length, 44)
+      await tap.equal(reading.type, 'Link')
+      await tap.notOk(reading.property1)
+    }
+  )
+
   // await tap.test('Create a Publication with keywords as a single string', async () => {
   //   const res = await request(app)
   //     .post(`/readers/${readerId}/publications`)

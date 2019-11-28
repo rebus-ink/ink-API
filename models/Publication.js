@@ -33,6 +33,17 @@ const attributionTypes = [
   'translator'
 ]
 
+const linkProperties = [
+  'url',
+  'encodingFormat',
+  'name',
+  'description',
+  'rel',
+  'integrity',
+  'length',
+  'type'
+]
+
 /*::
 type PublicationType = {
   id: string,
@@ -275,6 +286,8 @@ class Publication extends BaseModel {
       publication.readingOrder.forEach((link, i) => {
         if (_.isString(link)) {
           publication.readingOrder[i] = { url: link }
+        } else {
+          publication.readingOrder[i] = _.pick(link, linkProperties)
         }
       })
       publication.readingOrder = { data: publication.readingOrder }
@@ -283,6 +296,8 @@ class Publication extends BaseModel {
       publication.links.forEach((link, i) => {
         if (_.isString(link)) {
           publication.links[i] = { url: link }
+        } else {
+          publication.links[i] = _.pick(link, linkProperties)
         }
       })
       publication.links = { data: publication.links }
@@ -291,6 +306,8 @@ class Publication extends BaseModel {
       publication.resources.forEach((link, i) => {
         if (_.isString(link)) {
           publication.resources[i] = { url: link }
+        } else {
+          publication.resources[i] = _.pick(link, linkProperties)
         }
       })
       publication.resources = { data: publication.resources }
