@@ -45,6 +45,7 @@ const linkProperties = [
 ]
 
 const types = [
+  'Publication',
   'Article',
   'Blog',
   'Book',
@@ -274,6 +275,16 @@ class Publication extends BaseModel {
       throw new Error('isbn should be a string')
     }
 
+    // check genre - should be a string
+    if (publication.genre && !_.isString(publication.genre)) {
+      throw new Error('genre should be a string')
+    }
+
+    // check url - should be a string
+    if (publication.url && !_.isString(publication.url)) {
+      throw new Error('url should be a string')
+    }
+
     // check keywords - should be a string or an array of strings
     if (publication.keywords) {
       let keywordError
@@ -375,7 +386,9 @@ class Publication extends BaseModel {
       'metadata'
     ])
 
-    publication.readerId = urlToId(reader.id)
+    if (reader) {
+      publication.readerId = urlToId(reader.id)
+    }
 
     if (publication.readingOrder) {
       publication.readingOrder.forEach((link, i) => {
@@ -514,42 +527,18 @@ class Publication extends BaseModel {
   static async update (
     newPubObj /*: any */
   ) /*: Promise<PublicationType|null> */ {
-    // Create metadata
-    const metadata = {}
-    metadataProps.forEach(property => {
-      metadata[property] = newPubObj[property]
-    })
+    try {
+      this._validateIncomingPub(newPubObj)
+    } catch (err) {
+      return err
+    }
+
+    const modifications = this._formatIncomingPub(null, newPubObj)
 
     // Fetch the Publication that will be modified
     let publication = await Publication.query().findById(urlToId(newPubObj.id))
     if (!publication) {
       return null
-    }
-
-    const modifications = _.pick(newPubObj, [
-      'name',
-      'abstract',
-      'type',
-      'datePublished',
-      'json',
-      'readingOrder',
-      'resources',
-      'links',
-      'numberOfPages',
-      'encodingFormat'
-    ])
-
-    if (metadata) {
-      modifications.metadata = metadata
-    }
-
-    if (modifications.readingOrder) {
-      // $FlowFixMe
-      modifcations.readingOrder = { data: modifications.readingOrder }
-    }
-    if (modifications.links) modifications.links = { data: modifications.links }
-    if (modifications.resources) {
-      modifications.resources = { data: modifications.resources }
     }
 
     let updatedPub
@@ -561,7 +550,6 @@ class Publication extends BaseModel {
     } catch (err) {
       return err
     }
-
     // Update Attributions if necessary
     for (const role of attributionTypes) {
       if (newPubObj[role]) {

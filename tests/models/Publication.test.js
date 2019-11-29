@@ -255,6 +255,7 @@ const test = async app => {
 
     // Update the publication
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -287,6 +288,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -306,6 +308,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -322,6 +325,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -338,6 +342,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -354,6 +359,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -366,17 +372,17 @@ const test = async app => {
   await tap.test('Update publication type', async () => {
     const newPubObj = {
       id: publication.id,
-      type: 'article'
+      type: 'Article'
     }
 
     const newPub = await Publication.update(newPubObj)
-
+    await tap.notOk(newPub instanceof Error)
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
 
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(pubRetrieved.type, 'article')
+    await tap.equal(pubRetrieved.type, 'Article')
   })
 
   await tap.test('Update publication metadata', async () => {
@@ -387,6 +393,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -422,6 +429,8 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
+
     const attributions = await Attribution.getAttributionByPubId(
       urlToId(publication.id)
     )
@@ -487,6 +496,8 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
+
     const attributions = await Attribution.getAttributionByPubId(
       urlToId(publication.id)
     )

@@ -53,7 +53,7 @@ const test = async () => {
       abstract: 'this is a description!!',
       numberOfPages: 99,
       encodingFormat: 'epub',
-      keywords: 'one, two',
+      keywords: ['one', 'two'],
       url: 'http://www.something.com',
       dateModified: new Date(2020, 11, 11).toISOString(),
       bookEdition: 'third',
@@ -99,7 +99,7 @@ const test = async () => {
     await tap.equal(pub.illustrator[0].name, 'Sample Illustrator')
     await tap.equal(pub.publisher[0].name, 'Sample Publisher')
     await tap.equal(pub.translator[0].name, 'Sample Translator')
-    await tap.equal(pub.keywords, 'one, two')
+    await tap.equal(pub.keywords[0], 'one')
     await tap.ok(pub.json)
     await tap.ok(pub.resources)
     await tap.equal(pub.abstract, 'this is a description!!')

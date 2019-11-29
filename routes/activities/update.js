@@ -83,6 +83,14 @@ const handleUpdate = async (req, res, next, reader) => {
           })
         )
       }
+      if (resultPub instanceof Error) {
+        return next(
+          boom.badRequest(resultPub.message, {
+            type: 'Publication',
+            activity: 'Update Publication'
+          })
+        )
+      }
 
       const activityObjPub = createActivityObject(body, resultPub, reader)
       const pubActivity = await Activity.createActivity(activityObjPub)
