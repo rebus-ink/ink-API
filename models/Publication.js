@@ -21,7 +21,8 @@ const metadataProps = [
   'isbn',
   'copyrightYear',
   'genre',
-  'license'
+  'license',
+  'inDirection'
 ]
 const attributionTypes = [
   'author',
@@ -30,7 +31,8 @@ const attributionTypes = [
   'creator',
   'illustrator',
   'publisher',
-  'translator'
+  'translator',
+  'copyrightHolder'
 ]
 
 const linkProperties = [
@@ -346,6 +348,13 @@ class Publication extends BaseModel {
       }
     }
     if (readingOrderError) throw new Error(readingOrderError)
+    if (
+      publication.inDirection &&
+      publication.inDirection !== 'ltr' &&
+      publication.inDirection !== 'rtl'
+    ) {
+      throw new Error('inDirection should be either "ltr" or "rtl"')
+    }
   }
 
   static _formatIncomingPub (

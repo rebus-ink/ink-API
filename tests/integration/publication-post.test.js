@@ -38,6 +38,8 @@ const test = async app => {
     copyrightYear: 1977,
     genre: 'vampire romance',
     license: 'http://www.mylicense.com',
+    inDirection: 'ltr',
+    copyrightHolder: 'Joe Smith',
     links: [
       {
         url: 'http://example.org/abc',
@@ -130,6 +132,8 @@ const test = async app => {
     await tap.equal(body.copyrightYear, 1977)
     await tap.equal(body.genre, 'vampire romance')
     await tap.equal(body.license, 'http://www.mylicense.com')
+    await tap.equal(body.inDirection, 'ltr')
+    await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
   })
 
   await tap.test('invalid properties should be ignored', async () => {
@@ -848,6 +852,33 @@ const test = async app => {
             creator: [{ prop: 'value' }]
           })
         )
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid inDirection value',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            inDirection: 'invalid value'
+          })
+        )
+
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
