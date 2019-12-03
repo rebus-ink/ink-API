@@ -51,55 +51,48 @@ const test = async app => {
     },
     readingOrder: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example link'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc2',
+        url: 'http://example.org/abc2',
         hreflang: 'en',
-        mediaType: 'text/html',
+        encodingFormat: 'text/html',
         name: 'An example link2'
       }
     ],
     links: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc3',
+        url: 'http://example.org/abc3',
         hreflang: 'en',
-        mediaType: 'text/html',
+        encodingFormat: 'text/html',
         name: 'An example link3'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc4',
+        url: 'http://example.org/abc4',
         hreflang: 'en',
-        mediaType: 'text/html',
+        encodingFormat: 'text/html',
         name: 'An example link4'
       }
     ],
     resources: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc5',
+        url: 'http://example.org/abc5',
         hreflang: 'en',
-        mediaType: 'text/html',
+        encodingFormat: 'text/html',
         name: 'An example link5'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
         type: 'Link',
-        href: 'http://example.org/abc6',
+        url: 'http://example.org/abc6',
         hreflang: 'en',
-        mediaType: 'text/html',
+        encodingFormat: 'text/html',
         name: 'An example link6'
       }
     ]
@@ -262,6 +255,7 @@ const test = async app => {
 
     // Update the publication
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -294,6 +288,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -313,6 +308,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -329,6 +325,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -345,6 +342,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -361,6 +359,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -373,17 +372,17 @@ const test = async app => {
   await tap.test('Update publication type', async () => {
     const newPubObj = {
       id: publication.id,
-      type: 'article'
+      type: 'Article'
     }
 
     const newPub = await Publication.update(newPubObj)
-
+    await tap.notOk(newPub instanceof Error)
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
 
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
-    await tap.equal(pubRetrieved.type, 'article')
+    await tap.equal(pubRetrieved.type, 'Article')
   })
 
   await tap.test('Update publication metadata', async () => {
@@ -394,6 +393,7 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
 
     // Retrieve the Publication that has just been updated
     const pubRetrieved = await Publication.byId(urlToId(newPub.id))
@@ -429,6 +429,8 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
+
     const attributions = await Attribution.getAttributionByPubId(
       urlToId(publication.id)
     )
@@ -494,6 +496,8 @@ const test = async app => {
     }
 
     const newPub = await Publication.update(newPubObj)
+    await tap.notOk(newPub instanceof Error)
+
     const attributions = await Attribution.getAttributionByPubId(
       urlToId(publication.id)
     )

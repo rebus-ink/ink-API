@@ -41,42 +41,32 @@ const test = async app => {
     datePublished: now,
     links: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example link'
       }
     ],
     readingOrder: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object1'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object2'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object3'
       }
     ],
     resources: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example resource'
       }
     ],

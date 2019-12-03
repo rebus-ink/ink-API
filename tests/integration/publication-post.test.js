@@ -40,42 +40,32 @@ const test = async app => {
     license: 'http://www.mylicense.com',
     links: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example link'
       }
     ],
     readingOrder: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object1'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object2'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object3'
       }
     ],
     resources: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example resource'
       }
     ],
@@ -115,7 +105,6 @@ const test = async app => {
       .send(JSON.stringify(publicationObject))
 
     await tap.equal(res.status, 201)
-
     const body = res.body
 
     await tap.equal(body.name, 'Publication A')
@@ -190,6 +179,159 @@ const test = async app => {
     await tap.equal(body.items[1].name, 'Publication A')
     await tap.equal(body.items[2].name, 'Publication Simple')
   })
+
+  await tap.test(
+    'Create a Publication with link objects as strings',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication Links',
+            type: 'Book',
+            links: ['http://www.something.com'],
+            resources: [
+              { url: 'http://www.somethingelse' },
+              'http://www.something.com'
+            ],
+            readingOrder: ['http://www.something.com']
+          })
+        )
+
+      await tap.equal(res.status, 201)
+
+      const body = res.body
+      // link strings put into a Link object with only a url property
+      await tap.equal(body.links[0].url, 'http://www.something.com')
+      await tap.equal(body.resources[1].url, 'http://www.something.com')
+      await tap.equal(body.readingOrder[0].url, 'http://www.something.com')
+    }
+  )
+
+  await tap.test(
+    'Link objects should only save recognized properties',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication Links',
+            type: 'Book',
+            links: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my link',
+                description: 'this is a link to a thing',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 42,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ],
+            resources: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my resource',
+                description: 'this is a link to a resource',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 43,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ],
+            readingOrder: [
+              {
+                url: 'http://www.something.com',
+                encodingFormat: 'text',
+                name: 'my reading',
+                description: 'this is a link to a reading',
+                rel: 'something',
+                integrity: 'unknown',
+                length: 44,
+                type: 'Link',
+                property1: 'value' // should not be saved
+              }
+            ]
+          })
+        )
+
+      await tap.equal(res.status, 201)
+
+      const body = res.body
+      const link = body.links[0]
+      await tap.equal(link.url, 'http://www.something.com')
+      await tap.equal(link.encodingFormat, 'text')
+      await tap.equal(link.name, 'my link')
+      await tap.equal(link.description, 'this is a link to a thing')
+      await tap.equal(link.rel, 'something')
+      await tap.equal(link.integrity, 'unknown')
+      await tap.equal(link.length, 42)
+      await tap.equal(link.type, 'Link')
+      await tap.notOk(link.property1)
+
+      const resource = body.resources[0]
+      await tap.equal(resource.url, 'http://www.something.com')
+      await tap.equal(resource.encodingFormat, 'text')
+      await tap.equal(resource.name, 'my resource')
+      await tap.equal(resource.description, 'this is a link to a resource')
+      await tap.equal(resource.rel, 'something')
+      await tap.equal(resource.integrity, 'unknown')
+      await tap.equal(resource.length, 43)
+      await tap.equal(resource.type, 'Link')
+      await tap.notOk(resource.property1)
+
+      const reading = body.readingOrder[0]
+      await tap.equal(reading.url, 'http://www.something.com')
+      await tap.equal(reading.encodingFormat, 'text')
+      await tap.equal(reading.name, 'my reading')
+      await tap.equal(reading.description, 'this is a link to a reading')
+      await tap.equal(reading.rel, 'something')
+      await tap.equal(reading.integrity, 'unknown')
+      await tap.equal(reading.length, 44)
+      await tap.equal(reading.type, 'Link')
+      await tap.notOk(reading.property1)
+    }
+  )
+
+  await tap.test(
+    'Create a Publication with keywords as a single string',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication Keyword',
+            type: 'Book',
+            keywords: 'just one keyword'
+          })
+        )
+
+      await tap.equal(res.status, 201)
+
+      const body = res.body
+      // keyword put into an array
+      await tap.equal(body.keywords[0], 'just one keyword')
+    }
+  )
 
   await tap.test('trying to create a Publication without a name', async () => {
     const res = await request(app)
@@ -295,6 +437,335 @@ const test = async app => {
             name: 'Publication C',
             type: 'Book',
             inLanguage: ['not a valid code', 'another invalid thing']
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid link object',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            links: [{ property: 'value' }]
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+
+      const res2 = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            resources: 123
+          })
+        )
+
+      await tap.equal(res2.status, 400)
+      const error2 = JSON.parse(res2.text)
+      await tap.equal(error2.statusCode, 400)
+      await tap.equal(error2.error, 'Bad Request')
+      await tap.equal(error2.details.type, 'Publication')
+      await tap.equal(error2.details.activity, 'Create Publication')
+
+      const res3 = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            readingOrder: [123, 456]
+          })
+        )
+
+      await tap.equal(res3.status, 400)
+      const error3 = JSON.parse(res3.text)
+      await tap.equal(error3.statusCode, 400)
+      await tap.equal(error3.error, 'Bad Request')
+      await tap.equal(error3.details.type, 'Publication')
+      await tap.equal(error3.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid type',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'not valid'
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+
+      const res2 = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 123
+          })
+        )
+
+      await tap.equal(res2.status, 400)
+      const error2 = JSON.parse(res2.text)
+      await tap.equal(error2.statusCode, 400)
+      await tap.equal(error2.error, 'Bad Request')
+      await tap.equal(error2.details.type, 'Publication')
+      await tap.equal(error2.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid dateModified',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            dateModified: 'not a date'
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid bookEdition',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            bookEdition: { property: 'value' }
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid book format',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            bookFormat: 'invalid format'
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+
+      const res2 = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            bookFormat: 123
+          })
+        )
+
+      await tap.equal(res2.status, 400)
+      const error2 = JSON.parse(res2.text)
+      await tap.equal(error2.statusCode, 400)
+      await tap.equal(error2.error, 'Bad Request')
+      await tap.equal(error2.details.type, 'Publication')
+      await tap.equal(error2.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid isbn',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            isbn: 1.23
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid keywords',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            keywords: 1.23
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid genre',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            genre: ['something', 'else']
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid url',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            url: 1.23
           })
         )
 

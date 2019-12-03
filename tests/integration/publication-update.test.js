@@ -34,6 +34,7 @@ const test = async app => {
     dateModified: now,
     bookEdition: 'third',
     bookFormat: 'EBook',
+    keywords: ['one', 'two'],
     isbn: '1234',
     copyrightYear: 1977,
     genre: 'vampire romance',
@@ -43,42 +44,32 @@ const test = async app => {
     datePublished: now,
     links: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example link'
       }
     ],
     readingOrder: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object1'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object2'
       },
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example reading order object3'
       }
     ],
     resources: [
       {
-        '@context': 'https://www.w3.org/ns/activitystreams',
-        href: 'http://example.org/abc',
-        hreflang: 'en',
-        mediaType: 'text/html',
+        url: 'http://example.org/abc',
+        encodingFormat: 'text/html',
         name: 'An example resource'
       }
     ],
@@ -136,10 +127,8 @@ const test = async app => {
           }
         })
       )
-
     await tap.equal(res.status, 201)
     await tap.type(res.get('Location'), 'string')
-
     const updateActivityUrl = res.get('Location')
 
     const updateActivityObject = await getActivityFromUrl(
@@ -235,6 +224,40 @@ const test = async app => {
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.name[0].keyword, 'type')
       await tap.equal(error.details.validation.name[0].params.type, 'string')
+    }
+  )
+
+  await tap.test(
+    'Try to update a Publication to an invalid metadata value',
+    async () => {
+      const res = await request(app)
+        .post(`${readerUrl}/activity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Update',
+            object: {
+              type: 'Publication',
+              id: publicationUrl,
+              genre: 123
+            }
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Update Publication')
     }
   )
 

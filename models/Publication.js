@@ -33,6 +33,55 @@ const attributionTypes = [
   'translator'
 ]
 
+const linkProperties = [
+  'url',
+  'encodingFormat',
+  'name',
+  'description',
+  'rel',
+  'integrity',
+  'length',
+  'type'
+]
+
+const types = [
+  'Publication',
+  'Article',
+  'Blog',
+  'Book',
+  'Chapter',
+  'Collection',
+  'Comment',
+  'Conversation',
+  'Course',
+  'Dataset',
+  'Drawing',
+  'Episode',
+  'Manuscript',
+  'Map',
+  'MediaObject',
+  'MusicRecordig',
+  'Painting',
+  'Photograph',
+  'Play',
+  'Poster',
+  'PublicationIssue',
+  'PublicationVolume',
+  'Review',
+  'ShortStory',
+  'Thesis',
+  'VisualArtwork',
+  'WebContent'
+]
+
+const bookFormats = [
+  'AudiobookFormat',
+  'EBook',
+  'GraphicNovel',
+  'Hardcover',
+  'Paperback'
+]
+
 /*::
 type PublicationType = {
   id: string,
@@ -166,6 +215,16 @@ class Publication extends BaseModel {
     }
   }
 
+  static _isValidLink (link /*: any */) /*: boolean */ {
+    if (_.isObject(link) && !link.url) {
+      return false
+    }
+    if (!_.isObject(link) && !_.isString(link)) {
+      return false
+    }
+    return true
+  }
+
   static _validateIncomingPub (publication /*: any */) /*: any */ {
     // check languages
     if (_.isString(publication.inLanguage)) {
@@ -183,15 +242,126 @@ class Publication extends BaseModel {
       throw new Error('invalid language(s): ' + invalid.toString())
     }
 
-    // TODO: add more metadata validation?
+    // check type -- does not check if type is here. That is checked by objection.js
+    if (publication.type && types.indexOf(publication.type) === -1) {
+      throw new Error(
+        `${publication.type} is not a valid type for a publication`
+      )
+    }
+
+    // check dateModified - should be a timestamp
+    if (
+      publication.dateModified &&
+      !(new Date(publication.dateModified).getTime() > 0)
+    ) {
+      throw new Error(`${publication.dateModified} is not a valid timestamp`)
+    }
+
+    // check bookEdition - should be a string
+    if (publication.bookEdition && !_.isString(publication.bookEdition)) {
+      throw new Error('bookEdition should be a string')
+    }
+
+    // check bookFormat
+    if (
+      publication.bookFormat &&
+      bookFormats.indexOf(publication.bookFormat) === -1
+    ) {
+      throw new Error(`${publication.bookFormat} is not avalid bookFormat`)
+    }
+
+    // check isbn - should be string.
+    if (publication.isbn && !_.isString(publication.isbn)) {
+      throw new Error('isbn should be a string')
+    }
+
+    // check genre - should be a string
+    if (publication.genre && !_.isString(publication.genre)) {
+      throw new Error('genre should be a string')
+    }
+
+    // check url - should be a string
+    if (publication.url && !_.isString(publication.url)) {
+      throw new Error('url should be a string')
+    }
+
+    // check keywords - should be a string or an array of strings
+    if (publication.keywords) {
+      let keywordError
+      if (_.isArray(publication.keywords)) {
+        publication.keywords.forEach(word => {
+          if (!_.isString(word)) {
+            keywordError = 'keywords should be strings'
+          }
+        })
+      } else if (!_.isString(publication.keywords)) {
+        keywordError = 'keywords should be a string or an array of strings'
+      }
+      if (keywordError) {
+        throw new Error(keywordError)
+      }
+    }
+
+    // check link objects
+    let linksError
+    if (publication.links) {
+      if (!_.isArray(publication.links)) {
+        linksError = `links must be an array of links`
+      } else {
+        publication.links.forEach(link => {
+          if (!this._isValidLink(link)) {
+            linksError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (linksError) throw new Error(linksError)
+
+    // check resources objects
+    let resourcesError
+    if (publication.resources) {
+      if (!_.isArray(publication.resources)) {
+        resourcesError = `links must be an array of links`
+      } else {
+        publication.resources.forEach(link => {
+          if (!this._isValidLink(link)) {
+            resourcesError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (resourcesError) throw new Error(resourcesError)
+
+    // check readingOrder objects
+    let readingOrderError
+    if (publication.readingOrder) {
+      if (!_.isArray(publication.readingOrder)) {
+        readingOrderError = `links must be an array of links`
+      } else {
+        publication.readingOrder.forEach(link => {
+          if (!this._isValidLink(link)) {
+            readingOrderError = `links must be either a string or an object with a url property`
+          }
+        })
+      }
+    }
+    if (readingOrderError) throw new Error(readingOrderError)
   }
 
   static _formatIncomingPub (
     reader /*: any */,
     publication /*: any */
   ) /*: any */ {
+    // IMPORTANT: formating for the metadata property should be done here, before it is stored in a metadata object
+
+    // language
     if (_.isString(publication.inLanguage)) {
       publication.inLanguage = [publication.inLanguage]
+    }
+
+    // keywords
+    if (publication.keywords && _.isString(publication.keywords)) {
+      publication.keywords = [publication.keywords]
     }
 
     // store metadata
@@ -216,13 +386,38 @@ class Publication extends BaseModel {
       'metadata'
     ])
 
-    publication.readerId = urlToId(reader.id)
+    if (reader) {
+      publication.readerId = urlToId(reader.id)
+    }
 
     if (publication.readingOrder) {
+      publication.readingOrder.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.readingOrder[i] = { url: link }
+        } else {
+          publication.readingOrder[i] = _.pick(link, linkProperties)
+        }
+      })
       publication.readingOrder = { data: publication.readingOrder }
     }
-    if (publication.links) publication.links = { data: publication.links }
-    if (publication.resources) {
+    if (publication.links) {
+      publication.links.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.links[i] = { url: link }
+        } else {
+          publication.links[i] = _.pick(link, linkProperties)
+        }
+      })
+      publication.links = { data: publication.links }
+    }
+    if (publication.resources && _.isArray(publication.resources)) {
+      publication.resources.forEach((link, i) => {
+        if (_.isString(link)) {
+          publication.resources[i] = { url: link }
+        } else {
+          publication.resources[i] = _.pick(link, linkProperties)
+        }
+      })
       publication.resources = { data: publication.resources }
     }
 
@@ -332,42 +527,18 @@ class Publication extends BaseModel {
   static async update (
     newPubObj /*: any */
   ) /*: Promise<PublicationType|null> */ {
-    // Create metadata
-    const metadata = {}
-    metadataProps.forEach(property => {
-      metadata[property] = newPubObj[property]
-    })
+    try {
+      this._validateIncomingPub(newPubObj)
+    } catch (err) {
+      return err
+    }
+
+    const modifications = this._formatIncomingPub(null, newPubObj)
 
     // Fetch the Publication that will be modified
     let publication = await Publication.query().findById(urlToId(newPubObj.id))
     if (!publication) {
       return null
-    }
-
-    const modifications = _.pick(newPubObj, [
-      'name',
-      'abstract',
-      'type',
-      'datePublished',
-      'json',
-      'readingOrder',
-      'resources',
-      'links',
-      'numberOfPages',
-      'encodingFormat'
-    ])
-
-    if (metadata) {
-      modifications.metadata = metadata
-    }
-
-    if (modifications.readingOrder) {
-      // $FlowFixMe
-      modifcations.readingOrder = { data: modifications.readingOrder }
-    }
-    if (modifications.links) modifications.links = { data: modifications.links }
-    if (modifications.resources) {
-      modifications.resources = { data: modifications.resources }
     }
 
     let updatedPub
@@ -379,7 +550,6 @@ class Publication extends BaseModel {
     } catch (err) {
       return err
     }
-
     // Update Attributions if necessary
     for (const role of attributionTypes) {
       if (newPubObj[role]) {
