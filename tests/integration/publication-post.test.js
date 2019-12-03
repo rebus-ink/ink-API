@@ -29,6 +29,9 @@ const test = async app => {
     editor: 'Jane Doe',
     abstract: 'this is a description!!',
     numberOfPages: 250,
+    wordCount: 2000,
+    description: 'description goes here',
+    status: 'test',
     encodingFormat: 'epub',
     inLanguage: 'en',
     datePublished: now,
@@ -114,6 +117,9 @@ const test = async app => {
     await tap.equal(body.abstract, 'this is a description!!')
     await tap.equal(body.json.property, 'value')
     await tap.equal(body.numberOfPages, 250)
+    await tap.equal(body.wordCount, 2000)
+    await tap.equal(body.description, 'description goes here')
+    await tap.equal(body.status, 'test')
     await tap.equal(body.encodingFormat, 'epub')
     await tap.equal(body.inLanguage[0], 'en')
     await tap.equal(body.author[0].name, 'John Smith')

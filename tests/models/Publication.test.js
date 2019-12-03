@@ -46,6 +46,9 @@ const test = async app => {
     copyrightYear: 1923,
     genre: 'romance',
     license: 'http://www.mylicense.com',
+    status: 'test',
+    wordCount: 123,
+    description: 'description goes here',
     inDirection: 'ltr',
     copyrightHolder: 'Person A',
     json: {
@@ -168,6 +171,9 @@ const test = async app => {
       await tap.equal(publication.readingOrder.length, 2)
       await tap.equal(publication.links.length, 2)
       await tap.equal(publication.resources.length, 2)
+      await tap.equal(publication.wordCount, 123)
+      await tap.equal(publication.status, 99) // not converted back to a string yet
+      await tap.equal(publication.description, 'description goes here')
 
       // attributions
       const attributions = publication.attributions
