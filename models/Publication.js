@@ -364,13 +364,10 @@ class Publication extends BaseModel {
     ) {
       throw new Error('inDirection should be either "ltr" or "rtl"')
     }
-<<<<<<< HEAD
-=======
 
     if (publication.status && !statusMap[publication.status]) {
       throw new Error(`invalid status: ${publication.status}`)
     }
->>>>>>> added wordCount, description and status
   }
 
   static _formatIncomingPub (
