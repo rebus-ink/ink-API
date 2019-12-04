@@ -5,8 +5,6 @@ const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
-const _ = require('lodash')
-const { ValidationError } = require('objection')
 const { urlToId } = require('../utils/utils')
 
 const utils = require('../utils/utils')
@@ -66,24 +64,24 @@ module.exports = function (app) {
             )
           } else {
             // delete publication
-            return Publication.delete(urlToId(pubId))
+            Publication.delete(urlToId(pubId)).then(returned => {
+              if (returned === null) {
+                return next(
+                  boom.notFound(
+                    `publication with id ${pubId} does not exist or has already been deleted`,
+                    {
+                      type: 'Publication',
+                      id: pubId,
+                      activity: 'Delete Publication'
+                    }
+                  )
+                )
+              }
+              res.status(204).end()
+            })
           }
         })
-        .then(returned => {
-          if (returned === null) {
-            return next(
-              boom.notFound(
-                `publication with id ${pubId} does not exist or has already been deleted`,
-                {
-                  type: 'Publication',
-                  id: pubId,
-                  activity: 'Delete Publication'
-                }
-              )
-            )
-          }
-          res.status(204).end()
-        })
+
         .catch(err => {
           next(err)
         })
