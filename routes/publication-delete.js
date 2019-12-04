@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../utils/utils')
+const { libraryCacheUpdate } = require('../utils/cache')
 
 const utils = require('../utils/utils')
 
@@ -64,7 +65,7 @@ module.exports = function (app) {
             )
           } else {
             // delete publication
-            Publication.delete(urlToId(pubId)).then(returned => {
+            Publication.delete(urlToId(pubId)).then(async returned => {
               if (returned === null) {
                 return next(
                   boom.notFound(
@@ -77,6 +78,7 @@ module.exports = function (app) {
                   )
                 )
               }
+              await libraryCacheUpdate(readerId)
               res.status(204).end()
             })
           }

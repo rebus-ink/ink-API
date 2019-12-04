@@ -7,6 +7,7 @@ const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
+const { libraryCacheUpdate } = require('../utils/cache')
 
 const utils = require('../utils/utils')
 
@@ -87,7 +88,7 @@ module.exports = function (app) {
 
             // create publication
             Publication.createPublication(reader, body)
-              .then(createdPub => {
+              .then(async createdPub => {
                 if (createdPub instanceof ValidationError) {
                   return next(
                     boom.badRequest(
@@ -109,6 +110,8 @@ module.exports = function (app) {
                     })
                   )
                 }
+
+                await libraryCacheUpdate(id)
 
                 res.setHeader(
                   'Content-Type',
