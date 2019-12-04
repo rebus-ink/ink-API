@@ -18,7 +18,7 @@ const outboxGetTests = require('./outbox-get.test')
 
 const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
-const publicationDeleteTests = require('./publication-delete.test')
+const publicationDeleteTests = require('./publication-delete-old.test')
 const publicationPostTests = require('./publication-post.test')
 const publicationPatchTests = require('./publication-patch.test')
 

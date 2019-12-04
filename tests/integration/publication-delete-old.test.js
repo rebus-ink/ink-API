@@ -1,15 +1,12 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { urlToId } = require('../../utils/utils')
 const {
   getToken,
   createUser,
   destroyDB,
   createPublication,
-  createDocument,
-  createTag,
-  addPubToCollection
+  createDocument
 } = require('../utils/utils')
 
 const { Document } = require('../../models/Document')
@@ -20,8 +17,14 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
   const readerUrl = urlparse(readerCompleteUrl).path
+
+  // Create Reader object
+  const person = {
+    name: 'J. Random Reader'
+  }
+
+  const reader1 = await Reader.createReader(readerCompleteUrl, person)
 
   const now = new Date().toISOString()
 
@@ -68,7 +71,7 @@ const test = async app => {
   }
 
   const resCreatePub = await createPublication(readerUrl, publicationObject)
-  const publicationId = urlToId(resCreatePub.id)
+  const publicationUrl = resCreatePub.id
 
   // second publication
   await createPublication(readerUrl)
@@ -89,19 +92,13 @@ const test = async app => {
     )
 
     // Create a tag for testing purposes
-    const createdTag = await createTag(app, token, readerUrl, {
+    const createdTag = await Tag.createTag(reader1.id, {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
       name: 'mystack'
     })
 
-    await addPubToCollection(
-      app,
-      token,
-      readerUrl,
-      publicationUrl,
-      createdTag.id
-    )
+    await Publication_Tag.addTagToPub(publicationUrl, createdTag.id)
 
     // before
     const before = await request(app)
@@ -118,11 +115,25 @@ const test = async app => {
     await tap.ok(!document.deleted)
 
     const res = await request(app)
-      .delete(`/readers/${readerId}/publications/${publicationId}`)
+      .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify({
+          '@context': [
+            'https://www.w3.org/ns/activitystreams',
+            { reader: 'https://rebus.foundation/ns/reader' }
+          ],
+          type: 'Delete',
+          object: {
+            type: 'Publication',
+            id: publicationUrl
+          }
+        })
+      )
     await tap.equal(res.statusCode, 204)
 
     // getting deleted publication should return 404 error
@@ -165,10 +176,25 @@ const test = async app => {
     'Try to delete a Publication that was already deleted',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/${publicationId}`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Publication',
+              id: publicationUrl
+            }
+          })
+        )
 
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
@@ -184,11 +210,25 @@ const test = async app => {
     'Try to delete a Publication that does not exist',
     async () => {
       const res1 = await request(app)
-        .delete(`/readers/${readerId}/publications/1234`)
+        .post(`${readerUrl}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            '@context': [
+              'https://www.w3.org/ns/activitystreams',
+              { reader: 'https://rebus.foundation/ns/reader' }
+            ],
+            type: 'Delete',
+            object: {
+              type: 'Publication',
+              id: publicationUrl + '123'
+            }
+          })
+        )
       await tap.equal(res1.statusCode, 404)
       const error1 = JSON.parse(res1.text)
       await tap.equal(error1.statusCode, 404)
