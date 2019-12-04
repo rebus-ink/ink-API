@@ -8,14 +8,11 @@ const {
   destroyDB,
   createPublication,
   createDocument,
-  createTag,
   addPubToCollection
 } = require('../utils/utils')
 
 const { Document } = require('../../models/Document')
-const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
-const { Publication_Tag } = require('../../models/Publications_Tags')
 
 const test = async app => {
   const token = getToken()
@@ -68,6 +65,7 @@ const test = async app => {
   }
 
   const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const publicationUrl = resCreatePub.id
   const publicationId = urlToId(resCreatePub.id)
 
   // second publication
@@ -89,7 +87,7 @@ const test = async app => {
     )
 
     // Create a tag for testing purposes
-    const createdTag = await createTag(app, token, readerUrl, {
+    const createdTag = await Tag.createTag(readerId, {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
       name: 'mystack'
@@ -99,7 +97,7 @@ const test = async app => {
       app,
       token,
       readerUrl,
-      publicationUrl,
+      publicationId,
       createdTag.id
     )
 
@@ -111,7 +109,6 @@ const test = async app => {
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(before.body.items.length, 2)
     await tap.equal(before.body.items[1].tags.length, 1)
     await tap.equal(before.body.items[1].tags[0].name, 'mystack')
@@ -122,7 +119,6 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-
     await tap.equal(res.statusCode, 204)
 
     // getting deleted publication should return 404 error
@@ -150,15 +146,15 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    // Make sure documents associated with the publication are deleted
-    const deletedDoc = await Document.byId(document.id)
-    await tap.ok(deletedDoc.deleted)
-
     await tap.equal(libraryres.status, 200)
     const body = libraryres.body
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 1)
     await tap.equal(body.items[0].tags.length, 0)
+
+    // Make sure documents associated with the publication are deleted
+    const deletedDoc = await Document.byId(document.id)
+    await tap.ok(deletedDoc.deleted)
   })
 
   await tap.test(

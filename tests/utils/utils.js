@@ -194,7 +194,7 @@ const createTag = async (app, token, readerUrl, object = {}) => {
     object
   )
 
-  return await request(app)
+  const res = await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
@@ -211,6 +211,8 @@ const createTag = async (app, token, readerUrl, object = {}) => {
         object: tagObject
       })
     )
+
+  return res
 }
 
 const createDocument = async (readerId, publicationId, object = {}) => {
@@ -231,7 +233,7 @@ const createDocument = async (readerId, publicationId, object = {}) => {
 }
 
 const addPubToCollection = async (app, token, readerUrl, pubId, tagId) => {
-  return await request(app)
+  const res = await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
@@ -249,6 +251,8 @@ const addPubToCollection = async (app, token, readerUrl, pubId, tagId) => {
         target: { id: pubId, type: 'Publication' }
       })
     )
+
+  return res
 }
 
 const addNoteToCollection = async (app, token, readerUrl, noteId, tagId) => {
