@@ -46,6 +46,11 @@ const test = async app => {
     copyrightYear: 1923,
     genre: 'romance',
     license: 'http://www.mylicense.com',
+    status: 'test',
+    wordCount: 123,
+    description: 'description goes here',
+    inDirection: 'ltr',
+    copyrightHolder: 'Person A',
     json: {
       property1: 'value1'
     },
@@ -166,11 +171,14 @@ const test = async app => {
       await tap.equal(publication.readingOrder.length, 2)
       await tap.equal(publication.links.length, 2)
       await tap.equal(publication.resources.length, 2)
+      await tap.equal(publication.wordCount, 123)
+      await tap.equal(publication.status, 99) // not converted back to a string yet
+      await tap.equal(publication.description, 'description goes here')
 
       // attributions
       const attributions = publication.attributions
       await tap.ok(attributions)
-      await tap.equal(attributions.length, 8)
+      await tap.equal(attributions.length, 9)
       // metadata
       const metadata = publication.metadata
       await tap.equal(metadata.url, 'http://www.something.com')
@@ -181,6 +189,7 @@ const test = async app => {
       await tap.equal(metadata.copyrightYear, 1923)
       await tap.equal(metadata.genre, 'romance')
       await tap.equal(metadata.license, 'http://www.mylicense.com')
+      await tap.equal(metadata.inDirection, 'ltr')
     }
   )
 
@@ -477,7 +486,7 @@ const test = async app => {
     )
     await tap.equal(newPub.editor[0].name, 'New Sample Editor')
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 8)
+    await tap.equal(attributions.length, 9)
     await tap.ok(newAuthor1Exists)
     await tap.ok(newAuthor2Exists)
     await tap.ok(newEditorExists)
@@ -575,7 +584,7 @@ const test = async app => {
     await tap.ok(newPub)
     await tap.ok(newPub instanceof Publication)
     await tap.ok(attributions[0] instanceof Attribution)
-    await tap.equal(attributions.length, 9)
+    await tap.equal(attributions.length, 10)
     await tap.ok(author1Exists)
     await tap.ok(author2Exists)
     await tap.ok(editor1Exists)

@@ -21,7 +21,8 @@ const metadataProps = [
   'isbn',
   'copyrightYear',
   'genre',
-  'license'
+  'license',
+  'inDirection'
 ]
 const attributionTypes = [
   'author',
@@ -30,7 +31,8 @@ const attributionTypes = [
   'creator',
   'illustrator',
   'publisher',
-  'translator'
+  'translator',
+  'copyrightHolder'
 ]
 
 const linkProperties = [
@@ -81,6 +83,9 @@ const bookFormats = [
   'Hardcover',
   'Paperback'
 ]
+const statusMap = {
+  test: 99
+}
 
 /*::
 type PublicationType = {
@@ -89,8 +94,11 @@ type PublicationType = {
   name: string,
   type: string,
   datePublished?: Date,
-  numberOfPages: number,
-  encodingFormat: string,
+  numberOfPages?: number,
+  wordCount?: number,
+  status: number,
+  description?: string,
+  encodingFormat?: string,
   metadata?: Object,
   readingOrder?: Object,
   resources?: Object,
@@ -130,6 +138,7 @@ class Publication extends BaseModel {
         type: { type: 'string' },
         author: { type: 'array' },
         abstract: { type: 'string' },
+        description: { type: 'string' },
         editor: { type: 'array' },
         datePublished: { type: 'string', format: 'date-time' },
         inLanguage: { type: 'array' },
@@ -143,6 +152,8 @@ class Publication extends BaseModel {
         genre: { type: 'romance' },
         license: { type: 'string' },
         numberOfPages: { type: 'integer' },
+        wordCount: { type: 'integer' },
+        status: { type: 'integer' },
         encodingFormat: { type: 'string' },
         readingOrder: { type: 'object' },
         resources: { type: 'object' },
@@ -346,6 +357,17 @@ class Publication extends BaseModel {
       }
     }
     if (readingOrderError) throw new Error(readingOrderError)
+    if (
+      publication.inDirection &&
+      publication.inDirection !== 'ltr' &&
+      publication.inDirection !== 'rtl'
+    ) {
+      throw new Error('inDirection should be either "ltr" or "rtl"')
+    }
+
+    if (publication.status && !statusMap[publication.status]) {
+      throw new Error(`invalid status: ${publication.status}`)
+    }
   }
 
   static _formatIncomingPub (
@@ -383,6 +405,9 @@ class Publication extends BaseModel {
       'readingOrder',
       'resources',
       'links',
+      'status',
+      'wordCount',
+      'description',
       'metadata'
     ])
 
@@ -419,6 +444,10 @@ class Publication extends BaseModel {
         }
       })
       publication.resources = { data: publication.resources }
+    }
+
+    if (publication.status) {
+      publication.status = statusMap[publication.status]
     }
 
     return publication
@@ -600,6 +629,13 @@ class Publication extends BaseModel {
     }
     if (json.readingOrder && json.readingOrder.data) {
       json.readingOrder = json.readingOrder.data
+    }
+
+    if (json.status) {
+      const statusString = _.findKey(statusMap, v => {
+        return v === json.status
+      })
+      json.status = statusString
     }
 
     if (json.metadata) {

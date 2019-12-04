@@ -12,7 +12,12 @@ const app = require('../../server').app
 
 require('dotenv').config()
 
-// note: after new migration, remove 'true' from app.initialize and comment out rollback. Once.
+// reset database:
+// sudo -u postgres psql -c "drop database ink_test;"
+// sudo -u postgres psql -c "create database ink_test;"
+// knex migrate:latest --env=postgresql
+
+// note: after new migration, remove 'true' from app.initialize and comment out rollback. Run models test once.
 
 const allTests = async () => {
   await app.initialize(true)

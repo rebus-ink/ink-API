@@ -29,6 +29,9 @@ const test = async app => {
     editor: 'Jane Doe',
     abstract: 'this is a description!!',
     numberOfPages: 250,
+    wordCount: 2000,
+    description: 'description goes here',
+    status: 'test',
     encodingFormat: 'epub',
     inLanguage: 'en',
     datePublished: now,
@@ -38,6 +41,8 @@ const test = async app => {
     copyrightYear: 1977,
     genre: 'vampire romance',
     license: 'http://www.mylicense.com',
+    inDirection: 'ltr',
+    copyrightHolder: 'Joe Smith',
     links: [
       {
         url: 'http://example.org/abc',
@@ -112,6 +117,9 @@ const test = async app => {
     await tap.equal(body.abstract, 'this is a description!!')
     await tap.equal(body.json.property, 'value')
     await tap.equal(body.numberOfPages, 250)
+    await tap.equal(body.wordCount, 2000)
+    await tap.equal(body.description, 'description goes here')
+    await tap.equal(body.status, 'test')
     await tap.equal(body.encodingFormat, 'epub')
     await tap.equal(body.inLanguage[0], 'en')
     await tap.equal(body.author[0].name, 'John Smith')
@@ -130,6 +138,8 @@ const test = async app => {
     await tap.equal(body.copyrightYear, 1977)
     await tap.equal(body.genre, 'vampire romance')
     await tap.equal(body.license, 'http://www.mylicense.com')
+    await tap.equal(body.inDirection, 'ltr')
+    await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
   })
 
   await tap.test('invalid properties should be ignored', async () => {
@@ -848,6 +858,33 @@ const test = async app => {
             creator: [{ prop: 'value' }]
           })
         )
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.equal(error.details.activity, 'Create Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to create a Publication with an invalid inDirection value',
+    async () => {
+      const res = await request(app)
+        .post(`/readers/${readerId}/publications`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+        .send(
+          JSON.stringify({
+            name: 'Publication C',
+            type: 'Book',
+            inDirection: 'invalid value'
+          })
+        )
+
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)

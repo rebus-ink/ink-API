@@ -74,6 +74,10 @@ const boom = require('@hapi/boom')
  *         type: array
  *         items:
  *           $ref: '#/definitions/annotation'
+ *       copyrightHolder:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/annotation'
  *       replies:
  *         type: array
  *         items:
@@ -103,6 +107,16 @@ const boom = require('@hapi/boom')
  *         type: string
  *       license:
  *         type: string
+ *       wordCount:
+ *         type: number
+ *       description:
+ *         type: string
+ *       status:
+ *         type: string
+ *         enum: ['test']
+ *       inDirection:
+ *         type: string
+ *         enum: ['ltr', 'rtl']
  *       readingOrder:
  *         type: array
  *         items:

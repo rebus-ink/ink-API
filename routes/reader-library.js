@@ -80,6 +80,16 @@ const { libraryCacheGet } = require('../utils/cache')
  *         type: string
  *       license:
  *         type: string
+ *       wordCount:
+ *         type: number
+ *       description:
+ *         type: string
+ *       status:
+ *         type: string
+ *         enum: ['test']
+ *       inDirection:
+ *         type: string
+ *         enum: ['ltr', 'rtl']
  *       resources:
  *         type: array
  *         items:
