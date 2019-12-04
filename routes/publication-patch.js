@@ -7,6 +7,7 @@ const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
+const { libraryCacheUpdate } = require('../utils/cache')
 
 const utils = require('../utils/utils')
 
@@ -93,7 +94,7 @@ module.exports = function (app) {
             // update publication
             body.id = req.params.pubId
             Publication.update(body)
-              .then(updatedPub => {
+              .then(async updatedPub => {
                 if (updatedPub === null) {
                   return next(
                     boom.notFound(`no publication found with id ${body.id}`, {
@@ -125,6 +126,7 @@ module.exports = function (app) {
                     })
                   )
                 }
+                await libraryCacheUpdate(readerId)
 
                 res.setHeader('Content-Type', 'application/ld+json')
                 res.status(200).end(JSON.stringify(updatedPub.toJSON()))
