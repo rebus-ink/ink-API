@@ -63,6 +63,7 @@ const handleUpdate = async (req, res, next, reader) => {
       res.end()
       break
 
+    // NOTE: deprecated
     case 'Publication':
       const resultPub = await Publication.update(body.object)
       if (resultPub === null) {

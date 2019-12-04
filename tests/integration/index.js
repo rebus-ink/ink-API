@@ -20,6 +20,7 @@ const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
 const publicationDeleteTests = require('./publication-delete.test')
 const publicationPostTests = require('./publication-post.test')
+const publicationPatchTests = require('./publication-patch.test')
 
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader-get.test')
@@ -68,9 +69,10 @@ const allTests = async () => {
 
   if (!test || test === 'publication') {
     await publicationGetTests(app)
-    await publicationUpdateTests(app)
+    await publicationUpdateTests(app) // deprecated
     await publicationDeleteTests(app)
     await publicationPostTests(app)
+    await publicationPatchTests(app)
   }
 
   if (!test || test === 'reader') {

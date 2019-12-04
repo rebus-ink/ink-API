@@ -31,6 +31,7 @@ const fileUploadPubRoute = require('./routes/file-upload-pub')
 
 // new routes
 const publicationPostRoute = require('./routes/publication-post')
+const publicationPatchRoute = require('./routes/publication-patch')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -193,6 +194,7 @@ fileUploadPubRoute(app)
 
 // new routes
 publicationPostRoute(app)
+publicationPatchRoute(app)
 
 app.use(errorHandling)
 

@@ -13,14 +13,19 @@ const utils = require('../utils/utils')
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers/{id}/publications:
-   *   post:
+   * /readers/{readerId}/publications/{pubId}:
+   *   patch:
    *     tags:
    *       - publications
-   *     description: POST /readers/id/publications
+   *     description: PATCH /readers/:readerId/publications/:pubId
    *     parameters:
    *       - in: path
-   *         name: id
+   *         name: readerId
+   *         schema:
+   *           type: string
+   *         required: true
+   *       - in: path
+   *         name: pubId
    *         schema:
    *           type: string
    *         required: true
@@ -32,8 +37,8 @@ module.exports = function (app) {
    *           schema:
    *             $ref: '#/definitions/publication'
    *     responses:
-   *       201:
-   *         description: Successfully created Publication
+   *       200:
+   *         description: Successfully updated Publication
    *         content:
    *           application/json:
    *             schema:
@@ -45,32 +50,32 @@ module.exports = function (app) {
    */
   app.use('/', router)
   router
-    .route('/readers/:id/publications')
-    .post(jwtAuth, function (req, res, next) {
-      const id = req.params.id
-      Reader.byId(id)
+    .route('/readers/:readerId/publications/:pubId')
+    .patch(jwtAuth, function (req, res, next) {
+      const readerId = req.params.readerId
+      Reader.byId(readerId)
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${id}`, {
+              boom.notFound(`No reader with ID ${readerId}`, {
                 type: 'Reader',
                 id,
-                activity: 'Create Publication'
+                activity: 'Update Publication'
               })
             )
           } else if (!utils.checkReader(req, reader)) {
             return next(
-              boom.forbidden(`Access to reader ${id} disallowed`, {
+              boom.forbidden(`Access to reader ${readerId} disallowed`, {
                 type: 'Reader',
                 id,
-                activity: 'Create Publication'
+                activity: 'Update Publication'
               })
             )
           } else {
             if (!req.is('application/ld+json')) {
               return next(
                 boom.badRequest('Body must be JSON-LD', {
-                  activity: 'Create Publication'
+                  activity: 'Update Publication'
                 })
               )
             }
@@ -79,42 +84,50 @@ module.exports = function (app) {
             if (typeof body !== 'object' || _.isEmpty(body)) {
               return next(
                 boom.badRequest('Body must be a JSON object', {
-                  activity: 'Create Publication',
+                  activity: 'Update Publication',
                   type: 'Publication'
                 })
               )
             }
 
-            // create publication
-            Publication.createPublication(reader, body)
-              .then(createdPub => {
-                if (createdPub instanceof ValidationError) {
+            // update publication
+            body.id = req.params.pubId
+            Publication.update(body)
+              .then(updatedPub => {
+                if (updatedPub === null) {
+                  return next(
+                    boom.notFound(`no publication found with id ${body.id}`, {
+                      type: 'Publication',
+                      id: body.id,
+                      activity: 'Update Publication'
+                    })
+                  )
+                }
+
+                if (updatedPub instanceof ValidationError) {
                   return next(
                     boom.badRequest(
-                      'Validation Error on Create Publication: ',
+                      'Validation Error on Update Publication: ',
                       {
-                        activity: 'Create Publication',
+                        activity: 'Update Publication',
                         type: 'Publication',
-                        validation: createdPub.data
+                        validation: updatedPub.data
                       }
                     )
                   )
                 }
 
-                if (createdPub instanceof Error) {
+                if (updatedPub instanceof Error) {
                   return next(
-                    boom.badRequest(createdPub.message, {
-                      activity: 'Create Publication',
+                    boom.badRequest(updatedPub.message, {
+                      activity: 'Update Publication',
                       type: 'Publication'
                     })
                   )
                 }
 
-                res.setHeader(
-                  'Content-Type',
-                  'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-                )
-                res.status(201).end(JSON.stringify(createdPub.toJSON()))
+                res.setHeader('Content-Type', 'application/ld+json')
+                res.status(200).end(JSON.stringify(updatedPub.toJSON()))
               })
               .catch(err => {
                 next(err)
