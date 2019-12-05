@@ -33,6 +33,7 @@ const fileUploadPubRoute = require('./routes/file-upload-pub')
 const publicationPostRoute = require('./routes/publication-post')
 const publicationPatchRoute = require('./routes/publication-patch')
 const publicationDeleteRoute = require('./routes/publication-delete')
+const publicationPutTagRoute = require('./routes/publication-put-tag')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -197,6 +198,7 @@ fileUploadPubRoute(app)
 publicationPostRoute(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)
+publicationPutTagRoute(app)
 
 app.use(errorHandling)
 
