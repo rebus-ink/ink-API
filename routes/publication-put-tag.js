@@ -75,7 +75,7 @@ module.exports = function (app) {
               })
             )
           } else {
-            Publication_Tag.addTagToPub(pubId, tagId).then(result => {
+            Publication_Tag.addTagToPub(pubId, tagId).then(async result => {
               if (result instanceof Error) {
                 switch (result.message) {
                   case 'duplicate':
@@ -113,6 +113,7 @@ module.exports = function (app) {
                     return next(err)
                 }
               } else {
+                await libraryCacheUpdate(readerId)
                 res.status(204).end()
               }
             })

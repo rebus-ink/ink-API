@@ -73,45 +73,48 @@ module.exports = function (app) {
               })
             )
           } else {
-            Publication_Tag.removeTagFromPub(pubId, tagId).then(result => {
-              if (result instanceof Error) {
-                switch (result.message) {
-                  case 'no publication':
-                    return next(
-                      boom.notFound(`no publication found with id ${pubId}`, {
-                        type: 'Publication',
-                        id: pubId,
-                        activity: 'Remove Tag from Publication'
-                      })
-                    )
-
-                  case 'no tag':
-                    return next(
-                      boom.notFound(`no tag found with id ${tagId}`, {
-                        type: 'reader:Tag',
-                        id: tagId,
-                        activity: 'Remove Tag from Publication'
-                      })
-                    )
-
-                  case 'not found':
-                    return next(
-                      boom.notFound(
-                        `no relationship found between Tag ${tagId} and Publication ${pubId}`,
-                        {
-                          type: 'Publication_Tag',
+            Publication_Tag.removeTagFromPub(pubId, tagId).then(
+              async result => {
+                if (result instanceof Error) {
+                  switch (result.message) {
+                    case 'no publication':
+                      return next(
+                        boom.notFound(`no publication found with id ${pubId}`, {
+                          type: 'Publication',
+                          id: pubId,
                           activity: 'Remove Tag from Publication'
-                        }
+                        })
                       )
-                    )
 
-                  default:
-                    return next(err)
+                    case 'no tag':
+                      return next(
+                        boom.notFound(`no tag found with id ${tagId}`, {
+                          type: 'reader:Tag',
+                          id: tagId,
+                          activity: 'Remove Tag from Publication'
+                        })
+                      )
+
+                    case 'not found':
+                      return next(
+                        boom.notFound(
+                          `no relationship found between Tag ${tagId} and Publication ${pubId}`,
+                          {
+                            type: 'Publication_Tag',
+                            activity: 'Remove Tag from Publication'
+                          }
+                        )
+                      )
+
+                    default:
+                      return next(err)
+                  }
+                } else {
+                  await libraryCacheUpdate(readerId)
+                  res.status(204).end()
                 }
-              } else {
-                res.status(204).end()
               }
-            })
+            )
           }
         })
         .catch(err => {
