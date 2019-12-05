@@ -74,50 +74,50 @@ module.exports = function (app) {
                 activity: 'Add Tag to Publication'
               })
             )
-          } else {
-            Publication_Tag.addTagToPub(pubId, tagId).then(async result => {
-              if (result instanceof Error) {
-                switch (result.message) {
-                  case 'duplicate':
-                    return next(
-                      boom.badRequest(
-                        `duplicate Publication ${pubId} already asssociated with tag ${tagId}`,
-                        {
-                          type: `Publication_Tag`,
-                          target: pubId,
-                          object: tagId,
-                          activity: 'Add Tag to Publication'
-                        }
-                      )
-                    )
-
-                  case 'no publication':
-                    return next(
-                      boom.notFound(`no publication found with id ${pubId}`, {
-                        type: 'Publication',
-                        id: pubId,
-                        activity: 'Add Tag to Publication'
-                      })
-                    )
-
-                  case 'no tag':
-                    return next(
-                      boom.notFound(`no tag found with id ${tagId}`, {
-                        type: 'reader:Tag',
-                        id: tagId,
-                        activity: 'Add Tag to Publication'
-                      })
-                    )
-
-                  default:
-                    return next(err)
-                }
-              } else {
-                await libraryCacheUpdate(readerId)
-                res.status(204).end()
-              }
-            })
           }
+
+          Publication_Tag.addTagToPub(pubId, tagId).then(async result => {
+            if (result instanceof Error) {
+              switch (result.message) {
+                case 'duplicate':
+                  return next(
+                    boom.badRequest(
+                      `duplicate Publication ${pubId} already asssociated with tag ${tagId}`,
+                      {
+                        type: `Publication_Tag`,
+                        target: pubId,
+                        object: tagId,
+                        activity: 'Add Tag to Publication'
+                      }
+                    )
+                  )
+
+                case 'no publication':
+                  return next(
+                    boom.notFound(`no publication found with id ${pubId}`, {
+                      type: 'Publication',
+                      id: pubId,
+                      activity: 'Add Tag to Publication'
+                    })
+                  )
+
+                case 'no tag':
+                  return next(
+                    boom.notFound(`no tag found with id ${tagId}`, {
+                      type: 'reader:Tag',
+                      id: tagId,
+                      activity: 'Add Tag to Publication'
+                    })
+                  )
+
+                default:
+                  return next(err)
+              }
+            } else {
+              await libraryCacheUpdate(readerId)
+              res.status(204).end()
+            }
+          })
         })
         .catch(err => {
           next(err)
