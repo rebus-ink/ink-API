@@ -630,7 +630,7 @@ const test = async app => {
               type: 'SomethingInvalid'
             },
             target: {
-              type: 'Publication'
+              type: 'Note'
             }
           })
         )
@@ -664,7 +664,7 @@ const test = async app => {
             name: 'something'
           },
           target: {
-            type: 'Publication'
+            type: 'Note'
           }
         })
       )
@@ -693,7 +693,7 @@ const test = async app => {
           ],
           type: 'Remove',
           target: {
-            type: 'Publication'
+            type: 'Note'
           }
         })
       )

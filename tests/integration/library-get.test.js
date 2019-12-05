@@ -10,11 +10,13 @@ const {
   addPubToCollection
 } = require('../utils/utils')
 const app = require('../../server').app
+const { urlToId } = require('../../utils/utils')
 
 const test = async () => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   let time
 
@@ -324,23 +326,14 @@ const test = async () => {
       'Get Library with if-modified-since header - after publication removed from collection',
       async () => {
         await request(app)
-          .post(`${readerUrl}/activity`)
+          .delete(
+            `/readers/${readerId}/publications/${urlToId(
+              publication.id
+            )}/tags/${urlToId(collectionId)}`
+          )
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
-          .type(
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-          )
-          .send(
-            JSON.stringify({
-              '@context': [
-                'https://www.w3.org/ns/activitystreams',
-                { reader: 'https://rebus.foundation/ns/reader' }
-              ],
-              type: 'Remove',
-              object: { id: collectionId, type: 'reader:Tag' },
-              target: { id: publication.id, type: 'Publication' }
-            })
-          )
+          .type('application/ld+json')
 
         const res = await request(app)
           .get(`${readerUrl}/library`)

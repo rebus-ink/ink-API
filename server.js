@@ -34,6 +34,7 @@ const publicationPostRoute = require('./routes/publication-post')
 const publicationPatchRoute = require('./routes/publication-patch')
 const publicationDeleteRoute = require('./routes/publication-delete')
 const publicationPutTagRoute = require('./routes/publication-put-tag')
+const publicationDeleteTagRoute = require('./routes/publication-delete-tag')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -199,6 +200,7 @@ publicationPostRoute(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)
 publicationPutTagRoute(app)
+publicationDeleteTagRoute(app)
 
 app.use(errorHandling)
 

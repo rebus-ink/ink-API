@@ -96,77 +96,79 @@ const test = async app => {
     }
   )
 
-  // await tap.test('Remove Tag from Publication', async () => {
-  //   // before:
-  //   const pubresbefore = await request(app)
-  //     .get(urlparse(publication.id).path)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+  await tap.test('Remove Tag from Publication', async () => {
+    // before:
+    const pubresbefore = await request(app)
+      .get(urlparse(publication.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-  //   await tap.equal(pubresbefore.status, 200)
-  //   const bodybefore = pubresbefore.body
-  //   await tap.ok(Array.isArray(bodybefore.tags))
-  //   await tap.equal(bodybefore.tags.length, 1)
+    await tap.equal(pubresbefore.status, 200)
+    const bodybefore = pubresbefore.body
+    await tap.ok(Array.isArray(bodybefore.tags))
+    await tap.equal(bodybefore.tags.length, 1)
 
-  //   const res = await request(app)
-  //     .delete(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type('application/ld+json')
+    const res = await request(app)
+      .delete(
+        `/readers/${readerId}/publications/${publicationId}/tags/${tagId}`
+      )
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-  //   await tap.equal(res.status, 204)
+    await tap.equal(res.status, 204)
 
-  //   // after:
-  //   const pubres = await request(app)
-  //     .get(urlparse(publication.id).path)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+    // after:
+    const pubres = await request(app)
+      .get(urlparse(publication.id).path)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
 
-  //   await tap.equal(pubres.status, 200)
-  //   const body = pubres.body
-  //   await tap.ok(Array.isArray(body.tags))
-  //   await tap.equal(body.tags.length, 0)
-  // })
+    await tap.equal(pubres.status, 200)
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 0)
+  })
 
-  // await tap.test(
-  //   'Try to remove a Tag from a Publication with invalid Tag',
-  //   async () => {
-  //     const res = await request(app)
-  //       .delete(`/readers/${readerId}/publications/${publicationId}/tags/123`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type('application/ld+json')
+  await tap.test(
+    'Try to remove a Tag from a Publication with invalid Tag',
+    async () => {
+      const res = await request(app)
+        .delete(`/readers/${readerId}/publications/${publicationId}/tags/123`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
 
-  //     await tap.equal(res.status, 404)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 404)
-  //     await tap.equal(error.details.type, 'Publication_Tag')
-  //     await tap.equal(error.details.activity, 'Remove Tag from Publication')
-  //   }
-  // )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Publication_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
 
-  // await tap.test(
-  //   'Try to remove a Tag from a Publication with invalid Publication',
-  //   async () => {
-  //     const res = await request(app)
-  //       .delete(`/readers/${readerId}/publications/123/tags/${tagId}`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type('application/ld+json')
+  await tap.test(
+    'Try to remove a Tag from a Publication with invalid Publication',
+    async () => {
+      const res = await request(app)
+        .delete(`/readers/${readerId}/publications/123/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
 
-  //     await tap.equal(res.status, 404)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 404)
-  //     await tap.equal(error.details.type, 'Publication_Tag')
-  //     await tap.equal(error.details.activity, 'Remove Tag from Publication')
-  //   }
-  // )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Publication_Tag')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
 
   await tap.test('Try to assign Publication to Tag twice', async () => {
     await request(app)
