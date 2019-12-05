@@ -236,23 +236,21 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Delete Publication')
   })
 
-  // await tap.test('Try to update a publication for another user', async () => {
-  //   const res = await request(app)
-  //     .patch(`/readers/${readerId}/publications/123`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token2}`)
-  //     .type(
-  //       'application/ld+json'
-  //     )
+  await tap.test('Try to update a publication for another user', async () => {
+    const res = await request(app)
+      .patch(`/readers/${readerId}/publications/123`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
 
-  //   await tap.equal(res.statusCode, 403)
-  //   const error = JSON.parse(res.text)
-  //   await tap.equal(error.statusCode, 403)
-  //   await tap.equal(error.error, 'Forbidden')
-  //   await tap.equal(error.details.type, 'Reader')
-  //   await tap.type(error.details.id, 'string')
-  //   await tap.equal(error.details.activity, 'Update Publication')
-  // })
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Reader')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Update Publication')
+  })
 
   await tap.test(
     'Try to upload files to a folder belonging to another reader',
@@ -345,14 +343,12 @@ const test = async app => {
       .type('application/ld+json')
     await tap.equal(res9.statusCode, 401)
 
-    // // update publiation
-    // const res10 = await request(app)
-    //   .patch(`/readers/${readerId}/publications/123`)
-    //   .set('Host', 'reader-api.test')
-    //   .type(
-    //     'application/ld+json'
-    //   )
-    // await tap.equal(res10.statusCode, 401)
+    // update publiation
+    const res10 = await request(app)
+      .patch(`/readers/${readerId}/publications/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res10.statusCode, 401)
   })
 
   await destroyDB(app)
