@@ -68,7 +68,7 @@ module.exports = function (app) {
             return next(
               boom.forbidden(`Access to reader ${readerId} disallowed`, {
                 type: 'Reader',
-                id,
+                id: readerId,
                 activity: 'Update Publication'
               })
             )

@@ -18,6 +18,7 @@ const outboxGetTests = require('./outbox-get.test')
 
 const publicationGetTests = require('./publication-get.test')
 const publicationUpdateTests = require('./publication-update.test')
+const publicationDeleteTestsOld = require('./publication-delete-old.test')
 const publicationDeleteTests = require('./publication-delete.test')
 const publicationPostTests = require('./publication-post.test')
 const publicationPatchTests = require('./publication-patch.test')
@@ -71,6 +72,7 @@ const allTests = async () => {
     await publicationGetTests(app)
     await publicationUpdateTests(app) // deprecated
     await publicationDeleteTests(app)
+    await publicationDeleteTestsOld(app)
     await publicationPostTests(app)
     await publicationPatchTests(app)
   }
