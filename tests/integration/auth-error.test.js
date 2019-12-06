@@ -274,6 +274,27 @@ const test = async app => {
   )
 
   await tap.test(
+    'Try to remove tag from a publication for another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/readers/${readerId}/publications/123/tags/123`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Reader')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
+
+  await tap.test(
     'Try to upload files to a folder belonging to another reader',
     async () => {
       const res = await request(app)
@@ -378,6 +399,14 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res11.statusCode, 401)
+
+    // remove tag from publication
+    const res12 = await request(app)
+      .delete(`/readers/${readerId}/publications/123/tags/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res12.statusCode, 401)
   })
 
   await destroyDB(app)

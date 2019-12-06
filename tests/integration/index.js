@@ -36,7 +36,7 @@ const tagPublicationTests = require('./tag-publication.test')
 const tagNoteTests = require('./tag-note.test')
 const tagDeleteTests = require('./tag-delete.test')
 const tagUpdateTests = require('./tag-update.test')
-const publicationAddTagTests = require('./publication-add-tag.test')
+const publicationAddTagTests = require('./publication-tag.test')
 
 const jobGetTests = require('./job-get.test')
 
