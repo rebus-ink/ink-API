@@ -50,6 +50,7 @@ const handleAdd = async (req, res, next, reader) => {
       // Determine if the Tag is added to a Publication or a Note
       let resultStack
       if (body.target.type === 'Publication') {
+        // Deprecated
         resultStack = await Publication_Tag.addTagToPub(
           body.target.id,
           body.object.id
