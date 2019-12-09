@@ -136,10 +136,10 @@ const test = async app => {
       updateActivityUrl,
       token
     )
-    const newPublicationUrl = updateActivityObject.object.id
+    const newPublicationId = urlToId(updateActivityObject.object.id)
 
     const resPub = await request(app)
-      .get(urlparse(newPublicationUrl).path)
+      .get(`/publications/${newPublicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

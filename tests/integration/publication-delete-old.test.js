@@ -8,6 +8,7 @@ const {
   createPublication,
   createDocument
 } = require('../utils/utils')
+const { urlToId } = require('../../utils/utils')
 
 const { Document } = require('../../models/Document')
 const { Reader } = require('../../models/Reader')
@@ -138,7 +139,7 @@ const test = async app => {
 
     // getting deleted publication should return 404 error
     const getres = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

@@ -81,7 +81,7 @@ const test = async app => {
 
   await tap.test('Get Publication', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/publications/${publicationId}`)
+      .get(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -179,7 +179,7 @@ const test = async app => {
 
     // get publication with position:
     const res = await request(app)
-      .get(`/readers/${readerId}/publications/${publicationId}`)
+      .get(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -197,7 +197,7 @@ const test = async app => {
 
   await tap.test('Try to get Publication that does not exist', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/publications/123`)
+      .get(`/publications/123`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

@@ -10,6 +10,7 @@ const {
   createNote,
   createDocument
 } = require('../utils/utils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   const token = getToken()
@@ -82,7 +83,7 @@ const test = async app => {
 
   await tap.test('Get Publication with reference to Notes', async () => {
     const res = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

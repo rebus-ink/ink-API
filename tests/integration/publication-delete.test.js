@@ -123,7 +123,7 @@ const test = async app => {
 
     // getting deleted publication should return 404 error
     const getres = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

@@ -150,17 +150,12 @@ const boom = require('@hapi/boom')
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers/{readerId}/publications/{pubId}:
+   * /publications/{pubId}:
    *   get:
    *     tags:
    *       - publications
-   *     description: GET /readers/{readerId}/publications/{pubId}
+   *     description: GET /publications/{pubId}
    *     parameters:
-   *       - in: path
-   *         name: readerId
-   *         schema:
-   *           type: string
-   *         required: true
    *       - in: path
    *         name: pubId
    *         schema:
@@ -184,7 +179,7 @@ module.exports = function (app) {
    */
   app.use('/', router)
   router.get(
-    '/readers/:readerId/publications/:pubId',
+    '/publications/:pubId',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const pubId = req.params.pubId
