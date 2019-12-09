@@ -59,7 +59,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const pubres = await request(app)
-      .get(urlparse(publication.id).path)
+      .get(`/publications/${urlToId(publication.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -135,7 +135,7 @@ const test = async app => {
 
   await tap.test('Remove Tag from Publication', async () => {
     const pubresbefore = await request(app)
-      .get(urlparse(publication.id).path)
+      .get(`/publications/${urlToId(publication.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -169,7 +169,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const pubres = await request(app)
-      .get(urlparse(publication.id).path)
+      .get(`/publications/${urlToId(publication.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

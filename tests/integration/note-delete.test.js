@@ -56,7 +56,7 @@ const test = async app => {
     await Note_Tag.addTagToNote(urlToId(noteUrl), createdTag.id)
 
     const pubresbefore = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -116,7 +116,7 @@ const test = async app => {
     async () => {
       // note should no longer be attached to publication
       const pubres = await request(app)
-        .get(urlparse(publicationUrl).path)
+        .get(`/publications/${urlToId(publicationUrl)}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -243,7 +243,7 @@ const test = async app => {
 
     // before: publication has two replies
     const pubresbefore = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -296,7 +296,7 @@ const test = async app => {
 
     // publication should now have no notes
     const pubresafter = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

@@ -72,7 +72,7 @@ const test = async app => {
     'Try to get publication belonging to another reader',
     async () => {
       const res = await request(app)
-        .get(urlparse(publicationUrl).path)
+        .get(`/publications/${urlToId(publicationUrl)}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type(
@@ -345,7 +345,7 @@ const test = async app => {
 
     // publication
     const res4 = await request(app)
-      .get(urlparse(publicationUrl).path)
+      .get(`/publications/123`)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
