@@ -295,10 +295,12 @@ class Reader extends BaseModel {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
     if (filters.document) {
+      const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'
+      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
+      const docPath = path.substring(startIndex + 1) // 'path/to/file'
+      const publicationId = path.substring(14, startIndex) // {pubid}
+      doc = await Document.byPath(publicationId, docPath)
       // $FlowFixMe
-      const { context, path = [] } = match(urlparse(filters.document).path)
-      // $FlowFixMe
-      doc = await Document.byPath(context, path.join('/'))
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
 
       // no pagination for filter by document

@@ -92,6 +92,7 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.ok(body.id.endsWith('/'))
+    await tap.ok(body.id.startsWith('https://reader-api.test/publications/'))
     await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Publication A')
     await tap.ok(_.isArray(body.author))

@@ -121,9 +121,15 @@ class Note extends BaseModel {
 
     if (note.inReplyTo) {
       // $FlowFixMe
-      const { context, path = [] } = match(urlparse(note.inReplyTo).path)
-      note.context = context
-      const document = await Document.byPath(context, path.join('/'))
+      const path = urlparse(note.inReplyTo).path // '/publications/{pubid}/path/to/file'
+      // $FlowFixMe
+      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
+      // $FlowFixMe
+      const docPath = path.substring(startIndex + 1) // 'path/to/file'
+      // $FlowFixMe
+      const publicationId = path.substring(14, startIndex) // {pubid}
+      const document = await Document.byPath(publicationId, docPath)
+
       if (document) {
         props.documentId = urlToId(document.id)
       } else {

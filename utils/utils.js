@@ -9,6 +9,9 @@ const urlToId = url => {
   if (!url.startsWith('http')) return url
   let path = parseurl(url).path
   if (path.endsWith('/')) path = path.substring(0, path.length - 1)
+  if (path.startsWith('/publications/')) {
+    return path.substring(14) // 14 is '/publications/'.length
+  }
   return path.substring(path.indexOf('-') + 1)
 }
 
