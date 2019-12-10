@@ -10,6 +10,7 @@ const { urlToId } = require('../utils/utils')
 const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
+const crypto = require('crypto')
 
 const metadataProps = [
   'inLanguage',
@@ -465,6 +466,7 @@ class Publication extends BaseModel {
 
     const pub = this._formatIncomingPub(reader, publication)
     let createdPublication
+    pub.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
     try {
       createdPublication = await Publication.query(
         Publication.knex()

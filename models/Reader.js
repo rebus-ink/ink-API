@@ -14,6 +14,8 @@ const route = require('path-match')({
   end: false
 })
 const match = route('/publication-:context/:path*')
+const short = require('short-uuid')
+const translator = short()
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -380,7 +382,7 @@ class Reader extends BaseModel {
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-
+    props.id = translator.new()
     props.authId = authId
     try {
       return await Reader.query(Reader.knex())

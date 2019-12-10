@@ -4,6 +4,7 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
+const crypto = require('crypto')
 const urlparse = require('url').parse
 const route = require('path-match')({
   sensitive: false,
@@ -145,6 +146,7 @@ class Note extends BaseModel {
       props.publicationId = note.context
     }
     props.readerId = reader.id
+    props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
     try {
       return await Note.query().insertAndFetch(props)

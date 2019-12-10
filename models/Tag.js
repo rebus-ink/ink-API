@@ -5,6 +5,7 @@ const { Publication_Tag } = require('./Publications_Tags')
 const { Note_Tag } = require('./Note_Tag')
 const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
+const crypto = require('crypto')
 
 /*::
 type TagType = {
@@ -70,6 +71,8 @@ class Tag extends BaseModel {
     // }
     const props = _.pick(tag, ['name', 'json', 'readerId'])
     props.type = tag.tagType
+    props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
+
     try {
       return await Tag.query().insert(props)
     } catch (err) {
