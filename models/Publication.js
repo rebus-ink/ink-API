@@ -237,6 +237,7 @@ class Publication extends BaseModel {
     return true
   }
 
+  // TODO: should not be static (wait until old deprecated code is removed)
   static _validateIncomingPub (publication /*: any */) /*: any */ {
     // check languages
     if (_.isString(publication.inLanguage)) {
@@ -371,6 +372,7 @@ class Publication extends BaseModel {
     }
   }
 
+  // TODO: should not be static (wait until old deprecated code is removed)
   static _formatIncomingPub (
     reader /*: any */,
     publication /*: any */
