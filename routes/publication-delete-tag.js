@@ -12,18 +12,13 @@ const utils = require('../utils/utils')
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers/{readerId}/publications/{pubId}/tags/{tagId}:
+   * /publications/{pubId}/tags/{tagId}:
    *   delete:
    *     tags:
    *       - tags
    *       - publications
-   *     description: DELETE /readers/:readerId/publications/:pubId/tags/:tagId
+   *     description: DELETE /publications/:pubId/tags/:tagId
    *     parameters:
-   *       - in: path
-   *         name: readerId
-   *         schema:
-   *           type: string
-   *         required: true
    *       - in: path
    *         name: pubId
    *         schema:
@@ -40,32 +35,22 @@ module.exports = function (app) {
    *       204:
    *         description: Successfully removed Tag from Publication
    *       404:
-   *         description: reader / publication or tag not found
+   *         description: publication, tag or pub-tag relation not found
    *       403:
-   *         description: 'Access to reader {id} disallowed'
+   *         description: 'Access to tag or publication disallowed'
    */
   app.use('/', router)
   router
-    .route('/readers/:readerId/publications/:pubId/tags/:tagId')
+    .route('/publications/:pubId/tags/:tagId')
     .delete(jwtAuth, function (req, res, next) {
-      const readerId = req.params.readerId
       const pubId = req.params.pubId
       const tagId = req.params.tagId
-      Reader.byId(readerId)
+      Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${readerId}`, {
+              boom.notFound(`No reader with this token`, {
                 type: 'Reader',
-                id: readerId,
-                activity: 'Remove Tag from Publication'
-              })
-            )
-          } else if (!utils.checkReader(req, reader)) {
-            return next(
-              boom.forbidden(`Access to reader ${readerId} disallowed`, {
-                type: 'Reader',
-                id: readerId,
                 activity: 'Remove Tag from Publication'
               })
             )
@@ -107,7 +92,7 @@ module.exports = function (app) {
                       return next(err)
                   }
                 } else {
-                  await libraryCacheUpdate(readerId)
+                  await libraryCacheUpdate(reader.id)
                   res.status(204).end()
                 }
               }

@@ -112,9 +112,7 @@ const test = async app => {
     await tap.equal(bodybefore.tags.length, 1)
 
     const res = await request(app)
-      .delete(
-        `/readers/${readerId}/publications/${publicationId}/tags/${tagId}`
-      )
+      .delete(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -123,7 +121,7 @@ const test = async app => {
 
     // after:
     const pubres = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+      .get(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -140,7 +138,7 @@ const test = async app => {
     'Try to remove a Tag from a Publication with invalid Tag',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/${publicationId}/tags/123`)
+        .delete(`/publications/${publicationId}/tags/123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -157,7 +155,7 @@ const test = async app => {
     'Try to remove a Tag from a Publication with invalid Publication',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/123/tags/${tagId}`)
+        .delete(`/publications/123/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
