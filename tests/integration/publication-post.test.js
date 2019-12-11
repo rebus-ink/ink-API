@@ -12,7 +12,6 @@ const test = async app => {
 
   const now = new Date().toISOString()
 
-  // TODO: add more properties when Pull Request is merged
   const publicationObject = {
     '@context': [
       'https://www.w3.org/ns/activitystreams',
@@ -79,7 +78,7 @@ const test = async app => {
 
   await tap.test('Create a Simple Publication', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -101,7 +100,7 @@ const test = async app => {
 
   await tap.test('Create a Publication', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -144,7 +143,7 @@ const test = async app => {
 
   await tap.test('invalid properties should be ignored', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -194,7 +193,7 @@ const test = async app => {
     'Create a Publication with link objects as strings',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -227,7 +226,7 @@ const test = async app => {
     'Link objects should only save recognized properties',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -321,7 +320,7 @@ const test = async app => {
     'Create a Publication with keywords as a single string',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -345,7 +344,7 @@ const test = async app => {
 
   await tap.test('trying to create a Publication without a name', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -374,7 +373,7 @@ const test = async app => {
 
   await tap.test('trying to create a Publication without a type', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -406,7 +405,7 @@ const test = async app => {
     'Try to create a Publication with an invalid json',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -436,7 +435,7 @@ const test = async app => {
     'Try to create a Publication with an invalid language code',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -463,7 +462,7 @@ const test = async app => {
     'Try to create a Publication with an invalid link object',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -485,7 +484,7 @@ const test = async app => {
       await tap.equal(error.details.activity, 'Create Publication')
 
       const res2 = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -507,7 +506,7 @@ const test = async app => {
       await tap.equal(error2.details.activity, 'Create Publication')
 
       const res3 = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -534,7 +533,7 @@ const test = async app => {
     'Try to create a Publication with an invalid type',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -555,7 +554,7 @@ const test = async app => {
       await tap.equal(error.details.activity, 'Create Publication')
 
       const res2 = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -581,7 +580,7 @@ const test = async app => {
     'Try to create a Publication with an invalid dateModified',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -608,7 +607,7 @@ const test = async app => {
     'Try to create a Publication with an invalid bookEdition',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -635,7 +634,7 @@ const test = async app => {
     'Try to create a Publication with an invalid book format',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -657,7 +656,7 @@ const test = async app => {
       await tap.equal(error.details.activity, 'Create Publication')
 
       const res2 = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -684,7 +683,7 @@ const test = async app => {
     'Try to create a Publication with an invalid isbn',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -711,7 +710,7 @@ const test = async app => {
     'Try to create a Publication with an invalid keywords',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -738,7 +737,7 @@ const test = async app => {
     'Try to create a Publication with an invalid genre',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -765,7 +764,7 @@ const test = async app => {
     'Try to create a Publication with an invalid url',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -792,7 +791,7 @@ const test = async app => {
     'Try to create a Publication with an invalid attribution',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -819,7 +818,7 @@ const test = async app => {
     'Try to create a Publication with an invalid attribution type',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -845,7 +844,7 @@ const test = async app => {
     'Try to create a Publication with an invalid attribution object',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -871,7 +870,7 @@ const test = async app => {
     'Try to create a Publication with an invalid inDirection value',
     async () => {
       const res = await request(app)
-        .post(`/readers/${readerId}/publications`)
+        .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -896,7 +895,7 @@ const test = async app => {
 
   await tap.test('Try to create a Publication without a body', async () => {
     const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post('/publications')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

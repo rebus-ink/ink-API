@@ -380,7 +380,7 @@ const test = async app => {
 
     // post publication
     const res8 = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post('/publications')
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res8.statusCode, 401)
