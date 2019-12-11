@@ -40,7 +40,7 @@ const test = async app => {
 
   await tap.test('Assign Publication to Tag', async () => {
     const res = await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -66,7 +66,7 @@ const test = async app => {
     'Try to assign Publication to Tag with invalid Tag',
     async () => {
       const res = await request(app)
-        .put(`/readers/${readerId}/publications/${publicationId}/tags/123`)
+        .put(`/publications/${publicationId}/tags/123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -83,7 +83,7 @@ const test = async app => {
     'Try to assign Publication to Tag with invalid Publication',
     async () => {
       const res = await request(app)
-        .put(`/readers/${readerId}/publications/123/tags/${tagId}`)
+        .put(`/publications/123/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -172,13 +172,13 @@ const test = async app => {
 
   await tap.test('Try to assign Publication to Tag twice', async () => {
     await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     const res = await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

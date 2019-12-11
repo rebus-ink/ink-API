@@ -238,7 +238,7 @@ const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
   }
   pubId = urlToId(pubId)
   const res = await request(app)
-    .put(`/readers/${readerId}/publications/${pubId}/tags/${tagId}`)
+    .put(`/publications/${pubId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')

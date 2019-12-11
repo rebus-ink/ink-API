@@ -260,27 +260,6 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to add tag to a publication for another user',
-    async () => {
-      const res = await request(app)
-        .put(`/readers/${readerId}/publications/123/tags/123`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Add Tag to Publication')
-    }
-  )
-
-  await tap.test(
     'Try to remove tag from a publication for another user',
     async () => {
       const res = await request(app)
@@ -401,7 +380,7 @@ const test = async app => {
 
     // add tag to publication
     const res11 = await request(app)
-      .put(`/readers/${readerId}/publications/123/tags/123`)
+      .put(`/publications/123/tags/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 
