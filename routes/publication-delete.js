@@ -20,11 +20,6 @@ module.exports = function (app) {
    *     description: DELETE /publications/pubId
    *     parameters:
    *       - in: path
-   *         name: readerId
-   *         schema:
-   *           type: string
-   *         required: true
-   *       - in: path
    *         name: pubId
    *         schema:
    *           type: string
