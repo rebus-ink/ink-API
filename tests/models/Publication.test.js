@@ -421,10 +421,6 @@ const test = async app => {
       editor: [{ type: 'Person', name: 'New Sample Editor' }]
     }
 
-    const attributionsBefore = await Attribution.getAttributionByPubId(
-      publicationId2
-    )
-
     const pub = await Publication.byId(publicationId2)
     const newPub = await pub.update(newPubObj)
     await tap.notOk(newPub instanceof Error)

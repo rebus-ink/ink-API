@@ -5,10 +5,8 @@ const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
-const { urlToId, checkOwnership } = require('../utils/utils')
+const { checkOwnership } = require('../utils/utils')
 const { libraryCacheUpdate } = require('../utils/cache')
-
-const utils = require('../utils/utils')
 
 module.exports = function (app) {
   /**

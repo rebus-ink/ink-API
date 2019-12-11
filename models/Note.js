@@ -6,12 +6,6 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const urlparse = require('url').parse
-const route = require('path-match')({
-  sensitive: false,
-  strict: false,
-  end: false
-})
-const match = route('/publication-:context/:path*')
 
 /*::
 type NoteType = {

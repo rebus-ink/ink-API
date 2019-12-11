@@ -8,7 +8,6 @@ const {
   createPublication
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
-const { Attribution } = require('../../models/Attribution')
 
 const test = async app => {
   const token = getToken()
