@@ -578,6 +578,56 @@ class Publication extends BaseModel {
       .where('publicationId', '=', id)
   }
 
+  async update (body /*: any */) /*: Promise<PublicationType|null> */ {
+    const id = urlToId(this.id)
+    const publication = this
+    try {
+      Publication._validateIncomingPub(body)
+    } catch (err) {
+      return err
+    }
+    const modifications = Publication._formatIncomingPub(null, body)
+
+    let updatedPub
+    try {
+      updatedPub = await Publication.query().patchAndFetchById(
+        id,
+        modifications
+      )
+    } catch (err) {
+      return err
+    }
+    // attach attributions to the udpatedPub object
+    if (publication.attributions) {
+      attributionTypes.forEach(type => {
+        updatedPub[type] = publication.attributions.filter(
+          attribution => attribution.role === type
+        )
+      })
+      publication.attributions = undefined
+    }
+
+    // Update Attributions if necessary
+    for (const role of attributionTypes) {
+      if (body[role]) {
+        // Delete the previous attributions for this role
+        await Attribution.deleteAttributionOfPub(id, role)
+        // Assign new attributions
+        updatedPub[role] = []
+        for (let i = 0; i < body[role].length; i++) {
+          const attribution = await Attribution.createAttribution(
+            body[role][i],
+            role,
+            publication
+          )
+          updatedPub[role].push(attribution)
+        }
+      }
+    }
+
+    return updatedPub
+  }
+
   static async update (
     newPubObj /*: any */
   ) /*: Promise<PublicationType|null> */ {

@@ -8,23 +8,17 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../utils/cache')
-
-const utils = require('../utils/utils')
+const { checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers/{readerId}/publications/{pubId}:
+   * /publications/{pubId}:
    *   patch:
    *     tags:
    *       - publications
-   *     description: PATCH /readers/:readerId/publications/:pubId
+   *     description: PATCH /publications/:pubId
    *     parameters:
-   *       - in: path
-   *         name: readerId
-   *         schema:
-   *           type: string
-   *         required: true
    *       - in: path
    *         name: pubId
    *         schema:
@@ -47,97 +41,93 @@ module.exports = function (app) {
    *       400:
    *         description: Validation error
    *       403:
-   *         description: 'Access to reader {id} disallowed'
+   *         description: 'Access to publication {id} disallowed'
+   *       404:
+   *         description: Publication not found
    */
   app.use('/', router)
-  router
-    .route('/readers/:readerId/publications/:pubId')
-    .patch(jwtAuth, function (req, res, next) {
-      const readerId = req.params.readerId
-      Reader.byId(readerId)
-        .then(reader => {
-          if (!reader) {
-            return next(
-              boom.notFound(`No reader with ID ${readerId}`, {
-                type: 'Reader',
-                id,
+  router.route('/publications/:pubId').patch(jwtAuth, function (req, res, next) {
+    const pubId = req.params.pubId
+    Publication.byId(pubId)
+      .then(async pub => {
+        if (!pub) {
+          return next(
+            boom.notFound(
+              `publication with id ${pubId} does not exist or has been deleted`,
+              {
+                type: 'Publication',
+                id: pubId,
                 activity: 'Update Publication'
-              })
+              }
             )
-          } else if (!utils.checkReader(req, reader)) {
-            return next(
-              boom.forbidden(`Access to reader ${readerId} disallowed`, {
-                type: 'Reader',
-                id: readerId,
-                activity: 'Update Publication'
-              })
-            )
-          } else {
-            if (!req.is('application/ld+json')) {
-              return next(
-                boom.badRequest('Body must be JSON-LD', {
-                  activity: 'Update Publication'
-                })
-              )
-            }
+          )
+        }
+        const reader = await Reader.byAuthId(req.user)
+        if (!reader || !checkOwnership(reader.id, pubId)) {
+          return next(
+            boom.forbidden(`Access to publication ${pubId} disallowed`, {
+              type: 'Publication',
+              id: pubId,
+              activity: 'Update Publication'
+            })
+          )
+        }
+        // check body
+        if (!req.is('application/ld+json')) {
+          return next(
+            boom.badRequest('Body must be JSON-LD', {
+              activity: 'Update Publication'
+            })
+          )
+        }
 
-            const body = req.body
-            if (typeof body !== 'object' || _.isEmpty(body)) {
-              return next(
-                boom.badRequest('Body must be a JSON object', {
-                  activity: 'Update Publication',
-                  type: 'Publication'
-                })
-              )
-            }
+        const body = req.body
+        if (typeof body !== 'object' || _.isEmpty(body)) {
+          return next(
+            boom.badRequest('Body must be a JSON object', {
+              activity: 'Update Publication',
+              type: 'Publication'
+            })
+          )
+        }
 
-            // update publication
-            body.id = req.params.pubId
-            Publication.update(body)
-              .then(async updatedPub => {
-                if (updatedPub === null) {
-                  return next(
-                    boom.notFound(`no publication found with id ${body.id}`, {
-                      type: 'Publication',
-                      id: body.id,
-                      activity: 'Update Publication'
-                    })
-                  )
-                }
+        // update pub
+        const updatedPub = await pub.update(body)
+        if (updatedPub === null) {
+          return next(
+            boom.notFound(`no publication found with id ${body.id}`, {
+              type: 'Publication',
+              id: body.id,
+              activity: 'Update Publication'
+            })
+          )
+        }
 
-                if (updatedPub instanceof ValidationError) {
-                  return next(
-                    boom.badRequest(
-                      'Validation Error on Update Publication: ',
-                      {
-                        activity: 'Update Publication',
-                        type: 'Publication',
-                        validation: updatedPub.data
-                      }
-                    )
-                  )
-                }
+        if (updatedPub instanceof ValidationError) {
+          return next(
+            boom.badRequest('Validation Error on Update Publication: ', {
+              activity: 'Update Publication',
+              type: 'Publication',
+              validation: updatedPub.data
+            })
+          )
+        }
+        if (updatedPub instanceof Error) {
+          return next(
+            boom.badRequest(updatedPub.message, {
+              activity: 'Update Publication',
+              type: 'Publication'
+            })
+          )
+        }
 
-                if (updatedPub instanceof Error) {
-                  return next(
-                    boom.badRequest(updatedPub.message, {
-                      activity: 'Update Publication',
-                      type: 'Publication'
-                    })
-                  )
-                }
-                await libraryCacheUpdate(readerId)
+        await libraryCacheUpdate(reader.id)
 
-                res.setHeader('Content-Type', 'application/ld+json')
-                res.status(200).end(JSON.stringify(updatedPub.toJSON()))
-              })
-              .catch(err => {
-                next(err)
-              })
-          }
-        })
-        .catch(err => {
-          next(err)
-        })
-    })
+        res.setHeader('Content-Type', 'application/ld+json')
+        res.status(200).end(JSON.stringify(updatedPub.toJSON()))
+      })
+      .catch(err => {
+        next(err)
+      })
+  })
 }

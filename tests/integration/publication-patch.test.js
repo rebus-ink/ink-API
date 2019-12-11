@@ -13,8 +13,6 @@ const { Attribution } = require('../../models/Attribution')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
-
   const readerUrl = urlparse(readerCompleteUrl).path
 
   const now = new Date().toISOString()
@@ -84,7 +82,7 @@ const test = async app => {
   await tap.test('Update a Publication', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
-      .patch(`/readers/${readerId}/publications/${publicationId}`)
+      .patch(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -113,14 +111,13 @@ const test = async app => {
           ],
           editor: [{ type: 'Person', name: 'New Sample Editor' }],
           contributor: ['Sample Contributor2'],
-          creator: ['Sample Creator2'],
+          // creator: ['Sample Creator2'], // making sure that non-updated attributions are returned too!
           illustrator: ['Sample Illustrator2'],
           publisher: ['Sample Publisher2'],
           translator: ['Sample Translator2']
         })
       )
     await tap.equal(res.status, 200)
-
     const body = res.body
     await tap.equal(body.name, 'New name for pub A')
     await tap.equal(body.abstract, 'New description for Publication')
@@ -149,7 +146,7 @@ const test = async app => {
     )
     await tap.equal(body.editor[0].name, 'New Sample Editor')
     await tap.equal(body.contributor[0].name, 'Sample Contributor2')
-    await tap.equal(body.creator[0].name, 'Sample Creator2')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
     await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
     await tap.equal(body.publisher[0].name, 'Sample Publisher2')
     await tap.equal(body.translator[0].name, 'Sample Translator2')
@@ -159,7 +156,7 @@ const test = async app => {
     'Try to update a Publication to an invalid value',
     async () => {
       const res = await request(app)
-        .patch(`/readers/${readerId}/publications/${publicationId}`)
+        .patch(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -185,7 +182,7 @@ const test = async app => {
     'Try to update a Publication to an invalid metadata value',
     async () => {
       const res = await request(app)
-        .patch(`/readers/${readerId}/publications/${publicationId}`)
+        .patch(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -208,7 +205,7 @@ const test = async app => {
     'Try to update a Publication that does not exist',
     async () => {
       const res = await request(app)
-        .patch(`/readers/${readerId}/publications/${publicationId}1`)
+        .patch(`/publications/${publicationId}1`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

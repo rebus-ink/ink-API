@@ -240,21 +240,24 @@ const test = async app => {
     }
   )
 
-  await tap.test('Try to update a publication for another user', async () => {
-    const res = await request(app)
-      .patch(`/readers/${readerId}/publications/123`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type('application/ld+json')
+  await tap.test(
+    'Try to update a publication belonging to another user',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${urlToId(publicationUrl)}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
 
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Update Publication')
-  })
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Update Publication')
+    }
+  )
 
   await tap.test(
     'Try to add tag to a publication for another user',
@@ -391,7 +394,7 @@ const test = async app => {
 
     // update publication
     const res10 = await request(app)
-      .patch(`/readers/${readerId}/publications/123`)
+      .patch(`/publications/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res10.statusCode, 401)

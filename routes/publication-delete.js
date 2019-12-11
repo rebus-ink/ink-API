@@ -38,7 +38,6 @@ module.exports = function (app) {
   router
     .route('/publications/:pubId')
     .delete(jwtAuth, function (req, res, next) {
-      const readerId = req.params.readerId
       const pubId = req.params.pubId
       Publication.byId(pubId)
         .then(async pub => {
@@ -67,7 +66,7 @@ module.exports = function (app) {
 
           await pub.delete()
 
-          await libraryCacheUpdate(readerId)
+          await libraryCacheUpdate(reader.id)
           res.status(204).end()
         })
 
