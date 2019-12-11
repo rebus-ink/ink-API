@@ -28,6 +28,7 @@ const test = async app => {
 
   // reader2
   const token2 = getToken()
+  await createUser(app, token2)
 
   // create publication and documents for reader 1
   const publication = await createPublication(readerUrl)
@@ -220,21 +221,24 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Publication')
   })
 
-  await tap.test('Try to delete a publication for another user', async () => {
-    const res = await request(app)
-      .delete(`/readers/${readerId}/publications/123`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type('application/ld+json')
+  await tap.test(
+    'Try to delete a publication belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/publications/${urlToId(publicationUrl)}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
 
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Publication')
-  })
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Delete Publication')
+    }
+  )
 
   await tap.test('Try to update a publication for another user', async () => {
     const res = await request(app)
@@ -380,7 +384,7 @@ const test = async app => {
 
     // delete publication
     const res9 = await request(app)
-      .delete(`/readers/${readerId}/publications/123`)
+      .delete(`/publications/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res9.statusCode, 401)
@@ -402,7 +406,7 @@ const test = async app => {
 
     // remove tag from publication
     const res12 = await request(app)
-      .delete(`/readers/${readerId}/publications/123/tags/123`)
+      .delete(`/readers/123/publications/123/tags/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 

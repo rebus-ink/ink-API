@@ -6,7 +6,7 @@ const _ = require('lodash')
 const { Attribution } = require('./Attribution')
 const { ReadActivity } = require('./ReadActivity')
 const { Note } = require('./Note')
-const { urlToId } = require('../utils/utils')
+const { urlToId, checkOwnership } = require('../utils/utils')
 const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
@@ -525,8 +525,31 @@ class Publication extends BaseModel {
     return pub
   }
 
+  async delete () {
+    this.id = urlToId(this.id)
+    // Mark documents associated with pub as deleted
+    const { Document } = require('./Document')
+    await Document.deleteDocumentsByPubId(this.id)
+
+    // Delete Publication_Tag associated with pub
+    const { Publication_Tag } = require('./Publications_Tags')
+    await Publication_Tag.deletePubTagsOfPub(this.id)
+
+    // remove documents from elasticsearch index
+    if (elasticsearchQueue) {
+      await elasticsearchQueue.add({ type: 'delete', publicationId: this.id })
+    }
+
+    const date = new Date().toISOString()
+    return await Publication.query().patchAndFetchById(this.id, {
+      deleted: date
+    })
+  }
+
+  // TODO: remove this method once the old delete activity is removed
   static async delete (id /*: string */) /*: Promise<number|null> */ {
     let publication = await Publication.query().findById(id)
+
     if (!publication || publication.deleted) {
       return null
     }

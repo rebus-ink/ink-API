@@ -691,7 +691,7 @@ const test = async app => {
     await tap.equal(pub.tags.length, 1)
     await tap.equal(pub.tags[0].name, 'tagAdded')
 
-    const res = await Publication.delete(publicationId)
+    const res = await pub.delete()
 
     // Fetch the document that has just been deleted
     const docDeleted = await Document.byId(urlToId(document.id))
@@ -699,11 +699,6 @@ const test = async app => {
     await tap.ok(res.deleted)
     await tap.ok(docDeleted.deleted)
     await tap.ok(!res.tags)
-  })
-
-  await tap.test('Delete publication that does not exist', async () => {
-    const res = await Publication.delete('123')
-    await tap.notOk(res)
   })
 
   await tap.test('Delete all notes for a publication', async () => {

@@ -4,6 +4,12 @@ const checkReader = (req, reader) => {
   return req.user === reader.authId
 }
 
+const checkOwnership = (readerId, resourceId) => {
+  readerId = urlToId(readerId)
+  resourceId = urlToId(resourceId)
+  return resourceId.startsWith(readerId)
+}
+
 const urlToId = url => {
   if (!url) return undefined
   if (!url.startsWith('http')) return url
@@ -34,4 +40,4 @@ const createActivityObject = (body, result, reader) => {
   return props
 }
 
-module.exports = { checkReader, urlToId, createActivityObject }
+module.exports = { checkReader, urlToId, createActivityObject, checkOwnership }

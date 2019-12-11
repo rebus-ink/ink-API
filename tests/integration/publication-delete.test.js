@@ -115,7 +115,7 @@ const test = async app => {
     await tap.ok(!document.deleted)
 
     const res = await request(app)
-      .delete(`/readers/${readerId}/publications/${publicationId}`)
+      .delete(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -161,7 +161,7 @@ const test = async app => {
     'Try to delete a Publication that was already deleted',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/${publicationId}`)
+        .delete(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -180,7 +180,7 @@ const test = async app => {
     'Try to delete a Publication that does not exist',
     async () => {
       const res1 = await request(app)
-        .delete(`/readers/${readerId}/publications/1234`)
+        .delete(`/publications/1234`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
