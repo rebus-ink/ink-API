@@ -6,7 +6,11 @@ const authErrorTests = require('./auth-error.test')
 
 const libraryGetTests = require('./library-get.test')
 const libraryPaginateTests = require('./library-paginate.test')
-const libraryFilterTests = require('./library-filter.test')
+const libraryFilterCollectionTests = require('./library-filter-collection.test')
+const libraryFilterTitleTests = require('./library-filter-title.test')
+const libraryFilterAttributionTests = require('./library-filter-attribution.test')
+const libraryFilterLanguageTests = require('./library-filter-language.test')
+const libraryFilterCombinedTests = require('./library-filter-combined.test')
 const libraryOrderByTests = require('./library-orderBy.test')
 
 const noteCreateTests = require('./note-create.test')
@@ -63,7 +67,11 @@ const allTests = async () => {
   if (!test || test === 'library') {
     await libraryGetTests(app)
     await libraryPaginateTests(app)
-    // await libraryFilterTests(app)
+    await libraryFilterCollectionTests(app)
+    await libraryFilterTitleTests(app)
+    await libraryFilterAttributionTests(app)
+    await libraryFilterLanguageTests(app)
+    await libraryFilterCombinedTests(app)
     // await libraryOrderByTests(app)
   }
 
