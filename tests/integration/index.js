@@ -11,7 +11,9 @@ const libraryFilterTitleTests = require('./library-filter-title.test')
 const libraryFilterAttributionTests = require('./library-filter-attribution.test')
 const libraryFilterLanguageTests = require('./library-filter-language.test')
 const libraryFilterCombinedTests = require('./library-filter-combined.test')
-const libraryOrderByTests = require('./library-orderBy.test')
+const libraryOrderByDefaultTests = require('./library-orderBy-default.test')
+const libraryOrderByTitleTests = require('./library-orderBy-title.test')
+const libraryOrderByDatePublishedTests = require('./library-orderBy-datePublished.test')
 
 const noteCreateTests = require('./note-create.test')
 const noteGetTests = require('./note-get.test')
@@ -72,7 +74,9 @@ const allTests = async () => {
     await libraryFilterAttributionTests(app)
     await libraryFilterLanguageTests(app)
     await libraryFilterCombinedTests(app)
-    // await libraryOrderByTests(app)
+    await libraryOrderByDefaultTests(app)
+    await libraryOrderByTitleTests(app)
+    await libraryOrderByDatePublishedTests(app)
   }
 
   if (!test || test === 'outbox') await outboxGetTests(app)
