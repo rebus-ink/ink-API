@@ -6,8 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../utils/cache')
 const { Publication_Tag } = require('../models/Publications_Tags')
-
-const utils = require('../utils/utils')
+const { checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -55,6 +54,25 @@ module.exports = function (app) {
               })
             )
           } else {
+            if (!checkOwnership(reader.id, pubId)) {
+              return next(
+                boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+                  type: 'Publication',
+                  id: pubId,
+                  activity: 'Remove Tag from Publication'
+                })
+              )
+            }
+            if (!checkOwnership(reader.id, tagId)) {
+              return next(
+                boom.forbidden(`Access to Tag ${tagId} disallowed`, {
+                  type: 'Tag',
+                  id: tagId,
+                  activity: 'Remove Tag from Publication'
+                })
+              )
+            }
+
             Publication_Tag.removeTagFromPub(pubId, tagId).then(
               async result => {
                 if (result instanceof Error) {
