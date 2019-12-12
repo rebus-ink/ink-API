@@ -62,7 +62,7 @@ const allTests = async () => {
 
   if (!test || test === 'library') {
     await libraryGetTests(app)
-    // await libraryPaginateTests(app)
+    await libraryPaginateTests(app)
     // await libraryFilterTests(app)
     // await libraryOrderByTests(app)
   }
