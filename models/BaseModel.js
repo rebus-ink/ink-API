@@ -22,7 +22,13 @@ class BaseModel extends Model {
    * @param {string?} type
    */
   formatIdsToUrl (json /*: any */, type /* :?string */) /*: any */ {
-    if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
+    if (
+      type === 'publication' &&
+      json.id &&
+      !json.id.startsWith(process.env.DOMAIN)
+    ) {
+      json.id = `${domain}/publications/${json.id}`
+    } else if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
       json.id = `${domain}/${type}-${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
@@ -33,7 +39,7 @@ class BaseModel extends Model {
       json.publicationId &&
       !json.publicationId.startsWith(process.env.DOMAIN)
     ) {
-      json.publicationId = `${domain}/publication-${json.publicationId}`
+      json.publicationId = `${domain}/publications/${json.publicationId}`
     }
 
     if (json.noteId && !json.noteId.startsWith(process.env.DOMAIN)) {

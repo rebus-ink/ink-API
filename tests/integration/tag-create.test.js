@@ -2,7 +2,7 @@ const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../utils/utils')
-
+const { urlToId } = require('../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
@@ -143,6 +143,9 @@ const test = async app => {
     const body = res.body
     await tap.ok(Array.isArray(body.tags))
     await tap.type(body.tags[0].name, 'string')
+    await tap.ok(
+      urlToId(body.tags[0].id).startsWith(urlToId(body.tags[0].readerId))
+    ) // check that id contains readerId
     await tap.equal(body.tags[0].tagType, 'newTagType!')
     await tap.equal(body.tags[0].type, 'reader:Tag')
     await tap.type(body.tags[0].json, 'object')

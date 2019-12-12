@@ -4,11 +4,20 @@ const checkReader = (req, reader) => {
   return req.user === reader.authId
 }
 
+const checkOwnership = (readerId, resourceId) => {
+  readerId = urlToId(readerId)
+  resourceId = urlToId(resourceId)
+  return resourceId.startsWith(readerId)
+}
+
 const urlToId = url => {
   if (!url) return undefined
   if (!url.startsWith('http')) return url
   let path = parseurl(url).path
   if (path.endsWith('/')) path = path.substring(0, path.length - 1)
+  if (path.startsWith('/publications/')) {
+    return path.substring(14) // 14 is '/publications/'.length
+  }
   return path.substring(path.indexOf('-') + 1)
 }
 
@@ -31,4 +40,4 @@ const createActivityObject = (body, result, reader) => {
   return props
 }
 
-module.exports = { checkReader, urlToId, createActivityObject }
+module.exports = { checkReader, urlToId, createActivityObject, checkOwnership }

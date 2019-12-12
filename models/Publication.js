@@ -10,6 +10,7 @@ const { urlToId } = require('../utils/utils')
 const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
+const crypto = require('crypto')
 
 const metadataProps = [
   'inLanguage',
@@ -236,6 +237,7 @@ class Publication extends BaseModel {
     return true
   }
 
+  // TODO: should not be static (wait until old deprecated code is removed)
   static _validateIncomingPub (publication /*: any */) /*: any */ {
     // check languages
     if (_.isString(publication.inLanguage)) {
@@ -370,6 +372,7 @@ class Publication extends BaseModel {
     }
   }
 
+  // TODO: should not be static (wait until old deprecated code is removed)
   static _formatIncomingPub (
     reader /*: any */,
     publication /*: any */
@@ -465,6 +468,7 @@ class Publication extends BaseModel {
 
     const pub = this._formatIncomingPub(reader, publication)
     let createdPublication
+    pub.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
     try {
       createdPublication = await Publication.query(
         Publication.knex()
@@ -523,8 +527,31 @@ class Publication extends BaseModel {
     return pub
   }
 
+  async delete () {
+    this.id = urlToId(this.id)
+    // Mark documents associated with pub as deleted
+    const { Document } = require('./Document')
+    await Document.deleteDocumentsByPubId(this.id)
+
+    // Delete Publication_Tag associated with pub
+    const { Publication_Tag } = require('./Publications_Tags')
+    await Publication_Tag.deletePubTagsOfPub(this.id)
+
+    // remove documents from elasticsearch index
+    if (elasticsearchQueue) {
+      await elasticsearchQueue.add({ type: 'delete', publicationId: this.id })
+    }
+
+    const date = new Date().toISOString()
+    return await Publication.query().patchAndFetchById(this.id, {
+      deleted: date
+    })
+  }
+
+  // TODO: remove this method once the old delete activity is removed
   static async delete (id /*: string */) /*: Promise<number|null> */ {
     let publication = await Publication.query().findById(id)
+
     if (!publication || publication.deleted) {
       return null
     }
@@ -551,6 +578,56 @@ class Publication extends BaseModel {
     return await Note.query()
       .patch({ deleted: time })
       .where('publicationId', '=', id)
+  }
+
+  async update (body /*: any */) /*: Promise<PublicationType|null> */ {
+    const id = urlToId(this.id)
+    const publication = this
+    try {
+      Publication._validateIncomingPub(body)
+    } catch (err) {
+      return err
+    }
+    const modifications = Publication._formatIncomingPub(null, body)
+
+    let updatedPub
+    try {
+      updatedPub = await Publication.query().patchAndFetchById(
+        id,
+        modifications
+      )
+    } catch (err) {
+      return err
+    }
+    // attach attributions to the udpatedPub object
+    if (publication.attributions) {
+      attributionTypes.forEach(type => {
+        updatedPub[type] = publication.attributions.filter(
+          attribution => attribution.role === type
+        )
+      })
+      publication.attributions = undefined
+    }
+
+    // Update Attributions if necessary
+    for (const role of attributionTypes) {
+      if (body[role]) {
+        // Delete the previous attributions for this role
+        await Attribution.deleteAttributionOfPub(id, role)
+        // Assign new attributions
+        updatedPub[role] = []
+        for (let i = 0; i < body[role].length; i++) {
+          const attribution = await Attribution.createAttribution(
+            body[role][i],
+            role,
+            publication
+          )
+          updatedPub[role].push(attribution)
+        }
+      }
+    }
+
+    return updatedPub
   }
 
   static async update (

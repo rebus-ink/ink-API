@@ -53,6 +53,7 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')
+    await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId)))
     await tap.type(body.content, 'string')
     await tap.type(body.inReplyTo, 'string')
     await tap.type(body.context, 'string')

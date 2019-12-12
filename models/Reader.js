@@ -14,6 +14,8 @@ const route = require('path-match')({
   end: false
 })
 const match = route('/publication-:context/:path*')
+const short = require('short-uuid')
+const translator = short()
 
 const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
 
@@ -295,10 +297,12 @@ class Reader extends BaseModel {
     const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
     let doc
     if (filters.document) {
+      const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'
+      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
+      const docPath = path.substring(startIndex + 1) // 'path/to/file'
+      const publicationId = path.substring(14, startIndex) // {pubid}
+      doc = await Document.byPath(publicationId, docPath)
       // $FlowFixMe
-      const { context, path = [] } = match(urlparse(filters.document).path)
-      // $FlowFixMe
-      doc = await Document.byPath(context, path.join('/'))
       if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
 
       // no pagination for filter by document
@@ -378,7 +382,7 @@ class Reader extends BaseModel {
     person /*: any */
   ) /*: Promise<ReaderType> */ {
     const props = _.pick(person, attributes)
-
+    props.id = translator.new()
     props.authId = authId
     try {
       return await Reader.query(Reader.knex())

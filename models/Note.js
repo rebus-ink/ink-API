@@ -4,13 +4,8 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
+const crypto = require('crypto')
 const urlparse = require('url').parse
-const route = require('path-match')({
-  sensitive: false,
-  strict: false,
-  end: false
-})
-const match = route('/publication-:context/:path*')
 
 /*::
 type NoteType = {
@@ -121,9 +116,15 @@ class Note extends BaseModel {
 
     if (note.inReplyTo) {
       // $FlowFixMe
-      const { context, path = [] } = match(urlparse(note.inReplyTo).path)
-      note.context = context
-      const document = await Document.byPath(context, path.join('/'))
+      const path = urlparse(note.inReplyTo).path // '/publications/{pubid}/path/to/file'
+      // $FlowFixMe
+      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
+      // $FlowFixMe
+      const docPath = path.substring(startIndex + 1) // 'path/to/file'
+      // $FlowFixMe
+      const publicationId = path.substring(14, startIndex) // {pubid}
+      const document = await Document.byPath(publicationId, docPath)
+
       if (document) {
         props.documentId = urlToId(document.id)
       } else {
@@ -139,6 +140,7 @@ class Note extends BaseModel {
       props.publicationId = note.context
     }
     props.readerId = reader.id
+    props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
     try {
       return await Note.query().insertAndFetch(props)

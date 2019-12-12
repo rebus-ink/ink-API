@@ -73,7 +73,7 @@ const allTests = async () => {
     await publicationGetTests(app)
     await publicationUpdateTests(app) // deprecated
     await publicationDeleteTests(app)
-    await publicationDeleteTestsOld(app)
+    await publicationDeleteTestsOld(app) // deprecated
     await publicationPostTests(app)
     await publicationPatchTests(app)
   }
