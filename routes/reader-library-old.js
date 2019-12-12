@@ -156,11 +156,11 @@ const { libraryCacheGet } = require('../utils/cache')
 module.exports = app => {
   /**
    * @swagger
-   * /readers/{id}/library:
+   * /reader-{id}/library:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id/library
+   *     description: GET /reader-:id/library
    *     parameters:
    *       - in: path
    *         name: id
@@ -230,7 +230,7 @@ module.exports = app => {
    */
   app.use('/', router)
   router.get(
-    '/readers/:id/library',
+    '/reader-:id/library',
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
@@ -290,14 +290,18 @@ module.exports = app => {
         })
         .then(count => {
           let reader = returnedReader
-          res.setHeader('Content-Type', 'application/ld+json')
+          res.setHeader(
+            'Content-Type',
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
           res.end(
             JSON.stringify({
+              '@context': 'https://www.w3.org/ns/activitystreams',
               summaryMap: {
-                en: `Library for reader with id ${id}`
+                en: `Streams for reader with id ${id}`
               },
               type: 'Collection',
-              id: getId(`/readers/${id}/library`),
+              id: getId(`/reader-${id}/library`),
               totalItems: parseInt(count),
               items: reader.publications,
               tags: reader.tags,

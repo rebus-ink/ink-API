@@ -22,15 +22,19 @@ const test = async () => {
 
   await tap.test('Get empty library', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
     await tap.equal(res.status, 200)
 
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    // should @context be an object or a string?
+    await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 0)
@@ -67,15 +71,19 @@ const test = async () => {
     })
 
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`${readerUrl}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    // should @context be an object or a string?
+    await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 1)
@@ -116,10 +124,12 @@ const test = async () => {
     'Try to get Library for Reader that does not exist',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}abc/library`)
+        .get(`${readerUrl}abc/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
@@ -137,11 +147,13 @@ const test = async () => {
         time = new Date().getTime()
         // with time at beginning - so it will be modified
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 304)
         await tap.notOk(res.body)
       }
@@ -155,11 +167,13 @@ const test = async () => {
         await createTag(app, token, readerUrl)
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -177,10 +191,15 @@ const test = async () => {
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
               type: 'Update',
               object: {
                 type: 'reader:Tag',
@@ -191,11 +210,13 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -213,11 +234,13 @@ const test = async () => {
         publication = await createPublication(readerUrl)
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -235,10 +258,15 @@ const test = async () => {
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
               type: 'Update',
               object: {
                 type: 'Publication',
@@ -249,11 +277,13 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -275,11 +305,13 @@ const test = async () => {
         )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -304,11 +336,13 @@ const test = async () => {
           .type('application/ld+json')
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -326,10 +360,15 @@ const test = async () => {
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
               type: 'Delete',
               object: {
                 type: 'Publication',
@@ -339,11 +378,13 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
@@ -361,10 +402,15 @@ const test = async () => {
           .post(`${readerUrl}/activity`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
+              '@context': [
+                'https://www.w3.org/ns/activitystreams',
+                { reader: 'https://rebus.foundation/ns/reader' }
+              ],
               type: 'Delete',
               object: {
                 type: 'reader:Tag',
@@ -374,11 +420,13 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get(`${readerUrl}/library`)
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
-          .type('application/ld+json')
+          .type(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          )
         await tap.equal(res.statusCode, 200)
 
         const body = res.body
