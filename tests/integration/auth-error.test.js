@@ -143,7 +143,7 @@ const test = async app => {
 
   await tap.test('Try to get library belonging to another reader', async () => {
     const res = await request(app)
-      .get(`${urlparse(readerUrl).path}/library`)
+      .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(

@@ -17,8 +17,9 @@ const { Note } = require('../../models/Note')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
   const person = {
@@ -85,7 +86,7 @@ const test = async app => {
 
   // get tag object by fetching the library
   const libraryRes = await request(app)
-    .get(`${readerUrl}/library`)
+    .get(`/readers/${readerId}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -158,7 +159,7 @@ const test = async app => {
   await tap.test('Delete a Tag', async () => {
     // Get the library before the modifications
     const libraryBefore = await request(app)
-      .get(`${readerUrl}/library`)
+      .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -201,7 +202,7 @@ const test = async app => {
 
     // Get the library after the modifications
     const libraryAfter = await request(app)
-      .get(`${readerUrl}/library`)
+      .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

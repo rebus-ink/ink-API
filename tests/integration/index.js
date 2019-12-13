@@ -14,6 +14,10 @@ const libraryFilterCombinedTests = require('./library-filter-combined.test')
 const libraryOrderByDefaultTests = require('./library-orderBy-default.test')
 const libraryOrderByTitleTests = require('./library-orderBy-title.test')
 const libraryOrderByDatePublishedTests = require('./library-orderBy-datePublished.test')
+const libraryFilterTestsOld = require('./library-filter-old.test') // derepcated
+const libraryGetTestsOld = require('./library-get-old.test') // deprecated
+const libraryOrderByTestsOld = require('./library-orderBy-old.test') // deprecated
+const libraryPaginateTestsOld = require('./library-paginate-old.test') // deprecated
 
 const noteCreateTests = require('./note-create.test')
 const noteGetTests = require('./note-get.test')
@@ -77,6 +81,12 @@ const allTests = async () => {
     await libraryOrderByDefaultTests(app)
     await libraryOrderByTitleTests(app)
     await libraryOrderByDatePublishedTests(app)
+
+    // deprecated:
+    await libraryFilterTestsOld(app)
+    await libraryGetTestsOld(app)
+    await libraryOrderByTestsOld(app)
+    await libraryPaginateTestsOld(app)
   }
 
   if (!test || test === 'outbox') await outboxGetTests(app)

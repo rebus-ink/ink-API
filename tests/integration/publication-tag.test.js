@@ -32,7 +32,7 @@ const test = async app => {
 
   // get tag object by fetching the library
   const libraryRes = await request(app)
-    .get(`${readerUrl}/library`)
+    .get(`/readers/${readerId}/library`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
