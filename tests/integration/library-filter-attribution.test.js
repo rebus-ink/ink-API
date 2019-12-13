@@ -5,10 +5,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
-  createPublication,
-  addPubToCollection,
-  createTag
+  createPublication
 } = require('../utils/utils')
 const app = require('../../server').app
 const { urlToId } = require('../../utils/utils')

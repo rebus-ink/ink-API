@@ -2,7 +2,6 @@ const request = require('supertest')
 const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
-const urlparse = require('url').parse
 
 const test = async app => {
   const token = getToken()

@@ -14,7 +14,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
-  const readerId = urlToId(readerCompleteUrl)
 
   const now = new Date().toISOString()
 
