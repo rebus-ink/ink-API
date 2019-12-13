@@ -6,8 +6,18 @@ const authErrorTests = require('./auth-error.test')
 
 const libraryGetTests = require('./library-get.test')
 const libraryPaginateTests = require('./library-paginate.test')
-const libraryFilterTests = require('./library-filter.test')
-const libraryOrderByTests = require('./library-orderBy.test')
+const libraryFilterCollectionTests = require('./library-filter-collection.test')
+const libraryFilterTitleTests = require('./library-filter-title.test')
+const libraryFilterAttributionTests = require('./library-filter-attribution.test')
+const libraryFilterLanguageTests = require('./library-filter-language.test')
+const libraryFilterCombinedTests = require('./library-filter-combined.test')
+const libraryOrderByDefaultTests = require('./library-orderBy-default.test')
+const libraryOrderByTitleTests = require('./library-orderBy-title.test')
+const libraryOrderByDatePublishedTests = require('./library-orderBy-datePublished.test')
+const libraryFilterTestsOld = require('./library-filter-old.test') // derepcated
+const libraryGetTestsOld = require('./library-get-old.test') // deprecated
+const libraryOrderByTestsOld = require('./library-orderBy-old.test') // deprecated
+const libraryPaginateTestsOld = require('./library-paginate-old.test') // deprecated
 
 const noteCreateTests = require('./note-create.test')
 const noteGetTests = require('./note-get.test')
@@ -63,8 +73,20 @@ const allTests = async () => {
   if (!test || test === 'library') {
     await libraryGetTests(app)
     await libraryPaginateTests(app)
-    await libraryFilterTests(app)
-    await libraryOrderByTests(app)
+    await libraryFilterCollectionTests(app)
+    await libraryFilterTitleTests(app)
+    await libraryFilterAttributionTests(app)
+    await libraryFilterLanguageTests(app)
+    await libraryFilterCombinedTests(app)
+    await libraryOrderByDefaultTests(app)
+    await libraryOrderByTitleTests(app)
+    await libraryOrderByDatePublishedTests(app)
+
+    // deprecated:
+    await libraryFilterTestsOld(app)
+    await libraryGetTestsOld(app)
+    await libraryOrderByTestsOld(app)
+    await libraryPaginateTestsOld(app)
   }
 
   if (!test || test === 'outbox') await outboxGetTests(app)

@@ -3,10 +3,12 @@ const tap = require('tap')
 const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
+
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerCompleteUrl = await createUser(app, token)
+  const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   await tap.test('Create Tag', async () => {
     const res = await request(app)
@@ -132,7 +134,7 @@ const test = async app => {
 
   await tap.test('Get tag when fetching library', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/library`)
+      .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

@@ -2,13 +2,11 @@ const request = require('supertest')
 const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
-const urlparse = require('url').parse
 
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
-  const readerUrl = urlparse(readerCompleteUrl).path
 
   const now = new Date().toISOString()
 
@@ -166,7 +164,7 @@ const test = async app => {
 
   await tap.test('created publications should be in the library', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/library`)
+      .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -177,8 +175,6 @@ const test = async app => {
 
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    // should @context be an object or a string?
-    await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 3)

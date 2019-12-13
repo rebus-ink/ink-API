@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
-const fs = require('fs')
 const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
 const _ = require('lodash')

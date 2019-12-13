@@ -13,7 +13,6 @@ const cache = require('./utils/cache')
 
 const activityRoute = require('./routes/activity')
 const publicationRoute = require('./routes/publication')
-const readerLibraryRoute = require('./routes/reader-library')
 const readerStreamsRoute = require('./routes/reader-streams')
 const readerRoute = require('./routes/reader')
 const whoamiRoute = require('./routes/whoami')
@@ -28,6 +27,7 @@ const readerNotesRoute = require('./routes/reader-notes')
 const searchRoute = require('./routes/search')
 const getJobRoute = require('./routes/job-get')
 const fileUploadPubRoute = require('./routes/file-upload-pub')
+const libraryRouteOld = require('./routes/reader-library-old') // deprecated
 
 // new routes
 const publicationPostRoute = require('./routes/publication-post')
@@ -36,6 +36,7 @@ const publicationDeleteRoute = require('./routes/publication-delete')
 const publicationPutTagRoute = require('./routes/publication-put-tag')
 const publicationDeleteTagRoute = require('./routes/publication-delete-tag')
 const publicationGetRoute = require('./routes/publication-get')
+const readerLibraryRoute = require('./routes/reader-library')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -180,7 +181,6 @@ app.terminate = async () => {
 
 activityRoute(app)
 publicationRoute(app)
-readerLibraryRoute(app)
 readerStreamsRoute(app)
 readerRoute(app)
 whoamiRoute(app)
@@ -195,8 +195,10 @@ readerNotesRoute(app)
 searchRoute(app)
 getJobRoute(app)
 fileUploadPubRoute(app)
+libraryRouteOld(app) // deprecated
 
 // new routes
+readerLibraryRoute(app)
 publicationPostRoute(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)
