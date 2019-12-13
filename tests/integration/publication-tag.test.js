@@ -19,6 +19,9 @@ const test = async app => {
   const publication = await createPublication(readerUrl)
   const publicationId = urlToId(publication.id)
 
+  const invalidTagId = `${readerId}-123` // including readerId to avoid 403 error
+  const invalidPubId = `${readerId}-456`
+
   // create Tag
   await createTag(app, token, readerUrl, {
     type: 'reader:Tag',
@@ -40,7 +43,7 @@ const test = async app => {
 
   await tap.test('Assign Publication to Tag', async () => {
     const res = await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -66,7 +69,7 @@ const test = async app => {
     'Try to assign Publication to Tag with invalid Tag',
     async () => {
       const res = await request(app)
-        .put(`/readers/${readerId}/publications/${publicationId}/tags/123`)
+        .put(`/publications/${publicationId}/tags/${invalidTagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -83,7 +86,7 @@ const test = async app => {
     'Try to assign Publication to Tag with invalid Publication',
     async () => {
       const res = await request(app)
-        .put(`/readers/${readerId}/publications/123/tags/${tagId}`)
+        .put(`/publications/${invalidPubId}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -112,9 +115,7 @@ const test = async app => {
     await tap.equal(bodybefore.tags.length, 1)
 
     const res = await request(app)
-      .delete(
-        `/readers/${readerId}/publications/${publicationId}/tags/${tagId}`
-      )
+      .delete(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -123,7 +124,7 @@ const test = async app => {
 
     // after:
     const pubres = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+      .get(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -140,7 +141,7 @@ const test = async app => {
     'Try to remove a Tag from a Publication with invalid Tag',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/${publicationId}/tags/123`)
+        .delete(`/publications/${publicationId}/tags/${invalidTagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -157,7 +158,7 @@ const test = async app => {
     'Try to remove a Tag from a Publication with invalid Publication',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/123/tags/${tagId}`)
+        .delete(`/publications/${invalidPubId}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -172,13 +173,13 @@ const test = async app => {
 
   await tap.test('Try to assign Publication to Tag twice', async () => {
     await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     const res = await request(app)
-      .put(`/readers/${readerId}/publications/${publicationId}/tags/${tagId}`)
+      .put(`/publications/${publicationId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

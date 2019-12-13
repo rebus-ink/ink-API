@@ -6,24 +6,18 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../utils/cache')
 const { Publication_Tag } = require('../models/Publications_Tags')
-
-const utils = require('../utils/utils')
+const { checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers/{readerId}/publications/{pubId}/tags/{tagId}:
+   * /publications/{pubId}/tags/{tagId}:
    *   put:
    *     tags:
    *       - tags
    *       - publications
-   *     description: PUT /readers/:readerId/publications/:pubId/tags/:tagId
+   *     description: PUT /publications/:pubId/tags/:tagId
    *     parameters:
-   *       - in: path
-   *         name: readerId
-   *         schema:
-   *           type: string
-   *         required: true
    *       - in: path
    *         name: pubId
    *         schema:
@@ -42,32 +36,42 @@ module.exports = function (app) {
    *       400:
    *         description: Cannot assign the same tag twice
    *       404:
-   *         description: reader / publication or tag not found
+   *         description:  publication or tag not found
    *       403:
-   *         description: 'Access to reader {id} disallowed'
+   *         description: 'Access to tag or publication disallowed'
    */
   app.use('/', router)
   router
-    .route('/readers/:readerId/publications/:pubId/tags/:tagId')
+    .route('/publications/:pubId/tags/:tagId')
     .put(jwtAuth, function (req, res, next) {
-      const readerId = req.params.readerId
       const pubId = req.params.pubId
       const tagId = req.params.tagId
-      Reader.byId(readerId)
+      Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${readerId}`, {
+              boom.notFound(`No reader with this token`, {
                 type: 'Reader',
                 id: readerId,
                 activity: 'Add Tag to Publication'
               })
             )
-          } else if (!utils.checkReader(req, reader)) {
+          }
+
+          if (!checkOwnership(reader.id, pubId)) {
             return next(
-              boom.forbidden(`Access to reader ${readerId} disallowed`, {
-                type: 'Reader',
-                id: readerId,
+              boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+                type: 'Publication',
+                id: pubId,
+                activity: 'Add Tag to Publication'
+              })
+            )
+          }
+          if (!checkOwnership(reader.id, tagId)) {
+            return next(
+              boom.forbidden(`Access to Tag ${tagId} disallowed`, {
+                type: 'Tag',
+                id: tagId,
                 activity: 'Add Tag to Publication'
               })
             )
@@ -111,7 +115,7 @@ module.exports = function (app) {
                   return next(err)
               }
             } else {
-              await libraryCacheUpdate(readerId)
+              await libraryCacheUpdate(reader.id)
               res.status(204).end()
             }
           })

@@ -7,7 +7,8 @@ const {
   destroyDB,
   getActivityFromUrl,
   createPublication,
-  createNote
+  createNote,
+  createTag
 } = require('../utils/utils')
 const { Reader } = require('../../models/Reader')
 const { urlToId } = require('../../utils/utils')
@@ -28,11 +29,23 @@ const test = async app => {
 
   // reader2
   const token2 = getToken()
-  await createUser(app, token2)
+  const readerCompleteUrl2 = await createUser(app, token2)
+  const readerUrl2 = urlparse(readerCompleteUrl2).path
+  const readerId2 = urlToId(readerCompleteUrl2)
 
-  // create publication and documents for reader 1
+  // create publication and tag for reader 1
   const publication = await createPublication(readerUrl)
   const publicationUrl = publication.id
+
+  const tag = await createTag(app, token, readerUrl)
+  const tagId = urlToId(tag.id)
+
+  // create publication and tag for reader 2
+  const publication2 = await createPublication(readerUrl2)
+  publicationId2 = urlToId(publication2.id)
+
+  const tag2 = await createTag(app, token2, readerUrl2)
+  const tagId2 = urlToId(tag2.id)
 
   // create Note for reader 1
   const noteActivity = await createNote(app, token, readerUrl)
@@ -197,30 +210,6 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Activity')
   })
 
-  await tap.test('Try to create a publication for another user', async () => {
-    const res = await request(app)
-      .post(`/readers/${readerId}/publications`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          name: 'Publication 1',
-          type: 'Book'
-        })
-      )
-
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Create Publication')
-  })
-
   await tap.test(
     'Try to delete a publication belonging to another user',
     async () => {
@@ -260,42 +249,76 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to add tag to a publication for another user',
+    'Try to assign a tag to a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .put(`/readers/${readerId}/publications/123/tags/123`)
+        .put(`/publications/${urlToId(publicationUrl)}/tags/${tagId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Reader')
+      await tap.equal(error.details.type, 'Publication')
       await tap.type(error.details.id, 'string')
       await tap.equal(error.details.activity, 'Add Tag to Publication')
     }
   )
 
   await tap.test(
-    'Try to remove tag from a publication for another user',
+    'Try to assign a tag belonging to another user to a publication',
     async () => {
       const res = await request(app)
-        .delete(`/readers/${readerId}/publications/123/tags/123`)
+        .put(`/publications/${publicationId2}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Reader')
+      await tap.equal(error.details.type, 'Tag')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Add Tag to Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a publication belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/publications/${urlToId(publicationUrl)}/tags/${tagId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag belonging to another user from a publication',
+    async () => {
+      const res = await request(app)
+        .delete(`/publications/${publicationId2}/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Tag')
       await tap.type(error.details.id, 'string')
       await tap.equal(error.details.activity, 'Remove Tag from Publication')
     }
@@ -380,7 +403,7 @@ const test = async app => {
 
     // post publication
     const res8 = await request(app)
-      .post(`/readers/${readerId}/publications`)
+      .post('/publications')
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res8.statusCode, 401)
@@ -401,7 +424,7 @@ const test = async app => {
 
     // add tag to publication
     const res11 = await request(app)
-      .put(`/readers/${readerId}/publications/123/tags/123`)
+      .put(`/publications/123/tags/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 
@@ -409,7 +432,7 @@ const test = async app => {
 
     // remove tag from publication
     const res12 = await request(app)
-      .delete(`/readers/123/publications/123/tags/123`)
+      .delete(`/publications/123/tags/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 
