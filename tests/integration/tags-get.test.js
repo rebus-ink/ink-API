@@ -10,6 +10,17 @@ const test = async app => {
   const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
+  await tap.test('Get Tags for a reader with no tags', async () => {
+    const res = await request(app)
+      .get('/tags')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.equal(res.body.length, 0)
+  })
+
   await createTag(app, token, readerUrl, { name: 'tag1' })
   await createTag(app, token, readerUrl, { name: 'tag2' })
 
@@ -21,7 +32,10 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    console.log(res.body)
+    const body = res.body
+    await tap.equal(res.body.length, 2)
+    await tap.equal(body[0].name, 'tag1')
+    await tap.equal(body[1].name, 'tag2')
   })
 
   await destroyDB(app)
