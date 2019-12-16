@@ -77,11 +77,11 @@ const test = async app => {
       tagType: 'reader:Stack',
       name: 'tag2'
     })
-    let response = await Tag.byReaderId(urlToId(createdReader.id))
+    let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
 
-    await tap.equal(response.length, 2)
-    await tap.ok(response[0] instanceof Tag)
-    await tap.ok(response[1] instanceof Tag)
+    await tap.equal(responseGet.length, 2)
+    await tap.ok(responseGet[0] instanceof Tag)
+    await tap.ok(responseGet[1] instanceof Tag)
   })
 
   await tap.test('Delete Publication_Tags of a Tag', async () => {
