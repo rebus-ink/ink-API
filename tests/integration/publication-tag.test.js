@@ -23,23 +23,12 @@ const test = async app => {
   const invalidPubId = `${readerId}-456`
 
   // create Tag
-  await createTag(app, token, readerUrl, {
-    type: 'reader:Tag',
+  const tag = await createTag(app, token, readerUrl, {
     tagType: 'reader:Stack',
     name: 'mystack',
     json: { property: 'value' }
   })
-
-  // get tag object by fetching the library
-  const libraryRes = await request(app)
-    .get(`/readers/${readerId}/library`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  const tagId = urlToId(libraryRes.body.tags[0].id)
+  const tagId = urlToId(tag.id)
 
   await tap.test('Assign Publication to Tag', async () => {
     const res = await request(app)

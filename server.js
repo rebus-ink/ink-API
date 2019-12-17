@@ -37,6 +37,9 @@ const publicationPutTagRoute = require('./routes/publication-put-tag')
 const publicationDeleteTagRoute = require('./routes/publication-delete-tag')
 const publicationGetRoute = require('./routes/publication-get')
 const readerLibraryRoute = require('./routes/reader-library')
+const tagPostRoute = require('./routes/tag-post')
+const tagPatchRoute = require('./routes/tag-patch')
+const tagDeleteRoute = require('./routes/tag-delete')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -205,6 +208,9 @@ publicationDeleteRoute(app)
 publicationPutTagRoute(app)
 publicationDeleteTagRoute(app)
 publicationGetRoute(app)
+tagPostRoute(app)
+tagPatchRoute(app)
+tagDeleteRoute(app)
 
 app.use(errorHandling)
 

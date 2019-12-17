@@ -87,6 +87,7 @@ const handleCreate = async (req, res, next, reader) => {
 
       break
 
+    // deprecated
     case 'reader:Tag':
       const resultStack = await Tag.createTag(reader.id, body.object)
 
