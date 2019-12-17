@@ -47,6 +47,7 @@ const tagNoteTests = require('./tag-note.test')
 const tagDeleteTests = require('./tag-delete.test')
 const tagUpdateTests = require('./tag-update.test')
 const publicationAddTagTests = require('./publication-tag.test')
+const tagsGetTests = require('./tags-get.test')
 
 const jobGetTests = require('./job-get.test')
 
@@ -113,6 +114,7 @@ const allTests = async () => {
   }
 
   if (!test || test === 'tag') {
+    await tagsGetTests(app)
     await publicationAddTagTests(app)
     await tagCreateTests(app)
     await tagPublicationTests(app)

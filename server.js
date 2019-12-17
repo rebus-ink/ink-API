@@ -28,7 +28,7 @@ const searchRoute = require('./routes/search')
 const getJobRoute = require('./routes/job-get')
 const fileUploadPubRoute = require('./routes/file-upload-pub')
 const libraryRouteOld = require('./routes/reader-library-old') // deprecated
-
+const getTagsRoute = require('./routes/tags-get')
 // new routes
 const publicationPostRoute = require('./routes/publication-post')
 const publicationPatchRoute = require('./routes/publication-patch')
@@ -196,7 +196,7 @@ searchRoute(app)
 getJobRoute(app)
 fileUploadPubRoute(app)
 libraryRouteOld(app) // deprecated
-
+getTagsRoute(app)
 // new routes
 readerLibraryRoute(app)
 publicationPostRoute(app)

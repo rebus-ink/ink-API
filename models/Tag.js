@@ -113,6 +113,12 @@ class Tag extends BaseModel {
     }
   }
 
+  static async byReaderId (
+    readerId /*: string */
+  ) /*: Promise<Array<TagType>> */ {
+    return await Tag.query().where('readerId', '=', readerId)
+  }
+
   static async byId (id /*: string */) /*: Promise<TagType> */ {
     return await Tag.query().findById(id)
   }

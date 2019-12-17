@@ -71,6 +71,19 @@ const test = async app => {
     await tap.ok(responseGet instanceof Tag)
   })
 
+  await tap.test('Get tags by readerId', async () => {
+    await Tag.createTag(createdReader.id, {
+      type: 'reader:Tag',
+      tagType: 'reader:Stack',
+      name: 'tag2'
+    })
+    let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
+
+    await tap.equal(responseGet.length, 2)
+    await tap.ok(responseGet[0] instanceof Tag)
+    await tap.ok(responseGet[1] instanceof Tag)
+  })
+
   await tap.test('Delete Publication_Tags of a Tag', async () => {
     // Create 2 additional tags for testing purposes
     const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
