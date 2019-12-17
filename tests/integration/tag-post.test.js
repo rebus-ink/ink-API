@@ -96,8 +96,8 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Create Tag')
   })
 
-  // TODO: also test with GET /tags endpoint when available
-  await tap.test('Get tag when fetching library', async () => {
+  await tap.test('Get tag that was created', async () => {
+    // in library
     const res = await request(app)
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
@@ -115,7 +115,23 @@ const test = async app => {
     ) // check that id contains readerId
     await tap.equal(body.tags[0].tagType, 'newTagType!')
     await tap.type(body.tags[0].json, 'object')
-    stack = body.tags[0]
+
+    // in GET tags endpoint
+    const res2 = await request(app)
+      .get('/tags')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res2.status, 200)
+    const body2 = res2.body
+    await tap.ok(Array.isArray(body2))
+    await tap.type(body2[0].name, 'string')
+    await tap.ok(urlToId(body2[0].id).startsWith(urlToId(body2[0].readerId))) // check that id contains readerId
+    await tap.equal(body2[0].tagType, 'newTagType!')
+    await tap.type(body2[0].json, 'object')
   })
 
   await destroyDB(app)

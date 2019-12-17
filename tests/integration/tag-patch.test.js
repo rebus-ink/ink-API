@@ -69,28 +69,6 @@ const test = async app => {
     json: { property: 'value' }
   })
 
-  await tap.test(
-    'Try to update a Tag with a tagId that does not exist',
-    async () => {
-      const res = await request(app)
-        .patch(`/tags/${stack.id}123`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'newName'
-          })
-        )
-
-      await tap.equal(res.statusCode, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Tag')
-      await tap.equal(error.details.activity, 'Update Tag')
-    }
-  )
-
   await tap.test('Update a Tag name', async () => {
     // Get the library before the modifications
     const libraryBefore = await request(app)
@@ -204,6 +182,21 @@ const test = async app => {
     await tap.equal(error.details.validation.name[0].params.type, 'string')
   })
 
+  await tap.test('Try to update a Tag with an empty body', async () => {
+    const res = await request(app)
+      .patch(`/tags/${stack.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.message, 'Body must be a JSON object')
+    await tap.equal(error.details.type, 'Tag')
+    await tap.equal(error.details.activity, 'Update Tag')
+  })
+
   await tap.test('Try to update a Tag that was already deleted', async () => {
     await request(app)
       .delete(`/tags/${stack.id}`)
@@ -228,6 +221,28 @@ const test = async app => {
     await tap.equal(error.details.type, 'Tag')
     await tap.equal(error.details.activity, 'Update Tag')
   })
+
+  await tap.test(
+    'Try to update a Tag with a tagId that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/tags/${stack.id}123`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            name: 'newName'
+          })
+        )
+
+      await tap.equal(res.statusCode, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.details.type, 'Tag')
+      await tap.equal(error.details.activity, 'Update Tag')
+    }
+  )
 
   await destroyDB(app)
 }
