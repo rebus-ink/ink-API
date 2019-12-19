@@ -64,12 +64,16 @@ class Reader extends BaseModel {
   }
 
   static async getLibraryCount (readerId, filter) {
-    let author, attribution
+    let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
     }
-
+    if (filter.type) {
+      type =
+        filter.type.charAt(0).toUpperCase() +
+        filter.type.substring(1).toLowerCase()
+    }
     let resultQuery = Publication.query(Publication.knex())
       .count()
       .whereNull('Publication.deleted')
@@ -81,6 +85,9 @@ class Reader extends BaseModel {
         'ilike',
         `%${filter.title.toLowerCase()}%`
       )
+    }
+    if (filter.type) {
+      resultQuery = resultQuery.where('Publication.type', '=', type)
     }
     if (filter.language) {
       resultQuery = resultQuery.whereJsonSupersetOf(
@@ -136,10 +143,15 @@ class Reader extends BaseModel {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    let author, attribution
+    let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
+    }
+    if (filter.type) {
+      type =
+        filter.type.charAt(0).toUpperCase() +
+        filter.type.substring(1).toLowerCase()
     }
 
     const readers = await Reader.query(Reader.knex())
@@ -175,6 +187,9 @@ class Reader extends BaseModel {
           builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
             filter.language
           ])
+        }
+        if (filter.type) {
+          builder.where('Publication.type', '=', type)
         }
         builder.leftJoin(
           'Attribution',

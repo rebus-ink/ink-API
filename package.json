@@ -7,7 +7,7 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c --cov tests/integration/index.js",
+    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=specy -c --cov tests/integration/index.js",
     "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
     "test-performance": "cross-env ISSUER=REBUS_READER DOMAIN=https://rr-dev.rebus.works NODE_ENV=test tap --timeout=10000 -c -R  min tests/performance/index.js",
@@ -57,7 +57,7 @@
     "sinon": "^6.3.3",
     "standard": "^11.0.1",
     "supertest": "^3.3.0",
-    "tap": "^12.7.0"
+    "tap": "^14.10.5"
   },
   "dependencies": {
     "@google-cloud/storage": "^2.5.0",
