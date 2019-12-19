@@ -113,6 +113,29 @@ const test = async () => {
     await tap.equal(body.items[0].name, 'new book 10')
   })
 
+  await tap.test('Filter Library by keyword - not case sensitive', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=TwO`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.type, 'Collection')
+    await tap.type(body.totalItems, 'number')
+    await tap.equal(body.totalItems, 5)
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 5)
+    // documents should include:
+    await tap.equal(body.items[0].type, 'Book')
+    await tap.type(body.items[0].id, 'string')
+    await tap.type(body.items[0].name, 'string')
+    await tap.equal(body.items[0].name, 'new book 10')
+  })
+
   await tap.test('Filter by keyword with pagination', async () => {
     const res2 = await request(app)
       .get(`/readers/${readerId}/library?keyword=one`)

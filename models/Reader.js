@@ -98,7 +98,7 @@ class Reader extends BaseModel {
     if (filter.keyword) {
       resultQuery = resultQuery.whereJsonSupersetOf(
         'Publication.metadata:keywords',
-        [filter.keyword]
+        [filter.keyword.toLowerCase()]
       )
     }
     if (filter.author) {
@@ -196,7 +196,7 @@ class Reader extends BaseModel {
         }
         if (filter.keyword) {
           builder.whereJsonSupersetOf('Publication.metadata:keywords', [
-            filter.keyword
+            filter.keyword.toLowerCase()
           ])
         }
         if (filter.type) {

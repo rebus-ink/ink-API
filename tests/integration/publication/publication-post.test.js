@@ -40,6 +40,7 @@ const test = async app => {
     license: 'http://www.mylicense.com',
     inDirection: 'ltr',
     copyrightHolder: 'Joe Smith',
+    keywords: ['one', 'TWO'],
     links: [
       {
         url: 'http://example.org/abc',
@@ -132,6 +133,8 @@ const test = async app => {
     await tap.equal(body.genre, 'vampire romance')
     await tap.equal(body.license, 'http://www.mylicense.com')
     await tap.equal(body.inDirection, 'ltr')
+    await tap.equal(body.keywords[0], 'one')
+    await tap.equal(body.keywords[1], 'two') // keywords converted to lowercase
     await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
   })
 

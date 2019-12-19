@@ -169,8 +169,8 @@ const test = async app => {
     await tap.equal(body.license, 'http://www.mylicense2.com')
     await tap.equal(body.inLanguage[0], 'en')
     await tap.equal(body.inLanguage[1], 'fr')
-    await tap.equal(body.keywords[0], 'newKeyWord1')
-    await tap.equal(body.keywords[1], 'newKeyWord2')
+    await tap.equal(body.keywords[0], 'newkeyword1')
+    await tap.equal(body.keywords[1], 'newkeyword2')
     await tap.ok(
       body.author[0].name === 'New Org inc.' ||
         body.author[0].name === 'New Sample Author'
