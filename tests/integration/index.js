@@ -1,38 +1,39 @@
-const activityCreateTests = require('./activity-create.test')
-const activityGetTests = require('./activity-get.test')
+const activityCreateTests = require('./deprecated/activity-create.test')
+const activityGetTests = require('./deprecated/activity-get.test')
 const readActivityCreateTests = require('./readActivity-create.test')
 
-const authErrorTests = require('./auth-error.test')
+const forbiddedTests = require('./auth/forbidden.test')
+const unauthorizedTests = require('./auth/unauthorized.test')
 
-const libraryGetTests = require('./library-get.test')
-const libraryPaginateTests = require('./library-paginate.test')
-const libraryFilterCollectionTests = require('./library-filter-collection.test')
-const libraryFilterTitleTests = require('./library-filter-title.test')
-const libraryFilterAttributionTests = require('./library-filter-attribution.test')
-const libraryFilterLanguageTests = require('./library-filter-language.test')
-const libraryFilterTypeTests = require('./library-filter-type.test')
-const libraryFilterCombinedTests = require('./library-filter-combined.test')
-const libraryOrderByDefaultTests = require('./library-orderBy-default.test')
-const libraryOrderByTitleTests = require('./library-orderBy-title.test')
-const libraryOrderByDatePublishedTests = require('./library-orderBy-datePublished.test')
-const libraryFilterTestsOld = require('./library-filter-old.test') // derepcated
-const libraryGetTestsOld = require('./library-get-old.test') // deprecated
-const libraryOrderByTestsOld = require('./library-orderBy-old.test') // deprecated
-const libraryPaginateTestsOld = require('./library-paginate-old.test') // deprecated
+const libraryGetTests = require('./library/library-get.test')
+const libraryPaginateTests = require('./library/library-paginate.test')
+const libraryFilterCollectionTests = require('./library/library-filter-collection.test')
+const libraryFilterTitleTests = require('./library/library-filter-title.test')
+const libraryFilterAttributionTests = require('./library/library-filter-attribution.test')
+const libraryFilterLanguageTests = require('./library/library-filter-language.test')
+const libraryFilterTypeTests = require('./library/library-filter-type.test')
+const libraryFilterCombinedTests = require('./library/library-filter-combined.test')
+const libraryOrderByDefaultTests = require('./library/library-orderBy-default.test')
+const libraryOrderByTitleTests = require('./library/library-orderBy-title.test')
+const libraryOrderByDatePublishedTests = require('./library/library-orderBy-datePublished.test')
+const libraryFilterTestsOld = require('./deprecated/library-filter-old.test') // derepcated
+const libraryGetTestsOld = require('./deprecated/library-get-old.test') // deprecated
+const libraryOrderByTestsOld = require('./deprecated/library-orderBy-old.test') // deprecated
+const libraryPaginateTestsOld = require('./deprecated/library-paginate-old.test') // deprecated
 
 const noteCreateTests = require('./note-create.test')
 const noteGetTests = require('./note-get.test')
 const noteUpdateTests = require('./note-update.test')
 const noteDeleteTests = require('./note-delete.test')
 
-const outboxGetTests = require('./outbox-get.test')
+const outboxGetTests = require('./deprecated/outbox-get.test')
 
-const publicationGetTests = require('./publication-get.test')
-const publicationUpdateTests = require('./publication-update.test')
-const publicationDeleteTestsOld = require('./publication-delete-old.test')
-const publicationDeleteTests = require('./publication-delete.test')
-const publicationPostTests = require('./publication-post.test')
-const publicationPatchTests = require('./publication-patch.test')
+const publicationGetTests = require('./publication/publication-get.test')
+const publicationUpdateTests = require('./deprecated/publication-update.test')
+const publicationDeleteTestsOld = require('./deprecated/publication-delete-old.test')
+const publicationDeleteTests = require('./publication/publication-delete.test')
+const publicationPostTests = require('./publication/publication-post.test')
+const publicationPatchTests = require('./publication/publication-patch.test')
 
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader-get.test')
@@ -42,18 +43,18 @@ const readerNotesPaginateTests = require('./readerNotes-paginate.test')
 const readerNotesFilterTests = require('./readerNotes-filter.test')
 const readerNotesOrderByTests = require('./readerNotes-orderBy.test')
 
-const tagCreateTests = require('./tag-create.test') // deprecated
-const tagPublicationTests = require('./tag-publication.test') // deprecated
-const tagNoteTests = require('./tag-note.test')
-const tagDeleteTestsOld = require('./tag-delete-old.test') // deprecated
-const tagUpdateTests = require('./tag-update.test') // deprecated
+const tagCreateTests = require('./tag/tag-create.test') // deprecated
+const tagPublicationTests = require('./deprecated/tag-publication.test') // deprecated
+const tagNoteTests = require('./tag/tag-note.test')
+const tagDeleteTestsOld = require('./deprecated/tag-delete-old.test') // deprecated
+const tagUpdateTests = require('./deprecated/tag-update.test') // deprecated
 const publicationAddTagTests = require('./publication-tag.test')
-const tagsGetTests = require('./tags-get.test')
-const tagsPostTests = require('./tag-post.test')
-const tagPatchTests = require('./tag-patch.test')
-const tagDeleteTests = require('./tag-delete.test')
+const tagsGetTests = require('./tag/tags-get.test')
+const tagsPostTests = require('./tag/tag-post.test')
+const tagPatchTests = require('./tag/tag-patch.test')
+const tagDeleteTests = require('./tag/tag-delete.test')
 
-const jobGetTests = require('./job-get.test')
+const jobGetTests = require('./job/job-get.test')
 
 const app = require('../../server').app
 
@@ -73,7 +74,10 @@ const allTests = async () => {
     await activityGetTests(app) // deprecated
     await readActivityCreateTests(app) // deprecated
   }
-  if (!test || test === 'auth') await authErrorTests(app)
+  if (!test || test === 'auth') {
+    await forbiddedTests(app)
+    await unauthorizedTests(app)
+  }
 
   if (!test || test === 'library') {
     // updated

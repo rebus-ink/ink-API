@@ -9,7 +9,7 @@ const {
   createPublication,
   createNote,
   createDocument
-} = require('../utils/utils')
+} = require('../utils/testUtils')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Note } = require('../../models/Note')

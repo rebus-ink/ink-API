@@ -7,7 +7,7 @@ const {
   destroyDB,
   createPublication,
   createDocument
-} = require('../utils/utils')
+} = require('../utils/testUtils')
 
 const test = async app => {
   const token = getToken()
