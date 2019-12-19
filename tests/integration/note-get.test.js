@@ -9,7 +9,7 @@ const {
   createPublication,
   createNote,
   createDocument
-} = require('../utils/utils')
+} = require('../utils/testUtils')
 const { urlToId } = require('../../utils/utils')
 
 const test = async app => {

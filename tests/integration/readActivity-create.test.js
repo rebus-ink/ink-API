@@ -6,7 +6,7 @@ const {
   createUser,
   destroyDB,
   createPublication
-} = require('../utils/utils')
+} = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { urlToId } = require('../../utils/utils')
