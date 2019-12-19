@@ -6,6 +6,7 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Publication } = require('../../models/Publication')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
+const { ValidationError } = require('objection')
 
 const test = async app => {
   const random = crypto.randomBytes(13).toString('hex')
@@ -55,8 +56,6 @@ const test = async app => {
     await tap.ok(responseCreate)
     await tap.ok(responseCreate instanceof Tag)
     await tap.equal(responseCreate.readerId, createdReader.id)
-    // await tap.equal(responseCreate.type, 'reader:Tag')
-    // await tap.equal(responseCreate.tagType, 'reader:Stack') // has not gone through the formatjson yet.
     await tap.equal(responseCreate.name, 'mystack')
     await tap.type(responseCreate.id, 'string')
     await tap.type(responseCreate.json, 'object')
@@ -185,7 +184,7 @@ const test = async app => {
     }
   )
 
-  await tap.test('Delete tag by id', async () => {
+  await tap.test('Delete tag', async () => {
     const newTagObject = {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
@@ -204,8 +203,8 @@ const test = async app => {
     await tap.equal(pubBefore.tags.length, 1)
     await tap.equal(pubBefore.tags[0].name, tagCreated.name)
 
-    // Delte the tag
-    const numDeleted = await Tag.deleteTag(tagCreated.id)
+    // Delete the tag
+    const numDeleted = await tagCreated.delete()
 
     // Try to fetch the deleted tag from library
     const tagDeleted = await Tag.byId(tagCreated.id)
@@ -218,7 +217,7 @@ const test = async app => {
     await tap.equal(pubAfter.tags.length, 0)
   })
 
-  await tap.test('Delete tag with an id that does not exist', async () => {
+  await tap.test('Update tag', async () => {
     const newTagObject = {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
@@ -228,25 +227,48 @@ const test = async app => {
 
     const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
-    const numDeleted = await Tag.deleteTag(tagCreated.id + 'randomString')
+    // Add tag to a publiction
+    await Publication_Tag.addTagToPub(urlToId(publication.id), tagCreated.id)
 
-    await tap.equal(numDeleted, 0)
+    // Fetch the publication to make sure there is a tag
+    const pubBefore = await Publication.byId(urlToId(publication.id))
+
+    await tap.equal(pubBefore.tags.length, 1)
+    await tap.equal(pubBefore.tags[0].name, tagCreated.name)
+
+    // Update the tag - name and json should be updated, invalid should be ignored
+    const updatedTag = await tagCreated.update({
+      name: 'new name',
+      json: { property2: 2 },
+      invalid: 'something'
+    })
+    await tap.equal(updatedTag.name, 'new name')
+    await tap.equal(updatedTag.json.property2, 2)
+    await tap.notOk(updatedTag.json.property) // updating json replaces the whole object
+    await tap.notOk(updatedTag.invalid)
+
+    // fetch the updated tag
+    const tag = await Tag.byId(tagCreated.id)
+    await tap.equal(tag.name, 'new name')
+
+    // Fetch the publication to make sure there there is no tag
+    const pubAfter = await Publication.byId(urlToId(publication.id))
+    await tap.equal(pubAfter.tags[0].name, 'new name')
   })
 
-  await tap.test('Delete tag with an invalid id', async () => {
+  await tap.test('Try to update tag with invalid data', async () => {
     const newTagObject = {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
-      name: 'another random stack name',
+      name: 'random stack name',
       json: { property: 1 }
     }
 
-    await Tag.createTag(createdReader.id, newTagObject)
+    const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
-    const responseDeleteTag = await Tag.deleteTag(null)
-
-    await tap.ok(typeof responseDeleteTag, Error)
-    await tap.ok(responseDeleteTag.message, 'no tag')
+    // Update the tag
+    const updatedTag = await tagCreated.update({ name: 123 })
+    await tap.ok(updatedTag instanceof ValidationError)
   })
 
   await destroyDB(app)

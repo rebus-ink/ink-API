@@ -333,15 +333,10 @@ const test = async app => {
 
   // --------------------------------------------- COLLECTION ---------------------------------------
 
-  const tagCreateRes = await createTag(app, token, readerUrl, {
+  const tagCreated = await createTag(app, token, readerUrl, {
     name: 'testCollection'
   })
-  const tagActivityObject = await getActivityFromUrl(
-    app,
-    tagCreateRes.get('Location'),
-    token
-  )
-  const tagId = tagActivityObject.object.id
+  const tagId = tagCreated.id
 
   // add 3 notes to this collection
   await addNoteToCollection(app, token, readerUrl, urlToId(noteId1), tagId)

@@ -8,7 +8,8 @@ const {
   getActivityFromUrl,
   createPublication,
   createNote,
-  createDocument
+  createDocument,
+  createTag
 } = require('../utils/utils')
 const { urlToId } = require('../../utils/utils')
 const { Reader } = require('../../models/Reader')
@@ -61,100 +62,31 @@ const test = async app => {
   const noteUrl = noteActivityObject.object.id
 
   // create Tag
-  await request(app)
-    .post(`${readerUrl}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: {
-          type: 'reader:Tag',
-          tagType: 'reader:Stack',
-          name: 'mystack',
-          json: { property: 'value' }
-        }
-      })
-    )
-
-  // get tag object by fetching the library
-  const libraryRes = await request(app)
-    .get(`/readers/${readerId}/library`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  const stack = libraryRes.body.tags[0]
+  const stack = await createTag(app, token, readerUrl, {
+    type: 'reader:Tag',
+    tagType: 'reader:Stack',
+    name: 'mystack',
+    json: { property: 'value' }
+  })
 
   await tap.test(
     'Try to delete a Tag with a tagId that does not exist',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .delete(`/tags/${stack.id}123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
           'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
         )
-        .send(
-          JSON.stringify({
-            '@context': [
-              'https://www.w3.org/ns/activitystreams',
-              { reader: 'https://rebus.foundation/ns/reader' }
-            ],
-            type: 'Delete',
-            object: {
-              type: 'reader:Tag',
-              id: stack.id + 'blah'
-            }
-          })
-        )
 
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'reader:Tag')
+      await tap.equal(error.details.type, 'Tag')
       await tap.equal(error.details.activity, 'Delete Tag')
     }
   )
-
-  await tap.test('Try to delete a Tag with a null tagId', async () => {
-    const res = await request(app)
-      .post(`${readerUrl}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'reader:Tag',
-            id: null
-          }
-        })
-      )
-
-    await tap.equal(res.statusCode, 404)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'reader:Tag')
-    await tap.equal(error.details.activity, 'Delete Tag')
-  })
 
   await tap.test('Delete a Tag', async () => {
     // Get the library before the modifications
@@ -178,24 +110,11 @@ const test = async app => {
 
     // Delete the tag
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .delete(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'reader:Tag',
-            id: stack.id
-          }
-        })
       )
 
     await tap.equal(res.statusCode, 204)
@@ -219,30 +138,15 @@ const test = async app => {
 
   await tap.test('Try to delete a Tag that was already deleted', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .delete(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Delete',
-          object: {
-            type: 'reader:Tag',
-            id: stack.id
-          }
-        })
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'reader:Tag')
+    await tap.equal(error.details.type, 'Tag')
     await tap.equal(error.details.activity, 'Delete Tag')
   })
 

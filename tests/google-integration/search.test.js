@@ -54,14 +54,7 @@ const test = async app => {
   await sleep(20000)
 
   // create collection:
-  const stackRes = await createTag(app, token, readerUrl, { name: 'my_test' })
-  const stackActivityUrl = stackRes.get('Location')
-  const stackActivityObject = await getActivityFromUrl(
-    app,
-    stackActivityUrl,
-    token
-  )
-  const stack = stackActivityObject.object
+  const stack = await createTag(app, token, readerUrl, { name: 'my_test' })
 
   // get jobs to get publicationIds
   const job1 = await request(app)

@@ -29,8 +29,6 @@ const test = async () => {
     editor: 'Jane Doe'
   })
 
-  let stack
-
   const publication = await createPublicationSimplified({
     name: 'Publication 2'
   })
@@ -39,16 +37,8 @@ const test = async () => {
   await createPublicationSimplified({ name: 'Publication 3' })
 
   // create a stack
-  const stackRes = await createTag(app, token, readerUrl)
+  const stack = await createTag(app, token, readerUrl)
 
-  const stackActivityUrl = stackRes.get('Location')
-  const stackActivityObject = await getActivityFromUrl(
-    app,
-    stackActivityUrl,
-    token
-  )
-
-  stack = stackActivityObject.object
   // assign mystack to publication B
   await addPubToCollection(app, token, readerUrl, publication.id, stack.id)
 

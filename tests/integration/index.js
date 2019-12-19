@@ -41,13 +41,16 @@ const readerNotesPaginateTests = require('./readerNotes-paginate.test')
 const readerNotesFilterTests = require('./readerNotes-filter.test')
 const readerNotesOrderByTests = require('./readerNotes-orderBy.test')
 
-const tagCreateTests = require('./tag-create.test')
-const tagPublicationTests = require('./tag-publication.test')
+const tagCreateTests = require('./tag-create.test') // deprecated
+const tagPublicationTests = require('./tag-publication.test') // deprecated
 const tagNoteTests = require('./tag-note.test')
-const tagDeleteTests = require('./tag-delete.test')
-const tagUpdateTests = require('./tag-update.test')
+const tagDeleteTestsOld = require('./tag-delete-old.test') // deprecated
+const tagUpdateTests = require('./tag-update.test') // deprecated
 const publicationAddTagTests = require('./publication-tag.test')
 const tagsGetTests = require('./tags-get.test')
+const tagsPostTests = require('./tag-post.test')
+const tagPatchTests = require('./tag-patch.test')
+const tagDeleteTests = require('./tag-delete.test')
 
 const jobGetTests = require('./job-get.test')
 
@@ -65,13 +68,14 @@ const allTests = async () => {
   const test = process.env.npm_config_test
 
   if (!test || test === 'activity') {
-    await activityCreateTests(app)
-    await activityGetTests(app)
-    await readActivityCreateTests(app)
+    await activityCreateTests(app) // deprecated
+    await activityGetTests(app) // deprecated
+    await readActivityCreateTests(app) // deprecated
   }
   if (!test || test === 'auth') await authErrorTests(app)
 
   if (!test || test === 'library') {
+    // updated
     await libraryGetTests(app)
     await libraryPaginateTests(app)
     await libraryFilterCollectionTests(app)
@@ -90,15 +94,15 @@ const allTests = async () => {
     await libraryPaginateTestsOld(app)
   }
 
-  if (!test || test === 'outbox') await outboxGetTests(app)
+  if (!test || test === 'outbox') await outboxGetTests(app) // deprecated
 
   if (!test || test === 'publication') {
-    await publicationGetTests(app)
+    await publicationGetTests(app) // new
     await publicationUpdateTests(app) // deprecated
-    await publicationDeleteTests(app)
+    await publicationDeleteTests(app) // new
     await publicationDeleteTestsOld(app) // deprecated
-    await publicationPostTests(app)
-    await publicationPatchTests(app)
+    await publicationPostTests(app) // new
+    await publicationPatchTests(app) // new
   }
 
   if (!test || test === 'reader') {
@@ -116,11 +120,14 @@ const allTests = async () => {
   if (!test || test === 'tag') {
     await tagsGetTests(app)
     await publicationAddTagTests(app)
-    await tagCreateTests(app)
-    await tagPublicationTests(app)
+    await tagCreateTests(app) // deprecated
+    await tagPublicationTests(app) // deprecated
     await tagNoteTests(app)
-    await tagDeleteTests(app)
-    await tagUpdateTests(app)
+    await tagDeleteTests(app) // new
+    await tagDeleteTestsOld(app) // deprecated
+    await tagUpdateTests(app) // deprecated
+    await tagsPostTests(app) // new
+    await tagPatchTests(app) // new
   }
 
   if (!test || test === 'readerNotes') {

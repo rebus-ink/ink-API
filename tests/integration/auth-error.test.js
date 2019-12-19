@@ -248,6 +248,38 @@ const test = async app => {
     }
   )
 
+  await tap.test('Try to delete a tag belonging to another user', async () => {
+    const res = await request(app)
+      .delete(`/tags/${tagId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Tag')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Tag')
+  })
+
+  await tap.test('Try to update a tag belonging to another user', async () => {
+    const res = await request(app)
+      .patch(`/tags/${tagId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Tag')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Update Tag')
+  })
+
   await tap.test(
     'Try to assign a tag to a publication belonging to another user',
     async () => {
@@ -445,6 +477,29 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res13.statusCode, 401)
+    // create a tag
+    const res14 = await request(app)
+      .post('/tags')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res14.statusCode, 401)
+
+    // update a tag
+    const res15 = await request(app)
+      .patch(`/tags/${tagId}`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res15.statusCode, 401)
+
+    // delete tag
+    const res16 = await request(app)
+      .delete(`/tags/${tagId}`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res16.statusCode, 401)
   })
 
   await destroyDB(app)

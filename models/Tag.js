@@ -58,17 +58,7 @@ class Tag extends BaseModel {
     tag /*: {type: string, name: string, tagType: string, json?: {}, readerId?: string} */
   ) /*: Promise<any> */ {
     tag.readerId = readerId
-    // reject duplicates TODO: enforce this as the database level?
-    //   if (tag.name) {
-    //   console.log(tag.type, tag.name)
-    //   const existing = await Tag.query().where({
-    //     readerId: tag.readerId,
-    //     type: tag.type,
-    //     name: tag.name
-    //   })
-    //   console.log(existing)
-    //   if (existing.length > 0) return new Error('duplicate')
-    // }
+
     const props = _.pick(tag, ['name', 'json', 'readerId'])
     props.type = tag.tagType
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
@@ -83,6 +73,18 @@ class Tag extends BaseModel {
     }
   }
 
+  async delete () /*: Promise<number|Error> */ {
+    const tagId = this.id
+    // Delete all Publication_Tags associated with this tag
+    await Publication_Tag.deletePubTagsOfTag(urlToId(tagId))
+
+    // Delete all Note_Tags associated with this tag
+    await Note_Tag.deleteNoteTagsOfTag(urlToId(tagId))
+
+    return await Tag.query().deleteById(urlToId(tagId))
+  }
+
+  // deprecated
   static async deleteTag (tagId /*: string */) /*: Promise<number|Error> */ {
     if (!tagId) return new Error('no tag')
 
@@ -95,6 +97,19 @@ class Tag extends BaseModel {
     return await Tag.query().deleteById(urlToId(tagId))
   }
 
+  async update (object /*: any */) /*: Promise<TagType|null> */ {
+    const modifications = _.pick(object, ['name', 'json'])
+    try {
+      return await Tag.query().patchAndFetchById(
+        urlToId(this.id),
+        modifications
+      )
+    } catch (err) {
+      return err
+    }
+  }
+
+  // deprecated
   static async update (object /*: any */) /*: Promise<TagType|null> */ {
     if (!object.id) return null
 
