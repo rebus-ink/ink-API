@@ -206,6 +206,10 @@ module.exports = app => {
    *         schema:
    *           type: string
    *       - in: query
+   *         name: keyword
+   *         schema:
+   *           type: string
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -248,7 +252,8 @@ module.exports = app => {
         reverse: req.query.reverse,
         collection: req.query.stack,
         language: req.query.language,
-        type: req.query.type
+        type: req.query.type,
+        keyword: req.query.keyword
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything

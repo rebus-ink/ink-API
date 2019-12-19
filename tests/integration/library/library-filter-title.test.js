@@ -48,9 +48,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?title=super`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
@@ -65,9 +63,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?title=publication`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.body.totalItems, 13)
     await tap.equal(res2.body.items.length, 10)
@@ -76,9 +72,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?title=publication&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res3.body.totalItems, 13)
     await tap.equal(res3.body.items.length, 11)
@@ -89,9 +83,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?title=ansoiwereow`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res4.body.totalItems, 0)
     await tap.equal(res4.body.items.length, 0)

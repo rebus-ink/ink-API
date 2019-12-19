@@ -133,9 +133,7 @@ const test = async () => {
         .get(`/readers/${readerId}/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.body.items[0].name, 'XXXX')
       await tap.equal(res.body.items[1].name, 'zzz')
@@ -151,9 +149,7 @@ const test = async () => {
         .get(`/readers/${readerId}/library?reverse=true`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.body.items[0].name, 'Publication A')
       await tap.equal(res.body.items[1].name, 'Publication 2')
@@ -171,9 +167,7 @@ const test = async () => {
         .get(`/readers/${readerId}/library?orderBy=sometingNotValid`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.body.items[0].name, 'XXXX')
       await tap.equal(res.body.items[1].name, 'zzz')

@@ -106,9 +106,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(before.body.items.length, 2)
     await tap.equal(before.body.items[1].tags.length, 1)
     await tap.equal(before.body.items[1].tags[0].name, 'mystack')
@@ -126,9 +124,7 @@ const test = async app => {
       .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(getres.statusCode, 404)
     const error = JSON.parse(getres.text)
@@ -142,9 +138,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(libraryres.status, 200)
     const body = libraryres.body

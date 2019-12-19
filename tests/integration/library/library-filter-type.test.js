@@ -156,6 +156,18 @@ const test = async () => {
     await tap.equal(res4.body.totalItems, 12)
   })
 
+  await tap.test('Filter by type that does not exist', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?type=Stuff`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.equal(res.body.items.length, 0)
+    await tap.equal(res.body.totalItems, 0)
+  })
+
   await destroyDB(app)
 }
 

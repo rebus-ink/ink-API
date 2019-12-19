@@ -75,9 +75,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const tagId = urlToId(libraryBefore.body.tags[0].id)
 
@@ -96,9 +94,7 @@ const test = async app => {
       .patch(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           name: 'newName'
@@ -130,9 +126,7 @@ const test = async app => {
       .patch(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           json: { property: 'value!!' }
@@ -148,9 +142,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))

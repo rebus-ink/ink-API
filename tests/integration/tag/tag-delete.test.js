@@ -76,9 +76,7 @@ const test = async app => {
         .delete(`/tags/${stack.id}123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
@@ -94,9 +92,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     // Add a tag to the note
     await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
@@ -113,9 +109,7 @@ const test = async app => {
       .delete(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 204)
 
@@ -124,9 +118,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     // Get the note after the modifications
     const noteWithoutTag = await Note.byId(urlToId(noteUrl))

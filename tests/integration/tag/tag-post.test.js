@@ -102,9 +102,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     const body = res.body
@@ -121,9 +119,7 @@ const test = async app => {
       .get('/tags')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.status, 200)
     const body2 = res2.body

@@ -79,9 +79,7 @@ const test = async app => {
       .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           name: 'Publication Simple',
@@ -101,9 +99,7 @@ const test = async app => {
       .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(JSON.stringify(publicationObject))
 
     await tap.equal(res.status, 201)
@@ -144,9 +140,7 @@ const test = async app => {
       .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           type: 'Book',
@@ -167,9 +161,7 @@ const test = async app => {
       .get(`/readers/${readerId}/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res.status, 200)
     const body = res.body
 
@@ -192,9 +184,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication Links',
@@ -225,9 +215,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication Links',
@@ -319,9 +307,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication Keyword',
@@ -343,9 +329,7 @@ const test = async app => {
       .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           type: 'Book',
@@ -372,9 +356,7 @@ const test = async app => {
       .post(`/publications`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
           name: 'Publication C',
@@ -404,9 +386,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -434,9 +414,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -461,9 +439,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -483,9 +459,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -505,9 +479,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -532,9 +504,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -553,9 +523,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -579,9 +547,7 @@ const test = async app => {
         .post(`/publications`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -606,9 +572,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -633,9 +597,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -655,9 +617,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -682,9 +642,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -709,9 +667,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -736,9 +692,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -763,9 +717,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -790,9 +742,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -817,9 +767,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -843,9 +791,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -869,9 +815,7 @@ const test = async app => {
         .post('/publications')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
         .send(
           JSON.stringify({
             name: 'Publication C',
@@ -894,9 +838,7 @@ const test = async app => {
       .post('/publications')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
