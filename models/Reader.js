@@ -421,7 +421,24 @@ class Reader extends BaseModel {
     }
 
     // create default Tags
-    // await Tag.createTag(newReader.id, {type: 'reader:Tag', tagType: 'mode', name: ''})
+    await Tag.createMultipleTags(newReader.id, [
+      {
+        name: 'Research',
+        tagType: 'mode'
+      },
+      {
+        name: 'Teaching',
+        tagType: 'mode'
+      },
+      {
+        name: 'Public Scholarships',
+        tagType: 'mode'
+      },
+      {
+        name: 'Personal',
+        tagType: 'mode'
+      }
+    ])
 
     return newReader
   }
@@ -462,7 +479,6 @@ class Reader extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
     const { Activity } = require('./Activity.js')
-    const { Tag } = require('./Tag.js')
     return {
       publications: {
         relation: Model.HasManyRelation,

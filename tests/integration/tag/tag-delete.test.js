@@ -101,8 +101,7 @@ const test = async app => {
     const noteWithTag = await Note.byId(urlToId(noteUrl))
     await tap.equal(noteWithTag.tags.length, 1)
     await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
-    await tap.equal(libraryBefore.body.tags.length, 1)
-    await tap.equal(libraryBefore.body.tags[0].name, stack.name)
+    await tap.equal(libraryBefore.body.tags.length, 5) // 4 default modes + tag created
 
     // Delete the tag
     const res = await request(app)
@@ -123,7 +122,7 @@ const test = async app => {
     // Get the note after the modifications
     const noteWithoutTag = await Note.byId(urlToId(noteUrl))
 
-    await tap.equal(libraryAfter.body.tags.length, 0)
+    await tap.equal(libraryAfter.body.tags.length, 4)
     await tap.equal(libraryAfter.body.items[0].tags.length, 0)
     await tap.equal(noteWithoutTag.tags.length, 0)
   })
