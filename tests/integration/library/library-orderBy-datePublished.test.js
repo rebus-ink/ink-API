@@ -174,9 +174,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?orderBy=datePublished`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     // most recent first
     await tap.equal(res.body.items[0].name, 'pub5')
     await tap.equal(res.body.items[1].name, 'pub2')
@@ -188,9 +186,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?orderBy=datePublished&reverse=true`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     // oldest first
     await tap.equal(res1.body.items[0].name, 'Publication A') // has datePublished of null
     await tap.equal(res1.body.items[1].name, 'pub4 ggg')
@@ -204,9 +200,7 @@ const test = async () => {
         .get(`/readers/${readerId}/library?orderBy=datePublished&title=ggg`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
       await tap.equal(res2.body.items[0].name, 'pub1 ggg')
       await tap.equal(res2.body.items[1].name, 'pub4 ggg')
     }
@@ -221,9 +215,7 @@ const test = async () => {
         )
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
       await tap.equal(res3.body.items[0].name, 'pub2')
       await tap.equal(res3.body.items[1].name, 'pub6')
       await tap.equal(res3.body.items[2].name, 'pub4 ggg')
@@ -239,9 +231,7 @@ const test = async () => {
         )
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
       await tap.equal(res4.body.items[0].name, 'pub2')
       await tap.equal(res4.body.items[1].name, 'pub6')
       await tap.equal(res4.body.items[2].name, 'pub7')
@@ -254,9 +244,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?orderBy=datePublished&limit=13`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     // most recent first
     await tap.equal(res.body.items.length, 13)
   })

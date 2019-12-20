@@ -385,8 +385,14 @@ class Publication extends BaseModel {
     }
 
     // keywords
-    if (publication.keywords && _.isString(publication.keywords)) {
-      publication.keywords = [publication.keywords]
+    if (publication.keywords) {
+      if (_.isString(publication.keywords)) {
+        publication.keywords = [publication.keywords.toLowerCase()]
+      } else {
+        publication.keywords = publication.keywords.map(keyword =>
+          keyword.toLowerCase()
+        )
+      }
     }
 
     // store metadata

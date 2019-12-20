@@ -67,9 +67,7 @@ const test = async () => {
     .get(`/readers/${readerId}/library?limit=20`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
 
   const library = resLibrary.body.items
   const pubId1 = library[0].id
@@ -101,12 +99,14 @@ const test = async () => {
   await createPublicationSimplified({
     name: 'new book 1',
     author: 'John Doe',
-    type: 'Article'
+    type: 'Article',
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`,
-    type: 'Article'
+    type: 'Article',
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 3',
@@ -118,15 +118,18 @@ const test = async () => {
   // adding for other attribution types
   await createPublicationSimplified({
     name: 'new book 3b',
-    contributor: 'John Doe'
+    contributor: 'John Doe',
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 3c',
-    creator: 'John Doe'
+    creator: 'John Doe',
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 3d',
-    illustrator: 'John Doe'
+    illustrator: 'John Doe',
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 3e',
@@ -141,7 +144,8 @@ const test = async () => {
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
-    inLanguage: ['en']
+    inLanguage: ['en'],
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 5',
@@ -203,7 +207,8 @@ const test = async () => {
     name: 'new book 14',
     author: 'Jane Smith',
     editor: 'John Doe',
-    inLanguage: ['en', 'fr']
+    inLanguage: ['en', 'fr'],
+    keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 15 - the sequel',
@@ -217,9 +222,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?author=Jane%20Smith&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 3)
@@ -231,9 +234,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?stack=mystack&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 3)
@@ -245,9 +246,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?author=Jane%20Smith&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 1)
@@ -259,9 +258,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?attribution=John&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 4)
@@ -273,9 +270,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?stack=mystack&title=test`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 1)
@@ -287,9 +282,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?author=John%20Doe&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 2)
@@ -301,9 +294,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?attribution=John%20Doe&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 5)
@@ -315,9 +306,7 @@ const test = async () => {
       .get(`/readers/${readerId}/library?title=sequel&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 2)
@@ -329,13 +318,87 @@ const test = async () => {
       .get(`/readers/${readerId}/library?language=km&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+  })
+
+  // Keywords
+
+  await tap.test('filter by keyword and attribution', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=word&attribution=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 7)
+    await tap.equal(body.items.length, 7)
+  })
+
+  await tap.test('filter by keyword and author', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=word&author=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+  })
+
+  await tap.test('filter by keyword and language', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=word&language=fr`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
+  })
+
+  await tap.test('filter by keyword and title', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=word&title=sequel`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+  })
+
+  await tap.test('filter by keyword, author and title', async () => {
+    const res = await request(app)
+      .get(
+        `/readers/${readerId}/library?keyword=word&author=Jane%20Smith&title=sequel`
+      )
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
+  })
+
+  await tap.test('filter by keyword and type', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?keyword=word&type=Article`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
   })
 
   await destroyDB(app)

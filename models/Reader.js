@@ -95,6 +95,12 @@ class Reader extends BaseModel {
         [filter.language]
       )
     }
+    if (filter.keyword) {
+      resultQuery = resultQuery.whereJsonSupersetOf(
+        'Publication.metadata:keywords',
+        [filter.keyword.toLowerCase()]
+      )
+    }
     if (filter.author) {
       resultQuery = resultQuery
         .leftJoin(
@@ -186,6 +192,11 @@ class Reader extends BaseModel {
         if (filter.language) {
           builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
             filter.language
+          ])
+        }
+        if (filter.keyword) {
+          builder.whereJsonSupersetOf('Publication.metadata:keywords', [
+            filter.keyword.toLowerCase()
           ])
         }
         if (filter.type) {

@@ -12,6 +12,7 @@ const libraryFilterTitleTests = require('./library/library-filter-title.test')
 const libraryFilterAttributionTests = require('./library/library-filter-attribution.test')
 const libraryFilterLanguageTests = require('./library/library-filter-language.test')
 const libraryFilterTypeTests = require('./library/library-filter-type.test')
+const libraryFilterKeyword = require('./library/library-filter-keyword.test')
 const libraryFilterCombinedTests = require('./library/library-filter-combined.test')
 const libraryOrderByDefaultTests = require('./library/library-orderBy-default.test')
 const libraryOrderByTitleTests = require('./library/library-orderBy-title.test')
@@ -92,6 +93,7 @@ const allTests = async () => {
     await libraryOrderByDefaultTests(app)
     await libraryOrderByTitleTests(app)
     await libraryOrderByDatePublishedTests(app)
+    await libraryFilterKeyword(app)
 
     // deprecated:
     await libraryFilterTestsOld(app)
