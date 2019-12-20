@@ -32,6 +32,18 @@ const test = async app => {
     readerUrl = res.get('Location')
   })
 
+  await tap.test('Created Reader should have default modes', async () => {
+    const res = await request(app)
+      .get('/tags')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+
+    await tap.equal(res.body.length, 4)
+  })
+
   await tap.test('Create Simple Reader', async () => {
     const res = await request(app)
       .post('/readers')

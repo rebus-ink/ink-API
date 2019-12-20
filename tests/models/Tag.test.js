@@ -64,6 +64,28 @@ const test = async app => {
     tagId = responseCreate.id
   })
 
+  await tap.test('Create Multiple Tags', async () => {
+    let responseCreate = await Tag.createMultipleTags(createdReader.id, [
+      {
+        name: 'tag1',
+        tagType: 'something'
+      },
+      {
+        name: 'tag2',
+        tagType: 'something'
+      }
+    ])
+
+    await tap.ok(responseCreate)
+    await tap.ok(Array.isArray(responseCreate))
+    await tap.equal(responseCreate.length, 2)
+    await tap.ok(responseCreate[0] instanceof Tag)
+    await tap.equal(responseCreate[0].readerId, createdReader.id)
+    await tap.equal(responseCreate[0].name, 'tag1')
+    await tap.type(responseCreate[0].id, 'string')
+    await tap.ok(responseCreate[0].published)
+  })
+
   await tap.test('Get tag by id', async () => {
     let responseGet = await Tag.byId(tagId)
     await tap.ok(responseGet)
@@ -78,9 +100,11 @@ const test = async app => {
     })
     let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
 
-    await tap.equal(responseGet.length, 2)
+    await tap.equal(responseGet.length, 4)
     await tap.ok(responseGet[0] instanceof Tag)
     await tap.ok(responseGet[1] instanceof Tag)
+    await tap.ok(responseGet[2] instanceof Tag)
+    await tap.ok(responseGet[3] instanceof Tag)
   })
 
   await tap.test('Delete Publication_Tags of a Tag', async () => {

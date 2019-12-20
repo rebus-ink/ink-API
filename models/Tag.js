@@ -73,6 +73,25 @@ class Tag extends BaseModel {
     }
   }
 
+  static async createMultipleTags (
+    readerId /*: string */,
+    tags /*: Array<{type: string, name: string, tagType: string, json?: {}, readerId?: string}> */
+  ) /*: Promise<any> */ {
+    const tagArray = tags.map(tag => {
+      tag.readerId = readerId
+      tag.type = tag.tagType
+      tag = _.pick(tag, ['name', 'json', 'readerId', 'type'])
+      tag.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
+      return tag
+    })
+
+    try {
+      return await Tag.query().insert(tagArray)
+    } catch (err) {
+      return err
+    }
+  }
+
   async delete () /*: Promise<number|Error> */ {
     const tagId = this.id
     // Delete all Publication_Tags associated with this tag
