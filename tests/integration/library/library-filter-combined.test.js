@@ -93,19 +93,24 @@ const test = async () => {
   await addPubToCollection(app, token, readerUrl, pubId10, stack.id)
   await addPubToCollection(app, token, readerUrl, pubId13, stack.id)
 
-  await createPublicationSimplified({ name: 'superbook' })
-  await createPublicationSimplified({ name: 'Super great book!' })
+  await createPublicationSimplified({ name: 'superbook', author: 'anonymous' })
+  await createPublicationSimplified({
+    name: 'Super great book!',
+    author: 'anonymous'
+  })
 
   await createPublicationSimplified({
     name: 'new book 1',
     author: 'John Doe',
     type: 'Article',
+    description: 'testing',
     keywords: ['word']
   })
   await createPublicationSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`,
     type: 'Article',
+    abstract: 'testing',
     keywords: ['word']
   })
   await createPublicationSimplified({
@@ -173,7 +178,7 @@ const test = async () => {
     type: 'Article'
   })
   await createPublicationSimplified({
-    name: 'new book 9',
+    name: 'new book 9 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     type: 'Article',
@@ -183,10 +188,11 @@ const test = async () => {
     name: 'new book 10',
     author: 'Jane Smith',
     editor: 'John Doe',
-    inLanguage: ['en']
+    inLanguage: ['en'],
+    keywords: 'word'
   })
   await createPublicationSimplified({
-    name: 'new book 11',
+    name: 'new book 11 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
@@ -335,8 +341,8 @@ const test = async () => {
       .type('application/ld+json')
 
     const body = res.body
-    await tap.equal(body.totalItems, 7)
-    await tap.equal(body.items.length, 7)
+    await tap.equal(body.totalItems, 8)
+    await tap.equal(body.items.length, 8)
   })
 
   await tap.test('filter by keyword and author', async () => {
@@ -399,6 +405,56 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+  })
+
+  await tap.test('filter by search and author', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?search=testing&author=John%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+  })
+
+  await tap.test('filter by search and type', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?search=testing&type=Article`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.items.length, 3)
+  })
+
+  await tap.test('filter by search and language', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?search=testing&language=km`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
+  })
+
+  await tap.test('filter by search and title', async () => {
+    const res = await request(app)
+      .get(`/readers/${readerId}/library?search=testing&title=sequel`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
   })
 
   await destroyDB(app)

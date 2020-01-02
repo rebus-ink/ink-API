@@ -91,6 +91,9 @@ class Reader extends BaseModel {
       resultQuery = resultQuery.where('Publication.type', '=', type)
     }
     if (filter.language) {
+      if (filter.search) {
+        console.log(filter.language)
+      }
       resultQuery = resultQuery.whereJsonSupersetOf(
         'Publication.metadata:inLanguage',
         [filter.language]
@@ -138,6 +141,14 @@ class Reader extends BaseModel {
         .where('Tag.name', '=', filter.collection)
         .andWhere('Tag.type', '=', 'reader:Stack')
     }
+    if (filter.search) {
+      const search = filter.search.toLowerCase()
+      resultQuery = resultQuery
+        .where('Publication.name', 'ilike', `%${search}%`)
+        .orWhere('Publication.abstract', 'ilike', `%${search}%`)
+        .orWhere('Publication.description', 'ilike', `%${search}%`)
+        .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+    }
 
     const result = await resultQuery
     return result[0].count
@@ -181,7 +192,9 @@ class Reader extends BaseModel {
             'Publication.published',
             'Publication.updated',
             'Publication.deleted',
-            'Publication.resources'
+            'Publication.resources',
+            'Publication.description',
+            'Publication.abstract'
           )
           .from('Publication')
         builder.distinct('Publication.id')
@@ -237,6 +250,16 @@ class Reader extends BaseModel {
           builder
             .where('Tag.name', '=', filter.collection)
             .andWhere('Tag.type', '=', 'reader:Stack')
+        }
+        if (filter.search) {
+          const search = filter.search.toLowerCase()
+          builder.where(nestedBuilder => {
+            nestedBuilder
+              .where('Publication.name', 'ilike', `%${search}%`)
+              .orWhere('Publication.abstract', 'ilike', `%${search}%`)
+              .orWhere('Publication.description', 'ilike', `%${search}%`)
+              .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+          })
         }
         if (filter.orderBy === 'title') {
           if (filter.reverse) {

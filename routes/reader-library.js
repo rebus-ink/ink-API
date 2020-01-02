@@ -253,7 +253,8 @@ module.exports = app => {
         collection: req.query.stack,
         language: req.query.language,
         type: req.query.type,
-        keyword: req.query.keyword
+        keyword: req.query.keyword,
+        search: req.query.search
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
