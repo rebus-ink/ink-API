@@ -149,8 +149,7 @@ const test = async app => {
     const noteWithTag = await Note.byId(urlToId(noteUrl))
     await tap.equal(noteWithTag.tags.length, 1)
     await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
-    await tap.equal(libraryBefore.body.tags.length, 1)
-    await tap.equal(libraryBefore.body.tags[0].name, stack.name)
+    await tap.equal(libraryBefore.body.tags.length, 5)
 
     // Update the tag
     const res = await request(app)
@@ -188,8 +187,7 @@ const test = async app => {
 
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
-    await tap.equal(libraryAfter.body.tags.length, 1)
-    await tap.equal(libraryAfter.body.tags[0].name, 'newName')
+    await tap.equal(libraryAfter.body.tags.length, 5)
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].name, 'newName')
   })
@@ -231,8 +229,7 @@ const test = async app => {
 
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
-    await tap.equal(libraryAfter.body.tags.length, 1)
-    await tap.equal(libraryAfter.body.tags[0].json.property, 'value!!')
+    await tap.equal(libraryAfter.body.tags.length, 5)
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].json.property, 'value!!')
   })

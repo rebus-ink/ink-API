@@ -5,6 +5,7 @@ const { Publication } = require('./Publication')
 const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
 const { Job } = require('./Job')
+const { Tag } = require('./Tag')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
 const urlparse = require('url').parse
@@ -410,13 +411,36 @@ class Reader extends BaseModel {
     const props = _.pick(person, attributes)
     props.id = translator.new()
     props.authId = authId
+    let newReader
     try {
-      return await Reader.query(Reader.knex())
+      newReader = await Reader.query(Reader.knex())
         .insert(props)
         .returning('*')
     } catch (err) {
       return err
     }
+
+    // create default Tags
+    await Tag.createMultipleTags(newReader.id, [
+      {
+        name: 'Research',
+        tagType: 'mode'
+      },
+      {
+        name: 'Teaching',
+        tagType: 'mode'
+      },
+      {
+        name: 'Public Scholarships',
+        tagType: 'mode'
+      },
+      {
+        name: 'Personal',
+        tagType: 'mode'
+      }
+    ])
+
+    return newReader
   }
 
   static get tableName () /*: string */ {
@@ -455,7 +479,6 @@ class Reader extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
     const { Activity } = require('./Activity.js')
-    const { Tag } = require('./Tag.js')
     return {
       publications: {
         relation: Model.HasManyRelation,

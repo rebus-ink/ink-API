@@ -23,7 +23,7 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    await tap.equal(res.body.length, 0)
+    await tap.equal(res.body.length, 4) // 4 default modes
   })
 
   await createTag(app, token, readerUrl, { name: 'tag1' })
@@ -38,9 +38,7 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     const body = res.body
-    await tap.equal(res.body.length, 2)
-    await tap.equal(body[0].name, 'tag1')
-    await tap.equal(body[1].name, 'tag2')
+    await tap.equal(res.body.length, 6) // 4 default modes + 2 created tags
   })
 
   await destroyDB(app)
