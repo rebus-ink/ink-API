@@ -91,9 +91,6 @@ class Reader extends BaseModel {
       resultQuery = resultQuery.where('Publication.type', '=', type)
     }
     if (filter.language) {
-      if (filter.search) {
-        console.log(filter.language)
-      }
       resultQuery = resultQuery.whereJsonSupersetOf(
         'Publication.metadata:inLanguage',
         [filter.language]
