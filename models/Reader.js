@@ -140,11 +140,13 @@ class Reader extends BaseModel {
     }
     if (filter.search) {
       const search = filter.search.toLowerCase()
-      resultQuery = resultQuery
-        .where('Publication.name', 'ilike', `%${search}%`)
-        .orWhere('Publication.abstract', 'ilike', `%${search}%`)
-        .orWhere('Publication.description', 'ilike', `%${search}%`)
-        .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+      resultQuery = resultQuery.where(nestedQuery => {
+        nestedQuery
+          .where('Publication.name', 'ilike', `%${search}%`)
+          .orWhere('Publication.abstract', 'ilike', `%${search}%`)
+          .orWhere('Publication.description', 'ilike', `%${search}%`)
+          .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+      })
     }
 
     const result = await resultQuery
