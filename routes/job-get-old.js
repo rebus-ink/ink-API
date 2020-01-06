@@ -32,11 +32,11 @@ const { Job } = require('../models/Job')
 module.exports = function (app) {
   /**
    * @swagger
-   * /jobs/{id}:
+   * /job-{id}:
    *   get:
    *     tags:
    *       - jobs
-   *     description: GET /jobs/:id
+   *     description: GET /job-:id
    *     parameters:
    *       - in: path
    *         name: id
@@ -60,7 +60,7 @@ module.exports = function (app) {
    */
   app.use('/', router)
   router.get(
-    '/jobs/:id',
+    '/job-:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id

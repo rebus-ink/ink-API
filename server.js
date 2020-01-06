@@ -24,7 +24,7 @@ const fileUploadRoute = require('./routes/file-upload')
 const noteRoute = require('./routes/note')
 const publicationDocumentRoute = require('./routes/publication-document')
 const searchRoute = require('./routes/search')
-const getJobRoute = require('./routes/job-get')
+const getJobOldRoute = require('./routes/job-get-old')
 const fileUploadPubRoute = require('./routes/file-upload-pub')
 const libraryRouteOld = require('./routes/deprecated/reader-library-old') // deprecated
 const getTagsRoute = require('./routes/tags-get')
@@ -42,6 +42,7 @@ const tagPostRoute = require('./routes/tag-post')
 const tagPatchRoute = require('./routes/tag-patch')
 const tagDeleteRoute = require('./routes/tag-delete')
 const readerNotesRoute = require('./routes/reader-notes')
+const getJobRoute = require('./routes/job-get')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -197,11 +198,12 @@ fileUploadRoute(app)
 noteRoute(app)
 publicationDocumentRoute(app)
 searchRoute(app)
-getJobRoute(app)
 fileUploadPubRoute(app)
 libraryRouteOld(app) // deprecated
 getTagsRoute(app)
 readerNotesOldRoute(app) // deprecated
+// getJobOldRoute(app) // deprecated
+
 // new routes
 publicationPostRoute(app)
 publicationPatchRoute(app)
@@ -215,6 +217,7 @@ tagDeleteRoute(app)
 readerGetRoute(app)
 readerLibraryRoute(app)
 readerNotesRoute(app)
+getJobRoute(app)
 
 app.use(errorHandling)
 

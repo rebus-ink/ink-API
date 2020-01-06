@@ -16,7 +16,7 @@ const test = async app => {
   })
   await tap.test('Get Job', async () => {
     const res = await request(app)
-      .get(`/jobs/${job.id}`)
+      .get(`/job-${job.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -37,7 +37,7 @@ const test = async app => {
 
   await tap.test('Get Job that does not exist', async () => {
     const res = await request(app)
-      .get(`/jobs/0`)
+      .get(`/job-0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

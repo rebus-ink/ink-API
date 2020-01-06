@@ -180,6 +180,13 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res18.statusCode, 401)
+
+    // job
+    const res19 = await request(app)
+      .get(`/jobs/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res19.statusCode, 401)
   })
 
   await destroyDB(app)
