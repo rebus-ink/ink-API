@@ -16,7 +16,6 @@ const test = async app => {
   // reader1
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
@@ -29,7 +28,6 @@ const test = async app => {
   // reader2
   const token2 = getToken()
   const readerCompleteUrl2 = await createUser(app, token2)
-  const readerUrl2 = urlparse(readerCompleteUrl2).path
 
   // create publication and tag for reader 1
 

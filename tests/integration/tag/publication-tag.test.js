@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -14,7 +13,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
-  const readerUrl = urlparse(readerCompleteUrl).path
 
   const publication = await createPublication(readerId)
   const publicationId = urlToId(publication.id)

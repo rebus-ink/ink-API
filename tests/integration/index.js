@@ -62,7 +62,7 @@ const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
 
-const jobGetOldTests = require('./job/job-get-old.test') // deprecated
+const jobGetOldTests = require('./deprecated/job-get-old.test') // deprecated
 const jobGetTests = require('./job/job-get.test')
 
 const app = require('../../server').app

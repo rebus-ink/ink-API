@@ -5,7 +5,6 @@ const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Tag } = require('../models/Tag')
 const boom = require('@hapi/boom')
-const _ = require('lodash')
 const { libraryCacheUpdate } = require('../utils/cache')
 const { checkOwnership } = require('../utils/utils')
 
