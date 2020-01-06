@@ -1,10 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Reader } = require('../models/Reader')
-const { getId } = require('../utils/get-id.js')
-const utils = require('../utils/utils')
-const paginate = require('./middleware/paginate')
+const { Reader } = require('../../models/Reader')
+const { getId } = require('../../utils/get-id.js')
+const utils = require('../../utils/utils')
+const paginate = require('../middleware/paginate')
 const boom = require('@hapi/boom')
 
 /**

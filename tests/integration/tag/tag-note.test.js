@@ -57,6 +57,7 @@ const test = async app => {
     token
   )
   const noteUrl = noteActivityObject.object.id
+  const noteId = urlToId(noteUrl)
 
   // create Tag
   const stack = await createTag(app, token, {
@@ -89,7 +90,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const tagsForNotes = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -187,7 +188,7 @@ const test = async app => {
 
   await tap.test('Remove Tag from Note', async () => {
     const note = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -221,7 +222,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const notes = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

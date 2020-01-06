@@ -24,7 +24,8 @@ const libraryOrderByTestsOld = require('./deprecated/library-orderBy-old.test') 
 const libraryPaginateTestsOld = require('./deprecated/library-paginate-old.test') // deprecated
 
 const noteCreateTests = require('./note-create.test')
-const noteGetTests = require('./note-get.test')
+const noteGetOldTests = require('./deprecated/note-get.test') // deprecated
+const noteGetTests = require('./note/note-get.test')
 const noteUpdateTests = require('./note-update.test')
 const noteDeleteTests = require('./note-delete.test')
 
@@ -55,7 +56,7 @@ const tagPublicationTests = require('./deprecated/tag-publication.test') // depr
 const tagNoteTests = require('./tag/tag-note.test')
 const tagDeleteTestsOld = require('./deprecated/tag-delete-old.test') // deprecated
 const tagUpdateTests = require('./deprecated/tag-update.test') // deprecated
-const publicationAddTagTests = require('./publication-tag.test')
+const publicationAddTagTests = require('./tag/publication-tag.test')
 const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
@@ -132,6 +133,7 @@ const allTests = async () => {
     await noteGetTests(app)
     await noteUpdateTests(app)
     await noteDeleteTests(app)
+    await noteGetOldTests(app) // deprecated
   }
 
   if (!test || test === 'tag') {
@@ -160,7 +162,7 @@ const allTests = async () => {
 
   if (!test || test === 'jobs') {
     await jobGetTests(app)
-    //   await jobGetOldTests(app) // deprecated
+    await jobGetOldTests(app) // deprecated
   }
 
   await app.knex.migrate.rollback()

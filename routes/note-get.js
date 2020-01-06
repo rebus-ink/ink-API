@@ -49,11 +49,11 @@ module.exports = app => {
 
   /**
    * @swagger
-   * /note-{id}:
+   * /notes/{id}:
    *   get:
    *     tags:
    *       - notes
-   *     description: GET /note-:id
+   *     description: GET /notes/:id
    *     parameters:
    *       - in: path
    *         name: id
@@ -79,7 +79,7 @@ module.exports = app => {
    */
 
   router.get(
-    '/note-:id',
+    '/notes/:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
@@ -103,17 +103,11 @@ module.exports = app => {
             )
           } else {
             debug(note)
-            res.setHeader(
-              'Content-Type',
-              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-            )
+            res.setHeader('Content-Type', 'application/ld+json')
             res.end(
               JSON.stringify(
                 Object.assign(note.toJSON(), {
-                  '@context': [
-                    'https://www.w3.org/ns/activitystreams',
-                    { reader: 'https://rebus.foundation/ns/reader' }
-                  ]
+                  '@context': [{ reader: 'https://rebus.foundation/ns/reader' }]
                 })
               )
             )

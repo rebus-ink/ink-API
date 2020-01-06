@@ -58,7 +58,7 @@ const test = async app => {
     token
   )
 
-  const noteUrl = noteActivityObject.object.id
+  const noteId = urlToId(noteActivityObject.object.id)
 
   await tap.test(
     'Try to get activity belonging to another reader',
@@ -104,7 +104,7 @@ const test = async app => {
 
   await tap.test('Try to get note belonging to another reader', async () => {
     const res = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(

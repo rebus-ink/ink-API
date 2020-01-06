@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Reader } = require('../models/Reader')
-const utils = require('../utils/utils')
+const { Reader } = require('../../models/Reader')
+const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 
 /**

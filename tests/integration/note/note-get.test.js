@@ -9,14 +9,13 @@ const {
   createPublication,
   createNote,
   createDocument
-} = require('../utils/testUtils')
-const { urlToId } = require('../../utils/utils')
+} = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
-  let noteUrl
+  let noteUrl, noteId
 
   const publication = await createPublication(readerId)
   const publicationUrl = publication.id
@@ -38,10 +37,10 @@ const test = async app => {
 
   await tap.test('Get Note', async () => {
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const res = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -56,18 +55,43 @@ const test = async app => {
     await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId)))
     await tap.type(body.content, 'string')
     await tap.type(body.inReplyTo, 'string')
-    await tap.type(body.context, 'string')
-    await tap.type(body['oa:hasSelector'], 'object')
-    await tap.type(body['@context'], 'object')
     await tap.type(body.json, 'object')
     await tap.ok(body.published)
     await tap.ok(body.updated)
-    await tap.ok(Array.isArray(body['@context']))
   })
+
+  // await tap.test('Get Note from id url', async () => {
+  //   const activityObject = await getActivityFromUrl(app, activityUrl, token)
+  //   noteUrl = activityObject.object.id
+
+  //   const res = await request(app)
+  //     .get(urlparse(noteUrl).path)
+  //     .set('Host', 'reader-api.test')
+  //     .set('Authorization', `Bearer ${token}`)
+  //     .type(
+  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //     )
+  //   await tap.equal(res.statusCode, 200)
+
+  //   const body = res.body
+  //   await tap.type(body, 'object')
+  //   await tap.equal(body.type, 'Note')
+  //   await tap.type(body.id, 'string')
+  //   await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId)))
+  //   await tap.type(body.content, 'string')
+  //   await tap.type(body.inReplyTo, 'string')
+  //   await tap.type(body.context, 'string')
+  //   await tap.type(body['oa:hasSelector'], 'object')
+  //   await tap.type(body['@context'], 'object')
+  //   await tap.type(body.json, 'object')
+  //   await tap.ok(body.published)
+  //   await tap.ok(body.updated)
+  //   await tap.ok(Array.isArray(body['@context']))
+  // })
 
   await tap.test('Try to get Note that does not exist', async () => {
     const res = await request(app)
-      .get(urlparse(noteUrl).path + 'abc')
+      .get(`/notes/${noteId}123`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

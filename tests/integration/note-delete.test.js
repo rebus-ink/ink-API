@@ -44,6 +44,7 @@ const test = async app => {
     token
   )
   noteUrl = noteActivityObject.object.id
+  noteId = urlToId(noteActivityObject.object.id)
 
   await tap.test('Delete a Note', async () => {
     // Create a tag for testing purposes and add it to the note
@@ -94,7 +95,7 @@ const test = async app => {
 
     // note should no longer exist
     const getres = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -230,6 +231,7 @@ const test = async app => {
       token
     )
     newNoteUrl = noteActivityObject1.object.id
+    newNoteId = urlToId(noteActivityObject1.object.id)
     await createNote(app, token, readerId, {
       content: 'This is the content of note C.',
       'oa:hasSelector': { propety: 'value' },
@@ -276,7 +278,7 @@ const test = async app => {
 
     // notes should no longer exist
     const getres = await request(app)
-      .get(urlparse(newNoteUrl).path)
+      .get(`/notes/${newNoteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

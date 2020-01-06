@@ -16,7 +16,7 @@ const test = async app => {
   const token = getToken()
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
-  let noteUrl
+  let noteId
 
   const publication = await createPublication(readerId)
 
@@ -72,10 +72,10 @@ const test = async app => {
     activityUrl = res.get('Location')
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -129,9 +129,10 @@ const test = async app => {
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -227,9 +228,10 @@ const test = async app => {
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

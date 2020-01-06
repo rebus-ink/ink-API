@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const boom = require('@hapi/boom')
-const { Job } = require('../models/Job')
+const { Job } = require('../../models/Job')
 
 /**
  * @swagger
