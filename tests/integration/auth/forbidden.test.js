@@ -17,7 +17,6 @@ const test = async app => {
   // reader1
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
@@ -158,6 +157,27 @@ const test = async app => {
     await tap.type(error.details.id, 'string')
     await tap.equal(error.details.activity, 'Get Library')
   })
+
+  await tap.test(
+    'Try to get readerNotes belonging to another reader',
+    async () => {
+      const res = await request(app)
+        .get(`/readers/${readerId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Reader')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Notes')
+    }
+  )
 
   await tap.test('Try to get outbox belonging to another reader', async () => {
     const res = await request(app)

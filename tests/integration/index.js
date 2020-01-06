@@ -41,10 +41,14 @@ const readerCreateTests = require('./reader/reader-post.test')
 const readerGetTests = require('./reader/reader-get.test')
 const readerGetTestsOld = require('./deprecated/reader-get-old.test') // deprecated
 
-const readerNotesGetTests = require('./readerNotes-get.test')
-const readerNotesPaginateTests = require('./readerNotes-paginate.test')
-const readerNotesFilterTests = require('./readerNotes-filter.test')
-const readerNotesOrderByTests = require('./readerNotes-orderBy.test')
+const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
+const readerNotesGetOldTests = require('./readerNotes-get.test') // deprecated
+const readerNotesFilterOldTests = require('./readerNotes-filter.test') // deprecated
+const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
+const readerNotesFilterTests = require('./readerNotes/readerNotes-filter.test')
+const readerNotesOrderByOldTests = require('./readerNotes-orderBy.test') // deprecated
+const readerNotesPaginateOldTests = require('./readerNotes-paginate.test') // deprecated
+const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
 
 const tagCreateTests = require('./tag/tag-create.test') // deprecated
 const tagPublicationTests = require('./deprecated/tag-publication.test') // deprecated
@@ -144,6 +148,10 @@ const allTests = async () => {
 
   if (!test || test === 'readerNotes') {
     await readerNotesGetTests(app)
+    // await readerNotesGetOldTests(app) // deprecated
+    // await readerNotesFilterOldTests(app) // deprecated
+    // await readerNotesOrderByOldTests(app) // deprecated
+    // await readerNotesPaginateOldTests(app) // deprecated
     await readerNotesPaginateTests(app)
     await readerNotesFilterTests(app)
     await readerNotesOrderByTests(app)

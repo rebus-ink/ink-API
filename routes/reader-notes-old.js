@@ -86,11 +86,11 @@ const boom = require('@hapi/boom')
 module.exports = app => {
   /**
    * @swagger
-   * /readers/{id}/notes:
+   * /reader-{id}/notes:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id/notes
+   *     description: GET /reader-:id/notes
    *     parameters:
    *       - in: path
    *         name: id
@@ -165,7 +165,7 @@ module.exports = app => {
    */
   app.use('/', router)
   router.get(
-    '/readers/:id/notes',
+    '/reader-:id/notes',
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
@@ -192,7 +192,7 @@ module.exports = app => {
             )
           } else if (!utils.checkReader(req, reader)) {
             return next(
-              boom.forbidden(`Access to reader ${id} disallowed`, {
+              boom.notFound(`Access to reader ${id} disallowed`, {
                 type: 'Reader',
                 id,
                 activity: 'Get Notes'
