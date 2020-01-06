@@ -26,8 +26,8 @@ const test = async app => {
     await tap.equal(res.body.length, 4) // 4 default modes
   })
 
-  await createTag(app, token, readerUrl, { name: 'tag1' })
-  await createTag(app, token, readerUrl, { name: 'tag2' })
+  await createTag(app, token, { name: 'tag1' })
+  await createTag(app, token, { name: 'tag2' })
 
   await tap.test('Get Tags', async () => {
     const res = await request(app)

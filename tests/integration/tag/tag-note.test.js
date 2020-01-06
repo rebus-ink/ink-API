@@ -17,8 +17,8 @@ const { Reader } = require('../../../models/Reader')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
+  const readerUrl = `/reader-${readerId}`
 
   // Create Reader object
   const person = {
@@ -26,7 +26,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
 
   // Create a Document for that publication
   const documentObject = {
@@ -44,7 +44,7 @@ const test = async app => {
   const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl, {
+  const noteActivity = await createNote(app, token, readerId, {
     inReplyTo: documentUrl,
     context: publication.id
   })
@@ -59,7 +59,7 @@ const test = async app => {
   const noteUrl = noteActivityObject.object.id
 
   // create Tag
-  const stack = await createTag(app, token, readerUrl, {
+  const stack = await createTag(app, token, {
     type: 'reader:Tag',
     tagType: 'reader:Stack',
     name: 'mystack',

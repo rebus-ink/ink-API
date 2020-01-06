@@ -38,7 +38,7 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a publication', async () => {
-    await createPublication(readerUrl, {
+    await createPublication(readerId, {
       type: 'Book',
       name: 'Publication A',
       author: ['John Smith'],
@@ -152,7 +152,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after collection created',
       async () => {
-        await createTag(app, token, readerUrl)
+        await createTag(app, token)
 
         const res = await request(app)
           .get(`/readers/${readerId}/library`)
@@ -210,7 +210,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after publication created',
       async () => {
-        publication = await createPublication(readerUrl)
+        publication = await createPublication(readerId)
 
         const res = await request(app)
           .get(`/readers/${readerId}/library`)

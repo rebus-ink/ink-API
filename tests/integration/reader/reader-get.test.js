@@ -1,5 +1,6 @@
 const request = require('supertest')
 const tap = require('tap')
+const urlparse = require('url').parse
 const { getToken, destroyDB } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -51,6 +52,26 @@ const test = async app => {
   await tap.test('Get Reader by readerId', async () => {
     const res = await request(app)
       .get(`/readers/${readerId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.equal(body.name, 'Jane Doe')
+    await tap.type(body.profile, 'object')
+    await tap.equal(body.profile.property, 'value')
+    await tap.type(body.preferences, 'object')
+    await tap.equal(body.preferences.favoriteColor, 'blueish brown')
+    await tap.type(body.json, 'object')
+    await tap.equal(body.json.something, '!!!!')
+  })
+
+  await tap.test('Use reader id url to get the reader', async () => {
+    const res = await request(app)
+      .get(urlparse(readerUrl).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

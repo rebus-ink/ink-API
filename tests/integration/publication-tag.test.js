@@ -16,14 +16,14 @@ const test = async app => {
   const readerId = urlToId(readerCompleteUrl)
   const readerUrl = urlparse(readerCompleteUrl).path
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
   const publicationId = urlToId(publication.id)
 
   const invalidTagId = `${readerId}-123` // including readerId to avoid 403 error
   const invalidPubId = `${readerId}-456`
 
   // create Tag
-  const tag = await createTag(app, token, readerUrl, {
+  const tag = await createTag(app, token, {
     tagType: 'reader:Stack',
     name: 'mystack',
     json: { property: 'value' }

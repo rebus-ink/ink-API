@@ -8,13 +8,14 @@ const {
   createPublication,
   createDocument
 } = require('../utils/testUtils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = await createUser(app, token)
+  const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
   const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl)
@@ -23,7 +24,7 @@ const test = async app => {
 
   await tap.test('Create Note with inReplyTo', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -53,7 +54,7 @@ const test = async app => {
 
   await tap.test('Create Note with context', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -83,7 +84,7 @@ const test = async app => {
 
   await tap.test('Create Note without inReplyTo or context', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -111,7 +112,7 @@ const test = async app => {
 
   await tap.test('Try to create a Note without a noteType', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -149,7 +150,7 @@ const test = async app => {
     'Try to create a Note with a noteType that is too long',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -185,7 +186,7 @@ const test = async app => {
 
   await tap.test('Try to create a Note without an invalid json', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -222,7 +223,7 @@ const test = async app => {
 
   await tap.test('Try to create Note with invalid document url', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -257,7 +258,7 @@ const test = async app => {
     'Try to create Note with invalid Publication context',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

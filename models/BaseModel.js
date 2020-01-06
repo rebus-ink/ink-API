@@ -28,11 +28,17 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/publications/${json.id}`
+    } else if (
+      type === 'reader' &&
+      json.id &&
+      !json.id.startsWith(process.env.DOMAIN)
+    ) {
+      json.id = `${domain}/readers/${json.id}`
     } else if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
       json.id = `${domain}/${type}-${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
-      json.readerId = `${domain}/reader-${json.readerId}`
+      json.readerId = `${domain}/readers/${json.readerId}`
     }
 
     if (

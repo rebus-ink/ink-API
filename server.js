@@ -202,7 +202,6 @@ fileUploadPubRoute(app)
 libraryRouteOld(app) // deprecated
 getTagsRoute(app)
 // new routes
-readerLibraryRoute(app)
 publicationPostRoute(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)
@@ -213,6 +212,7 @@ tagPostRoute(app)
 tagPatchRoute(app)
 tagDeleteRoute(app)
 readerGetRoute(app)
+readerLibraryRoute(app)
 
 app.use(errorHandling)
 

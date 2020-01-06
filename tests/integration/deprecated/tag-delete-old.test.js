@@ -28,7 +28,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
 
   // Create a Document for that publication
   const documentObject = {
@@ -46,7 +46,7 @@ const test = async app => {
   const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl, {
+  const noteActivity = await createNote(app, token, readerId, {
     inReplyTo: documentUrl,
     context: publication.id
   })
@@ -62,7 +62,7 @@ const test = async app => {
   const noteUrl = noteActivityObject.object.id
 
   // create Tag
-  const stack = await createTag(app, token, readerUrl, {
+  const stack = await createTag(app, token, {
     type: 'reader:Tag',
     tagType: 'reader:Stack',
     name: 'mystack',
@@ -73,7 +73,7 @@ const test = async app => {
     'Try to delete a Tag with a tagId that does not exist',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -103,7 +103,7 @@ const test = async app => {
 
   await tap.test('Try to delete a Tag with a null tagId', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -152,7 +152,7 @@ const test = async app => {
 
     // Delete the tag
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -193,7 +193,7 @@ const test = async app => {
 
   await tap.test('Try to delete a Tag that was already deleted', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

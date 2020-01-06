@@ -7,14 +7,15 @@ const {
   destroyDB,
   createActivity
 } = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = `/reader-${urlToId(readerId)}`
 
   // create activity
-  const createActivityResponse = await createActivity(app, token, readerUrl, {
+  const createActivityResponse = await createActivity(app, token, readerId, {
     '@context': [
       'https://www.w3.org/ns/activitystreams',
       { reader: 'https://rebus.foundation/ns/reader' }

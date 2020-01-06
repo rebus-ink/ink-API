@@ -64,12 +64,12 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const resCreatePub = await createPublication(readerId, publicationObject)
   const publicationUrl = resCreatePub.id
   const publicationId = urlToId(resCreatePub.id)
 
   // second publication
-  await createPublication(readerUrl)
+  await createPublication(readerId)
 
   await tap.test('Delete Publication', async () => {
     // Create a Document for that publication

@@ -33,8 +33,6 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    // should @context be an object or a string?
-    await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 0)
@@ -42,7 +40,7 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a publication', async () => {
-    await createPublication(readerUrl, {
+    await createPublication(readerId, {
       type: 'Book',
       name: 'Publication A',
       author: ['John Smith'],
@@ -82,8 +80,6 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    // should @context be an object or a string?
-    await tap.type(body['@context'], 'string')
     await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 1)
@@ -164,7 +160,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after collection created',
       async () => {
-        await createTag(app, token, readerUrl)
+        await createTag(app, token)
 
         const res = await request(app)
           .get(`${readerUrl}/library`)
@@ -231,7 +227,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after publication created',
       async () => {
-        publication = await createPublication(readerUrl)
+        publication = await createPublication(readerId)
 
         const res = await request(app)
           .get(`${readerUrl}/library`)

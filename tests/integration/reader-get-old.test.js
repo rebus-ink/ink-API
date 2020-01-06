@@ -66,12 +66,6 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    await tap.type(body['@context'], 'object')
-    await tap.ok(Array.isArray(body['@context']))
-    await tap.equal(body.type, 'Person')
-    await tap.type(body.summaryMap, 'object')
-    await tap.type(body.inbox, 'string')
-    await tap.type(body.outbox, 'string')
     await tap.equal(body.name, 'Jane Doe')
     await tap.type(body.profile, 'object')
     await tap.equal(body.profile.property, 'value')

@@ -18,14 +18,14 @@ const test = async app => {
   const readerUrl = urlparse(readerId).path
   let noteUrl
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
   const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
   const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
-  const response = await createNote(app, token, readerUrl, {
+  const response = await createNote(app, token, urlToId(readerId), {
     content: 'This is the content of note A.',
     'oa:hasSelector': { propety: 'value' },
     context: publicationUrl,

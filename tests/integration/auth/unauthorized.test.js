@@ -33,21 +33,21 @@ const test = async app => {
 
   // create publication and tag for reader 1
 
-  const tag = await createTag(app, token, readerUrl)
+  const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
   // create publication and tag for reader 2
-  const publication2 = await createPublication(readerUrl2)
+  const publication2 = await createPublication(readerCompleteUrl2)
   publicationId2 = urlToId(publication2.id)
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl)
+  const noteActivity = await createNote(app, token, readerId)
   const noteActivityUrl = noteActivity.get('Location')
 
   await tap.test('Requests without authentication', async () => {
     // outbox
     const res1 = await request(app)
-      .get(`${urlparse(readerUrl).path}/activity`)
+      .get(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -91,7 +91,7 @@ const test = async app => {
 
     // file upload
     const res7 = await request(app)
-      .post(`${urlparse(readerUrl).path}/file-upload`)
+      .post(`/reader-${readerId}/file-upload`)
       .set('Host', 'reader-api.test')
       .attach('files', 'tests/test-files/test-file3.txt')
       .type(

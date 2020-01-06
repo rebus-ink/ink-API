@@ -14,6 +14,7 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   const now = new Date().toISOString()
 
@@ -74,7 +75,7 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const resCreatePub = await createPublication(readerId, publicationObject)
   const publicationUrl = resCreatePub.id
   const publicationId = urlToId(publicationUrl)
 
@@ -132,7 +133,7 @@ const test = async app => {
   await tap.test('Get Publication with a position', async () => {
     // create some read activity
     await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -153,7 +154,7 @@ const test = async app => {
       )
 
     await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

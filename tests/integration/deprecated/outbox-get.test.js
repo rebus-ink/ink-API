@@ -11,12 +11,12 @@ const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = await createUser(app, token)
+  const readerId = urlToId(readerUrl)
 
   await tap.test('Get empty outbox', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/activity`)
+      .get(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -36,7 +36,7 @@ const test = async app => {
   })
 
   // create activity
-  await createActivity(app, token, readerUrl, {
+  await createActivity(app, token, readerId, {
     type: 'Create',
     object: {
       type: 'reader:Tag',
@@ -46,12 +46,12 @@ const test = async app => {
     }
   })
 
-  await createActivity(app, token, readerUrl)
-  await createActivity(app, token, readerUrl)
+  await createActivity(app, token, readerId)
+  await createActivity(app, token, readerId)
 
   await tap.test('Get Outbox', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/activity`)
+      .get(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -80,7 +80,7 @@ const test = async app => {
     'Try to get Outbox for reader that does not exist',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}abc/activity`)
+        .get(`/reader-${readerId}abc/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

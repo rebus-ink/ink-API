@@ -20,7 +20,7 @@ const test = async () => {
   const readerId = urlToId(readerCompleteUrl)
 
   const createPublicationSimplified = async object => {
-    return await createPublication(readerUrl, object)
+    return await createPublication(readerId, object)
   }
 
   await createPublicationSimplified({
@@ -40,7 +40,7 @@ const test = async () => {
     await createPublicationSimplified({ name: 'Publication 3' })
 
     // create a stack
-    stack = await createTag(app, token, readerUrl)
+    stack = await createTag(app, token)
 
     // assign mystack to publication B
     await addPubToCollection(app, token, readerUrl, publication.id, stack.id)

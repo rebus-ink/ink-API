@@ -15,6 +15,7 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   const now = new Date().toISOString()
 
@@ -76,13 +77,13 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const resCreatePub = await createPublication(readerId, publicationObject)
   const publicationUrl = resCreatePub.id
 
   await tap.test('Update a Publication', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -194,7 +195,7 @@ const test = async app => {
     'Try to update a Publication to an invalid value',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -231,7 +232,7 @@ const test = async app => {
     'Try to update a Publication to an invalid metadata value',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -265,7 +266,7 @@ const test = async app => {
     'Try to update a Publication that does not exist',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

@@ -18,6 +18,9 @@ const urlToId = url => {
   if (path.startsWith('/publications/')) {
     return path.substring(14) // 14 is '/publications/'.length
   }
+  if (path.startsWith('/readers/')) {
+    return path.substring(9)
+  }
   return path.substring(path.indexOf('-') + 1)
 }
 

@@ -9,13 +9,14 @@ const {
   createNote,
   createDocument
 } = require('../utils/testUtils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = `/reader-${urlToId(readerId)}`
 
-  const publication = await createPublication(readerUrl, {
+  const publication = await createPublication(urlToId(readerId), {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
@@ -33,7 +34,7 @@ const test = async app => {
       { inReplyTo: documentUrl, context: publicationUrl },
       object
     )
-    return await createNote(app, token, readerUrl, noteObj)
+    return await createNote(app, token, urlToId(readerId), noteObj)
   }
 
   await tap.test('Get empty list of notes', async () => {

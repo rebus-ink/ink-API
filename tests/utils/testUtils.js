@@ -62,10 +62,7 @@ const getActivityFromUrl = async (app, url, token) => {
   return res.body
 }
 
-const createPublication = async (readerUrl, object = {}) => {
-  let readerId
-  if (_.isString(readerUrl)) readerId = readerUrl.substring(8)
-
+const createPublication = async (readerId, object = {}) => {
   const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
@@ -127,7 +124,8 @@ const createPublication = async (readerUrl, object = {}) => {
   return await Publication.createPublication({ id: readerId }, pubObject)
 }
 
-const createNote = async (app, token, readerUrl, object = {}) => {
+const createNote = async (app, token, readerId, object = {}) => {
+  readerId = urlToId(readerId)
   const noteObject = Object.assign(
     {
       type: 'Note',
@@ -142,7 +140,7 @@ const createNote = async (app, token, readerUrl, object = {}) => {
   )
 
   return await request(app)
-    .post(`${readerUrl}/activity`)
+    .post(`/reader-${readerId}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -160,7 +158,8 @@ const createNote = async (app, token, readerUrl, object = {}) => {
     )
 }
 
-const createActivity = async (app, token, readerUrl, object = {}) => {
+const createActivity = async (app, token, readerId, object = {}) => {
+  readerId = urlToId(readerId)
   const activityObject = Object.assign(
     {
       '@context': [
@@ -174,7 +173,7 @@ const createActivity = async (app, token, readerUrl, object = {}) => {
   )
 
   return await request(app)
-    .post(`${readerUrl}/activity`)
+    .post(`/reader-${readerId}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
@@ -183,7 +182,7 @@ const createActivity = async (app, token, readerUrl, object = {}) => {
     .send(JSON.stringify(activityObject))
 }
 
-const createTag = async (app, token, readerUrl, object = {}) => {
+const createTag = async (app, token, object = {}) => {
   const tagObject = Object.assign(
     {
       type: 'reader:Tag',
@@ -233,10 +232,11 @@ const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
   return res
 }
 
-const addNoteToCollection = async (app, token, readerUrl, noteId, tagId) => {
+const addNoteToCollection = async (app, token, readerId, noteId, tagId) => {
+  readerId = urlToId(readerId)
   tagId = urlToId(tagId)
   return await request(app)
-    .post(`${readerUrl}/activity`)
+    .post(`/reader-${readerId}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
