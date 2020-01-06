@@ -201,7 +201,7 @@ getJobRoute(app)
 fileUploadPubRoute(app)
 libraryRouteOld(app) // deprecated
 getTagsRoute(app)
-// readerNotesOldRoute(app) // deprecated
+readerNotesOldRoute(app) // deprecated
 // new routes
 publicationPostRoute(app)
 publicationPatchRoute(app)
