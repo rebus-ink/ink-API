@@ -269,7 +269,7 @@ const test = async () => {
         await addPubToCollection(
           app,
           token,
-          readerUrl,
+          readerId,
           publication.id,
           collectionId
         )

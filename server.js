@@ -196,7 +196,7 @@ readersRoute(app)
 getOutboxRoute(app)
 postOutboxRoute(app)
 fileUploadRoute(app)
-// noteRoute(app) // deprecated
+noteRoute(app) // deprecated
 publicationDocumentRoute(app)
 searchRoute(app)
 fileUploadPubRoute(app)

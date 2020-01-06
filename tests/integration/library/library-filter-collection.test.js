@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   addPubToCollection,
   createTag
