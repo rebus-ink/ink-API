@@ -39,7 +39,7 @@ const publicationPatchTests = require('./publication/publication-patch.test')
 
 const readerCreateTests = require('./reader-create.test')
 const readerGetTests = require('./reader/reader-get.test')
-const readerGetTestsOld = require('./reader-get-old.test') // deprecated
+const readerGetTestsOld = require('./deprecated/reader-get-old.test') // deprecated
 
 const readerNotesGetTests = require('./readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes-paginate.test')

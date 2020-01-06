@@ -1,7 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const urlparse = require('url').parse
-const { getToken, destroyDB } = require('../utils/testUtils')
+const { getToken, destroyDB } = require('../../utils/testUtils')
 
 const test = async app => {
   const token = getToken()
