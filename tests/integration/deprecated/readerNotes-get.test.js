@@ -8,8 +8,8 @@ const {
   createPublication,
   createNote,
   createDocument
-} = require('../utils/testUtils')
-const { urlToId } = require('../../utils/utils')
+} = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()

@@ -42,12 +42,12 @@ const readerGetTests = require('./reader/reader-get.test')
 const readerGetTestsOld = require('./deprecated/reader-get-old.test') // deprecated
 
 const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
-const readerNotesGetOldTests = require('./readerNotes-get.test') // deprecated
-const readerNotesFilterOldTests = require('./readerNotes-filter.test') // deprecated
+const readerNotesGetOldTests = require('./deprecated/readerNotes-get.test') // deprecated
+const readerNotesFilterOldTests = require('./deprecated/readerNotes-filter.test') // deprecated
 const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
 const readerNotesFilterTests = require('./readerNotes/readerNotes-filter.test')
-const readerNotesOrderByOldTests = require('./readerNotes-orderBy.test') // deprecated
-const readerNotesPaginateOldTests = require('./readerNotes-paginate.test') // deprecated
+const readerNotesOrderByOldTests = require('./deprecated/readerNotes-orderBy.test') // deprecated
+const readerNotesPaginateOldTests = require('./deprecated/readerNotes-paginate.test') // deprecated
 const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
 
 const tagCreateTests = require('./tag/tag-create.test') // deprecated
