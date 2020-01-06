@@ -56,7 +56,7 @@ const test = async app => {
 
     // reader
     const res2 = await request(app)
-      .get(urlparse(readerUrl).path)
+      .get(`/readers/${readerId}`)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'

@@ -30,6 +30,7 @@ const fileUploadPubRoute = require('./routes/file-upload-pub')
 const libraryRouteOld = require('./routes/deprecated/reader-library-old') // deprecated
 const getTagsRoute = require('./routes/tags-get')
 // new routes
+const readerGetRoute = require('./routes/reader-get')
 const publicationPostRoute = require('./routes/publication-post')
 const publicationPatchRoute = require('./routes/publication-patch')
 const publicationDeleteRoute = require('./routes/publication-delete')
@@ -211,6 +212,7 @@ publicationGetRoute(app)
 tagPostRoute(app)
 tagPatchRoute(app)
 tagDeleteRoute(app)
+readerGetRoute(app)
 
 app.use(errorHandling)
 

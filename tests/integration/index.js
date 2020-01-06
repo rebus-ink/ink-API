@@ -38,7 +38,8 @@ const publicationPostTests = require('./publication/publication-post.test')
 const publicationPatchTests = require('./publication/publication-patch.test')
 
 const readerCreateTests = require('./reader-create.test')
-const readerGetTests = require('./reader-get.test')
+const readerGetTests = require('./reader/reader-get.test')
+const readerGetTestsOld = require('./reader-get-old.test') // deprecated
 
 const readerNotesGetTests = require('./readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes-paginate.test')
@@ -116,8 +117,9 @@ const allTests = async () => {
   }
 
   if (!test || test === 'reader') {
+    await readerGetTestsOld(app) // deprecated
     await readerCreateTests(app)
-    await readerGetTests(app)
+    await readerGetTests(app) // new
   }
 
   if (!test || test === 'note') {

@@ -125,7 +125,7 @@ const test = async app => {
     'Try to get reader object belonging to another reader',
     async () => {
       const res = await request(app)
-        .get(urlparse(readerUrl).path)
+        .get(`/readers/${readerId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type(
