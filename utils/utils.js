@@ -21,6 +21,9 @@ const urlToId = url => {
   if (path.startsWith('/readers/')) {
     return path.substring(9)
   }
+  if (path.startsWith('/notes/')) {
+    return path.substring(7)
+  }
   return path.substring(path.indexOf('-') + 1)
 }
 

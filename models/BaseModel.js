@@ -34,6 +34,12 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/readers/${json.id}`
+    } else if (
+      type === 'note' &&
+      json.id &&
+      !json.id.startsWith(process.env.DOMAIN)
+    ) {
+      json.id = `${domain}/notes/${json.id}`
     } else if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
       json.id = `${domain}/${type}-${json.id}`
     }
@@ -49,7 +55,7 @@ class BaseModel extends Model {
     }
 
     if (json.noteId && !json.noteId.startsWith(process.env.DOMAIN)) {
-      json.noteId = `${domain}/note-${json.noteId}`
+      json.noteId = `${domain}/notes/${json.noteId}`
     }
 
     return json
