@@ -17,7 +17,6 @@ const test = async app => {
   // reader1
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
@@ -34,21 +33,21 @@ const test = async app => {
   const readerId2 = urlToId(readerCompleteUrl2)
 
   // create publication and tag for reader 1
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
   const publicationUrl = publication.id
 
-  const tag = await createTag(app, token, readerUrl)
+  const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
   // create publication and tag for reader 2
-  const publication2 = await createPublication(readerUrl2)
+  const publication2 = await createPublication(readerId2)
   publicationId2 = urlToId(publication2.id)
 
   const tag2 = await createTag(app, token2, readerUrl2)
   const tagId2 = urlToId(tag2.id)
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl)
+  const noteActivity = await createNote(app, token, readerId)
 
   // get the urls needed for the tests
   const noteActivityUrl = noteActivity.get('Location')
@@ -59,7 +58,7 @@ const test = async app => {
     token
   )
 
-  const noteUrl = noteActivityObject.object.id
+  const noteId = urlToId(noteActivityObject.object.id)
 
   await tap.test(
     'Try to get activity belonging to another reader',
@@ -105,7 +104,7 @@ const test = async app => {
 
   await tap.test('Try to get note belonging to another reader', async () => {
     const res = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -125,7 +124,7 @@ const test = async app => {
     'Try to get reader object belonging to another reader',
     async () => {
       const res = await request(app)
-        .get(urlparse(readerUrl).path)
+        .get(`/readers/${readerId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type(
@@ -159,9 +158,30 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Get Library')
   })
 
+  await tap.test(
+    'Try to get readerNotes belonging to another reader',
+    async () => {
+      const res = await request(app)
+        .get(`/readers/${readerId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type(
+          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Reader')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Get Notes')
+    }
+  )
+
   await tap.test('Try to get outbox belonging to another reader', async () => {
     const res = await request(app)
-      .get(`${urlparse(readerUrl).path}/activity`)
+      .get(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -179,7 +199,7 @@ const test = async app => {
 
   await tap.test('Try to create an activity for another user', async () => {
     const res = await request(app)
-      .post(`${urlparse(readerUrl).path}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type(
@@ -360,7 +380,7 @@ const test = async app => {
     'Try to upload files to a folder belonging to another reader',
     async () => {
       const res = await request(app)
-        .post(`${urlparse(readerUrl).path}/file-upload`)
+        .post(`/reader-${readerId}/file-upload`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .attach('files', 'tests/test-files/test-file3.txt')

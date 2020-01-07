@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -12,7 +11,7 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
+  const readerId = urlToId(readerCompleteUrl)
 
   const now = new Date().toISOString()
 
@@ -74,7 +73,7 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const resCreatePub = await createPublication(readerId, publicationObject)
   const publicationUrl = resCreatePub.id
   const publicationId = urlToId(publicationUrl)
 

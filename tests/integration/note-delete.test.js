@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -17,18 +16,18 @@ const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = await createUser(app, token)
+  const readerId = urlToId(readerUrl)
   let noteUrl
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
   const publicationUrl = publication.id
 
-  const createdDocument = await createDocument(readerId, publicationUrl)
+  const createdDocument = await createDocument(readerUrl, publicationUrl)
 
   const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
-  const response = await createNote(app, token, readerUrl, {
+  const response = await createNote(app, token, readerId, {
     content: 'This is the content of note A.',
     'oa:hasSelector': { propety: 'value' },
     context: publicationUrl,
@@ -44,10 +43,11 @@ const test = async app => {
     token
   )
   noteUrl = noteActivityObject.object.id
+  noteId = urlToId(noteActivityObject.object.id)
 
   await tap.test('Delete a Note', async () => {
     // Create a tag for testing purposes and add it to the note
-    const createdTag = await Tag.createTag(readerId, {
+    const createdTag = await Tag.createTag(readerUrl, {
       type: 'reader:Tag',
       tagType: 'reader:Stack',
       name: 'random stack'
@@ -71,7 +71,7 @@ const test = async app => {
     await tap.equal(noteBefore.tags[0].name, createdTag.name)
 
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -90,18 +90,16 @@ const test = async app => {
           }
         })
       )
-
     await tap.equal(res.statusCode, 204)
 
     // note should no longer exist
     const getres = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
-
     await tap.equal(getres.statusCode, 404)
     const error = JSON.parse(getres.text)
     await tap.equal(error.statusCode, 404)
@@ -141,7 +139,7 @@ const test = async app => {
     'Deleted Note should no longer show up in a list of the reader notes',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes`)
+        .get(`/readers/${readerId}/notes`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -155,7 +153,7 @@ const test = async app => {
 
   await tap.test('Try to delete a Note that does not exist', async () => {
     const res1 = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -186,7 +184,7 @@ const test = async app => {
 
   await tap.test('Try to delete a Note that was already deleted', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -218,7 +216,7 @@ const test = async app => {
   // DELETE NOTES FOR PUB
   await tap.test('Delete all Notes for a Publication', async () => {
     // create two notes for our publication:
-    const createNoteRes = await createNote(app, token, readerUrl, {
+    const createNoteRes = await createNote(app, token, readerId, {
       content: 'This is the content of note B.',
       'oa:hasSelector': { propety: 'value' },
       context: publicationUrl,
@@ -232,8 +230,8 @@ const test = async app => {
       token
     )
     newNoteUrl = noteActivityObject1.object.id
-
-    await createNote(app, token, readerUrl, {
+    newNoteId = urlToId(noteActivityObject1.object.id)
+    await createNote(app, token, readerId, {
       content: 'This is the content of note C.',
       'oa:hasSelector': { propety: 'value' },
       context: publicationUrl,
@@ -254,7 +252,7 @@ const test = async app => {
 
     // now delete all notes for pub:
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -279,7 +277,7 @@ const test = async app => {
 
     // notes should no longer exist
     const getres = await request(app)
-      .get(urlparse(newNoteUrl).path)
+      .get(`/notes/${newNoteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -310,7 +308,7 @@ const test = async app => {
     'Try to delete all Notes for a Publication with undefined publication id',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -342,7 +340,7 @@ const test = async app => {
 
   await tap.test('Delete all notes for an invalid publication id', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

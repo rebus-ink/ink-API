@@ -47,11 +47,11 @@ const boom = require('@hapi/boom')
 module.exports = app => {
   /**
    * @swagger
-   * /reader-{id}:
+   * /readers/{id}:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /reader-:id
+   *     description: GET /readers/:id
    *     parameters:
    *       - in: path
    *         name: id
@@ -77,7 +77,7 @@ module.exports = app => {
    */
   app.use('/', router)
   router.get(
-    '/reader-:id',
+    '/readers/:id',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       Reader.byId(req.params.id)
@@ -99,23 +99,8 @@ module.exports = app => {
               })
             )
           } else {
-            res.setHeader(
-              'Content-Type',
-              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-            )
-            res.end(
-              JSON.stringify(
-                Object.assign(
-                  {
-                    '@context': [
-                      'https://www.w3.org/ns/activitystreams',
-                      { reader: 'https://rebus.foundation/ns/reader' }
-                    ]
-                  },
-                  reader.toJSON()
-                )
-              )
-            )
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.end(JSON.stringify(reader.toJSON()))
           }
         })
         .catch(err => {

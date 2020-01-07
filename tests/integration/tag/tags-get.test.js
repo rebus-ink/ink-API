@@ -1,19 +1,15 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
   destroyDB,
   createTag
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   await tap.test('Get Tags for a reader with no tags', async () => {
     const res = await request(app)
@@ -26,8 +22,8 @@ const test = async app => {
     await tap.equal(res.body.length, 4) // 4 default modes
   })
 
-  await createTag(app, token, readerUrl, { name: 'tag1' })
-  await createTag(app, token, readerUrl, { name: 'tag2' })
+  await createTag(app, token, { name: 'tag1' })
+  await createTag(app, token, { name: 'tag2' })
 
   await tap.test('Get Tags', async () => {
     const res = await request(app)

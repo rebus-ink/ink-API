@@ -72,11 +72,11 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerUrl, publicationObject)
+  const resCreatePub = await createPublication(readerId, publicationObject)
   const publicationUrl = resCreatePub.id
 
   // second publication
-  await createPublication(readerUrl)
+  await createPublication(readerId)
 
   await tap.test('Delete Publication', async () => {
     // Create a Document for that publication
@@ -117,7 +117,7 @@ const test = async app => {
     await tap.ok(!document.deleted)
 
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -178,7 +178,7 @@ const test = async app => {
     'Try to delete a Publication that was already deleted',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -212,7 +212,7 @@ const test = async app => {
     'Try to delete a Publication that does not exist',
     async () => {
       const res1 = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -14,7 +13,7 @@ const { urlToId } = require('../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = `/reader-${urlToId(readerId)}` // temporary fix
 
   // Create Reader object
   const person = {
@@ -23,7 +22,7 @@ const test = async app => {
   const reader1 = await Reader.createReader(readerId, person)
 
   // Create Publication
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(urlToId(readerId))
   const publicationUrl = publication.id
 
   await tap.test('Create Read activity with only a selector', async () => {

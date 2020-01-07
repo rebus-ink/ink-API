@@ -13,13 +13,13 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
+  const readerUrl = `/reader-${readerId}`
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
 
   // create Tag
-  const stack = await createTag(app, token, readerUrl, {
+  const stack = await createTag(app, token, {
     type: 'reader:Tag',
     tagType: 'reader:Stack',
     name: 'mystack',

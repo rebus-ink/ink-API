@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -10,21 +9,23 @@ const {
   createNote,
   createDocument
 } = require('../utils/testUtils')
+const { urlToId } = require('../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
-  let noteUrl
+  const readerUrl = await createUser(app, token)
+  const readerId = urlToId(readerUrl)
+  let noteId
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
+
   const publicationUrl = publication.id
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
   const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
-  const response = await createNote(app, token, readerUrl, {
+  const response = await createNote(app, token, readerId, {
     content: 'This is the content of note A.',
     'oa:hasSelector': { propety: 'value' },
     context: publicationUrl,
@@ -44,7 +45,7 @@ const test = async app => {
 
   await tap.test('Update the content of a Note', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -70,10 +71,10 @@ const test = async app => {
     activityUrl = res.get('Location')
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -100,7 +101,7 @@ const test = async app => {
 
   await tap.test('Update the selector of a note', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -127,9 +128,10 @@ const test = async app => {
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -158,7 +160,7 @@ const test = async app => {
     'Try to update the selector of a note to the wrong type',
     async () => {
       const res = await request(app)
-        .post(`${readerUrl}/activity`)
+        .post(`/reader-${readerId}/activity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(
@@ -198,7 +200,7 @@ const test = async app => {
 
   await tap.test('Try to update noteType', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -225,9 +227,10 @@ const test = async app => {
 
     const activityObject = await getActivityFromUrl(app, activityUrl, token)
     noteUrl = activityObject.object.id
+    noteId = urlToId(activityObject.object.id)
 
     const resnote = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -244,7 +247,7 @@ const test = async app => {
 
   await tap.test('Try to update a Note that does not exist', async () => {
     const res = await request(app)
-      .post(`${readerUrl}/activity`)
+      .post(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(

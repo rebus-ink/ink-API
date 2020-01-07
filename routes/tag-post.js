@@ -9,8 +9,6 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../utils/cache')
 
-const utils = require('../utils/utils')
-
 module.exports = function (app) {
   /**
    * @swagger

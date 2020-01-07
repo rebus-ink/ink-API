@@ -24,7 +24,8 @@ const libraryOrderByTestsOld = require('./deprecated/library-orderBy-old.test') 
 const libraryPaginateTestsOld = require('./deprecated/library-paginate-old.test') // deprecated
 
 const noteCreateTests = require('./note-create.test')
-const noteGetTests = require('./note-get.test')
+const noteGetOldTests = require('./deprecated/note-get.test') // deprecated
+const noteGetTests = require('./note/note-get.test')
 const noteUpdateTests = require('./note-update.test')
 const noteDeleteTests = require('./note-delete.test')
 
@@ -37,25 +38,31 @@ const publicationDeleteTests = require('./publication/publication-delete.test')
 const publicationPostTests = require('./publication/publication-post.test')
 const publicationPatchTests = require('./publication/publication-patch.test')
 
-const readerCreateTests = require('./reader-create.test')
-const readerGetTests = require('./reader-get.test')
+const readerCreateTests = require('./reader/reader-post.test')
+const readerGetTests = require('./reader/reader-get.test')
+const readerGetTestsOld = require('./deprecated/reader-get-old.test') // deprecated
 
-const readerNotesGetTests = require('./readerNotes-get.test')
-const readerNotesPaginateTests = require('./readerNotes-paginate.test')
-const readerNotesFilterTests = require('./readerNotes-filter.test')
-const readerNotesOrderByTests = require('./readerNotes-orderBy.test')
+const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
+const readerNotesGetOldTests = require('./deprecated/readerNotes-get.test') // deprecated
+const readerNotesFilterOldTests = require('./deprecated/readerNotes-filter.test') // deprecated
+const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
+const readerNotesFilterTests = require('./readerNotes/readerNotes-filter.test')
+const readerNotesOrderByOldTests = require('./deprecated/readerNotes-orderBy.test') // deprecated
+const readerNotesPaginateOldTests = require('./deprecated/readerNotes-paginate.test') // deprecated
+const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
 
 const tagCreateTests = require('./tag/tag-create.test') // deprecated
 const tagPublicationTests = require('./deprecated/tag-publication.test') // deprecated
 const tagNoteTests = require('./tag/tag-note.test')
 const tagDeleteTestsOld = require('./deprecated/tag-delete-old.test') // deprecated
 const tagUpdateTests = require('./deprecated/tag-update.test') // deprecated
-const publicationAddTagTests = require('./publication-tag.test')
+const publicationAddTagTests = require('./tag/publication-tag.test')
 const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
 
+const jobGetOldTests = require('./deprecated/job-get-old.test') // deprecated
 const jobGetTests = require('./job/job-get.test')
 
 const app = require('../../server').app
@@ -116,8 +123,9 @@ const allTests = async () => {
   }
 
   if (!test || test === 'reader') {
+    await readerGetTestsOld(app) // deprecated
     await readerCreateTests(app)
-    await readerGetTests(app)
+    await readerGetTests(app) // new
   }
 
   if (!test || test === 'note') {
@@ -125,6 +133,7 @@ const allTests = async () => {
     await noteGetTests(app)
     await noteUpdateTests(app)
     await noteDeleteTests(app)
+    await noteGetOldTests(app) // deprecated
   }
 
   if (!test || test === 'tag') {
@@ -142,6 +151,10 @@ const allTests = async () => {
 
   if (!test || test === 'readerNotes') {
     await readerNotesGetTests(app)
+    await readerNotesGetOldTests(app) // deprecated
+    await readerNotesFilterOldTests(app) // deprecated
+    await readerNotesOrderByOldTests(app) // deprecated
+    await readerNotesPaginateOldTests(app) // deprecated
     await readerNotesPaginateTests(app)
     await readerNotesFilterTests(app)
     await readerNotesOrderByTests(app)
@@ -149,6 +162,7 @@ const allTests = async () => {
 
   if (!test || test === 'jobs') {
     await jobGetTests(app)
+    await jobGetOldTests(app) // deprecated
   }
 
   await app.knex.migrate.rollback()

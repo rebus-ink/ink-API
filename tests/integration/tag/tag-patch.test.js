@@ -1,6 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
@@ -19,7 +18,6 @@ const { Note } = require('../../../models/Note')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
@@ -28,7 +26,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(readerUrl)
+  const publication = await createPublication(readerId)
 
   // Create a Document for that publication
   const documentObject = {
@@ -46,7 +44,7 @@ const test = async app => {
   const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl, {
+  const noteActivity = await createNote(app, token, readerId, {
     inReplyTo: documentUrl,
     context: publication.id
   })
@@ -62,7 +60,7 @@ const test = async app => {
   const noteUrl = noteActivityObject.object.id
 
   // create Tag
-  const stack = await createTag(app, token, readerUrl, {
+  const stack = await createTag(app, token, {
     type: 'reader:Tag',
     tagType: 'reader:Stack',
     name: 'mystack',

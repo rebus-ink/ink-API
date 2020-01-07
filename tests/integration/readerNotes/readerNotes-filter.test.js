@@ -1,31 +1,29 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
   createDocument,
   createTag,
   addNoteToCollection
-} = require('../utils/testUtils')
-const { urlToId } = require('../../utils/utils')
+} = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = urlparse(readerId).path
+  const readerUrl = `/readers/${urlToId(readerId)}`
 
-  const publication = await createPublication(readerUrl, {
+  const publication = await createPublication(urlToId(readerId), {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
 
   // create another publication
-  const publication2 = await createPublication(readerUrl, {
+  const publication2 = await createPublication(urlToId(readerId), {
     name: 'Publication B'
   })
   const publicationUrl2 = publication2.id
@@ -52,7 +50,7 @@ const test = async app => {
       { inReplyTo: documentUrl, context: publicationUrl },
       object
     )
-    return await createNote(app, token, readerUrl, noteObj)
+    return await createNote(app, token, urlToId(readerId), noteObj)
   }
 
   await createNoteSimplified({ content: 'first' })
@@ -333,15 +331,15 @@ const test = async app => {
 
   // --------------------------------------------- COLLECTION ---------------------------------------
 
-  const tagCreated = await createTag(app, token, readerUrl, {
+  const tagCreated = await createTag(app, token, {
     name: 'testCollection'
   })
   const tagId = tagCreated.id
 
   // add 3 notes to this collection
-  await addNoteToCollection(app, token, readerUrl, urlToId(noteId1), tagId)
-  await addNoteToCollection(app, token, readerUrl, urlToId(noteId2), tagId)
-  await addNoteToCollection(app, token, readerUrl, urlToId(noteId3), tagId)
+  await addNoteToCollection(app, token, readerId, urlToId(noteId1), tagId)
+  await addNoteToCollection(app, token, readerId, urlToId(noteId2), tagId)
+  await addNoteToCollection(app, token, readerId, urlToId(noteId3), tagId)
 
   await tap.test('Get Notes by Collection', async () => {
     const res = await request(app)

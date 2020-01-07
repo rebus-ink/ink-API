@@ -16,7 +16,6 @@ const test = async app => {
   // reader1
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
   const readerId = urlToId(readerCompleteUrl)
 
   // Create Reader object
@@ -29,25 +28,24 @@ const test = async app => {
   // reader2
   const token2 = getToken()
   const readerCompleteUrl2 = await createUser(app, token2)
-  const readerUrl2 = urlparse(readerCompleteUrl2).path
 
   // create publication and tag for reader 1
 
-  const tag = await createTag(app, token, readerUrl)
+  const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
   // create publication and tag for reader 2
-  const publication2 = await createPublication(readerUrl2)
+  const publication2 = await createPublication(readerCompleteUrl2)
   publicationId2 = urlToId(publication2.id)
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerUrl)
+  const noteActivity = await createNote(app, token, readerId)
   const noteActivityUrl = noteActivity.get('Location')
 
   await tap.test('Requests without authentication', async () => {
     // outbox
     const res1 = await request(app)
-      .get(`${urlparse(readerUrl).path}/activity`)
+      .get(`/reader-${readerId}/activity`)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -56,7 +54,7 @@ const test = async app => {
 
     // reader
     const res2 = await request(app)
-      .get(urlparse(readerUrl).path)
+      .get(`/readers/${readerId}`)
       .set('Host', 'reader-api.test')
       .type(
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -91,7 +89,7 @@ const test = async app => {
 
     // file upload
     const res7 = await request(app)
-      .post(`${urlparse(readerUrl).path}/file-upload`)
+      .post(`/reader-${readerId}/file-upload`)
       .set('Host', 'reader-api.test')
       .attach('files', 'tests/test-files/test-file3.txt')
       .type(
@@ -166,6 +164,27 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res16.statusCode, 401)
+
+    // library
+    const res17 = await request(app)
+      .get(`/readers/${readerId}/library`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res17.statusCode, 401)
+
+    // readerNotes
+    const res18 = await request(app)
+      .get(`/readers/${readerId}/notes`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res18.statusCode, 401)
+
+    // job
+    const res19 = await request(app)
+      .get(`/jobs/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res19.statusCode, 401)
   })
 
   await destroyDB(app)
