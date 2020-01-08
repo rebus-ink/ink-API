@@ -219,14 +219,12 @@ const createDocument = async (readerId, publicationId, object = {}) => {
 
 const addPubToCollection = async (app, token, pubId, tagId) => {
   tagId = urlToId(tagId)
-  console.log(pubId)
   pubId = urlToId(pubId)
   const res = await request(app)
     .put(`/publications/${pubId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
-  console.log(res.error, res.statusCode)
   return res
 }
 

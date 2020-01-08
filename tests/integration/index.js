@@ -61,7 +61,8 @@ const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
-const tagNotePostTests = require('./tag/tag-note-put.test')
+const tagNotePutTests = require('./tag/tag-note-put.test')
+const tagNoteDeleteTests = require('./tag/tag-note-delete.test')
 
 const jobGetOldTests = require('./deprecated/job-get-old.test') // deprecated
 const jobGetTests = require('./job/job-get.test')
@@ -143,7 +144,8 @@ const allTests = async () => {
     await tagCreateTests(app) // deprecated
     await tagPublicationTests(app) // deprecated
     await tagNoteTests(app) // deprecated
-    await tagNotePostTests(app) // new
+    await tagNotePutTests(app) // new
+    await tagNoteDeleteTests(app) // new
     await tagDeleteTests(app) // new
     await tagDeleteTestsOld(app) // deprecated
     await tagUpdateTests(app) // deprecated
