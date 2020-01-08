@@ -233,25 +233,13 @@ const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
 }
 
 const addNoteToCollection = async (app, token, readerId, noteId, tagId) => {
-  readerId = urlToId(readerId)
   tagId = urlToId(tagId)
   return await request(app)
-    .post(`/reader-${readerId}/activity`)
+    .put(`/notes/${noteId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Add',
-        object: { id: tagId, type: 'reader:Tag' },
-        target: { id: noteId, type: 'Note' }
-      })
     )
 }
 

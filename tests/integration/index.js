@@ -53,7 +53,7 @@ const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test'
 
 const tagCreateTests = require('./tag/tag-create.test') // deprecated
 const tagPublicationTests = require('./deprecated/tag-publication.test') // deprecated
-const tagNoteTests = require('./tag/tag-note.test')
+const tagNoteTests = require('./deprecated/tag-note.test') // deprecated
 const tagDeleteTestsOld = require('./deprecated/tag-delete-old.test') // deprecated
 const tagUpdateTests = require('./deprecated/tag-update.test') // deprecated
 const publicationAddTagTests = require('./tag/publication-tag.test')
@@ -61,6 +61,7 @@ const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
+const tagNotePostTests = require('./tag/tag-note-put.test')
 
 const jobGetOldTests = require('./deprecated/job-get-old.test') // deprecated
 const jobGetTests = require('./job/job-get.test')
@@ -141,7 +142,8 @@ const allTests = async () => {
     await publicationAddTagTests(app)
     await tagCreateTests(app) // deprecated
     await tagPublicationTests(app) // deprecated
-    await tagNoteTests(app)
+    await tagNoteTests(app) // deprecated
+    await tagNotePostTests(app) // new
     await tagDeleteTests(app) // new
     await tagDeleteTestsOld(app) // deprecated
     await tagUpdateTests(app) // deprecated
