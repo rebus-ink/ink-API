@@ -17,7 +17,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
-  const readerUrl = `/reader-${readerId}`
 
   // Create Reader object
   const person = {

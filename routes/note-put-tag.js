@@ -4,8 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const { libraryCacheUpdate } = require('../utils/cache')
-const { Publication_Tag } = require('../models/Publications_Tags')
 const { Note_Tag } = require('../models/Note_Tag')
 const { checkOwnership } = require('../utils/utils')
 
@@ -54,7 +52,7 @@ module.exports = function (app) {
               boom.notFound(`No reader with this token`, {
                 type: 'Reader',
                 id: readerId,
-                activity: 'Add Tag to Publication'
+                activity: 'Add Tag to Note'
               })
             )
           }

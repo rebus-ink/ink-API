@@ -33,7 +33,6 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    const body = res.body
     await tap.equal(res.body.length, 6) // 4 default modes + 2 created tags
   })
 

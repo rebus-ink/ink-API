@@ -7,7 +7,6 @@ const {
   getActivityFromUrl,
   createPublication,
   createNote,
-  createDocument,
   createTag,
   addNoteToCollection
 } = require('../../utils/testUtils')
@@ -18,13 +17,12 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
-  const readerUrl = `/reader-${readerId}`
 
   // Create Reader object
   const person = {
     name: 'J. Random Reader'
   }
-  const reader1 = await Reader.createReader(readerId, person)
+  await Reader.createReader(readerId, person)
 
   const publication = await createPublication(readerId)
 
