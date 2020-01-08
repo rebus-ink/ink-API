@@ -337,9 +337,9 @@ const test = async app => {
   const tagId = tagCreated.id
 
   // add 3 notes to this collection
-  await addNoteToCollection(app, token, readerId, urlToId(noteId1), tagId)
-  await addNoteToCollection(app, token, readerId, urlToId(noteId2), tagId)
-  await addNoteToCollection(app, token, readerId, urlToId(noteId3), tagId)
+  await addNoteToCollection(app, token, urlToId(noteId1), tagId)
+  await addNoteToCollection(app, token, urlToId(noteId2), tagId)
+  await addNoteToCollection(app, token, urlToId(noteId3), tagId)
 
   await tap.test('Get Notes by Collection', async () => {
     const res = await request(app)

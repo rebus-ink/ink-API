@@ -37,7 +37,7 @@ const test = async () => {
   const stack = await createTag(app, token)
 
   // assign mystack to publication B
-  await addPubToCollection(app, token, readerId, publication.id, stack.id)
+  await addPubToCollection(app, token, publication.id, stack.id)
 
   await createPublicationSimplified({ name: 'Publication 4 test' })
   await createPublicationSimplified({ name: 'Publication 5' })
@@ -79,16 +79,16 @@ const test = async () => {
   const pubId10 = library[9].id
   const pubId13 = library[12].id
 
-  await addPubToCollection(app, token, readerId, pubId1, stack.id)
-  await addPubToCollection(app, token, readerId, pubId2, stack.id)
-  await addPubToCollection(app, token, readerId, pubId3, stack.id)
-  await addPubToCollection(app, token, readerId, pubId4, stack.id)
-  await addPubToCollection(app, token, readerId, pubId5, stack.id)
-  await addPubToCollection(app, token, readerId, pubId6, stack.id)
-  await addPubToCollection(app, token, readerId, pubId8, stack.id)
-  await addPubToCollection(app, token, readerId, pubId9, stack.id)
-  await addPubToCollection(app, token, readerId, pubId10, stack.id)
-  await addPubToCollection(app, token, readerId, pubId13, stack.id)
+  await addPubToCollection(app, token, pubId1, stack.id)
+  await addPubToCollection(app, token, pubId2, stack.id)
+  await addPubToCollection(app, token, pubId3, stack.id)
+  await addPubToCollection(app, token, pubId4, stack.id)
+  await addPubToCollection(app, token, pubId5, stack.id)
+  await addPubToCollection(app, token, pubId6, stack.id)
+  await addPubToCollection(app, token, pubId8, stack.id)
+  await addPubToCollection(app, token, pubId9, stack.id)
+  await addPubToCollection(app, token, pubId10, stack.id)
+  await addPubToCollection(app, token, pubId13, stack.id)
 
   await createPublicationSimplified({ name: 'superbook', author: 'anonymous' })
   await createPublicationSimplified({

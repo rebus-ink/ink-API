@@ -217,22 +217,20 @@ const createDocument = async (readerId, publicationId, object = {}) => {
   )
 }
 
-const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
-  if (readerId.startsWith('/reader-')) {
-    readerId = readerId.substring('/reader-'.length)
-  }
+const addPubToCollection = async (app, token, pubId, tagId) => {
   tagId = urlToId(tagId)
+  console.log(pubId)
   pubId = urlToId(pubId)
   const res = await request(app)
     .put(`/publications/${pubId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
-
+  console.log(res.error, res.statusCode)
   return res
 }
 
-const addNoteToCollection = async (app, token, readerId, noteId, tagId) => {
+const addNoteToCollection = async (app, token, noteId, tagId) => {
   tagId = urlToId(tagId)
   return await request(app)
     .put(`/notes/${noteId}/tags/${tagId}`)

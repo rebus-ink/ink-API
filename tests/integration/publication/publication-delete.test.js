@@ -93,13 +93,7 @@ const test = async app => {
       name: 'mystack'
     })
 
-    await addPubToCollection(
-      app,
-      token,
-      readerUrl,
-      publicationId,
-      createdTag.id
-    )
+    await addPubToCollection(app, token, publicationId, createdTag.id)
 
     // before
     const before = await request(app)

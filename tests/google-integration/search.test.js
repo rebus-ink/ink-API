@@ -72,8 +72,8 @@ const test = async app => {
     .set('Authorization', `Bearer ${token}`)
   const publicationId3 = job3.body.publicationId
 
-  await addPubToCollection(app, token, readerUrl, publicationId, stack.id)
-  await addPubToCollection(app, token, readerUrl, publicationId3, stack.id)
+  await addPubToCollection(app, token, publicationId, stack.id)
+  await addPubToCollection(app, token, publicationId3, stack.id)
 
   // for testing purposes, we will compare the search results to the expected
   // results, as defined by their publicationId and their path
