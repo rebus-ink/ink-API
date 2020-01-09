@@ -29,12 +29,12 @@ const test = async app => {
   const token2 = getToken()
   const readerCompleteUrl2 = await createUser(app, token2)
 
-  // create publication and tag for reader 1
+  // create tag for reader 1
 
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
-  // create publication and tag for reader 2
+  // create publication for reader 2
   const publication2 = await createPublication(readerCompleteUrl2)
   publicationId2 = urlToId(publication2.id)
 
@@ -185,6 +185,22 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res19.statusCode, 401)
+
+    // add tag to note
+    const res20 = await request(app)
+      .put(`/notes/123/tags/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res20.statusCode, 401)
+
+    // remove tag from publication
+    const res21 = await request(app)
+      .delete(`/notes/123/tags/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res21.statusCode, 401)
   })
 
   await destroyDB(app)
