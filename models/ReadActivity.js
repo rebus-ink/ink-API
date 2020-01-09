@@ -70,7 +70,6 @@ class ReadActivity extends BaseModel {
     object /*: any */
   ) /*: Promise<any> */ {
     if (!readerId) return new Error('no reader')
-
     if (!publicationId) return new Error('no publication')
 
     const props = _.pick(object, ['selector', 'json'])
@@ -104,6 +103,15 @@ class ReadActivity extends BaseModel {
       .limit(1)
 
     return readActivities[0]
+  }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json['oa:hasSelector'] = json.selector
+    json.selector = undefined
+    json = _.omitBy(json, _.isNil)
+
+    return json
   }
 }
 

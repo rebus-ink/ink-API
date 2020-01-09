@@ -46,6 +46,7 @@ const getJobRoute = require('./routes/job-get')
 const getNoteRoute = require('./routes/note-get')
 const notePutTagRoute = require('./routes/note-put-tag')
 const noteDeleteTagRoute = require('./routes/note-delete-tag')
+const readActivityPostRoute = require('./routes/readActivity-post')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -208,6 +209,7 @@ readerNotesOldRoute(app) // deprecated
 getJobOldRoute(app) // deprecated
 
 // new routes
+readActivityPostRoute(app)
 publicationPostRoute(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)

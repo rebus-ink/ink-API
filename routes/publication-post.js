@@ -17,12 +17,6 @@ module.exports = function (app) {
    *     tags:
    *       - publications
    *     description: POST /publications
-   *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
    *     security:
    *       - Bearer: []
    *     requestBody:

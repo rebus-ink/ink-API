@@ -1,6 +1,6 @@
 const activityCreateTests = require('./deprecated/activity-create.test')
 const activityGetTests = require('./deprecated/activity-get.test')
-const readActivityCreateTests = require('./readActivity-create.test')
+const readActivityCreateTests = require('./readActivity-create.test') // deprecated
 
 const forbiddedTests = require('./auth/forbidden.test')
 const unauthorizedTests = require('./auth/unauthorized.test')
@@ -37,6 +37,7 @@ const publicationDeleteTestsOld = require('./deprecated/publication-delete-old.t
 const publicationDeleteTests = require('./publication/publication-delete.test')
 const publicationPostTests = require('./publication/publication-post.test')
 const publicationPatchTests = require('./publication/publication-patch.test')
+const readActivityPostTests = require('./publication/readActivity-post.test')
 
 const readerCreateTests = require('./reader/reader-post.test')
 const readerGetTests = require('./reader/reader-get.test')
@@ -122,6 +123,7 @@ const allTests = async () => {
     await publicationDeleteTestsOld(app) // deprecated
     await publicationPostTests(app) // new
     await publicationPatchTests(app) // new
+    await readActivityPostTests(app) // new (deprecated one was in activity, not publication)
   }
 
   if (!test || test === 'reader') {
