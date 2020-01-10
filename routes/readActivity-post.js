@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { ReadActivity } = require('../models/ReadActivity')
+const { checkOwnership } = require('../utils/utils')
 
 /**
  * @swagger
@@ -63,6 +64,16 @@ module.exports = function (app) {
             return next(
               boom.unauthorized(`No user found for this token`, {
                 type: 'Reader',
+                activity: 'Create ReadActivity'
+              })
+            )
+          }
+
+          if (!checkOwnership(reader.id, pubId)) {
+            return next(
+              boom.forbidden(`Access to publication ${pubId} disallowed`, {
+                type: 'Publication',
+                id: pubId,
                 activity: 'Create ReadActivity'
               })
             )
