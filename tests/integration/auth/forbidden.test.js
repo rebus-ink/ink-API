@@ -488,6 +488,26 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to create a readActivity for a publication belonging to another user',
+    async () => {
+      const res = await request(app)
+        .post(`/publications/${urlToId(publicationUrl)}/readActivity`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ 'oa:hasSelector': { property: 'something' } }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Publication')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Create ReadActivity')
+    }
+  )
+
   await destroyDB(app)
 }
 
