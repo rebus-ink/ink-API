@@ -60,6 +60,20 @@ const test = async app => {
 
   const noteId = urlToId(noteActivityObject.object.id)
 
+  // create Note for reader 2
+  const noteActivity2 = await createNote(app, token2, readerId2)
+
+  // get the urls needed for the tests
+  const noteActivityUrl2 = noteActivity2.get('Location')
+
+  const noteActivityObject2 = await getActivityFromUrl(
+    app,
+    noteActivityUrl2,
+    token2
+  )
+
+  const noteId2 = urlToId(noteActivityObject2.object.id)
+
   await tap.test(
     'Try to get activity belonging to another reader',
     async () => {
@@ -373,6 +387,82 @@ const test = async app => {
       await tap.equal(error.details.type, 'Tag')
       await tap.type(error.details.id, 'string')
       await tap.equal(error.details.activity, 'Remove Tag from Publication')
+    }
+  )
+
+  await tap.test(
+    'Try to assign a tag to a note belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/notes/${noteId}/tags/${tagId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Note')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Add Tag to Note')
+    }
+  )
+
+  await tap.test(
+    'Try to assign a tag belonging to another user to a note',
+    async () => {
+      const res = await request(app)
+        .put(`/notes/${noteId2}/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Tag')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Add Tag to Note')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a note belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/notes/${noteId}/tags/${tagId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Note')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag belonging to another user from a note',
+    async () => {
+      const res = await request(app)
+        .delete(`/notes/${noteId2}/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.details.type, 'Tag')
+      await tap.type(error.details.id, 'string')
+      await tap.equal(error.details.activity, 'Remove Tag from Note')
     }
   )
 

@@ -44,6 +44,8 @@ const tagDeleteRoute = require('./routes/tag-delete')
 const readerNotesRoute = require('./routes/readerNotes-get')
 const getJobRoute = require('./routes/job-get')
 const getNoteRoute = require('./routes/note-get')
+const notePutTagRoute = require('./routes/note-put-tag')
+const noteDeleteTagRoute = require('./routes/note-delete-tag')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -220,6 +222,8 @@ readerLibraryRoute(app)
 readerNotesRoute(app)
 getJobRoute(app)
 getNoteRoute(app)
+notePutTagRoute(app)
+noteDeleteTagRoute(app)
 
 app.use(errorHandling)
 

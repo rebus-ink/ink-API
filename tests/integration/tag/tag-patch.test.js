@@ -75,8 +75,6 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    const tagId = urlToId(libraryBefore.body.tags[0].id)
-
     // Add a tag to the note
     await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
 

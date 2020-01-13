@@ -217,10 +217,7 @@ const createDocument = async (readerId, publicationId, object = {}) => {
   )
 }
 
-const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
-  if (readerId.startsWith('/reader-')) {
-    readerId = readerId.substring('/reader-'.length)
-  }
+const addPubToCollection = async (app, token, pubId, tagId) => {
   tagId = urlToId(tagId)
   pubId = urlToId(pubId)
   const res = await request(app)
@@ -228,30 +225,17 @@ const addPubToCollection = async (app, token, readerId, pubId, tagId) => {
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
-
   return res
 }
 
-const addNoteToCollection = async (app, token, readerId, noteId, tagId) => {
-  readerId = urlToId(readerId)
+const addNoteToCollection = async (app, token, noteId, tagId) => {
   tagId = urlToId(tagId)
   return await request(app)
-    .post(`/reader-${readerId}/activity`)
+    .put(`/notes/${noteId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type(
       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(
-      JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Add',
-        object: { id: tagId, type: 'reader:Tag' },
-        target: { id: noteId, type: 'Note' }
-      })
     )
 }
 

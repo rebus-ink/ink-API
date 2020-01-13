@@ -18,7 +18,6 @@ const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
-  const readerUrl = urlparse(readerCompleteUrl).path
 
   const now = new Date().toISOString()
 
@@ -93,13 +92,7 @@ const test = async app => {
       name: 'mystack'
     })
 
-    await addPubToCollection(
-      app,
-      token,
-      readerUrl,
-      publicationId,
-      createdTag.id
-    )
+    await addPubToCollection(app, token, publicationId, createdTag.id)
 
     // before
     const before = await request(app)

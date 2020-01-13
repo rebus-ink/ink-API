@@ -37,6 +37,8 @@ class Note_Tag extends Model {
         return new Error('no tag')
       } else if (err.constraint === 'note_tag_noteid_foreign') {
         return new Error('no note')
+      } else if (err.constraint === 'note_tag_noteid_tagid_unique') {
+        return new Error('duplicate')
       }
     }
   }
