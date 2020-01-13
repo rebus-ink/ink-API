@@ -18,7 +18,7 @@ const { checkOwnership } = require('../utils/utils')
  *         type: object
  *       json:
  *         type: object
- **/
+ */
 
 module.exports = function (app) {
   /**

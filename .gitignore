@@ -65,3 +65,5 @@ secrets.tar
 app-staging.yaml
 dev.sqlite3
 test.sqlite3
+docs/index.html
+doc.json
