@@ -7,6 +7,7 @@ const tagTests = require('./Tag.test')
 const readActivityTests = require('./ReadActivity.test')
 const attributionTests = require('./Attribution.test')
 const jobTests = require('./Job.test')
+const noteBodyTests = require('./NoteBody.test')
 
 const app = require('../../server').app
 
@@ -15,7 +16,7 @@ require('dotenv').config()
 // reset database:
 // sudo -u postgres psql -c "drop database ink_test;"
 // sudo -u postgres psql -c "create database ink_test;"
-// knex migrate:latest --env=postgresql
+// knex migrate:latest
 
 // note: after new migration, remove 'true' from app.initialize and comment out rollback. Run models test once.
 
@@ -32,6 +33,7 @@ const allTests = async () => {
   await attributionTests(app)
   await readerTests(app)
   await noteTests(app)
+  await noteBodyTests(app)
   await tagTests(app)
   await readActivityTests(app)
   await jobTests(app)

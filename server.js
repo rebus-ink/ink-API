@@ -53,7 +53,7 @@ const errorHandling = require('./routes/middleware/error-handling')
 const setupKnex = async skip_migrate => {
   let config
 
-  config = require('./knexfile.js')['postgresql']
+  config = require('./knexfile.js')
   app.knex = require('knex')(config)
   if (!skip_migrate) {
     await app.knex.migrate.rollback()
