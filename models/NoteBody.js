@@ -84,10 +84,10 @@ class NoteBody extends BaseModel {
 
   static async softDeleteBodiesOfNote (
     noteId /*: string */
-  ) /*: Promise<any> */ {
+  ) /*: Promise<void> */ {
     const date = new Date().toISOString()
 
-    return await NoteBody.query(NoteBody.knex())
+    await NoteBody.query(NoteBody.knex())
       .where('noteId', '=', noteId)
       .patch({ deleted: date })
   }
