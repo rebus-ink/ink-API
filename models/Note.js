@@ -7,7 +7,6 @@ const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const urlparse = require('url').parse
 const { NoteBody } = require('./NoteBody')
-const { Document } = require('./Document')
 
 /*::
 type NoteType = {
@@ -57,6 +56,7 @@ class Note extends BaseModel {
 
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
+    const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
     return {
