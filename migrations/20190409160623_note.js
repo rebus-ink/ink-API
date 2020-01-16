@@ -13,6 +13,7 @@ exports.up = function (knex, Promise) {
     table.jsonb('target')
     table.jsonb('metadata')
     table.jsonb('json')
+    table.string('documentUrl')
     table
       .string('documentId')
       .references('id')

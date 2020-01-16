@@ -53,23 +53,6 @@ const test = async app => {
   )
   const documentUrl = `${publication.id}/${createdDocument.documentPath}`
 
-  const noteObject = {
-    noteType: 'highlight',
-    content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem donec massa sapien faucibus et molestie. Turpis tincidunt id aliquet risus feugiat in ante metus. Quis vel eros donec ac odio tempor orci dapibus ultrices. Vulputate eu scelerisque felis imperdiet proin fermentum leo vel. Nunc aliquet bibendum enim facilisis gravida neque. Diam phasellus vestibulum lorem sed risus. Habitasse platea dictumst quisque sagittis purus. Ut venenatis tellus in metus. Ornare arcu dui vivamus arcu felis. Dignissim enim sit amet venenatis urna cursus. Et egestas quis ipsum suspendisse ultrices gravida. Etiam erat velit scelerisque in dictum non consectetur. Consectetur libero id faucibus nisl. Pretium lectus quam id leo in vitae turpis massa. Sem viverra aliquet eget sit amet tellus cras adipiscing.
-
-    Ultrices tincidunt arcu non sodales neque. Lorem donec massa sapien faucibus et molestie ac feugiat sed. Eget magna fermentum iaculis eu non diam phasellus. Nibh venenatis cras sed felis eget. Netus et malesuada fames ac turpis egestas maecenas pharetra. Sed viverra ipsum nunc aliquet bibendum enim facilisis. Elit scelerisque mauris pellentesque pulvinar pellentesque habitant. Leo integer malesuada nunc vel risus commodo. In ante metus dictum at. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada.
-    
-    Massa id neque aliquam vestibulum morbi blandit cursus risus. Pretium aenean pharetra magna ac placerat. Lorem sed risus ultricies tristique nulla aliquet. Maecenas volutpat blandit aliquam etiam erat. Vel pharetra vel turpis nunc eget lorem dolor. Luctus venenatis lectus magna fringilla urna porttitor rhoncus. Nunc sed velit dignissim sodales ut eu sem integer. Metus dictum at tempor commodo ullamcorper a. Sed tempus urna et pharetra pharetra. Aenean et tortor at risus viverra. Consectetur a erat nam at lectus. Donec adipiscing tristique risus nec feugiat in. Nulla aliquet porttitor lacus luctus accumsan tortor. Quis auctor elit sed vulputate mi sit amet. Tellus cras adipiscing enim eu turpis egestas pretium aenean. Nunc aliquet bibendum enim facilisis gravida neque convallis a cras.
-    
-    Mattis rhoncus urna neque viverra justo nec ultrices. Convallis a cras semper auctor neque vitae tempus quam pellentesque. Tempus urna et pharetra pharetra massa massa. Arcu bibendum at varius vel pharetra. Nulla aliquet enim tortor at. Tellus molestie nunc non blandit massa. Sed libero enim sed faucibus turpis. Id ornare arcu odio ut sem nulla pharetra diam sit. Volutpat est velit egestas dui id ornare arcu. Quam quisque id diam vel quam elementum pulvinar. Enim nulla aliquet porttitor lacus. Orci eu lobortis elementum nibh tellus molestie nunc. Aenean vel elit scelerisque mauris. Proin libero nunc consequat interdum varius sit amet. Nulla facilisi etiam dignissim diam quis enim. Sed viverra ipsum nunc aliquet. Adipiscing at in tellus integer feugiat. Turpis in eu mi bibendum neque egestas congue.
-    
-    Gravida quis blandit turpis cursus in. Metus aliquam eleifend mi in. Lacus sed viverra tellus in hac habitasse platea dictumst vestibulum. Feugiat in fermentum posuere urna nec tincidunt praesent semper. Sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec pretium. Nec ullamcorper sit amet risus nullam eget felis. Hac habitasse platea dictumst quisque sagittis purus sit. Tellus orci ac auctor augue mauris augue neque. Donec ac odio tempor orci dapibus. Amet mattis vulputate enim nulla. Ut sem viverra aliquet eget sit amet tellus cras. Pellentesque habitant morbi tristique senectus et netus. Mauris commodo quis imperdiet massa tincidunt nunc pulvinar.`,
-    selector: { property: 'value' },
-    json: { anotherProperty: 3 },
-    inReplyTo: documentUrl,
-    context: publication.id
-  }
-
   const simpleNote = {
     target: { property: 'value' } // not actually a required property. There are no required properties for notes, I just had to put something.
   }
@@ -96,7 +79,16 @@ const test = async app => {
     ]
   }
 
-  let note, note2
+  const noteWithDocument = {
+    publicationId: publication.id,
+    documentUrl,
+    body: {
+      motivation: 'test',
+      content: 'something'
+    }
+  }
+
+  let note, note2, noteWithDoc
 
   await tap.test('Create Simple Note', async () => {
     let response = await Note.createNote(createdReader, simpleNote)
@@ -128,6 +120,14 @@ const test = async app => {
     await tap.ok(_.isArray(response.body))
     await tap.equal(response.body.length, 2)
     note2 = response
+  })
+
+  await tap.test('Create Note with document', async () => {
+    let response = await Note.createNote(createdReader, noteWithDocument)
+    await tap.ok(response)
+    await tap.ok(response instanceof Note)
+    await tap.equal(response.documentUrl, noteWithDocument.documentUrl)
+    noteWithDoc = response
   })
 
   await tap.test('Update a Note with a new body', async () => {
@@ -173,6 +173,16 @@ const test = async app => {
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
     await tap.equal(response.body.length, 2)
+  })
+
+  await tap.test('Update Note with document', async () => {
+    const newNote = Object.assign(noteWithDoc, {
+      body: { content: 'something else', motivation: 'test2' }
+    })
+    let response = await Note.update(newNote)
+    await tap.ok(response)
+    await tap.ok(response instanceof Note)
+    await tap.equal(response.documentUrl, noteWithDocument.documentUrl)
   })
 
   await tap.test('Try to update a note that does not exist', async () => {

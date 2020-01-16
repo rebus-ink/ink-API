@@ -7,6 +7,7 @@ const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const urlparse = require('url').parse
 const { NoteBody } = require('./NoteBody')
+const { Document } = require('./Document')
 
 /*::
 type NoteType = {
@@ -17,7 +18,7 @@ type NoteType = {
   target? : Object,
   body?: Object,
   json?: Object,
-  documentPath?: string,
+  documentUrl?: string,
   publicationId?: string,
   published: Date,
   updated?: Date
@@ -42,6 +43,7 @@ class Note extends BaseModel {
         target: { type: 'object' },
         publicationId: { type: 'string' },
         documentId: { type: 'string' },
+        documentUrl: { type: 'string' },
         body: { type: 'object' },
         json: { type: 'object' },
         updated: { type: 'string', format: 'date-time' },
@@ -55,7 +57,6 @@ class Note extends BaseModel {
 
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
-    const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
     return {
@@ -106,7 +107,7 @@ class Note extends BaseModel {
     }
   }
 
-  static async formatIncomingNote (
+  static async _formatIncomingNote (
     note /*: NoteType */
   ) /*: Promise<NoteType> */ {
     const { Document } = require('./Document')
@@ -116,13 +117,14 @@ class Note extends BaseModel {
       'target',
       'publicationId',
       'json',
-      'readerId'
+      'readerId',
+      'documentUrl'
     ])
     if (note.id) props.id = urlToId(note.id)
 
-    if (note.documentPath) {
+    if (note.documentUrl) {
       // $FlowFixMe
-      const path = urlparse(note.documentPath).path // '/publications/{pubid}/path/to/file'
+      const path = urlparse(note.documentUrl).path // '/publications/{pubid}/path/to/file'
       // $FlowFixMe
       const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
       // $FlowFixMe
@@ -142,12 +144,11 @@ class Note extends BaseModel {
     }
     return props
   }
-
   static async createNote (
     reader /*: any */,
     note /*: any */
   ) /*: Promise<NoteType> */ {
-    const props = await Note.formatIncomingNote(note)
+    const props = await Note._formatIncomingNote(note)
     props.readerId = reader.id
     props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
@@ -190,20 +191,11 @@ class Note extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    const { Document } = require('./Document')
     const note = await Note.query()
       .findById(id)
       .eager('[reader, tags, body]')
 
     if (!note) return undefined
-
-    if (note.documentId) {
-      const document = await Document.byId(urlToId(note.documentId))
-      // $FlowFixMe
-      note.documentPath = `${process.env.DOMAIN}/${note.publicationId}${
-        document.documentPath
-      }`
-    }
 
     return note
   }
@@ -227,7 +219,7 @@ class Note extends BaseModel {
   }
 
   static async update (note /*: any */) /*: Promise<NoteType|null> */ {
-    const modifications = await Note.formatIncomingNote(note)
+    const modifications = await Note._formatIncomingNote(note)
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
     let updatedNote
@@ -279,6 +271,10 @@ class Note extends BaseModel {
     if (json.body && json.body.length === 0) {
       json.body = undefined
     }
+    if (json.documentId) json.documentId = undefined
+
+    json = _.omitBy(json, _.isNil)
+
     return json
   }
 
