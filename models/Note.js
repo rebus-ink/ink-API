@@ -6,34 +6,24 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const urlparse = require('url').parse
+const { NoteBody } = require('./NoteBody')
 
 /*::
 type NoteType = {
-  id: string,
-  noteType: string,
-  content?: string,
-  selector?: Object,
-  json?: Object,
+  id?: string,
   readerId: string,
-  documentId?: string,
+  canonical?: string,
+  stylesheet?: Object,
+  target? : Object,
+  body?: Object,
+  json?: Object,
+  documentUrl?: string,
   publicationId?: string,
   published: Date,
-  updated: Date
+  updated?: Date
 };
 */
 
-/**
- * @property {Reader} reader - Returns the reader that owns this note. In most cases this should be 'actor' in the activity streams sense
- * @property {Document} inReplyTo - returns the document, if any, that this note is on.
- * @property {Publication} context - Returns the note's parent `Publication`.
- * @property {Activity[]} outbox - Returns the activities on this note. **Question** how should a note reference its activities?
- * @property {Tag[]} tag - Returns the note's `Tag` objects (i.e. links, hashtags, stacks and categories).
- *
- * todo: handle attributedTo and tags properly.
- *
- * This type covers all annotations on both Publications and Documents.
- *
- */
 class Note extends BaseModel {
   static get tableName () /*: string */ {
     return 'Note'
@@ -46,19 +36,21 @@ class Note extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        noteType: { type: 'string', maxLength: 255 },
-        content: { type: 'string' },
-        selector: { type: 'object' },
-        json: { type: 'object' },
-        readerId: { type: 'string' },
-        documentId: { type: 'string' },
+        readerId: { type: 'string ' },
+        canonical: { type: 'string' },
+        stylesheet: { type: 'object' },
+        target: { type: 'object' },
         publicationId: { type: 'string' },
+        documentId: { type: 'string' },
+        documentUrl: { type: 'string' },
+        body: { type: 'object' },
+        json: { type: 'object' },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['noteType', 'readerId']
+      required: ['readerId']
     }
   }
 
@@ -92,6 +84,14 @@ class Note extends BaseModel {
           to: 'Publication.id'
         }
       },
+      body: {
+        relation: Model.HasManyRelation,
+        modelClass: NoteBody,
+        join: {
+          from: 'Note.id',
+          to: 'NoteBody.noteId'
+        }
+      },
       tags: {
         relation: Model.ManyToManyRelation,
         modelClass: Tag,
@@ -107,16 +107,24 @@ class Note extends BaseModel {
     }
   }
 
-  static async createNote (
-    reader /*: any */,
-    note /*: any */
+  static async _formatIncomingNote (
+    note /*: NoteType */
   ) /*: Promise<NoteType> */ {
     const { Document } = require('./Document')
-    const props = _.pick(note, ['noteType', 'content', 'selector', 'json'])
+    const props = _.pick(note, [
+      'canonical',
+      'stylesheet',
+      'target',
+      'publicationId',
+      'json',
+      'readerId',
+      'documentUrl'
+    ])
+    if (note.id) props.id = urlToId(note.id)
 
-    if (note.inReplyTo) {
+    if (note.documentUrl) {
       // $FlowFixMe
-      const path = urlparse(note.inReplyTo).path // '/publications/{pubid}/path/to/file'
+      const path = urlparse(note.documentUrl).path // '/publications/{pubid}/path/to/file'
       // $FlowFixMe
       const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
       // $FlowFixMe
@@ -134,42 +142,60 @@ class Note extends BaseModel {
         throw new Error('no document')
       }
     }
-    props.selector = note['oa:hasSelector']
-
-    if (note.context) {
-      props.publicationId = note.context
-    }
+    return props
+  }
+  static async createNote (
+    reader /*: any */,
+    note /*: any */
+  ) /*: Promise<NoteType> */ {
+    const props = await Note._formatIncomingNote(note)
     props.readerId = reader.id
     props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
+    let createdNote
+
     try {
-      return await Note.query().insertAndFetch(props)
+      createdNote = await Note.query().insertAndFetch(props)
     } catch (err) {
       if (err.constraint === 'note_publicationid_foreign') {
         throw new Error('no publication')
       }
       throw err
     }
+
+    // create NoteBody
+    if (note.body) {
+      try {
+        if (_.isArray(note.body)) {
+          for (const body of note.body) {
+            await NoteBody.createNoteBody(
+              body,
+              urlToId(createdNote.id),
+              reader.id
+            )
+          }
+        } else {
+          await NoteBody.createNoteBody(
+            note.body,
+            urlToId(createdNote.id),
+            reader.id
+          )
+        }
+        createdNote.body = note.body
+      } catch (err) {
+        throw err
+      }
+    }
+
+    return createdNote
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    const { Document } = require('./Document')
-
     const note = await Note.query()
       .findById(id)
-      .eager('[reader, tags]')
+      .eager('[reader, tags, body]')
 
     if (!note) return undefined
-
-    if (note.documentId) {
-      const document = await Document.byId(urlToId(note.documentId))
-      // $FlowFixMe
-      note.inReplyTo = `${process.env.DOMAIN}/${note.publicationId}${
-        document.documentPath
-      }`
-    }
-
-    note.context = note.publicationId
 
     return note
   }
@@ -186,35 +212,69 @@ class Note extends BaseModel {
     const { Note_Tag } = require('./Note_Tag')
     await Note_Tag.deleteNoteTagsOfNote(id)
 
+    await NoteBody.softDeleteBodiesOfNote(id)
+
     note.deleted = new Date().toISOString()
     return await Note.query().updateAndFetchById(id, note)
   }
 
-  static async update (object /*: any */) /*: Promise<NoteType|null> */ {
-    // $FlowFixMe
-    if (object['oa:hasSelector']) object.selector = object['oa:hasSelector']
+  static async update (note /*: any */) /*: Promise<NoteType|null> */ {
+    const modifications = await Note._formatIncomingNote(note)
+    await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
-    const modifications = _.pick(object, ['content', 'selector', 'json'])
-    let note = await Note.query().findById(urlToId(object.id))
-    if (!note) {
-      return null
-    }
-    // note = Object.assign(note, modifications)
+    let updatedNote
     try {
-      return await Note.query().patchAndFetchById(
-        urlToId(object.id),
+      updatedNote = await Note.query().updateAndFetchById(
+        urlToId(note.id),
         modifications
       )
     } catch (err) {
       return err
     }
+
+    // if note not found:
+    if (!updatedNote) return null
+
+    // create NoteBody
+    if (note.body) {
+      try {
+        if (_.isArray(note.body)) {
+          for (const body of note.body) {
+            await NoteBody.createNoteBody(
+              body,
+              urlToId(updatedNote.id),
+              note.readerId
+            )
+          }
+        } else {
+          await NoteBody.createNoteBody(
+            note.body,
+            urlToId(updatedNote.id),
+            note.readerId
+          )
+        }
+        updatedNote.body = note.body
+      } catch (err) {
+        throw err
+      }
+    }
+
+    return updatedNote
   }
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     json.type = 'Note'
-    json['oa:hasSelector'] = json.selector
-    json.context = json.publicationId
+    if (json.body && json.body.length === 1) {
+      json.body = json.body[0]
+    }
+    if (json.body && json.body.length === 0) {
+      json.body = undefined
+    }
+    if (json.documentId) json.documentId = undefined
+
+    json = _.omitBy(json, _.isNil)
+
     return json
   }
 

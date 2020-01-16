@@ -26,6 +26,7 @@ exports.up = function (knex, Promise) {
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()
+    table.timestamp('deleted')
   })
 }
 
