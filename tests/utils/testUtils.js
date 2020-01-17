@@ -128,32 +128,23 @@ const createNote = async (app, token, readerId, object = {}) => {
   readerId = urlToId(readerId)
   const noteObject = Object.assign(
     {
-      type: 'Note',
-      content: 'test content',
-      'oa:hasSelector': { propety: 'value' },
-      context: '',
-      inReplyTo: '',
-      noteType: 'test',
-      json: { property1: 'value1' }
+      target: { property: 'something' },
+      body: {
+        motivation: 'test',
+        content: 'something should go here, usually.'
+      }
     },
     object
   )
 
   return await request(app)
-    .post(`/reader-${readerId}/activity`)
+    .post('/notes')
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
     .send(
       JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
-        type: 'Create',
-        object: noteObject
+        noteObject
       })
     )
 }
