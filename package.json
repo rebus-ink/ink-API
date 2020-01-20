@@ -7,7 +7,7 @@
     "node": "^8.0.0"
   },
   "scripts": {
-    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot -c --cov tests/integration/index.js",
+    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot --no-coverage-report tests/integration/index.js",
     "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --cov tests/models/index.js",
     "test-performance": "cross-env ISSUER=REBUS_READER DOMAIN=https://rr-dev.rebus.works NODE_ENV=test tap --timeout=10000 -c -R  min tests/performance/index.js",

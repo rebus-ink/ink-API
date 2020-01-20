@@ -123,6 +123,11 @@ class Note extends BaseModel {
     if (note.id) props.id = urlToId(note.id)
 
     if (note.documentUrl) {
+      // first, make sure we also have a publicationId
+      if (!note.publicationId) {
+        throw new Error('document without publication')
+      }
+
       // $FlowFixMe
       const path = urlparse(note.documentUrl).path // '/publications/{pubid}/path/to/file'
       // $FlowFixMe
@@ -134,6 +139,10 @@ class Note extends BaseModel {
       const document = await Document.byPath(publicationId, docPath)
 
       if (document) {
+        if (urlToId(document.publicationId) !== urlToId(note.publicationId)) {
+          throw new Error('document and publication do not match')
+        }
+
         props.documentId = urlToId(document.id)
       } else {
         const err = new Error('no document')
@@ -147,46 +156,61 @@ class Note extends BaseModel {
   static async createNote (
     reader /*: any */,
     note /*: any */
-  ) /*: Promise<NoteType> */ {
-    const props = await Note._formatIncomingNote(note)
+  ) /*: Promise<NoteType|Error> */ {
+    let props
+    try {
+      props = await Note._formatIncomingNote(note)
+    } catch (err) {
+      return err
+    }
     props.readerId = reader.id
     props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
     let createdNote
+    let noteBodyError
+
+    if (!note.body) {
+      noteBodyError = new Error('no body')
+    }
 
     try {
       createdNote = await Note.query().insertAndFetch(props)
     } catch (err) {
       if (err.constraint === 'note_publicationid_foreign') {
-        throw new Error('no publication')
+        return new Error('no publication')
       }
-      throw err
+      return err
     }
 
-    // create NoteBody
-    if (note.body) {
-      try {
-        if (_.isArray(note.body)) {
-          for (const body of note.body) {
-            await NoteBody.createNoteBody(
-              body,
-              urlToId(createdNote.id),
-              reader.id
-            )
-          }
-        } else {
+    // create noteBody
+    try {
+      if (_.isArray(note.body)) {
+        for (const body of note.body) {
           await NoteBody.createNoteBody(
-            note.body,
+            body,
             urlToId(createdNote.id),
             reader.id
           )
         }
-        createdNote.body = note.body
-      } catch (err) {
-        throw err
+      } else {
+        await NoteBody.createNoteBody(
+          note.body,
+          urlToId(createdNote.id),
+          reader.id
+        )
       }
+      createdNote.body = note.body
+    } catch (err) {
+      noteBodyError = err
     }
 
+    if (noteBodyError) {
+      // delete the note that was just created if the noteBody failed
+      await Note.query(Note.knex())
+        .where('id', '=', urlToId(createdNote.id))
+        .del()
+      return noteBodyError
+    }
     return createdNote
   }
 

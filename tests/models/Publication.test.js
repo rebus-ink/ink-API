@@ -684,12 +684,12 @@ const test = async app => {
 
   await tap.test('Delete all notes for a publication', async () => {
     const createdNote1 = await Note.createNote(createdReader, {
-      target: { property: 'value' },
+      body: { motivation: 'test' },
       publicationId
     })
 
     const createdNote2 = await Note.createNote(createdReader, {
-      target: { property: 'value' },
+      body: { motivation: 'test' },
       publicationId
     })
 

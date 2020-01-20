@@ -54,7 +54,7 @@ const test = async app => {
   const documentUrl = `${publication.id}/${createdDocument.documentPath}`
 
   const simpleNote = {
-    target: { property: 'value' } // not actually a required property. There are no required properties for notes, I just had to put something.
+    body: { motivation: 'test' }
   }
 
   const noteWithOneBody = {
@@ -95,7 +95,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
-    await tap.equal(response.target.property, 'value')
+    await tap.equal(response.body.motivation, 'test')
   })
 
   await tap.test('Create Note with One Body', async () => {
@@ -147,16 +147,16 @@ const test = async app => {
     await tap.notOk(response.target.property) // should be gone
   })
 
-  await tap.test('Update a Note with no body', async () => {
+  await tap.test('Update a Note with one body', async () => {
     const newNote = Object.assign(note, {
       target: { property2: 'value2' },
-      body: undefined
+      body: { motivation: 'test' }
     })
     const response = await Note.update(newNote)
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
-    await tap.notOk(response.body)
+    await tap.equal(response.body.motivation, 'test')
     await tap.equal(response.target.property2, 'value2')
     await tap.notOk(response.target.property1) // should be gone
   })

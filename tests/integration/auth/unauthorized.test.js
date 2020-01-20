@@ -39,19 +39,10 @@ const test = async app => {
   publicationId2 = urlToId(publication2.id)
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerId)
-  const noteActivityUrl = noteActivity.get('Location')
+  const note = await createNote(app, token, readerId)
+  const noteId = urlToId(note.id)
 
   await tap.test('Requests without authentication', async () => {
-    // outbox
-    const res1 = await request(app)
-      .get(`/reader-${readerId}/activity`)
-      .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(res1.statusCode, 401)
-
     // reader
     const res2 = await request(app)
       .get(`/readers/${readerId}`)
@@ -77,15 +68,6 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
     await tap.equal(res4.statusCode, 401)
-
-    // activity
-    const res6 = await request(app)
-      .get(urlparse(noteActivityUrl).path)
-      .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-    await tap.equal(res6.statusCode, 401)
 
     // file upload
     const res7 = await request(app)
@@ -201,7 +183,7 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res21.statusCode, 401)
-    
+
     // readActivity
     const res22 = await request(app)
       .post('/publications/pub123/readActivity')

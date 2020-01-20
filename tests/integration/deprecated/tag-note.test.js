@@ -43,20 +43,14 @@ const test = async app => {
   const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerId, {
-    inReplyTo: documentUrl,
-    context: publication.id
+  const note = await createNote(app, token, readerId, {
+    documentUrl,
+    publicationId: publication.id,
+    body: { motivation: 'test' }
   })
-  // get the urls needed for the tests
-  const noteActivityUrl = noteActivity.get('Location')
 
-  const noteActivityObject = await getActivityFromUrl(
-    app,
-    noteActivityUrl,
-    token
-  )
-  const noteUrl = noteActivityObject.object.id
-  const noteId = urlToId(noteUrl)
+  const noteUrl = note.id
+  const noteId = urlToId(note.id)
 
   // create Tag
   const stack = await createTag(app, token, {
@@ -186,7 +180,7 @@ const test = async app => {
   )
 
   await tap.test('Remove Tag from Note', async () => {
-    const note = await request(app)
+    const response = await request(app)
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
@@ -194,8 +188,8 @@ const test = async app => {
         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
       )
 
-    await tap.equal(note.status, 200)
-    const bodybefore = note.body
+    await tap.equal(response.status, 200)
+    const bodybefore = response.body
     await tap.ok(Array.isArray(bodybefore.tags))
     await tap.equal(bodybefore.tags.length, 1)
 

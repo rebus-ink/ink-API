@@ -19,7 +19,8 @@ const test = async app => {
 
   const note = await Note.createNote(createdReader, {
     stylesheet: { property: 'value' },
-    target: { property2: 'value2' }
+    target: { property2: 'value2' },
+    body: { motivation: 'test' } // not ideal since I am trying to test the noteBody creation by itself, but I can't create a note without it.
   })
   const noteId = urlToId(note.id)
 
@@ -111,7 +112,7 @@ const test = async app => {
   await tap.test('Delete Bodies of Note', async () => {
     const res = await NoteBody.deleteBodiesOfNote(noteId)
 
-    await tap.equal(res, 2)
+    await tap.equal(res, 3)
 
     // trying again with same note, should return 0
     const res2 = await NoteBody.deleteBodiesOfNote(noteId)

@@ -47,53 +47,16 @@ const test = async app => {
   const tagId2 = urlToId(tag2.id)
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerId)
-
-  // get the urls needed for the tests
-  const noteActivityUrl = noteActivity.get('Location')
-
-  const noteActivityObject = await getActivityFromUrl(
-    app,
-    noteActivityUrl,
-    token
-  )
-
-  const noteId = urlToId(noteActivityObject.object.id)
+  const note = await createNote(app, token, readerId, {
+    body: { motivation: 'test' }
+  })
+  const noteId = urlToId(note.id)
 
   // create Note for reader 2
-  const noteActivity2 = await createNote(app, token2, readerId2)
-
-  // get the urls needed for the tests
-  const noteActivityUrl2 = noteActivity2.get('Location')
-
-  const noteActivityObject2 = await getActivityFromUrl(
-    app,
-    noteActivityUrl2,
-    token2
-  )
-
-  const noteId2 = urlToId(noteActivityObject2.object.id)
-
-  await tap.test(
-    'Try to get activity belonging to another reader',
-    async () => {
-      const res = await request(app)
-        .get(urlparse(noteActivityUrl).path)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Activity')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Get Activity')
-    }
-  )
+  const note2 = await createNote(app, token2, readerId2, {
+    body: { motivation: 'test' }
+  })
+  const noteId2 = urlToId(note2.id)
 
   await tap.test(
     'Try to get publication belonging to another reader',
@@ -121,9 +84,7 @@ const test = async app => {
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 403)
     const error = JSON.parse(res.text)
