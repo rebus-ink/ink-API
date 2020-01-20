@@ -158,14 +158,14 @@ const allTests = async () => {
   }
 
   if (!test || test === 'readerNotes') {
-    await readerNotesGetTests(app)
-    await readerNotesGetOldTests(app) // deprecated
-    await readerNotesFilterOldTests(app) // deprecated
-    await readerNotesOrderByOldTests(app) // deprecated
-    await readerNotesPaginateOldTests(app) // deprecated
-    await readerNotesPaginateTests(app)
-    await readerNotesFilterTests(app)
-    await readerNotesOrderByTests(app)
+    // await readerNotesGetTests(app)
+    // await readerNotesGetOldTests(app) // deprecated
+    // await readerNotesFilterOldTests(app) // deprecated
+    // await readerNotesOrderByOldTests(app) // deprecated
+    // await readerNotesPaginateOldTests(app) // deprecated
+    // await readerNotesPaginateTests(app)
+    // await readerNotesFilterTests(app)
+    // await readerNotesOrderByTests(app)
   }
 
   if (!test || test === 'jobs') {

@@ -46,20 +46,12 @@ const test = async app => {
   const documentUrl = `${publication.id}/${document.documentPath}`
 
   // create Note for reader 1
-  const noteActivity = await createNote(app, token, readerId, {
-    inReplyTo: documentUrl,
-    context: publication.id
+  const note = await createNote(app, token, readerId, {
+    documentUrl,
+    publicationId: publication.id,
+    body: { motivation: 'test' }
   })
-
-  // get the urls needed for the tests
-  const noteActivityUrl = noteActivity.get('Location')
-
-  const noteActivityObject = await getActivityFromUrl(
-    app,
-    noteActivityUrl,
-    token
-  )
-  const noteUrl = noteActivityObject.object.id
+  const noteUrl = note.id
 
   // create Tag
   const stack = await createTag(app, token, {

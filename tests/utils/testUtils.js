@@ -136,17 +136,14 @@ const createNote = async (app, token, readerId, object = {}) => {
     },
     object
   )
-
-  return await request(app)
+  const response = await request(app)
     .post('/notes')
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
-    .send(
-      JSON.stringify({
-        noteObject
-      })
-    )
+    .send(JSON.stringify(noteObject))
+
+  return response.body
 }
 
 const createActivity = async (app, token, readerId, object = {}) => {
