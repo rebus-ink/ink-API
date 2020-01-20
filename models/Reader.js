@@ -360,8 +360,12 @@ class Reader extends BaseModel {
     }
 
     const readers = await qb
-      .eager('replies.[publication.[attributions]]')
+      .eager('replies.[publication.[attributions], body]')
       .modifyEager('replies', builder => {
+        builder.modifyEager('body', bodyBuilder => {
+          bodyBuilder.select('content', 'language', 'motivation')
+          bodyBuilder.whereNull('deleted')
+        })
         // load details of parent publication for each note
         builder.modifyEager('publication', pubBuilder => {
           pubBuilder.whereNull('Publication.deleted')
@@ -369,9 +373,18 @@ class Reader extends BaseModel {
             'id',
             'name',
             'abstract',
+            'description',
             'datePublished',
             'metadata',
-            'type'
+            'type',
+            'numberOfPages',
+            'encodingFormat',
+            'json',
+            'readerId',
+            'published',
+            'updated',
+            'deleted',
+            'resources'
           )
         })
         builder.whereNull('Note.deleted')

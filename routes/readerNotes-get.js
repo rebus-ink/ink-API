@@ -212,10 +212,7 @@ module.exports = app => {
         })
         .then(count => {
           let reader = returnedReader
-          res.setHeader(
-            'Content-Type',
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-          )
+          res.setHeader('Content-Type', 'application/ld+json')
           let replies = reader.replies
           res.end(
             JSON.stringify({
