@@ -165,7 +165,7 @@ const allTests = async () => {
     // await readerNotesPaginateOldTests(app) // deprecated
     await readerNotesPaginateTests(app)
     // await readerNotesFilterTests(app)
-    // await readerNotesOrderByTests(app)
+    await readerNotesOrderByTests(app)
   }
 
   if (!test || test === 'jobs') {
