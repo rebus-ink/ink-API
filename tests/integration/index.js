@@ -163,7 +163,7 @@ const allTests = async () => {
     // await readerNotesFilterOldTests(app) // deprecated
     // await readerNotesOrderByOldTests(app) // deprecated
     // await readerNotesPaginateOldTests(app) // deprecated
-    // await readerNotesPaginateTests(app)
+    await readerNotesPaginateTests(app)
     // await readerNotesFilterTests(app)
     // await readerNotesOrderByTests(app)
   }
