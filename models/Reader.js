@@ -303,6 +303,7 @@ class Reader extends BaseModel {
       .count()
       .whereNull('Note.deleted')
       .andWhere('Note.readerId', '=', readerId)
+      .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
 
     if (filters.publication) {
       resultQuery = resultQuery.where(
@@ -311,12 +312,18 @@ class Reader extends BaseModel {
         urlToId(filters.publication)
       )
     }
-    if (filters.type) {
-      resultQuery = resultQuery.where('noteType', '=', filters.type)
+    if (filters.motivation) {
+      resultQuery = resultQuery.where(
+        'NoteBody.motivation',
+        '=',
+        filters.motivation
+      )
     }
+
     if (filters.search) {
-      resultQuery = resultQuery.whereRaw(
-        'LOWER(content) LIKE ?',
+      resultQuery = resultQuery.where(
+        'NoteBody.content',
+        'ilike',
         '%' + filters.search.toLowerCase() + '%'
       )
     }
@@ -396,12 +403,16 @@ class Reader extends BaseModel {
         if (filters.document) {
           builder.where('documentId', '=', urlToId(doc.id))
         }
-        if (filters.type) {
-          builder.where('noteType', '=', filters.type)
+
+        builder.leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
+        if (filters.motivation) {
+          builder.where('NoteBody.motivation', '=', filters.motivation)
         }
+
         if (filters.search) {
-          builder.whereRaw(
-            'LOWER(content) LIKE ?',
+          builder.where(
+            'NoteBody.content',
+            'ilike',
             '%' + filters.search.toLowerCase() + '%'
           )
         }

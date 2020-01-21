@@ -122,10 +122,9 @@ module.exports = app => {
    *           type: string
    *         description: the id of the publication the note is associated with
    *       - in: query
-   *         name: type
+   *         name: motivation
    *         schema:
    *           type: string
-   *         description: the type of note
    *       - in: query
    *         name: search
    *         schema:
@@ -173,7 +172,7 @@ module.exports = app => {
       const filters = {
         publication: req.query.publication,
         document: req.query.document,
-        type: req.query.type,
+        motivation: req.query.motivation,
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
