@@ -373,6 +373,8 @@ class Reader extends BaseModel {
           bodyBuilder.select('content', 'language', 'motivation')
           bodyBuilder.whereNull('deleted')
         })
+        builder.select('Note.*').from('Note')
+        builder.distinct('Note.id')
         // load details of parent publication for each note
         builder.modifyEager('publication', pubBuilder => {
           pubBuilder.whereNull('Publication.deleted')

@@ -125,7 +125,7 @@ const test = async app => {
 
   await tap.test('Get tag when fetching library', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

@@ -100,8 +100,6 @@ const test = async app => {
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
     await tap.equal(body.items[0].type, 'Note')
-
-    noteId1 = body.items[0].id
   })
 
   await createNoteSimplified({
@@ -158,7 +156,7 @@ const test = async app => {
 
     await tap.equal(res2.status, 200)
     await tap.equal(res2.body.items.length, 10)
-
+    noteId1 = res2.body.items[0].id
     noteId2 = res2.body.items[3].id
     noteId3 = res2.body.items[5].id
 
@@ -330,7 +328,6 @@ const test = async app => {
     name: 'testCollection'
   })
   const tagId = tagCreated.id
-
   // add 3 notes to this collection
   await addNoteToCollection(app, token, urlToId(noteId1), tagId)
   await addNoteToCollection(app, token, urlToId(noteId2), tagId)

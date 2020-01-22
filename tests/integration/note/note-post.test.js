@@ -147,9 +147,10 @@ const test = async app => {
           JSON.stringify({
             canonical: 'one',
             body: {
-              content: 'content of the note',
+              content: 'this should not show up!!!!!!!!',
               language: 'en'
-            }
+            },
+            json: { property: 'this should not be saved!!' }
           })
         )
 
@@ -177,7 +178,6 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-
     await tap.equal(res.body.totalItems, 3)
   })
 

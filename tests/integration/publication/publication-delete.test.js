@@ -96,7 +96,7 @@ const test = async app => {
 
     // before
     const before = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -128,7 +128,7 @@ const test = async app => {
 
     // publication should no longer be in the reader library
     const libraryres = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

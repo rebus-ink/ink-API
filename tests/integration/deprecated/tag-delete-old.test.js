@@ -125,7 +125,7 @@ const test = async app => {
   await tap.test('Delete a Tag', async () => {
     // Get the library before the modifications
     const libraryBefore = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -168,7 +168,7 @@ const test = async app => {
 
     // Get the library after the modifications
     const libraryAfter = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
