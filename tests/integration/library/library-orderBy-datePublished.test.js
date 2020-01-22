@@ -169,7 +169,7 @@ const test = async () => {
     })
 
     const res = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=datePublished`)
+      .get(`/library?orderBy=datePublished`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -181,7 +181,7 @@ const test = async () => {
 
   await tap.test('Order Library by datePublished, reversed', async () => {
     const res1 = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=datePublished&reverse=true`)
+      .get(`/library?orderBy=datePublished&reverse=true`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -195,7 +195,7 @@ const test = async () => {
     'Order Library by datePublished with filter by title',
     async () => {
       const res2 = await request(app)
-        .get(`/readers/${readerId}/library?orderBy=datePublished&title=ggg`)
+        .get(`/library?orderBy=datePublished&title=ggg`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -208,9 +208,7 @@ const test = async () => {
     'Order Library by datePublished with filter by author',
     async () => {
       const res3 = await request(app)
-        .get(
-          `/readers/${readerId}/library?orderBy=datePublished&author=someone%20new`
-        )
+        .get(`/library?orderBy=datePublished&author=someone%20new`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -224,9 +222,7 @@ const test = async () => {
     'Order Library by datePublished with filter by attribution',
     async () => {
       const res4 = await request(app)
-        .get(
-          `/readers/${readerId}/library?orderBy=datePublished&attribution=new`
-        )
+        .get(`/library?orderBy=datePublished&attribution=new`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -239,7 +235,7 @@ const test = async () => {
 
   await tap.test('Order Library by datePublished with pagination', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=datePublished&limit=13`)
+      .get(`/library?orderBy=datePublished&limit=13`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

@@ -173,7 +173,7 @@ const test = async app => {
 
   await tap.test('Note with invalid body should not exist', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/notes`)
+      .get(`/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

@@ -39,7 +39,7 @@ const test = async app => {
 
   await tap.test('Get empty list of notes', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes`)
+      .get('/notes')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -62,7 +62,7 @@ const test = async app => {
     })
 
     const res = await request(app)
-      .get(`${readerUrl}/notes`)
+      .get('/notes')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -92,7 +92,7 @@ const test = async app => {
       })
 
       const res = await request(app)
-        .get(`${readerUrl}/notes`)
+        .get('/notes')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -101,25 +101,6 @@ const test = async app => {
       const body = res.body
       await tap.equal(body.totalItems, 4)
       await tap.equal(body.items.length, 4)
-    }
-  )
-
-  await tap.test(
-    'Try to get Notes for a reader that does not exist',
-    async () => {
-      const res = await request(app)
-        .get(`${readerUrl}abc/notes`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.status, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.error, 'Not Found')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Get Notes')
     }
   )
 

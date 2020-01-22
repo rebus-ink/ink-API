@@ -154,7 +154,7 @@ class Reader extends BaseModel {
   }
 
   static async getLibrary (
-    readerId /*: string */,
+    readerAuthId /*: string */,
     limit /*: number */,
     offset /*: number */,
     filter /*: any */
@@ -172,7 +172,7 @@ class Reader extends BaseModel {
     }
 
     const readers = await Reader.query(Reader.knex())
-      .where('Reader.id', '=', readerId)
+      .where('Reader.authId', '=', readerAuthId)
       .skipUndefined()
       .eager('[tags, publications]')
       .modifyEager('publications', builder => {
@@ -343,14 +343,14 @@ class Reader extends BaseModel {
   }
 
   static async getNotes (
-    readerId /*: string */,
+    readerAuthId /*: string */,
     limit /*: number */,
     offset /*: number */,
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
     offset = !offset ? 0 : offset
     const { Document } = require('./Document')
-    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
     let doc
     if (filters.document) {
       const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'

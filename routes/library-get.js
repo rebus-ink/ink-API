@@ -2,10 +2,9 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
-const { getId } = require('../utils/get-id.js')
-const utils = require('../utils/utils')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
+const { urlToId } = require('../utils/utils')
 
 const { libraryCacheGet } = require('../utils/cache')
 
@@ -156,11 +155,11 @@ const { libraryCacheGet } = require('../utils/cache')
 module.exports = app => {
   /**
    * @swagger
-   * /readers/{id}/library:
+   * /library:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id/library
+   *     description: GET /library
    *     parameters:
    *       - in: path
    *         name: id
@@ -238,11 +237,10 @@ module.exports = app => {
    */
   app.use('/', router)
   router.get(
-    '/readers/:id/library',
+    '/library',
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const id = req.params.id
       const filters = {
         author: req.query.author,
         attribution: req.query.attribution,
@@ -259,7 +257,7 @@ module.exports = app => {
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
 
-      libraryCacheGet(id, !!req.headers['if-modified-since'])
+      libraryCacheGet(req.user, !!req.headers['if-modified-since'])
         .then(value => {
           if (
             value &&
@@ -268,22 +266,14 @@ module.exports = app => {
           ) {
             res.status(304)
           }
-          return Reader.getLibrary(id, req.query.limit, req.skip, filters)
+          return Reader.getLibrary(req.user, req.query.limit, req.skip, filters)
         })
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${id}`, {
+              boom.notFound(`No reader with ID ${req.user}`, {
                 type: 'Reader',
-                id,
-                activity: 'Get Library'
-              })
-            )
-          } else if (!utils.checkReader(req, reader)) {
-            return next(
-              boom.forbidden(`Access to reader ${id} disallowed`, {
-                type: 'Reader',
-                id,
+                id: req.user,
                 activity: 'Get Library'
               })
             )
@@ -296,7 +286,7 @@ module.exports = app => {
             ) {
               return Promise.resolve(reader.publications.length + req.skip)
             }
-            return Reader.getLibraryCount(id, filters)
+            return Reader.getLibraryCount(urlToId(reader.id), filters)
           }
         })
         .then(count => {
@@ -304,11 +294,6 @@ module.exports = app => {
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({
-              summaryMap: {
-                en: `Library for reader with id ${id}`
-              },
-              type: 'Collection',
-              id: getId(`/readers/${id}/library`),
               totalItems: parseInt(count),
               items: reader.publications,
               tags: reader.tags,

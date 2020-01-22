@@ -257,7 +257,7 @@ module.exports = app => {
           ) {
             res.status(304)
           }
-          return Reader.getLibrary(id, req.query.limit, req.skip, filters)
+          return Reader.getLibrary(req.user, req.query.limit, req.skip, filters)
         })
         .then(reader => {
           if (!reader) {

@@ -90,7 +90,7 @@ const test = async () => {
 
   await tap.test('Filter Library by keyword', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=two`)
+      .get(`/library?keyword=two`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -99,7 +99,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 5)
     await tap.ok(Array.isArray(body.items))
@@ -113,7 +112,7 @@ const test = async () => {
 
   await tap.test('Filter Library by keyword - not case sensitive', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=TwO`)
+      .get(`/library?keyword=TwO`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -122,7 +121,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 5)
     await tap.ok(Array.isArray(body.items))
@@ -136,7 +134,7 @@ const test = async () => {
 
   await tap.test('Filter by keyword with pagination', async () => {
     const res2 = await request(app)
-      .get(`/readers/${readerId}/library?keyword=one`)
+      .get(`/library?keyword=one`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -145,7 +143,7 @@ const test = async () => {
     await tap.equal(res2.body.totalItems, 15)
 
     const res3 = await request(app)
-      .get(`/readers/${readerId}/library?keyword=one&limit=11`)
+      .get(`/library?keyword=one&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -153,7 +151,7 @@ const test = async () => {
     await tap.equal(res3.body.items.length, 11)
 
     const res4 = await request(app)
-      .get(`/readers/${readerId}/library?keyword=one&limit=12&page=2`)
+      .get(`/library?keyword=one&limit=12&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

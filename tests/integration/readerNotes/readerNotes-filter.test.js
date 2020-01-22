@@ -89,7 +89,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by Publication', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?publication=${publicationUrl2}`)
+      .get(`/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -151,7 +151,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by Publication with pagination', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes?publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -163,7 +163,7 @@ const test = async app => {
     noteId3 = res2.body.items[5].id
 
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?page=2&publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -173,7 +173,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(`${readerUrl}/notes?limit=11&page=2&publication=${publicationUrl2}`)
+      .get(`/notes?limit=11&page=2&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -185,7 +185,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by nonexistant Publication', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?publication=${publicationUrl2}abc`)
+      .get(`/notes?publication=${publicationUrl2}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -201,7 +201,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by documentUrl', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?document=${documentUrl2}`)
+      .get(`/notes?document=${documentUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -215,7 +215,7 @@ const test = async app => {
     'Filter Notes by documentUrl should not work with pagination',
     async () => {
       const res2 = await request(app)
-        .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
+        .get(`/notes?document=${documentUrl2}&page=2`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -229,7 +229,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by a nonexistant documentUrl', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?document=${documentUrl2}abc`)
+      .get(`/notes?document=${documentUrl2}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -257,7 +257,7 @@ const test = async app => {
   })
   await tap.test('Filter Notes by motivation', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?motivation=highlighting`)
+      .get(`/notes?motivation=highlighting`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -270,7 +270,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by an inexistant motivation', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?motivation=somethingElse`)
+      .get(`/notes?motivation=somethingElse`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -311,7 +311,7 @@ const test = async app => {
     })
 
     const res = await request(app)
-      .get(`${readerUrl}/notes?search=abc`)
+      .get(`/notes?search=abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -338,7 +338,7 @@ const test = async app => {
 
   await tap.test('Get Notes by Collection', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?stack=testCollection`)
+      .get(`/notes?stack=testCollection`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -353,9 +353,7 @@ const test = async app => {
 
   await tap.test('Filter Notes by motivation and PubId', async () => {
     const res2 = await request(app)
-      .get(
-        `${readerUrl}/notes?motivation=highlighting&publication=${publicationUrl2}`
-      )
+      .get(`/notes?motivation=highlighting&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -368,7 +366,7 @@ const test = async app => {
 
   await tap.test('Search Notes and filter by motivation', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes?search=abc&motivation=highlighting`)
+      .get(`/notes?search=abc&motivation=highlighting`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -381,7 +379,7 @@ const test = async app => {
 
   await tap.test('Search Notes and filter by Document', async () => {
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?search=abc&document=${documentUrl}`)
+      .get(`/notes?search=abc&document=${documentUrl}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

@@ -50,7 +50,7 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated by default to 10', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes`)
+      .get(`/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -62,7 +62,7 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with limit', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?limit=12`)
+      .get(`/notes?limit=12`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -74,7 +74,7 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with page', async () => {
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?page=2`)
+      .get(`/notes?page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -86,7 +86,7 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with limit and page', async () => {
     const res4 = await request(app)
-      .get(`${readerUrl}/notes?limit=11&page=2`)
+      .get(`/notes?limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -100,7 +100,7 @@ const test = async app => {
     'Get Notes - paginate with page to an empty page',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?page=3`)
+        .get(`/notes?page=3`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -115,7 +115,7 @@ const test = async app => {
     'Get Notes - limit higher than the number of notes',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=20`)
+        .get(`/notes?limit=20`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -130,7 +130,7 @@ const test = async app => {
     'Get Notes - limit under 10 should default to 10',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=2`)
+        .get(`/notes?limit=2`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -143,7 +143,7 @@ const test = async app => {
 
   await tap.test('Get Notes - limit of 0 should default to 10', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?limit=0`)
+      .get(`/notes?limit=0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -266,7 +266,7 @@ const test = async app => {
       // 110
 
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=160`)
+        .get(`/notes?limit=160`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

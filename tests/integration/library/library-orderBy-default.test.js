@@ -128,7 +128,7 @@ const test = async () => {
     'Get Library default order: most recently updated',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library`)
+        .get(`/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -144,7 +144,7 @@ const test = async () => {
     'Get Library default reverse order: most recently updated',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?reverse=true`)
+        .get(`/library?reverse=true`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -162,7 +162,7 @@ const test = async () => {
     'Try to order library by invalid orderBy criteria',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?orderBy=sometingNotValid`)
+        .get(`/library?orderBy=sometingNotValid`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

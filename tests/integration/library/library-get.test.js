@@ -22,7 +22,7 @@ const test = async () => {
 
   await tap.test('Get empty library', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get('/library')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -30,8 +30,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.type(body.id, 'string')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 0)
     await tap.ok(Array.isArray(body.items))
@@ -67,7 +65,7 @@ const test = async () => {
     })
 
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get('/library')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -75,8 +73,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.type(body.id, 'string')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 1)
     await tap.ok(Array.isArray(body.items))
@@ -112,24 +108,6 @@ const test = async () => {
     await tap.notOk(pub.links)
   })
 
-  await tap.test(
-    'Try to get Library for Reader that does not exist',
-    async () => {
-      const res = await request(app)
-        .get(`/readers/${readerId}abc/library`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-      await tap.equal(res.status, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.error, 'Not Found')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Get Library')
-    }
-  )
-
   if (process.env.REDIS_PASSWORD) {
     await tap.test(
       'Get Library with if-modified-since header - not modified',
@@ -137,7 +115,7 @@ const test = async () => {
         time = new Date().getTime()
         // with time at beginning - so it will be modified
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -155,7 +133,7 @@ const test = async () => {
         await createTag(app, token)
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -191,7 +169,7 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -213,7 +191,7 @@ const test = async () => {
         publication = await createPublication(readerId)
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -249,7 +227,7 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -275,7 +253,7 @@ const test = async () => {
         )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -304,7 +282,7 @@ const test = async () => {
           .type('application/ld+json')
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -339,7 +317,7 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -374,7 +352,7 @@ const test = async () => {
           )
 
         const res = await request(app)
-          .get(`/readers/${readerId}/library`)
+          .get('/library')
           .set('Host', 'reader-api.test')
           .set('Authorization', `Bearer ${token}`)
           .set('If-Modified-Since', time)
@@ -383,7 +361,6 @@ const test = async () => {
 
         const body = res.body
         await tap.type(body, 'object')
-        await tap.equal(body.type, 'Collection')
 
         time = new Date().getTime()
       }

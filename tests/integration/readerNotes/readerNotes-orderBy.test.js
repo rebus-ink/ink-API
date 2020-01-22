@@ -79,7 +79,7 @@ const test = async app => {
 
   await tap.test('Order Notes by date created', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?orderBy=created`)
+      .get(`/notes?orderBy=created`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -91,7 +91,7 @@ const test = async app => {
 
   await tap.test('Order Notes by date created - reversed', async () => {
     const res1 = await request(app)
-      .get(`${readerUrl}/notes?orderBy=created&reverse=true`)
+      .get(`/notes?orderBy=created&reverse=true`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -106,7 +106,7 @@ const test = async app => {
   // await tap.test('Order Notes by date updated', async () => {
   //   // update two older notes:
   //   const res = await request(app)
-  //     .get(`${readerUrl}/notes?orderBy=created&limit=25`)
+  //     .get(`/notes?orderBy=created&limit=25`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
@@ -160,7 +160,7 @@ const test = async app => {
   //     )
 
   //   const res1 = await request(app)
-  //     .get(`${readerUrl}/notes?orderBy=updated`)
+  //     .get(`/notes?orderBy=updated`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
@@ -174,7 +174,7 @@ const test = async app => {
 
   // await tap.test('Order Notes by date updated - reversed', async () => {
   //   const res2 = await request(app)
-  //     .get(`${readerUrl}/notes?orderBy=updated&reverse=true`)
+  //     .get(`/notes?orderBy=updated&reverse=true`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(

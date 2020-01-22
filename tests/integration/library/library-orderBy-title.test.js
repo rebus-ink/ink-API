@@ -126,7 +126,7 @@ const test = async () => {
 
   await tap.test('Order Library by title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=title`)
+      .get(`/library?orderBy=title`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -137,7 +137,7 @@ const test = async () => {
 
   await tap.test('Order Library by title with filter by title', async () => {
     const res1 = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=title&title=b`)
+      .get(`/library?orderBy=title&title=b`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -148,7 +148,7 @@ const test = async () => {
 
   await tap.test('Order Library by title with filter by author', async () => {
     const res2 = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=title&author=anonymous`)
+      .get(`/library?orderBy=title&author=anonymous`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -164,7 +164,7 @@ const test = async () => {
     'Order Library by title with filter by attribution',
     async () => {
       const res3 = await request(app)
-        .get(`/readers/${readerId}/library?orderBy=title&attribution=anonymous`)
+        .get(`/library?orderBy=title&attribution=anonymous`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -179,7 +179,7 @@ const test = async () => {
 
   await tap.test('Order Library by title, reversed', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=title&reverse=true`)
+      .get(`/library?orderBy=title&reverse=true`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -191,7 +191,7 @@ const test = async () => {
     'Order Library by title reversed with filter by title',
     async () => {
       const res1 = await request(app)
-        .get(`/readers/${readerId}/library?orderBy=title&title=ff&reverse=true`)
+        .get(`/library?orderBy=title&title=ff&reverse=true`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -205,9 +205,7 @@ const test = async () => {
     'Order Library by title reversed with filter by author',
     async () => {
       const res2 = await request(app)
-        .get(
-          `/readers/${readerId}/library?orderBy=title&author=anonymous&reverse=true`
-        )
+        .get(`/library?orderBy=title&author=anonymous&reverse=true`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -224,9 +222,7 @@ const test = async () => {
     'Order Library by title reversed with filter by attribution',
     async () => {
       const res3 = await request(app)
-        .get(
-          `/readers/${readerId}/library?orderBy=title&attribution=anonymous&reverse=true`
-        )
+        .get(`/library?orderBy=title&attribution=anonymous&reverse=true`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -241,7 +237,7 @@ const test = async () => {
 
   await tap.test('Order Library by title with pagination', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?orderBy=title&limit=16`)
+      .get(`/library?orderBy=title&limit=16`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

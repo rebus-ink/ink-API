@@ -109,10 +109,10 @@ const allTests = async () => {
     await libraryFilterSearch(app)
 
     // deprecated:
-    await libraryFilterTestsOld(app)
-    await libraryGetTestsOld(app)
-    await libraryOrderByTestsOld(app)
-    await libraryPaginateTestsOld(app)
+    // await libraryFilterTestsOld(app)
+    // await libraryGetTestsOld(app)
+    // await libraryOrderByTestsOld(app)
+    // await libraryPaginateTestsOld(app)
   }
 
   if (!test || test === 'outbox') await outboxGetTests(app) // deprecated

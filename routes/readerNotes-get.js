@@ -3,9 +3,9 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const { getId } = require('../utils/get-id.js')
-const utils = require('../utils/utils')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
+const { urlToId } = require('../utils/utils')
 
 /**
  * @swagger
@@ -15,17 +15,19 @@ const boom = require('@hapi/boom')
  *       id:
  *         type: string
  *         format: url
- *       type:
+ *       canonical:
  *         type: string
- *         enum: ['Note']
- *       noteType:
- *         type: string
- *       'oa:hasSelector':
+ *       target:
  *         type: object
- *       content:
- *         type: string
- *       '@context':
- *         type: array
+ *       body:
+ *         type: object
+ *         properties:
+ *           motivation:
+ *             type: string
+ *           content:
+ *             type: string
+ *           language:
+ *             type: string
  *       published:
  *         type: string
  *         format: date-time
@@ -50,14 +52,6 @@ const boom = require('@hapi/boom')
  *           datePublished:
  *             type: string
  *             format: timestamp
- *       inReplyTo:
- *         type: string
- *         format: url
- *         description: The url of the document
- *       context:
- *         type: string
- *         format: url
- *         description: The url of the publication
  *       json:
  *         type: object
  *   notes:
@@ -65,16 +59,6 @@ const boom = require('@hapi/boom')
  *       id:
  *         type: string
  *         format: url
- *       type:
- *         type: string
- *         enum: ['Collection']
- *       summaryMap:
- *         type: object
- *         properties:
- *           en:
- *             type: string
- *       '@context':
- *         type: array
  *       totalItems:
  *         type: integer
  *       items:
@@ -86,18 +70,12 @@ const boom = require('@hapi/boom')
 module.exports = app => {
   /**
    * @swagger
-   * /readers/{id}/notes:
+   * /notes:
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id/notes
+   *     description: GET /notes
    *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
-   *         description: the short id of the reader
    *       - in: query
    *         name: limit
    *         schema:
@@ -158,13 +136,11 @@ module.exports = app => {
    *             schema:
    *               $ref: '#/definitions/notes'
    *       404:
-   *         description: 'No Reader with ID {id}'
-   *       403:
-   *         description: 'Access to reader {id} disallowed'
+   *         description: 'No Reader with auth token'
    */
   app.use('/', router)
   router.get(
-    '/readers/:id/notes',
+    '/notes',
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
@@ -179,19 +155,11 @@ module.exports = app => {
         collection: req.query.stack
       }
       let returnedReader
-      Reader.getNotes(id, req.query.limit, req.skip, filters)
+      Reader.getNotes(req.user, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${id}`, {
-                type: 'Reader',
-                id,
-                activity: 'Get Notes'
-              })
-            )
-          } else if (!utils.checkReader(req, reader)) {
-            return next(
-              boom.forbidden(`Access to reader ${id} disallowed`, {
+              boom.notFound(`No reader with ID ${req.user}`, {
                 type: 'Reader',
                 id,
                 activity: 'Get Notes'
@@ -206,23 +174,17 @@ module.exports = app => {
             if (length < req.query.limit && length !== 0) {
               return Promise.resolve(length + req.skip)
             }
-            return Reader.getNotesCount(id, filters)
+            return Reader.getNotesCount(urlToId(reader.id), filters)
           }
         })
         .then(count => {
           let reader = returnedReader
           res.setHeader('Content-Type', 'application/ld+json')
-          let replies = reader.replies
           res.end(
             JSON.stringify({
-              '@context': 'https://www.w3.org/ns/activitystreams',
-              summaryMap: {
-                en: `Replies for reader with id ${id}`
-              },
-              type: 'Collection',
-              id: getId(`/reader-${id}/notes`),
+              id: getId(`/readers/${id}/notes`),
               totalItems: parseInt(count),
-              items: replies,
+              items: reader.replies,
               page: req.query.page,
               pageSize: req.query.limit
             })
