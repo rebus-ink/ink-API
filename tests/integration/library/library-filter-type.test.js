@@ -82,7 +82,7 @@ const test = async () => {
 
   await tap.test('Filter Library by type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?type=Book`)
+      .get(`/library?type=Book`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -91,7 +91,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 3)
     await tap.ok(Array.isArray(body.items))
@@ -105,7 +104,7 @@ const test = async () => {
 
   await tap.test('Filter Library by type is not case sensitive', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?type=boOk`)
+      .get(`/library?type=boOk`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -114,7 +113,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 3)
     await tap.ok(Array.isArray(body.items))
@@ -128,7 +126,7 @@ const test = async () => {
 
   await tap.test('Filter by type with pagination', async () => {
     const res2 = await request(app)
-      .get(`/readers/${readerId}/library?type=Article`)
+      .get(`/library?type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -137,7 +135,7 @@ const test = async () => {
     await tap.equal(res2.body.totalItems, 12)
 
     const res3 = await request(app)
-      .get(`/readers/${readerId}/library?type=Article&limit=11`)
+      .get(`/library?type=Article&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -145,7 +143,7 @@ const test = async () => {
     await tap.equal(res3.body.items.length, 11)
 
     const res4 = await request(app)
-      .get(`/readers/${readerId}/library?type=Article&limit=11&page=2`)
+      .get(`/library?type=Article&limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -156,7 +154,7 @@ const test = async () => {
 
   await tap.test('Filter by type that does not exist', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?type=Stuff`)
+      .get(`/library?type=Stuff`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

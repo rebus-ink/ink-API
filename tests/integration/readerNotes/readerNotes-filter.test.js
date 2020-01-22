@@ -21,12 +21,14 @@ const test = async app => {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
+  const publicationId1 = urlToId(publicationUrl)
 
   // create another publication
   const publication2 = await createPublication(urlToId(readerId), {
     name: 'Publication B'
   })
   const publicationUrl2 = publication2.id
+  const publicationId2 = urlToId(publicationUrl2)
 
   // creating a document
   const createdDocument = await createDocument(readerId, publicationUrl, {
@@ -47,15 +49,19 @@ const test = async app => {
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { inReplyTo: documentUrl, context: publicationUrl },
+      {
+        documentUrl,
+        publicationId: publicationId1,
+        body: { motivation: 'test' }
+      },
       object
     )
     return await createNote(app, token, urlToId(readerId), noteObj)
   }
 
-  await createNoteSimplified({ content: 'first' })
-  await createNoteSimplified({ content: 'second' })
-  await createNoteSimplified({ content: 'third' })
+  await createNoteSimplified() // 1
+  await createNoteSimplified() // 2
+  await createNoteSimplified() // 3
   await createNoteSimplified() // 4
   await createNoteSimplified() // 5
   await createNoteSimplified() // 6
@@ -69,12 +75,12 @@ const test = async app => {
 
   // create more notes for another pub
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
 
   let noteId1, noteId2, noteId3
@@ -83,12 +89,10 @@ const test = async app => {
 
   await tap.test('Filter Notes by Publication', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?publication=${publicationUrl2}`)
+      .get(`/notes?publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     const body = res.body
@@ -96,89 +100,81 @@ const test = async app => {
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
     await tap.equal(body.items[0].type, 'Note')
-
-    noteId1 = body.items[0].id
   })
 
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
-  }) // 3
-  await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   }) // 10
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2
-  }) // 13
+    publicationId: publicationId2,
+    documentUrl: documentUrl2
+  })
 
   await tap.test('Filter Notes by Publication with pagination', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes?publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.status, 200)
     await tap.equal(res2.body.items.length, 10)
-
+    noteId1 = res2.body.items[0].id
     noteId2 = res2.body.items[3].id
     noteId3 = res2.body.items[5].id
 
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?page=2&publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?page=2&publication=${urlToId(publicationUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res3.status, 200)
     await tap.equal(res3.body.totalItems, 13)
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(`${readerUrl}/notes?limit=11&page=2&publication=${publicationUrl2}`)
+      .get(`/notes?limit=11&page=2&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res4.status, 200)
     await tap.equal(res4.body.totalItems, 13)
@@ -187,12 +183,10 @@ const test = async app => {
 
   await tap.test('Filter Notes by nonexistant Publication', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?publication=${publicationUrl2}abc`)
+      .get(`/notes?publication=${publicationUrl2}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     const body = res.body
@@ -205,12 +199,10 @@ const test = async app => {
 
   await tap.test('Filter Notes by documentUrl', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?document=${documentUrl2}`)
+      .get(`/notes?document=${documentUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 13)
@@ -221,12 +213,10 @@ const test = async app => {
     'Filter Notes by documentUrl should not work with pagination',
     async () => {
       const res2 = await request(app)
-        .get(`${readerUrl}/notes?document=${documentUrl2}&page=2`)
+        .get(`/notes?document=${documentUrl2}&page=2`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res2.status, 200)
       await tap.ok(res2.body)
@@ -237,41 +227,38 @@ const test = async app => {
 
   await tap.test('Filter Notes by a nonexistant documentUrl', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?document=${documentUrl2}abc`)
+      .get(`/notes?document=${documentUrl2}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.items.length, 0)
   })
 
-  // ------------------------------------------------ NOTE TYPE -------------------------------------------
+  // ------------------------------------------------ MOTIVATION -------------------------------------------
 
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2,
-    noteType: 'new'
+    publicationId: publicationId2,
+    documentUrl: documentUrl2,
+    body: { motivation: 'highlighting' }
   })
   await createNoteSimplified({
-    context: publicationUrl2,
-    inReplyTo: documentUrl2,
-    noteType: 'new'
+    publicationId: publicationId2,
+    documentUrl: documentUrl2,
+    body: { motivation: 'highlighting' }
   })
 
-  await createNoteSimplified({ noteType: 'new' })
-
-  await tap.test('Filter Notes by noteType', async () => {
+  await createNoteSimplified({
+    body: { motivation: 'highlighting' }
+  })
+  await tap.test('Filter Notes by motivation', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?type=new`)
+      .get(`/notes?motivation=highlighting`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
@@ -279,14 +266,12 @@ const test = async app => {
     await tap.equal(res.body.items.length, 3)
   })
 
-  await tap.test('Filter Notes by an inexistant noteType', async () => {
+  await tap.test('Filter Notes by an inexistant motivation', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?type=notANoteType`)
+      .get(`/notes?motivation=somethingElse`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
@@ -297,26 +282,34 @@ const test = async app => {
 
   await tap.test('Search Note content', async () => {
     await createNoteSimplified({
-      noteType: 'test',
-      content: 'this string contains abc and other things'
+      body: {
+        motivation: 'test',
+        content: 'this string contains abc and other things'
+      }
     })
     await createNoteSimplified({
-      noteType: 'test',
-      content: 'this string contains ABCD and other things'
+      body: {
+        motivation: 'test',
+        content: 'this string contains ABCD and other things'
+      }
     })
     await createNoteSimplified({
-      noteType: 'test2',
-      content: 'this string contains XYABC and other things'
+      body: {
+        motivation: 'test',
+        content: 'this string contains XYABC and other things'
+      },
+      publicationId: publicationId2,
+      documentUrl: documentUrl2
     })
     await createNoteSimplified({
-      context: publicationUrl2,
-      inReplyTo: documentUrl2,
-      noteType: 'test',
-      content: 'abc'
+      body: {
+        motivation: 'highlighting',
+        content: 'abc'
+      }
     })
 
     const res = await request(app)
-      .get(`${readerUrl}/notes?search=abc`)
+      .get(`/notes?search=abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type(
@@ -335,7 +328,6 @@ const test = async app => {
     name: 'testCollection'
   })
   const tagId = tagCreated.id
-
   // add 3 notes to this collection
   await addNoteToCollection(app, token, urlToId(noteId1), tagId)
   await addNoteToCollection(app, token, urlToId(noteId2), tagId)
@@ -343,12 +335,10 @@ const test = async app => {
 
   await tap.test('Get Notes by Collection', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?stack=testCollection`)
+      .get(`/notes?stack=testCollection`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
@@ -358,14 +348,12 @@ const test = async app => {
 
   // ----------------------------------- COMBINING FILTERS -----------------------------------
 
-  await tap.test('Filter Notes by noteType and PubId', async () => {
+  await tap.test('Filter Notes by motivation and PubId', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes?type=new&publication=${publicationUrl2}`)
+      .get(`/notes?motivation=highlighting&publication=${publicationUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
@@ -373,14 +361,12 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 2)
   })
 
-  await tap.test('Search Notes and filter by noteType', async () => {
+  await tap.test('Search Notes and filter by motivation', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes?search=abc&type=test2`)
+      .get(`/notes?search=abc&motivation=highlighting`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.status, 200)
     await tap.ok(res2.body)
@@ -390,12 +376,10 @@ const test = async app => {
 
   await tap.test('Search Notes and filter by Document', async () => {
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?search=abc&document=${documentUrl}`)
+      .get(`/notes?search=abc&document=${documentUrl}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res3.status, 200)
     await tap.ok(res3.body)

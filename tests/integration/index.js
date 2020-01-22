@@ -109,10 +109,10 @@ const allTests = async () => {
     await libraryFilterSearch(app)
 
     // deprecated:
-    await libraryFilterTestsOld(app)
-    await libraryGetTestsOld(app)
-    await libraryOrderByTestsOld(app)
-    await libraryPaginateTestsOld(app)
+    // await libraryFilterTestsOld(app)
+    // await libraryGetTestsOld(app)
+    // await libraryOrderByTestsOld(app)
+    // await libraryPaginateTestsOld(app)
   }
 
   if (!test || test === 'outbox') await outboxGetTests(app) // deprecated
@@ -158,14 +158,14 @@ const allTests = async () => {
   }
 
   if (!test || test === 'readerNotes') {
-    // await readerNotesGetTests(app)
+    await readerNotesGetTests(app)
     // await readerNotesGetOldTests(app) // deprecated
     // await readerNotesFilterOldTests(app) // deprecated
     // await readerNotesOrderByOldTests(app) // deprecated
     // await readerNotesPaginateOldTests(app) // deprecated
-    // await readerNotesPaginateTests(app)
-    // await readerNotesFilterTests(app)
-    // await readerNotesOrderByTests(app)
+    await readerNotesPaginateTests(app)
+    await readerNotesFilterTests(app)
+    await readerNotesOrderByTests(app)
   }
 
   if (!test || test === 'jobs') {

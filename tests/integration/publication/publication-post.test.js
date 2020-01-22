@@ -161,7 +161,7 @@ const test = async app => {
 
   await tap.test('created publications should be in the library', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -169,8 +169,6 @@ const test = async app => {
     const body = res.body
 
     await tap.type(body, 'object')
-    await tap.type(body.id, 'string')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 3)
     await tap.ok(Array.isArray(body.items))

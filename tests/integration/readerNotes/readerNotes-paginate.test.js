@@ -20,6 +20,7 @@ const test = async app => {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
+  const publicationId = urlToId(publicationUrl)
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
@@ -27,15 +28,15 @@ const test = async app => {
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { inReplyTo: documentUrl, context: publicationUrl },
+      { documentUrl, publicationId, body: { motivation: 'test' } },
       object
     )
     return await createNote(app, token, urlToId(readerId), noteObj)
   }
 
-  await createNoteSimplified({ content: 'first' })
-  await createNoteSimplified({ content: 'second' })
-  await createNoteSimplified({ content: 'third' })
+  await createNoteSimplified() // 1
+  await createNoteSimplified() // 2
+  await createNoteSimplified() // 3
   await createNoteSimplified() // 4
   await createNoteSimplified() // 5
   await createNoteSimplified() // 6
@@ -49,12 +50,10 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated by default to 10', async () => {
     const res2 = await request(app)
-      .get(`${readerUrl}/notes`)
+      .get(`/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res2.status, 200)
     await tap.equal(res2.body.totalItems, 13)
@@ -63,12 +62,10 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with limit', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?limit=12`)
+      .get(`/notes?limit=12`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.equal(res.body.totalItems, 13)
@@ -77,12 +74,10 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with page', async () => {
     const res3 = await request(app)
-      .get(`${readerUrl}/notes?page=2`)
+      .get(`/notes?page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res3.status, 200)
     await tap.equal(res3.body.totalItems, 13)
@@ -91,12 +86,10 @@ const test = async app => {
 
   await tap.test('Get Notes - paginated with limit and page', async () => {
     const res4 = await request(app)
-      .get(`${readerUrl}/notes?limit=11&page=2`)
+      .get(`/notes?limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res4.status, 200)
     await tap.equal(res4.body.totalItems, 13)
@@ -107,12 +100,10 @@ const test = async app => {
     'Get Notes - paginate with page to an empty page',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?page=3`)
+        .get(`/notes?page=3`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.status, 200)
       await tap.equal(res.body.totalItems, 13)
@@ -124,12 +115,10 @@ const test = async app => {
     'Get Notes - limit higher than the number of notes',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=20`)
+        .get(`/notes?limit=20`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.status, 200)
       await tap.equal(res.body.totalItems, 13)
@@ -141,12 +130,10 @@ const test = async app => {
     'Get Notes - limit under 10 should default to 10',
     async () => {
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=2`)
+        .get(`/notes?limit=2`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.status, 200)
       await tap.equal(res.body.totalItems, 13)
@@ -156,12 +143,10 @@ const test = async app => {
 
   await tap.test('Get Notes - limit of 0 should default to 10', async () => {
     const res = await request(app)
-      .get(`${readerUrl}/notes?limit=0`)
+      .get(`/notes?limit=0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.equal(res.body.totalItems, 13)
@@ -275,18 +260,16 @@ const test = async app => {
       await createNoteSimplified()
       await createNoteSimplified()
       await createNoteSimplified()
-      await createNoteSimplified({ content: 'third last' })
-      await createNoteSimplified({ content: 'second last' })
-      await createNoteSimplified({ content: 'last' })
+      await createNoteSimplified()
+      await createNoteSimplified()
+      await createNoteSimplified()
       // 110
 
       const res = await request(app)
-        .get(`${readerUrl}/notes?limit=160`)
+        .get(`/notes?limit=160`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.body.items.length, 100)
     }

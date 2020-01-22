@@ -154,7 +154,7 @@ class Reader extends BaseModel {
   }
 
   static async getLibrary (
-    readerId /*: string */,
+    readerAuthId /*: string */,
     limit /*: number */,
     offset /*: number */,
     filter /*: any */
@@ -172,7 +172,7 @@ class Reader extends BaseModel {
     }
 
     const readers = await Reader.query(Reader.knex())
-      .where('Reader.id', '=', readerId)
+      .where('Reader.authId', '=', readerAuthId)
       .skipUndefined()
       .eager('[tags, publications]')
       .modifyEager('publications', builder => {
@@ -303,6 +303,7 @@ class Reader extends BaseModel {
       .count()
       .whereNull('Note.deleted')
       .andWhere('Note.readerId', '=', readerId)
+      .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
 
     if (filters.publication) {
       resultQuery = resultQuery.where(
@@ -311,12 +312,18 @@ class Reader extends BaseModel {
         urlToId(filters.publication)
       )
     }
-    if (filters.type) {
-      resultQuery = resultQuery.where('noteType', '=', filters.type)
+    if (filters.motivation) {
+      resultQuery = resultQuery.where(
+        'NoteBody.motivation',
+        '=',
+        filters.motivation
+      )
     }
+
     if (filters.search) {
-      resultQuery = resultQuery.whereRaw(
-        'LOWER(content) LIKE ?',
+      resultQuery = resultQuery.where(
+        'NoteBody.content',
+        'ilike',
         '%' + filters.search.toLowerCase() + '%'
       )
     }
@@ -336,14 +343,14 @@ class Reader extends BaseModel {
   }
 
   static async getNotes (
-    readerId /*: string */,
+    readerAuthId /*: string */,
     limit /*: number */,
     offset /*: number */,
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
     offset = !offset ? 0 : offset
     const { Document } = require('./Document')
-    const qb = Reader.query(Reader.knex()).where('id', '=', readerId)
+    const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
     let doc
     if (filters.document) {
       const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'
@@ -360,8 +367,14 @@ class Reader extends BaseModel {
     }
 
     const readers = await qb
-      .eager('replies.[publication.[attributions]]')
+      .eager('replies.[publication.[attributions], body]')
       .modifyEager('replies', builder => {
+        builder.modifyEager('body', bodyBuilder => {
+          bodyBuilder.select('content', 'language', 'motivation')
+          bodyBuilder.whereNull('deleted')
+        })
+        builder.select('Note.*').from('Note')
+        builder.distinct('Note.id')
         // load details of parent publication for each note
         builder.modifyEager('publication', pubBuilder => {
           pubBuilder.whereNull('Publication.deleted')
@@ -369,9 +382,18 @@ class Reader extends BaseModel {
             'id',
             'name',
             'abstract',
+            'description',
             'datePublished',
             'metadata',
-            'type'
+            'type',
+            'numberOfPages',
+            'encodingFormat',
+            'json',
+            'readerId',
+            'published',
+            'updated',
+            'deleted',
+            'resources'
           )
         })
         builder.whereNull('Note.deleted')
@@ -383,12 +405,16 @@ class Reader extends BaseModel {
         if (filters.document) {
           builder.where('documentId', '=', urlToId(doc.id))
         }
-        if (filters.type) {
-          builder.where('noteType', '=', filters.type)
+
+        builder.leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
+        if (filters.motivation) {
+          builder.where('NoteBody.motivation', '=', filters.motivation)
         }
+
         if (filters.search) {
-          builder.whereRaw(
-            'LOWER(content) LIKE ?',
+          builder.where(
+            'NoteBody.content',
+            'ilike',
             '%' + filters.search.toLowerCase() + '%'
           )
         }

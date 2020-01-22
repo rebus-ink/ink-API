@@ -147,9 +147,10 @@ const test = async app => {
           JSON.stringify({
             canonical: 'one',
             body: {
-              content: 'content of the note',
+              content: 'this should not show up!!!!!!!!',
               language: 'en'
-            }
+            },
+            json: { property: 'this should not be saved!!' }
           })
         )
 
@@ -173,11 +174,10 @@ const test = async app => {
 
   await tap.test('Note with invalid body should not exist', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/notes`)
+      .get(`/notes`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-
     await tap.equal(res.body.totalItems, 3)
   })
 

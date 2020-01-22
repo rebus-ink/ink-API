@@ -34,7 +34,7 @@ const test = async () => {
 
   await tap.test('By default, Library paginated to 10 per page', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -55,7 +55,7 @@ const test = async () => {
 
   await tap.test('Paginate library by setting limit', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?limit=11`)
+      .get(`/library?limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -76,7 +76,7 @@ const test = async () => {
 
   await tap.test('Paginate Library by setting page', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?page=2`)
+      .get(`/library?page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -97,7 +97,7 @@ const test = async () => {
 
   await tap.test('Paginate Library by setting limit and page', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?limit=11&page=2`)
+      .get(`/library?limit=11&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -120,7 +120,7 @@ const test = async () => {
     'Paginate Library with limit over the number of publications',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?limit=20`)
+        .get(`/library?limit=20`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -142,7 +142,7 @@ const test = async () => {
 
   await tap.test('Get empty page of a Library', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?page=3`)
+      .get(`/library?page=3`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -162,7 +162,7 @@ const test = async () => {
     'Library page size under 10 should default to 10',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?limit=4`)
+        .get(`/library?limit=4`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -181,7 +181,7 @@ const test = async () => {
 
   await tap.test('Library page size of 0 should default to 10', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?limit=0`)
+      .get(`/library?limit=0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -310,7 +310,7 @@ const test = async () => {
       // 110
 
       const res = await request(app)
-        .get(`/readers/${readerId}/library?limit=120`)
+        .get(`/library?limit=120`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -331,7 +331,7 @@ const test = async () => {
     'Trying to paginate library with invalid limit (string)',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?limit=notANumber`)
+        .get(`/library?limit=notANumber`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -352,7 +352,7 @@ const test = async () => {
     'Trying to paginate library with invalid page (string)',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?page=notANumber`)
+        .get(`/library?page=notANumber`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

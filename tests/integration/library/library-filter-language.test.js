@@ -83,7 +83,7 @@ const test = async () => {
 
   await tap.test('Filter Library by language', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?language=fr`)
+      .get(`/library?language=fr`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -92,7 +92,6 @@ const test = async () => {
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Collection')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 2)
     await tap.ok(Array.isArray(body.items))
@@ -106,7 +105,7 @@ const test = async () => {
 
   await tap.test('Filter by language with pagination', async () => {
     const res2 = await request(app)
-      .get(`/readers/${readerId}/library?language=en`)
+      .get(`/library?language=en`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -115,7 +114,7 @@ const test = async () => {
     await tap.equal(res2.body.totalItems, 11)
 
     const res3 = await request(app)
-      .get(`/readers/${readerId}/library?language=en&limit=11`)
+      .get(`/library?language=en&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -123,7 +122,7 @@ const test = async () => {
     await tap.equal(res3.body.items.length, 11)
 
     const res4 = await request(app)
-      .get(`/readers/${readerId}/library?language=en&limit=10&page=2`)
+      .get(`/library?language=en&limit=10&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

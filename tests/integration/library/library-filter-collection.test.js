@@ -46,7 +46,7 @@ const test = async () => {
 
     // get library with filter for collection
     const res = await request(app)
-      .get(`/readers/${readerId}/library?stack=mystack`)
+      .get(`/library?stack=mystack`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -81,7 +81,7 @@ const test = async () => {
 
     // get whole library to get ids:
     const resLibrary = await request(app)
-      .get(`/readers/${readerId}/library?limit=20`)
+      .get(`/library?limit=20`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -112,7 +112,7 @@ const test = async () => {
 
     // get library with filter for collection with pagination
     const res = await request(app)
-      .get(`/readers/${readerId}/library?stack=mystack&limit=10`)
+      .get(`/library?stack=mystack&limit=10`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -127,7 +127,7 @@ const test = async () => {
 
   await tap.test('Filter Library with a non-existing collection', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?stack=notastack`)
+      .get(`/library?stack=notastack`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

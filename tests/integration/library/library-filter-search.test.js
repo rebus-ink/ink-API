@@ -57,7 +57,7 @@ const test = async () => {
     'Filter Library by searching through title, abstract, keywords and desription',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/library?search=super`)
+        .get(`/library?search=super`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -72,7 +72,7 @@ const test = async () => {
 
   await tap.test('Filter Library by search with pagination', async () => {
     const res2 = await request(app)
-      .get(`/readers/${readerId}/library?search=publication`)
+      .get(`/library?search=publication`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -81,7 +81,7 @@ const test = async () => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`/readers/${readerId}/library?search=publication&limit=11`)
+      .get(`/library?search=publication&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -94,7 +94,7 @@ const test = async () => {
     'Filter Library by search using inexistant title',
     async () => {
       const res4 = await request(app)
-        .get(`/readers/${readerId}/library?search=ansoiwereow`)
+        .get(`/library?search=ansoiwereow`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

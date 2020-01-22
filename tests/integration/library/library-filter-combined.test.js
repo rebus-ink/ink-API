@@ -61,7 +61,7 @@ const test = async () => {
 
   // get whole library to get ids:
   const resLibrary = await request(app)
-    .get(`/readers/${readerId}/library?limit=20`)
+    .get(`/library?limit=20`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
@@ -222,7 +222,7 @@ const test = async () => {
 
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?author=Jane%20Smith&title=sequel`)
+      .get(`/library?author=Jane%20Smith&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -234,7 +234,7 @@ const test = async () => {
 
   await tap.test('filter by collection and language', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?stack=mystack&language=km`)
+      .get(`/library?stack=mystack&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -246,7 +246,7 @@ const test = async () => {
 
   await tap.test('filter by author and language', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?author=Jane%20Smith&language=km`)
+      .get(`/library?author=Jane%20Smith&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -258,7 +258,7 @@ const test = async () => {
 
   await tap.test('filter by attribution and title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?attribution=John&title=sequel`)
+      .get(`/library?attribution=John&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -270,7 +270,7 @@ const test = async () => {
 
   await tap.test('filter by collection and title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?stack=mystack&title=test`)
+      .get(`/library?stack=mystack&title=test`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -282,7 +282,7 @@ const test = async () => {
 
   await tap.test('filter by author and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?author=John%20Doe&type=Article`)
+      .get(`/library?author=John%20Doe&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -294,7 +294,7 @@ const test = async () => {
 
   await tap.test('filter by attribution and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?attribution=John%20Doe&type=Article`)
+      .get(`/library?attribution=John%20Doe&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -306,7 +306,7 @@ const test = async () => {
 
   await tap.test('filter by title and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?title=sequel&type=Article`)
+      .get(`/library?title=sequel&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -318,7 +318,7 @@ const test = async () => {
 
   await tap.test('filter by language and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?language=km&type=Article`)
+      .get(`/library?language=km&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -332,7 +332,7 @@ const test = async () => {
 
   await tap.test('filter by keyword and attribution', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=word&attribution=John%20Doe`)
+      .get(`/library?keyword=word&attribution=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -344,7 +344,7 @@ const test = async () => {
 
   await tap.test('filter by keyword and author', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=word&author=John%20Doe`)
+      .get(`/library?keyword=word&author=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -356,7 +356,7 @@ const test = async () => {
 
   await tap.test('filter by keyword and language', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=word&language=fr`)
+      .get(`/library?keyword=word&language=fr`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -368,7 +368,7 @@ const test = async () => {
 
   await tap.test('filter by keyword and title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=word&title=sequel`)
+      .get(`/library?keyword=word&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -380,9 +380,7 @@ const test = async () => {
 
   await tap.test('filter by keyword, author and title', async () => {
     const res = await request(app)
-      .get(
-        `/readers/${readerId}/library?keyword=word&author=Jane%20Smith&title=sequel`
-      )
+      .get(`/library?keyword=word&author=Jane%20Smith&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -394,7 +392,7 @@ const test = async () => {
 
   await tap.test('filter by keyword and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?keyword=word&type=Article`)
+      .get(`/library?keyword=word&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -406,7 +404,7 @@ const test = async () => {
 
   await tap.test('filter by search and author', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?search=testing&author=John%20Doe`)
+      .get(`/library?search=testing&author=John%20Doe`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -418,7 +416,7 @@ const test = async () => {
 
   await tap.test('filter by search and type', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?search=testing&type=Article`)
+      .get(`/library?search=testing&type=Article`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -430,7 +428,7 @@ const test = async () => {
 
   await tap.test('filter by search and language', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?search=testing&language=km`)
+      .get(`/library?search=testing&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -443,7 +441,7 @@ const test = async () => {
 
   await tap.test('filter by search and title', async () => {
     const res = await request(app)
-      .get(`/readers/${readerId}/library?search=testing&title=sequel`)
+      .get(`/library?search=testing&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

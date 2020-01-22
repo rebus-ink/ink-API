@@ -139,7 +139,7 @@ const test = async app => {
     'Deleted Note should no longer show up in a list of the reader notes',
     async () => {
       const res = await request(app)
-        .get(`/readers/${readerId}/notes`)
+        .get(`/notes`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type(

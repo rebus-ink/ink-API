@@ -149,14 +149,14 @@ const test = async app => {
 
     // library
     const res17 = await request(app)
-      .get(`/readers/${readerId}/library`)
+      .get(`/library`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res17.statusCode, 401)
 
     // readerNotes
     const res18 = await request(app)
-      .get(`/readers/${readerId}/notes`)
+      .get(`/notes`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res18.statusCode, 401)
