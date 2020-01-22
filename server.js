@@ -48,6 +48,7 @@ const notePutTagRoute = require('./routes/note-put-tag')
 const noteDeleteTagRoute = require('./routes/note-delete-tag')
 const readActivityPostRoute = require('./routes/readActivity-post')
 const notePostRoute = require('./routes/note-post')
+const noteDeleteRoute = require('./routes/note-delete')
 
 const errorHandling = require('./routes/middleware/error-handling')
 
@@ -228,6 +229,7 @@ getNoteRoute(app)
 notePutTagRoute(app)
 noteDeleteTagRoute(app)
 notePostRoute(app)
+noteDeleteRoute(app)
 
 app.use(errorHandling)
 

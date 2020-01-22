@@ -190,6 +190,13 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res22.statusCode, 401)
+
+    // delete note
+    const res23 = await request(app)
+      .delete('/notes/note123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res23.statusCode, 401)
   })
 
   await destroyDB(app)
