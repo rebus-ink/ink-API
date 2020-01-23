@@ -30,6 +30,7 @@ const noteUpdateTests = require('./note-update.test')
 const noteDeleteTestsOld = require('./note-delete.test') // deprecated
 const notePostTests = require('./note/note-post.test')
 const noteDeleteTests = require('./note/note-delete.test')
+const notePutTests = require('./note/note-put.test')
 
 const outboxGetTests = require('./deprecated/outbox-get.test')
 
@@ -141,6 +142,7 @@ const allTests = async () => {
     // await noteGetOldTests(app) // deprecated
     await notePostTests(app)
     await noteDeleteTests(app)
+    await notePutTests(app)
   }
 
   if (!test || test === 'tag') {
