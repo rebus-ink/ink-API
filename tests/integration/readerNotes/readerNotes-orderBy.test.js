@@ -114,7 +114,7 @@ const test = async app => {
     const id1 = urlToId(res.body.items[22].id)
     const id2 = urlToId(res.body.items[18].id)
 
-    const resUpdate1 = await request(app)
+    await request(app)
       .put(`/notes/${id1}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)

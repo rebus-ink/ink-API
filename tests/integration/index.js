@@ -137,7 +137,7 @@ const allTests = async () => {
 
   if (!test || test === 'note') {
     // await noteCreateTests(app)
-    // await noteGetTests(app) // route not deprecated, but model is. needs fixing.
+    await noteGetTests(app) // route not deprecated, but model is. needs fixing.
     // await noteUpdateTests(app)
     // await noteGetOldTests(app) // deprecated
     await notePostTests(app)

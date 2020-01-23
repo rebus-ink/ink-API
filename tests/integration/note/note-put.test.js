@@ -43,7 +43,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(JSON.stringify(newNote))
-    console.log(res.error)
+
     await tap.equal(res.statusCode, 200)
     const body = res.body
     await tap.type(body, 'object')
@@ -109,7 +109,6 @@ const test = async app => {
       .send(JSON.stringify(newNote))
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
-    console.log(error)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(error.details.type, 'Note')
