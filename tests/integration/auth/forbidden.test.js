@@ -204,6 +204,22 @@ const test = async app => {
     }
   )
 
+  await tap.test('Try to delete a note belonging to another user', async () => {
+    const res = await request(app)
+      .delete(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.details.type, 'Note')
+    await tap.type(error.details.id, 'string')
+    await tap.equal(error.details.activity, 'Delete Note')
+  })
+
   await tap.test('Try to delete a tag belonging to another user', async () => {
     const res = await request(app)
       .delete(`/tags/${tagId}`)

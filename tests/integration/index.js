@@ -27,8 +27,9 @@ const noteCreateTests = require('./note-create.test')
 const noteGetOldTests = require('./deprecated/note-get.test') // deprecated
 const noteGetTests = require('./note/note-get.test')
 const noteUpdateTests = require('./note-update.test')
-const noteDeleteTests = require('./note-delete.test')
+const noteDeleteTestsOld = require('./note-delete.test') // deprecated
 const notePostTests = require('./note/note-post.test')
+const noteDeleteTests = require('./note/note-delete.test')
 
 const outboxGetTests = require('./deprecated/outbox-get.test')
 
@@ -137,9 +138,9 @@ const allTests = async () => {
     // await noteCreateTests(app)
     // await noteGetTests(app) // route not deprecated, but model is. needs fixing.
     // await noteUpdateTests(app)
-    // await noteDeleteTests(app)
     // await noteGetOldTests(app) // deprecated
     await notePostTests(app)
+    await noteDeleteTests(app)
   }
 
   if (!test || test === 'tag') {
