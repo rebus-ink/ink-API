@@ -1,4 +1,3 @@
-const activityTests = require('./Activity.test')
 const documentTests = require('./Document.test')
 const publicationTests = require('./Publication.test')
 const readerTests = require('./Reader.test')
@@ -27,7 +26,6 @@ const allTests = async () => {
     await app.knex.migrate.latest()
   }
 
-  await activityTests(app)
   await documentTests(app)
   await publicationTests(app)
   await attributionTests(app)

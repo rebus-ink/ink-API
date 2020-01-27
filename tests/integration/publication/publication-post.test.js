@@ -1,20 +1,15 @@
 const request = require('supertest')
 const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const now = new Date().toISOString()
 
   const publicationObject = {
-    '@context': [
-      'https://www.w3.org/ns/activitystreams',
-      { reader: 'https://rebus.foundation/ns/reader' }
-    ],
+    '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
     type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],

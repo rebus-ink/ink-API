@@ -83,10 +83,7 @@ module.exports = function (app) {
       insertNewReader(req.user, req.body, next)
         .then(reader => {
           debug(`Got reader ${JSON.stringify(reader)}`)
-          res.setHeader(
-            'Content-Type',
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-          )
+          res.setHeader('Content-Type', 'application/ld+json')
           debug(`Setting location to ${reader.id}`)
           res.setHeader('Location', reader.id)
           res.sendStatus(201)

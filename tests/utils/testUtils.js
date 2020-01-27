@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
-const urlparse = require('url').parse
 const knexCleaner = require('knex-cleaner')
 const _ = require('lodash')
 const { Document } = require('../../models/Document')
@@ -31,7 +30,6 @@ const createUser = async (app, token) => {
     .set('Authorization', `Bearer ${token}`)
     .send(
       JSON.stringify({
-        '@context': 'https://www.w3.org/ns/activitystreams',
         name: 'J. Random Reader'
       })
     )
@@ -48,18 +46,6 @@ const destroyDB = async app => {
   if (process.env.NODE_ENV === 'test') {
     await knexCleaner.clean(app.knex)
   }
-}
-
-const getActivityFromUrl = async (app, url, token) => {
-  const res = await request(app)
-    .get(urlparse(url).path)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-
-  return res.body
 }
 
 const createPublication = async (readerId, object = {}) => {
@@ -146,30 +132,6 @@ const createNote = async (app, token, readerId, object = {}) => {
   return response.body
 }
 
-const createActivity = async (app, token, readerId, object = {}) => {
-  readerId = urlToId(readerId)
-  const activityObject = Object.assign(
-    {
-      '@context': [
-        'https://www.w3.org/ns/activitystreams',
-        { reader: 'https://rebus.foundation/ns/reader' }
-      ],
-      type: 'Create',
-      object: { type: 'Publication', name: 'something' }
-    },
-    object
-  )
-
-  return await request(app)
-    .post(`/reader-${readerId}/activity`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
-    .send(JSON.stringify(activityObject))
-}
-
 const createTag = async (app, token, object = {}) => {
   const tagObject = Object.assign(
     {
@@ -222,19 +184,15 @@ const addNoteToCollection = async (app, token, noteId, tagId) => {
     .put(`/notes/${noteId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
 }
 
 module.exports = {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
-  createActivity,
   createTag,
   createDocument,
   addPubToCollection,

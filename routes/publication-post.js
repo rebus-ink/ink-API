@@ -89,10 +89,7 @@ module.exports = function (app) {
 
         await libraryCacheUpdate(reader.id)
 
-        res.setHeader(
-          'Content-Type',
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdPub.toJSON()))
       })
       .catch(err => {

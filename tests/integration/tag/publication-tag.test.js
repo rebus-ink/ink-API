@@ -42,9 +42,7 @@ const test = async app => {
       .get(`/publications/${urlToId(publication.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(pubres.status, 200)
     const body = pubres.body
@@ -92,9 +90,7 @@ const test = async app => {
       .get(`/publications/${urlToId(publication.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(pubresbefore.status, 200)
     const bodybefore = pubresbefore.body
@@ -114,9 +110,7 @@ const test = async app => {
       .get(`/publications/${publicationId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(pubres.status, 200)
     const body = pubres.body

@@ -6,7 +6,6 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
 
   await tap.test('Create Tag', async () => {
     const res = await request(app)

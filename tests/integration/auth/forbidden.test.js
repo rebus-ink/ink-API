@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
   createTag
@@ -65,9 +64,7 @@ const test = async app => {
         .get(`/publications/${urlToId(publicationUrl)}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
@@ -102,9 +99,7 @@ const test = async app => {
         .get(`/readers/${readerId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
@@ -114,57 +109,6 @@ const test = async app => {
       await tap.equal(error.details.activity, 'Get Reader')
     }
   )
-
-  await tap.test('Try to get outbox belonging to another reader', async () => {
-    const res = await request(app)
-      .get(`/reader-${readerId}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Outbox')
-  })
-
-  await tap.test('Try to create an activity for another user', async () => {
-    const res = await request(app)
-      .post(`/reader-${readerId}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
-      .send(
-        JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Create',
-          object: {
-            type: 'reader:Tag',
-            tagType: 'reader:Stack',
-            name: 'mystack',
-            json: { property: 'value' }
-          }
-        })
-      )
-
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Create Activity')
-  })
 
   await tap.test(
     'Try to delete a publication belonging to another user',
@@ -428,9 +372,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .attach('files', 'tests/test-files/test-file3.txt')
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)

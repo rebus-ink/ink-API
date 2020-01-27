@@ -90,9 +90,7 @@ const test = async app => {
         .get(`/publication-${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
       await tap.equal(res.statusCode, 200)
       const body = res.body
       await tap.equal(body.name, 'Minimal Test File')
@@ -105,9 +103,7 @@ const test = async app => {
       .get(`/publication-${publicationId}/${documentPath}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     const expectedUrl = `https://storage.googleapis.com/publication-file-storage-test/reader-${readerId}/publication-${publicationId}/${documentPath}`
 
     await tap.equal(res.statusCode, 302)

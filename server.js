@@ -10,48 +10,52 @@ const { Strategy, ExtractJwt } = require('passport-jwt')
 const elasticsearchQueue = require('./processFiles/searchQueue')
 const epubQueue = require('./processFiles/index')
 const cache = require('./utils/cache')
-
-const activityRoute = require('./routes/deprecated/activity')
-const publicationRoute = require('./routes/deprecated/publication')
-const readerStreamsRoute = require('./routes/deprecated/reader-streams')
-const readerRoute = require('./routes/deprecated/reader')
-const whoamiRoute = require('./routes/whoami')
-const inboxRoute = require('./routes/deprecated/inbox')
-const readersRoute = require('./routes/reader-post')
-const getOutboxRoute = require('./routes/deprecated/outbox-get')
-const postOutboxRoute = require('./routes/deprecated/outbox-post')
-const fileUploadRoute = require('./routes/file-upload')
-const noteRoute = require('./routes/deprecated/note')
-const publicationDocumentRoute = require('./routes/publication-document')
-const searchRoute = require('./routes/search')
-const getJobOldRoute = require('./routes/deprecated/job-get-old')
-const fileUploadPubRoute = require('./routes/file-upload-pub')
-const libraryRouteOld = require('./routes/deprecated/reader-library-old') // deprecated
-const getTagsRoute = require('./routes/tags-get')
-const readerNotesOldRoute = require('./routes/deprecated/reader-notes-old')
-// new routes
-const readerGetRoute = require('./routes/reader-get')
-const publicationPostRoute = require('./routes/publication-post')
-const publicationPatchRoute = require('./routes/publication-patch')
-const publicationDeleteRoute = require('./routes/publication-delete')
-const publicationPutTagRoute = require('./routes/publication-put-tag')
-const publicationDeleteTagRoute = require('./routes/publication-delete-tag')
-const publicationGetRoute = require('./routes/publication-get')
-const readerLibraryRoute = require('./routes/library-get')
-const tagPostRoute = require('./routes/tag-post')
-const tagPatchRoute = require('./routes/tag-patch')
-const tagDeleteRoute = require('./routes/tag-delete')
-const readerNotesRoute = require('./routes/readerNotes-get')
-const getJobRoute = require('./routes/job-get')
-const getNoteRoute = require('./routes/note-get')
-const notePutTagRoute = require('./routes/note-put-tag')
-const noteDeleteTagRoute = require('./routes/note-delete-tag')
-const readActivityPostRoute = require('./routes/readActivity-post')
-const notePostRoute = require('./routes/note-post')
-const noteDeleteRoute = require('./routes/note-delete')
-const notePutRoute = require('./routes/note-put')
-
 const errorHandling = require('./routes/middleware/error-handling')
+
+// Routes
+
+// Reader
+const whoamiRoute = require('./routes/whoami') // GET /whoami
+const readersRoute = require('./routes/reader-post') // POST /readers
+const readerGetRoute = require('./routes/reader-get') // GET /readers/:id
+
+// Uploads
+const fileUploadRoute = require('./routes/file-upload') // POST /reader-:id/file-upload
+const fileUploadPubRoute = require('./routes/file-upload-pub') // POST /reader-:id/file-upload-pub
+
+// Publications
+const publicationPostRoute = require('./routes/publication-post') // POST /publications
+const publicationPatchRoute = require('./routes/publication-patch') // PATCH /publications/:id
+const publicationDeleteRoute = require('./routes/publication-delete') // DELETE /publications/:id
+const publicationPutTagRoute = require('./routes/publication-put-tag') // PUT /publications/:pubId/tags/:tagId
+const publicationDeleteTagRoute = require('./routes/publication-delete-tag') // DELETE /publications/:pubId/tags/:tagId
+const publicationGetRoute = require('./routes/publication-get') // GET /publications/:id
+const publicationDocumentRoute = require('./routes/publication-document') // GET /publication-:id/:path
+const readActivityPostRoute = require('./routes/readActivity-post') // POST /publications/:id/readActivity
+
+// Search
+const searchRoute = require('./routes/search') // not working!
+
+// Tags
+const getTagsRoute = require('./routes/tags-get') // GET /tags
+const tagPostRoute = require('./routes/tag-post') // POST /tags
+const tagPatchRoute = require('./routes/tag-patch') // PATCH /tags/:id
+const tagDeleteRoute = require('./routes/tag-delete') // DELETE /tags/:id
+
+// Library
+const readerLibraryRoute = require('./routes/library-get') // GET /library
+
+// Jobs
+const getJobRoute = require('./routes/job-get') // GET /jobs/:id
+
+// Notes
+const readerNotesRoute = require('./routes/readerNotes-get') // GET /notes
+const getNoteRoute = require('./routes/note-get') // GET /notes/:id
+const notePutTagRoute = require('./routes/note-put-tag') // PUT /notes/:noteId/tags/:tagId
+const noteDeleteTagRoute = require('./routes/note-delete-tag') // DELETE /notes/:noteId/tags/:tagId
+const notePostRoute = require('./routes/note-post') // POST /notes
+const noteDeleteRoute = require('./routes/note-delete') // DELETE /notes/:id
+const notePutRoute = require('./routes/note-put') // PUT /notes/:id
 
 const setupKnex = async skip_migrate => {
   let config
@@ -192,24 +196,13 @@ app.terminate = async () => {
   return await app.knex.destroy()
 }
 
-activityRoute(app)
-publicationRoute(app)
-readerStreamsRoute(app)
-readerRoute(app)
 whoamiRoute(app)
-inboxRoute(app)
 readersRoute(app)
-getOutboxRoute(app)
-postOutboxRoute(app)
 fileUploadRoute(app)
-noteRoute(app) // deprecated
 publicationDocumentRoute(app)
 searchRoute(app)
 fileUploadPubRoute(app)
-libraryRouteOld(app) // deprecated
 getTagsRoute(app)
-readerNotesOldRoute(app) // deprecated
-getJobOldRoute(app) // deprecated
 
 // new routes
 readActivityPostRoute(app)

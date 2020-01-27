@@ -19,9 +19,7 @@ const test = async app => {
       .get(`/jobs/${job.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 200)
 
@@ -40,9 +38,7 @@ const test = async app => {
       .get(`/jobs/0`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 404)
 

@@ -10,12 +10,10 @@ const createReader = async token => {
     },
     headers: {
       //   Host: process.eventNames.DOMAIN,
-      'content-type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      'content-type': 'application/ld+json'
     },
     body: JSON.stringify({
-      name: 'J. Random Reader',
-      '@context': 'https://www.w3.org/ns/activitystreams'
+      name: 'J. Random Reader'
     })
   })
     .then(res => {

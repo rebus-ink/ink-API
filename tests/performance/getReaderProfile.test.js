@@ -16,8 +16,7 @@ const test = async () => {
       bearer: token
     },
     headers: {
-      'Content-type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      'Content-type': 'application/ld+json'
     }
   }
 

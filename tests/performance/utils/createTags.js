@@ -11,10 +11,7 @@ const createTags = async (token, readerUrl, number = 1) => {
     promises.push(
       requestPost(`${readerUrl}/activity`, {
         body: JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
+          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Create',
           object: {
             type: 'reader:Tag',
@@ -26,8 +23,7 @@ const createTags = async (token, readerUrl, number = 1) => {
           bearer: token
         },
         headers: {
-          'content-type':
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          'content-type': 'application/ld+json'
         }
       })
     )

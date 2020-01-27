@@ -15,8 +15,7 @@ const test = async () => {
   const readerUrl = await createReader(token)
   let config = {
     headers: {
-      'Content-type':
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      'Content-type': 'application/ld+json'
     },
     auth: {
       bearer: token
@@ -37,17 +36,13 @@ const test = async () => {
     console.time(testName)
     const res1 = await requestPost(`${readerUrl}/activity`, {
       body: JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
+        '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
         type: 'Add',
         object: { id: tagId, type: 'reader:Tag', tagType: 'reader:Stack' },
         target: { id: publicationUrl, type: 'Publication' }
       }),
       headers: {
-        'Content-type':
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        'Content-type': 'application/ld+json'
       },
       auth: {
         bearer: token
@@ -64,17 +59,13 @@ const test = async () => {
 
     const res1 = await requestPost(`${readerUrl}/activity`, {
       body: JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
+        '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
         type: 'Remove',
         object: { id: tagId, type: 'reader:Tag', tagType: 'reader:Stack' },
         target: { id: publicationUrl, type: 'Publication' }
       }),
       headers: {
-        'Content-type':
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+        'Content-type': 'application/ld+json'
       },
       auth: {
         bearer: token

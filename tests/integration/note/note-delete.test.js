@@ -4,21 +4,16 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
   createDocument
 } = require('../../utils/testUtils')
-const { Tag } = require('../../../models/Tag')
-const { Note_Tag } = require('../../../models/Note_Tag')
-const { Note } = require('../../../models/Note')
 const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
-  let noteUrl
 
   const publication = await createPublication(readerId)
   const publicationUrl = publication.id
@@ -98,9 +93,7 @@ const test = async app => {
       .delete(`/notes/${noteId}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res1.statusCode, 404)
     const error1 = JSON.parse(res1.text)
@@ -116,9 +109,7 @@ const test = async app => {
       .delete(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
@@ -161,7 +152,7 @@ const test = async app => {
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       'application/ld+json'
   //     )
 
   //   await tap.equal(pubresbefore.body.replies.length, 2)
@@ -172,12 +163,11 @@ const test = async app => {
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       'application/ld+json'
   //     )
   //     .send(
   //       JSON.stringify({
   //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
   //           { reader: 'https://rebus.foundation/ns/reader' }
   //         ],
   //         type: 'Delete',
@@ -197,7 +187,7 @@ const test = async app => {
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       'application/ld+json'
   //     )
 
   //   await tap.equal(getres.statusCode, 404)
@@ -214,7 +204,7 @@ const test = async app => {
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       'application/ld+json'
   //     )
 
   //   await tap.equal(pubresafter.body.replies.length, 0)
@@ -228,12 +218,11 @@ const test = async app => {
   //       .set('Host', 'reader-api.test')
   //       .set('Authorization', `Bearer ${token}`)
   //       .type(
-  //         'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //         'application/ld+json'
   //       )
   //       .send(
   //         JSON.stringify({
   //           '@context': [
-  //             'https://www.w3.org/ns/activitystreams',
   //             { reader: 'https://rebus.foundation/ns/reader' }
   //           ],
   //           type: 'Delete',
@@ -260,12 +249,11 @@ const test = async app => {
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+  //       'application/ld+json'
   //     )
   //     .send(
   //       JSON.stringify({
   //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
   //           { reader: 'https://rebus.foundation/ns/reader' }
   //         ],
   //         type: 'Delete',

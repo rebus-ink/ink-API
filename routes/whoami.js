@@ -44,10 +44,7 @@ module.exports = app => {
             )
           } else {
             debug(`Got reader ${JSON.stringify(reader)}`)
-            res.setHeader(
-              'Content-Type',
-              'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-            )
+            res.setHeader('Content-Type', 'application/ld+json')
             debug(`Setting location to ${reader.id}`)
             res.setHeader('Location', reader.id)
             res.end(
@@ -55,7 +52,6 @@ module.exports = app => {
                 Object.assign(
                   {
                     '@context': [
-                      'https://www.w3.org/ns/activitystreams',
                       { reader: 'https://rebus.foundation/ns/reader' }
                     ]
                   },

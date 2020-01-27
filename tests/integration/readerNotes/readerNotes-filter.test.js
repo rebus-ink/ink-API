@@ -15,7 +15,6 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = `/readers/${urlToId(readerId)}`
 
   const publication = await createPublication(urlToId(readerId), {
     name: 'Publication A'
@@ -312,9 +311,7 @@ const test = async app => {
       .get(`/notes?search=abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
