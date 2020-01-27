@@ -526,7 +526,6 @@ class Reader extends BaseModel {
   }
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
-    const { Activity } = require('./Activity.js')
     return {
       publications: {
         relation: Model.HasManyRelation,
@@ -534,14 +533,6 @@ class Reader extends BaseModel {
         join: {
           from: 'Reader.id',
           to: 'Publication.readerId'
-        }
-      },
-      outbox: {
-        relation: Model.HasManyRelation,
-        modelClass: Activity,
-        join: {
-          from: 'Reader.id',
-          to: 'Activity.readerId'
         }
       },
       readActivities: {
@@ -604,8 +595,6 @@ class Reader extends BaseModel {
       summaryMap: {
         en: `Reader with id ${this.id}`
       },
-      inbox: `${this.id}/inbox`,
-      outbox: `${this.id}/activity`,
       preferences: this.preferences,
       profile: this.profile,
       json: this.json,

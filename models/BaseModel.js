@@ -112,14 +112,7 @@ class BaseModel extends Model {
   }
 
   getType () /*: ?string */ {
-    const tables = [
-      'Activity',
-      'Publication',
-      'Reader',
-      'Note',
-      'ReadActivity',
-      'Job'
-    ]
+    const tables = ['Publication', 'Reader', 'Note', 'ReadActivity', 'Job']
 
     if (_.indexOf(tables, this.constructor.name) > -1) {
       return this.constructor.name.toLowerCase()
