@@ -103,88 +103,67 @@ const test = async app => {
 
   // -------------------------------------- DATE UPDATED ---------------------------------------
 
-  // await tap.test('Order Notes by date updated', async () => {
-  //   // update two older notes:
-  //   const res = await request(app)
-  //     .get(`/notes?orderBy=created&limit=25`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json'
-  //     )
+  await tap.test('Order Notes by date updated', async () => {
+    // update two older notes:
+    const res = await request(app)
+      .get(`/notes?orderBy=created&limit=25`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-  //   const id1 = res.body.items[22].id
-  //   const id2 = res.body.items[18].id
+    const id1 = urlToId(res.body.items[22].id)
+    const id2 = urlToId(res.body.items[18].id)
 
-  //   await request(app)
-  //     .post(`/reader-${urlToId(readerId)}/activity`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-  //     .send(
-  //       JSON.stringify({
-  //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
-  //           { reader: 'https://rebus.foundation/ns/reader' }
-  //         ],
-  //         type: 'Update',
-  //         object: {
-  //           type: 'Note',
-  //           id: id1,
-  //           content: 'new content1'
-  //         }
-  //       })
-  //     )
-  //   await request(app)
-  //     .post(`/reader-${urlToId(readerId)}/activity`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
-  //     .send(
-  //       JSON.stringify({
-  //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
-  //           { reader: 'https://rebus.foundation/ns/reader' }
-  //         ],
-  //         type: 'Update',
-  //         object: {
-  //           type: 'Note',
-  //           id: id2,
-  //           content: 'new content2'
-  //         }
-  //       })
-  //     )
+    await request(app)
+      .put(`/notes/${id1}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type(
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+      )
+      .send(
+        JSON.stringify(
+          Object.assign(res.body.items[22], {
+            body: { motivation: 'test', content: 'new content1' }
+          })
+        )
+      )
 
-  //   const res1 = await request(app)
-  //     .get(`/notes?orderBy=updated`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+    await request(app)
+      .put(`/notes/${id2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify(
+          Object.assign(res.body.items[18], {
+            body: { motivation: 'test', content: 'new content2' }
+          })
+        )
+      )
 
-  //   await tap.equal(res1.body.items[0].content, 'new content2')
-  //   await tap.equal(res1.body.items[1].content, 'new content1')
-  //   await tap.equal(res1.body.items[2].content, 'last')
-  // })
+    const res1 = await request(app)
+      .get(`/notes?orderBy=updated`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-  // await tap.test('Order Notes by date updated - reversed', async () => {
-  //   const res2 = await request(app)
-  //     .get(`/notes?orderBy=updated&reverse=true`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type(
-  //       'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-  //     )
+    await tap.equal(res1.body.items[0].body.content, 'new content2')
+    await tap.equal(res1.body.items[1].body.content, 'new content1')
+    await tap.equal(res1.body.items[2].body.content, 'last')
+  })
 
-  //   await tap.equal(res2.body.items[0].content, 'first')
-  //   await tap.equal(res2.body.items[1].content, 'second')
-  //   await tap.equal(res2.body.items[2].content, 'third')
-  // })
+  await tap.test('Order Notes by date updated - reversed', async () => {
+    const res2 = await request(app)
+      .get(`/notes?orderBy=updated&reverse=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.body.items[0].body.content, 'first')
+    await tap.equal(res2.body.items[1].body.content, 'second')
+    await tap.equal(res2.body.items[2].body.content, 'third')
+  })
 
   await destroyDB(app)
 }

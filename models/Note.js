@@ -242,11 +242,17 @@ class Note extends BaseModel {
     return await Note.query().updateAndFetchById(id, note)
   }
 
-  static async update (note /*: any */) /*: Promise<NoteType|null> */ {
+  static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
     const modifications = await Note._formatIncomingNote(note)
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
     let updatedNote
+    let noteBodyError
+
+    if (!note.body) {
+      noteBodyError = new Error('no body')
+    }
+
     try {
       updatedNote = await Note.query().updateAndFetchById(
         urlToId(note.id),
@@ -260,8 +266,8 @@ class Note extends BaseModel {
     if (!updatedNote) return null
 
     // create NoteBody
-    if (note.body) {
-      try {
+    try {
+      if (note.body) {
         if (_.isArray(note.body)) {
           for (const body of note.body) {
             await NoteBody.createNoteBody(
@@ -278,9 +284,13 @@ class Note extends BaseModel {
           )
         }
         updatedNote.body = note.body
-      } catch (err) {
-        throw err
       }
+    } catch (err) {
+      noteBodyError = err
+    }
+
+    if (noteBodyError) {
+      return noteBodyError
     }
 
     return updatedNote

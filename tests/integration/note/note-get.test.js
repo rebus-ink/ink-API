@@ -15,78 +15,61 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  let noteUrl, noteId
 
   const publication = await createPublication(readerId)
   const publicationUrl = publication.id
+  const publicationId = urlToId(publication.id)
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
   const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
 
-  const response = await createNote(app, token, urlToId(readerId), {
-    content: 'This is the content of note A.',
-    'oa:hasSelector': { propety: 'value' },
-    context: publicationUrl,
-    inReplyTo: documentUrl,
-    noteType: 'test',
-    json: { property1: 'value1' }
+  const note = await createNote(app, token, urlToId(readerId), {
+    body: { motivation: 'test', content: 'content goes here' },
+    target: { property1: 'target information' },
+    documentUrl,
+    publicationId
   })
-
-  const activityUrl = response.get('Location')
+  const noteId = urlToId(note.id)
 
   await tap.test('Get Note', async () => {
-    const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    noteId = urlToId(activityObject.object.id)
-
     const res = await request(app)
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')
-    await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId)))
-    await tap.type(body.content, 'string')
-    await tap.type(body.inReplyTo, 'string')
-    await tap.type(body.json, 'object')
+    await tap.equal(body.body.motivation, 'test')
+    await tap.equal(body.body.content, 'content goes here')
+    await tap.equal(body.target.property1, 'target information')
+    await tap.equal(body.documentUrl, documentUrl)
+    await tap.equal(urlToId(body.publicationId), publicationId)
     await tap.ok(body.published)
     await tap.ok(body.updated)
   })
 
   await tap.test('Get Note from id url', async () => {
-    const activityObject = await getActivityFromUrl(app, activityUrl, token)
-    noteUrl = activityObject.object.id
-
     const res = await request(app)
-      .get(urlparse(noteUrl).path)
+      .get(urlparse(note.id).path)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
     await tap.type(body, 'object')
-    await tap.equal(body.type, 'Note')
     await tap.type(body.id, 'string')
-    await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId)))
-    await tap.type(body.content, 'string')
-    await tap.type(body.inReplyTo, 'string')
-    await tap.type(body.context, 'string')
-    await tap.type(body['oa:hasSelector'], 'object')
-    await tap.type(body['@context'], 'object')
-    await tap.type(body.json, 'object')
+    await tap.equal(body.body.motivation, 'test')
+    await tap.equal(body.body.content, 'content goes here')
+    await tap.equal(body.target.property1, 'target information')
+    await tap.equal(body.documentUrl, documentUrl)
+    await tap.equal(urlToId(body.publicationId), publicationId)
     await tap.ok(body.published)
     await tap.ok(body.updated)
-    await tap.ok(Array.isArray(body['@context']))
   })
 
   await tap.test('Try to get Note that does not exist', async () => {
@@ -94,9 +77,7 @@ const test = async app => {
       .get(`/notes/${noteId}123`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
@@ -111,9 +92,7 @@ const test = async app => {
       .get(`/publications/${urlToId(publicationUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 200)
 

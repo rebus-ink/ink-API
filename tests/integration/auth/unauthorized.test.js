@@ -197,6 +197,13 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res23.statusCode, 401)
+
+    // update note
+    const res24 = await request(app)
+      .put('/notes/note123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res24.statusCode, 401)
   })
 
   await destroyDB(app)
