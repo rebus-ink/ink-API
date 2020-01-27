@@ -30,7 +30,6 @@ const createUser = async (app, token) => {
     .set('Authorization', `Bearer ${token}`)
     .send(
       JSON.stringify({
-        '@context': 'https://www.w3.org/ns/activitystreams',
         name: 'J. Random Reader'
       })
     )
@@ -185,9 +184,7 @@ const addNoteToCollection = async (app, token, noteId, tagId) => {
     .put(`/notes/${noteId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
 }
 
 module.exports = {

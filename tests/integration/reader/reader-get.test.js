@@ -14,7 +14,6 @@ const test = async app => {
     .type('application/ld+json')
     .send(
       JSON.stringify({
-        '@context': 'https://www.w3.org/ns/activitystreams',
         name: 'Jane Doe',
         profile: { property: 'value' },
         preferences: { favoriteColor: 'blueish brown' },

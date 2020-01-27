@@ -11,24 +11,13 @@ const elasticsearchQueue = require('./processFiles/searchQueue')
 const epubQueue = require('./processFiles/index')
 const cache = require('./utils/cache')
 
-const activityRoute = require('./routes/deprecated/activity')
-const publicationRoute = require('./routes/deprecated/publication')
-const readerStreamsRoute = require('./routes/deprecated/reader-streams')
-const readerRoute = require('./routes/deprecated/reader')
 const whoamiRoute = require('./routes/whoami')
-const inboxRoute = require('./routes/deprecated/inbox')
 const readersRoute = require('./routes/reader-post')
-const getOutboxRoute = require('./routes/deprecated/outbox-get')
-const postOutboxRoute = require('./routes/deprecated/outbox-post')
 const fileUploadRoute = require('./routes/file-upload')
-const noteRoute = require('./routes/deprecated/note')
 const publicationDocumentRoute = require('./routes/publication-document')
 const searchRoute = require('./routes/search')
-const getJobOldRoute = require('./routes/deprecated/job-get-old')
 const fileUploadPubRoute = require('./routes/file-upload-pub')
-const libraryRouteOld = require('./routes/deprecated/reader-library-old') // deprecated
 const getTagsRoute = require('./routes/tags-get')
-const readerNotesOldRoute = require('./routes/deprecated/reader-notes-old')
 // new routes
 const readerGetRoute = require('./routes/reader-get')
 const publicationPostRoute = require('./routes/publication-post')
@@ -192,24 +181,13 @@ app.terminate = async () => {
   return await app.knex.destroy()
 }
 
-activityRoute(app)
-publicationRoute(app)
-readerStreamsRoute(app)
-readerRoute(app)
 whoamiRoute(app)
-inboxRoute(app)
 readersRoute(app)
-getOutboxRoute(app)
-postOutboxRoute(app)
 fileUploadRoute(app)
-noteRoute(app) // deprecated
 publicationDocumentRoute(app)
 searchRoute(app)
 fileUploadPubRoute(app)
-libraryRouteOld(app) // deprecated
 getTagsRoute(app)
-readerNotesOldRoute(app) // deprecated
-getJobOldRoute(app) // deprecated
 
 // new routes
 readActivityPostRoute(app)

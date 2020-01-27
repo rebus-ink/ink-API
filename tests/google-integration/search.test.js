@@ -282,15 +282,10 @@ const test = async app => {
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
       .send(
         JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
+          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Delete',
           object: {
             type: 'Publication',
@@ -330,15 +325,10 @@ const test = async app => {
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
     .send(
       JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
+        '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
         type: 'Delete',
         object: {
           type: 'Publication',
@@ -351,15 +341,10 @@ const test = async app => {
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
     .send(
       JSON.stringify({
-        '@context': [
-          'https://www.w3.org/ns/activitystreams',
-          { reader: 'https://rebus.foundation/ns/reader' }
-        ],
+        '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
         type: 'Delete',
         object: {
           type: 'Publication',

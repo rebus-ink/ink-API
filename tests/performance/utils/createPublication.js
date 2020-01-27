@@ -14,14 +14,10 @@ const createPublication = async (token, readerUrl, number = 1) => {
         },
         headers: {
           Host: process.eventNames.DOMAIN,
-          'content-type':
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+          'content-type': 'application/ld+json'
         },
         body: JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
+          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Create',
           object: {
             type: 'Book',

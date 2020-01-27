@@ -168,7 +168,6 @@ const test = async app => {
   //     .send(
   //       JSON.stringify({
   //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
   //           { reader: 'https://rebus.foundation/ns/reader' }
   //         ],
   //         type: 'Delete',
@@ -224,7 +223,6 @@ const test = async app => {
   //       .send(
   //         JSON.stringify({
   //           '@context': [
-  //             'https://www.w3.org/ns/activitystreams',
   //             { reader: 'https://rebus.foundation/ns/reader' }
   //           ],
   //           type: 'Delete',
@@ -256,7 +254,6 @@ const test = async app => {
   //     .send(
   //       JSON.stringify({
   //         '@context': [
-  //           'https://www.w3.org/ns/activitystreams',
   //           { reader: 'https://rebus.foundation/ns/reader' }
   //         ],
   //         type: 'Delete',

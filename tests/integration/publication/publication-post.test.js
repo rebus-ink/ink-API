@@ -9,10 +9,7 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    '@context': [
-      'https://www.w3.org/ns/activitystreams',
-      { reader: 'https://rebus.foundation/ns/reader' }
-    ],
+    '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
     type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],

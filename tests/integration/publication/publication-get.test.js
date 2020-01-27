@@ -137,10 +137,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
+          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Read',
           context: publicationUrl,
           'oa:hasSelector': {
@@ -152,21 +149,15 @@ const test = async app => {
       )
 
     await request(app)
-      .post(`/reader-${readerId}/activity`)
+      .post(`/publications/${publicationId}/readActivity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          '@context': [
-            'https://www.w3.org/ns/activitystreams',
-            { reader: 'https://rebus.foundation/ns/reader' }
-          ],
-          type: 'Read',
-          context: publicationUrl,
           'oa:hasSelector': {
             type: 'XPathSelector',
-            value: '/html/body/p[2]/table/tr[3]/td[6]/span',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
             property: 'last'
           }
         })
@@ -181,7 +172,6 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
-
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.equal(body.type, 'Book')
