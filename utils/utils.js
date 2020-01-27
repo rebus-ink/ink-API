@@ -27,23 +27,4 @@ const urlToId = url => {
   return path.substring(path.indexOf('-') + 1)
 }
 
-const createActivityObject = (body, result, reader) => {
-  let props = Object.assign(body, {
-    actor: {
-      type: 'Person',
-      id: urlToId(reader.id)
-    },
-    readerId: urlToId(reader.id)
-  })
-  if (result) {
-    props = Object.assign(props, {
-      object: {
-        type: result.type,
-        id: result.id
-      }
-    })
-  }
-  return props
-}
-
-module.exports = { checkReader, urlToId, createActivityObject, checkOwnership }
+module.exports = { checkReader, urlToId, checkOwnership }

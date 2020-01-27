@@ -5,7 +5,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createTag,
   addPubToCollection
 } = require('../utils/utils')
