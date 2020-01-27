@@ -4,7 +4,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
   createDocument,
@@ -63,9 +62,7 @@ const test = async app => {
       .put(`/notes/${noteId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
@@ -74,9 +71,7 @@ const test = async app => {
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(tagsForNotes.status, 200)
     const body = tagsForNotes.body
@@ -93,9 +88,7 @@ const test = async app => {
         .put(`/notes/${noteId}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
@@ -110,9 +103,7 @@ const test = async app => {
       .put(`/notes/${noteId}/tags/${tagId}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
@@ -126,9 +117,7 @@ const test = async app => {
       .put(`/notes/${noteId}abc/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)

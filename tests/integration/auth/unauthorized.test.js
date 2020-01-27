@@ -38,35 +38,25 @@ const test = async app => {
   const publication2 = await createPublication(readerCompleteUrl2)
   publicationId2 = urlToId(publication2.id)
 
-  // create Note for reader 1
-  const note = await createNote(app, token, readerId)
-  const noteId = urlToId(note.id)
-
   await tap.test('Requests without authentication', async () => {
     // reader
     const res2 = await request(app)
       .get(`/readers/${readerId}`)
       .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res2.statusCode, 401)
 
     const res3 = await request(app)
       .get('/whoami')
       .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res3.statusCode, 401)
 
     // publication
     const res4 = await request(app)
       .get(`/publications/123`)
       .set('Host', 'reader-api.test')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res4.statusCode, 401)
 
     // file upload
@@ -74,9 +64,7 @@ const test = async app => {
       .post(`/reader-${readerId}/file-upload`)
       .set('Host', 'reader-api.test')
       .attach('files', 'tests/test-files/test-file3.txt')
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
     await tap.equal(res7.statusCode, 401)
 
     // post publication

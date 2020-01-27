@@ -11,9 +11,7 @@ const test = async app => {
     .post('/readers')
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
-    .type(
-      'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-    )
+    .type('application/ld+json')
     .send(
       JSON.stringify({
         '@context': 'https://www.w3.org/ns/activitystreams',
@@ -94,9 +92,7 @@ const test = async app => {
       .get(`/readers/${readerId}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)

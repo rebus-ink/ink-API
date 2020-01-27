@@ -4,7 +4,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  getActivityFromUrl,
   createPublication,
   createNote,
   createTag,
@@ -50,9 +49,7 @@ const test = async app => {
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(response.status, 200)
     const bodybefore = response.body
@@ -63,9 +60,7 @@ const test = async app => {
       .delete(`/notes/${noteId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
@@ -74,9 +69,7 @@ const test = async app => {
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(noteAfter.status, 200)
     const body = noteAfter.body
@@ -89,9 +82,7 @@ const test = async app => {
       .delete(`/notes/${noteId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
-      .type(
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-      )
+      .type('application/ld+json')
 
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
@@ -107,9 +98,7 @@ const test = async app => {
         .delete(`/notes/${noteId}/tags/${tagId}123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
-        .type(
-          'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
-        )
+        .type('application/ld+json')
 
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
