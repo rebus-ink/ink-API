@@ -150,7 +150,7 @@ class Publication extends BaseModel {
         bookFormat: { type: 'string ' },
         isbn: { type: 'string' },
         copyrightYear: { type: 'integer' },
-        genre: { type: 'romance' },
+        genre: { type: 'string' },
         license: { type: 'string' },
         numberOfPages: { type: 'integer' },
         wordCount: { type: 'integer' },

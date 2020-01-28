@@ -34,26 +34,6 @@ const insertNewReader = async (readerId, person, next) => {
   return result
 }
 
-/**
- * @swagger
- * definition:
- *   readers-request:
- *     properties:
- *       name:
- *         type: string
- *         required: true
- *       '@context':
- *         type: array
- *         required: true
- *       profile:
- *         type: object
- *       preferences:
- *         type: object,
- *       json:
- *         type: object
- *
- */
-
 module.exports = function (app) {
   /**
    * @swagger
@@ -68,7 +48,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/readers-request'
+   *             $ref: '#/definitions/reader'
    *     responses:
    *       201:
    *         description: Created

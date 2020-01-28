@@ -25,6 +25,11 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         required: true
+   *     requestBody:
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/definitions/note'
    *     security:
    *       - Bearer: []
    *     responses:

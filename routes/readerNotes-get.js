@@ -7,73 +7,13 @@ const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../utils/utils')
 
-/**
- * @swagger
- * definition:
- *   noteWithPub:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       canonical:
- *         type: string
- *       target:
- *         type: object
- *       body:
- *         type: object
- *         properties:
- *           motivation:
- *             type: string
- *           content:
- *             type: string
- *           language:
- *             type: string
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       publication:
- *         properties:
- *           id:
- *             type: string
- *             format: url
- *           author:
- *             type: array
- *             items:
- *               $ref: '#/definitions/annotation'
- *           editor:
- *             type: array
- *             items:
- *               $ref: '#/definitions/annotation'
- *           description:
- *             type: string
- *           datePublished:
- *             type: string
- *             format: timestamp
- *       json:
- *         type: object
- *   notes:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       totalItems:
- *         type: integer
- *       items:
- *         type: array
- *         items:
- *           $ref: '#/definitions/noteWithPub'
- *
- */
 module.exports = app => {
   /**
    * @swagger
    * /notes:
    *   get:
    *     tags:
-   *       - readers
+   *       - notes
    *     description: GET /notes
    *     parameters:
    *       - in: query

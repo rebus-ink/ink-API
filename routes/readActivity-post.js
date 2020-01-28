@@ -9,17 +9,6 @@ const { ValidationError } = require('objection')
 const { ReadActivity } = require('../models/ReadActivity')
 const { checkOwnership } = require('../utils/utils')
 
-/**
- * @swagger
- * definition:
- *   readActivity:
- *     properties:
- *       'oa:hasSelector':
- *         type: object
- *       json:
- *         type: object
- */
-
 module.exports = function (app) {
   /**
    * @swagger

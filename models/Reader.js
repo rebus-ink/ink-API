@@ -381,19 +381,10 @@ class Reader extends BaseModel {
           pubBuilder.select(
             'id',
             'name',
-            'abstract',
-            'description',
-            'datePublished',
-            'metadata',
             'type',
-            'numberOfPages',
-            'encodingFormat',
-            'json',
-            'readerId',
             'published',
             'updated',
-            'deleted',
-            'resources'
+            'deleted'
           )
         })
         builder.whereNull('Note.deleted')
@@ -588,26 +579,22 @@ class Reader extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
-    Object.assign(json, {
-      id: this.id,
-      name: this.name,
-      type: 'Person',
-      summaryMap: {
-        en: `Reader with id ${this.id}`
-      },
-      preferences: this.preferences,
-      profile: this.profile,
-      json: this.json,
-      published: this.published,
-      updated: this.updated
-    })
+    json = _.pick(json, [
+      'id',
+      'name',
+      'preferences',
+      'profile',
+      'json',
+      'published',
+      'updated'
+    ])
+
     return json
   }
 
   asRef () /*: {name: string, id: string, type: string} */ {
     return {
       id: this.id,
-      type: 'Person',
       name: this.name
     }
   }

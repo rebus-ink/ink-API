@@ -6,44 +6,6 @@ const debug = require('debug')('hobb:routes:document')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 
-/**
- * @swagger
- * definition:
- *   note:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *         enum: ['Note']
- *       noteType:
- *         type: string
- *       'oa:hasSelector':
- *         type: object
- *       content:
- *         type: string
- *       '@context':
- *         type: array
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- *       inReplyTo:
- *         type: string
- *         format: url
- *         description: The url of the document
- *       context:
- *         type: string
- *         format: url
- *         description: The url of the publication
- *       json:
- *         type: object
- *
- */
-
 module.exports = app => {
   app.use('/', router)
 

@@ -5,45 +5,6 @@ const { Reader } = require('../models/Reader')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 
-/**
- * @swagger
- * definition:
- *   reader:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *         enum: ['Person']
- *       summaryMap:
- *         type: object
- *         properties:
- *           en:
- *             type: string
- *       '@context':
- *         type: array
- *       inbox:
- *         type: string
- *         format: url
- *       outbox:
- *         type: string
- *         format: url
- *       name:
- *         type: string
- *       profile:
- *         type: object
- *       preferences:
- *         type: object
- *       json:
- *         type: object
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- */
 module.exports = app => {
   /**
    * @swagger

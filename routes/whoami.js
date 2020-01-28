@@ -47,18 +47,7 @@ module.exports = app => {
             res.setHeader('Content-Type', 'application/ld+json')
             debug(`Setting location to ${reader.id}`)
             res.setHeader('Location', reader.id)
-            res.end(
-              JSON.stringify(
-                Object.assign(
-                  {
-                    '@context': [
-                      { reader: 'https://rebus.foundation/ns/reader' }
-                    ]
-                  },
-                  reader.toJSON()
-                )
-              )
-            )
+            res.end(JSON.stringify(reader.toJSON()))
           }
         })
         .catch(err => {
