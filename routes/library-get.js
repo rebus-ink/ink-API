@@ -15,7 +15,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - publications
-   *     description: GET /library
+   *     description: GET a collection of publications and tags for a reader
    *     parameters:
    *       - in: path
    *         name: id
@@ -51,15 +51,18 @@ module.exports = app => {
    *         name: author
    *         schema:
    *           type: string
-   *         description: will return only exact matches.
+   *         description: a search through attributions with the role of author. Will only return exact matches.
    *       - in: query
    *         name: language
    *         schema:
    *           type: string
+   *         description: the two-letter language code to filter by.
    *       - in: query
    *         name: type
    *         schema:
    *           type: string
+   *         enum: ['Article', 'Blog', 'Book', 'Chapter', 'Collection', 'Comment', 'Conversation', 'Course', 'Dataset', 'Drawing', 'Episode', 'Manuscript', 'Map', 'MediaObject', 'MusicRecording', 'Painting', 'Photograph', 'Play', 'Poster', 'PublicationIssue', 'PublicationVolume', 'Review', 'ShortStory', 'Thesis', 'VisualArtwork', 'WebContent']
+   *         description: the type of publication to filter by.
    *       - in: query
    *         name: keyword
    *         schema:
@@ -69,12 +72,18 @@ module.exports = app => {
    *         schema:
    *           type: string
    *           enum: ['title', 'datePublished']
-   *         description: used to order either alphabetically by title or by date published (most recent first)
+   *         description: used to order either alphabetically by title or by date of creation of the publication object (most recent first)
    *       - in: query
    *         name: reverse
    *         schema:
    *           type: boolean
+   *         default: false
    *         description: a modifier to use with orderBy to reverse the order
+   *       - in: header
+   *         name: If-Modified-Since
+   *         schema:
+   *           type: string
+   *         description: a timestamp of the last response
    *     security:
    *       - Bearer: []
    *     produces:
@@ -86,10 +95,14 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/library'
-   *       404:
-   *         description: 'No Reader with ID {id}'
+   *       304:
+   *         description: 'Not modified since the last request'
+   *       401:
+   *         description: 'No Authentication'
    *       403:
    *         description: 'Access to reader {id} disallowed'
+   *       404:
+   *         description: 'No Reader with ID {id}'
    */
   app.use('/', router)
   router.get(

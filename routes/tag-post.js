@@ -16,7 +16,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - tags
-   *     description: POST /tags
+   *     description: Create a tag
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -32,7 +32,9 @@ module.exports = function (app) {
    *             schema:
    *               $ref: '#/definitions/tag'
    *       400:
-   *         description: Validation error
+   *         description: Validation error or Duplicate error
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to reader {id} disallowed'
    */

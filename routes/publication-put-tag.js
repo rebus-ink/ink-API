@@ -14,9 +14,8 @@ module.exports = function (app) {
    * /publications/{pubId}/tags/{tagId}:
    *   put:
    *     tags:
-   *       - tags
-   *       - publications
-   *     description: PUT /publications/:pubId/tags/:tagId
+   *       - tag-publication
+   *     description: Assign a Tag to a Publication
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -35,10 +34,12 @@ module.exports = function (app) {
    *         description: Successfully added Tag to Publication
    *       400:
    *         description: Cannot assign the same tag twice
-   *       404:
-   *         description:  publication or tag not found
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to tag or publication disallowed'
+   *       404:
+   *         description:  publication or tag not found
    */
   app.use('/', router)
   router

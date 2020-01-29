@@ -3,12 +3,10 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Tag } = require('../models/Tag')
 const { Note } = require('../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate } = require('../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -17,7 +15,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - notes
-   *     description: POST /notes
+   *     description: Create a note
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -34,8 +32,12 @@ module.exports = function (app) {
    *               $ref: '#/definitions/note'
    *       400:
    *         description: Validation error
+   *       401:
+   *         description: 'No Authentication'
    *       403:
    *         description: 'Access to reader {id} disallowed'
+   *       404:
+   *         description: Publication (from note.publicationId) or Document (from note.documentUrl) not found
    */
   app.use('/', router)
   router.route('/notes').post(jwtAuth, function (req, res, next) {

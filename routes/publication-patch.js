@@ -17,7 +17,7 @@ module.exports = function (app) {
    *   patch:
    *     tags:
    *       - publications
-   *     description: PATCH /publications/:pubId
+   *     description: Update fields in a publication
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -31,6 +31,7 @@ module.exports = function (app) {
    *         application/json:
    *           schema:
    *             $ref: '#/definitions/publication'
+   *       description: body should only include fields to be updated
    *     responses:
    *       200:
    *         description: Successfully updated Publication
@@ -40,6 +41,8 @@ module.exports = function (app) {
    *               $ref: '#/definitions/publication'
    *       400:
    *         description: Validation error
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to publication {id} disallowed'
    *       404:

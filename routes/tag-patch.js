@@ -17,7 +17,7 @@ module.exports = function (app) {
    *   patch:
    *     tags:
    *       - tags
-   *     description: PATCH /tags/:tagId
+   *     description: Update properties of a tag
    *     parameters:
    *       - in: path
    *         name: tagId
@@ -31,6 +31,7 @@ module.exports = function (app) {
    *         application/json:
    *           schema:
    *             $ref: '#/definitions/tag'
+   *       description: body should only include properties to be updated
    *     responses:
    *       200:
    *         description: Successfully updated Tag
@@ -40,6 +41,8 @@ module.exports = function (app) {
    *               $ref: '#/definitions/tag'
    *       400:
    *         description: Validation error
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to tag {id} disallowed'
    *       404:

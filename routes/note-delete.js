@@ -3,10 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../utils/utils')
-const { libraryCacheUpdate } = require('../utils/cache')
 const { Note } = require('../models/Note')
 
 module.exports = function (app) {
@@ -16,7 +14,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - notes
-   *     description: DELETE /notes/:noteId
+   *     description: Delete a note by id
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -28,6 +26,8 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully deleted Note
+   *       401:
+   *         description: 'No Authentication'
    *       404:
    *         description: Note not found
    *       403:

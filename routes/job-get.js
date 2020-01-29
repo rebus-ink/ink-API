@@ -11,7 +11,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - jobs
-   *     description: GET /jobs/:id
+   *     description: Get a job by id to see the status of an upload / publication creation
    *     parameters:
    *       - in: path
    *         name: id
@@ -30,6 +30,8 @@ module.exports = function (app) {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/job'
+   *       401:
+   *         description: 'No Authentication'
    *       404:
    *         description: 'No Job with ID {id}'
    */

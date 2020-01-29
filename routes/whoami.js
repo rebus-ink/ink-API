@@ -24,6 +24,8 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/reader'
+   *       401:
+   *         description: No Authentication
    *       404:
    *         description: 'No Reader with ID {shortId}'
    */

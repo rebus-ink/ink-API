@@ -14,9 +14,8 @@ module.exports = function (app) {
    * /publications/{pubId}/tags/{tagId}:
    *   delete:
    *     tags:
-   *       - tags
-   *       - publications
-   *     description: DELETE /publications/:pubId/tags/:tagId
+   *       - tag-publication
+   *     description: Remove assignment of Tag to a Publication
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -33,10 +32,12 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully removed Tag from Publication
-   *       404:
-   *         description: publication, tag or pub-tag relation not found
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to tag or publication disallowed'
+   *       404:
+   *         description: publication, tag or pub-tag relation not found
    */
   app.use('/', router)
   router

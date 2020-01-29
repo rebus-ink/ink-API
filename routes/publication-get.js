@@ -13,7 +13,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - publications
-   *     description: GET /publications/{pubId}
+   *     description: Get a single publication by id
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -26,15 +26,17 @@ module.exports = function (app) {
    *       - application/json
    *     responses:
    *       200:
-   *         description: The publication objects, with a list of document references (document object without the content field)
+   *         description: The publication object with a list of replies (noteIds) a list of assigned tags
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/publication'
-   *       404:
-   *         description: 'No Publication with ID {pubId}'
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to publication {pubId} disallowed'
+   *       404:
+   *         description: 'No Publication with ID {pubId}'
    */
   app.use('/', router)
   router.get(

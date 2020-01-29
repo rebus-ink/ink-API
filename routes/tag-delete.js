@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - tags
-   *     description: DELETE /tags/:tagId
+   *     description: Delete a Tag by id
    *     parameters:
    *       - in: path
    *         name: tagId
@@ -27,10 +27,12 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully deleted Tag
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to tag {id} disallowed'
    *       404:
-   *         description: Tag not found
+   *         description: No tag found with this id
    */
   app.use('/', router)
   router.route('/tags/:tagId').delete(jwtAuth, function (req, res, next) {

@@ -41,7 +41,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - readers
-   *     description: POST /readers
+   *     description: Create reader
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -52,8 +52,14 @@ module.exports = function (app) {
    *     responses:
    *       201:
    *         description: Created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/reader'
    *       400:
-   *         description: 'Reader already exists'
+   *         description: Reader already exists or Validation Error
+   *       401:
+   *         description: No Authentication
    */
   app.use('/', router)
   router.post(

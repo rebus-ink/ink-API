@@ -14,7 +14,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - notes
-   *     description: GET /notes
+   *     description: Get a collection of Notes for a reader
    *     parameters:
    *       - in: query
    *         name: limit
@@ -23,7 +23,7 @@ module.exports = app => {
    *           default: 10
    *           minimum: 10
    *           maximum: 100
-   *         description: the number of library items to return
+   *         description: the number of notes to return
    *       - in: query
    *         name: page
    *         schema:
@@ -47,12 +47,12 @@ module.exports = app => {
    *         name: search
    *         schema:
    *           type: string
-   *         description: keyword to search for in the content of notes. Not case sensitive.
+   *         description: word to search for in the content of notes. Not case sensitive.
    *       - in: query
    *         name: stack
    *         schema:
    *           type: string
-   *         description: the collection (tag with type 'reader:Stack')
+   *         description: stack to which notes belong (tag with type 'reader:Stack')
    *       - in: query
    *         name: orderBy
    *         schema:
@@ -63,7 +63,7 @@ module.exports = app => {
    *         name: reverse
    *         schema:
    *           type: boolean
-   *         description: modifier for the orderBy query to return the oldest notes first.
+   *         description: modifier for the orderBy query to reverse the order.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -75,6 +75,8 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/notes'
+   *       401:
+   *         description: No Authentication
    *       404:
    *         description: 'No Reader with auth token'
    */

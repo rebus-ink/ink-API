@@ -34,10 +34,12 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/note'
-   *       404:
-   *         description: 'No Note with ID {id}'
+   *       401:
+   *         desription: 'No Authentication'
    *       403:
    *         description: 'Access to note {id} disallowed'
+   *       404:
+   *         description: 'No Note with ID {id}'
    */
 
   router.get(

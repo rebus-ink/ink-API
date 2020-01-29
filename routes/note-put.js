@@ -3,10 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../models/Publication')
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../utils/utils')
-const { libraryCacheUpdate } = require('../utils/cache')
 const { Note } = require('../models/Note')
 const { urlToId } = require('../utils/utils')
 const { ValidationError } = require('objection')
@@ -18,7 +16,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - notes
-   *     description: PUT /notes/:noteId
+   *     description: Update a note
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -39,10 +37,14 @@ module.exports = function (app) {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/note'
-   *       404:
-   *         description: Note not found
+   *       400:
+   *         description: 'Validation Error'
+   *       401:
+   *         description: 'No Authentication'
    *       403:
    *         description: 'Access to publication {noteId} disallowed'
+   *       404:
+   *         description: No note found with id {noteId}
    */
   app.use('/', router)
   router.route('/notes/:noteId').put(jwtAuth, function (req, res, next) {

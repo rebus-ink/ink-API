@@ -37,7 +37,7 @@ module.exports = app => {
    * /reader-{id}/search:
    *   get:
    *     tags:
-   *       - readers
+   *       - search
    *     description: GET /reader-:id/search
    *     parameters:
    *       - in: path

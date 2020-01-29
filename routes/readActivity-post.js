@@ -16,7 +16,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - publications
-   *     description: POST /publications/:pubId/readActivity
+   *     description: Create a ReadActivity for a Publication
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -39,6 +39,8 @@ module.exports = function (app) {
    *               $ref: '#/definitions/readActivity'
    *       400:
    *         description: Validation error
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to publication {pubId} disallowed'
    */

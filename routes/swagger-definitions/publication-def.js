@@ -115,6 +115,12 @@
  *           format: url
  *         readOnly: true
  *         description: url Ids for Notes that belong to this publication
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *         readOnly: true
+ *         description: tags assigned to this publication
  *       abstract:
  *         type: string
  *       datePublished:

@@ -12,7 +12,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id
+   *     description: Get Reader by id
    *     parameters:
    *       - in: path
    *         name: id
@@ -31,10 +31,12 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/reader'
-   *       404:
-   *         description: 'No Reader with ID {id}'
+   *       401:
+   *         description: No authentication
    *       403:
    *         description: 'Access to reader {id} disallowed'
+   *       404:
+   *         description: 'No Reader with ID {id}'
    */
   app.use('/', router)
   router.get(

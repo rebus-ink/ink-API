@@ -13,9 +13,8 @@ module.exports = function (app) {
    * /notes/{noteId}/tags/{tagId}:
    *   delete:
    *     tags:
-   *       - tags
-   *       - notes
-   *     description: DELETE /notes/:noteId/tags/:tagId
+   *       - tag-note
+   *     description: Remove assignment of a Tag to a Note
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -32,6 +31,8 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully removed Tag from Note
+   *       401:
+   *         description: 'No Authentication'
    *       404:
    *         description: note, tag or note-tag relation not found
    *       403:
