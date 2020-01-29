@@ -3,7 +3,7 @@
  * definition:
  *   readActivity:
  *     properties:
- *       'oa:hasSelector':
+ *       'selector':
  *         type: object
  *       json:
  *         type: object

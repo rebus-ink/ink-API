@@ -140,7 +140,7 @@ const test = async app => {
           '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Read',
           context: publicationUrl,
-          'oa:hasSelector': {
+          selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span',
             property: 'first' // included for testing purposes
@@ -155,7 +155,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          'oa:hasSelector': {
+          selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span',
             property: 'last'

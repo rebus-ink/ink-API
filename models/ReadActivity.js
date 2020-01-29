@@ -104,15 +104,6 @@ class ReadActivity extends BaseModel {
 
     return readActivities[0]
   }
-
-  $formatJson (json /*: any */) /*: any */ {
-    json = super.$formatJson(json)
-    json['oa:hasSelector'] = json.selector
-    json.selector = undefined
-    json = _.omitBy(json, _.isNil)
-
-    return json
-  }
 }
 
 module.exports = { ReadActivity }

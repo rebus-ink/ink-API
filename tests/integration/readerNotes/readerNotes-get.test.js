@@ -72,8 +72,8 @@ const test = async app => {
     await tap.equal(body.items.length, 3)
     const firstItem = body.items[0]
     await tap.ok(firstItem.body)
-    await tap.ok(firstItem.body.content)
-    await tap.equal(firstItem.body.motivation, 'test')
+    await tap.ok(firstItem.body[0].content)
+    await tap.equal(firstItem.body[0].motivation, 'test')
     await tap.ok(firstItem.publicationId)
     await tap.ok(firstItem.documentUrl)
     // notes should include publication information

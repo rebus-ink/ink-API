@@ -392,7 +392,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
-        .send(JSON.stringify({ 'oa:hasSelector': { property: 'something' } }))
+        .send(JSON.stringify({ selector: { property: 'something' } }))
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
