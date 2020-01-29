@@ -5,45 +5,6 @@ const { Reader } = require('../models/Reader')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 
-/**
- * @swagger
- * definition:
- *   reader:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *         enum: ['Person']
- *       summaryMap:
- *         type: object
- *         properties:
- *           en:
- *             type: string
- *       '@context':
- *         type: array
- *       inbox:
- *         type: string
- *         format: url
- *       outbox:
- *         type: string
- *         format: url
- *       name:
- *         type: string
- *       profile:
- *         type: object
- *       preferences:
- *         type: object
- *       json:
- *         type: object
- *       published:
- *         type: string
- *         format: date-time
- *       updated:
- *         type: string
- *         format: date-time
- */
 module.exports = app => {
   /**
    * @swagger
@@ -51,7 +12,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /readers/:id
+   *     description: Get Reader by id
    *     parameters:
    *       - in: path
    *         name: id
@@ -70,10 +31,12 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/reader'
-   *       404:
-   *         description: 'No Reader with ID {id}'
+   *       401:
+   *         description: No authentication
    *       403:
    *         description: 'Access to reader {id} disallowed'
+   *       404:
+   *         description: 'No Reader with ID {id}'
    */
   app.use('/', router)
   router.get(

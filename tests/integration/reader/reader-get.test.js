@@ -31,7 +31,6 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.statusCode, 200)
-
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')

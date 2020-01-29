@@ -16,7 +16,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - publications
-   *     description: POST /publications
+   *     description: Create a Publication
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -33,8 +33,10 @@ module.exports = function (app) {
    *               $ref: '#/definitions/publication'
    *       400:
    *         description: Validation error
+   *       401:
+   *         description: No Authentication
    *       403:
-   *         description: 'Access to reader {id} disallowed'
+   *         description: 'Access to reader disallowed'
    */
   app.use('/', router)
   router.route('/publications').post(jwtAuth, function (req, res, next) {

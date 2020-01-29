@@ -13,7 +13,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - tags
-   *     description: GET /tags
+   *     description: Get a list of tags for a reader
    *     security:
    *       - Bearer: []
    *     produces:
@@ -27,6 +27,8 @@ module.exports = function (app) {
    *               type: array
    *               items:
    *                 $ref: '#/definitions/tag'
+   *       401:
+   *         description: No Authenticationd
    *       404:
    *         description: 'No Reader found'
    */

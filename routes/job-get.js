@@ -4,31 +4,6 @@ const passport = require('passport')
 const boom = require('@hapi/boom')
 const { Job } = require('../models/Job')
 
-/**
- * @swagger
- * definition:
- *   job:
- *     properties:
- *       id:
- *         type: integer
- *       type:
- *         type: string
- *         enum: ['epub']
- *       published:
- *         type: string
- *         format: date-time
- *       finished:
- *         type: string
- *         format: date-time
- *       error:
- *         type: string
- *       publicationId:
- *         type: string
- *       status:
- *         type: integer
- *         enum: [302, 304, 500]
- *
- */
 module.exports = function (app) {
   /**
    * @swagger
@@ -36,7 +11,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - jobs
-   *     description: GET /jobs/:id
+   *     description: Get a job by id to see the status of an upload / publication creation
    *     parameters:
    *       - in: path
    *         name: id
@@ -55,6 +30,8 @@ module.exports = function (app) {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/job'
+   *       401:
+   *         description: 'No Authentication'
    *       404:
    *         description: 'No Job with ID {id}'
    */

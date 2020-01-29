@@ -34,26 +34,6 @@ const insertNewReader = async (readerId, person, next) => {
   return result
 }
 
-/**
- * @swagger
- * definition:
- *   readers-request:
- *     properties:
- *       name:
- *         type: string
- *         required: true
- *       '@context':
- *         type: array
- *         required: true
- *       profile:
- *         type: object
- *       preferences:
- *         type: object,
- *       json:
- *         type: object
- *
- */
-
 module.exports = function (app) {
   /**
    * @swagger
@@ -61,19 +41,25 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - readers
-   *     description: POST /readers
+   *     description: Create reader
    *     security:
    *       - Bearer: []
    *     requestBody:
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/readers-request'
+   *             $ref: '#/definitions/reader'
    *     responses:
    *       201:
    *         description: Created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/definitions/reader'
    *       400:
-   *         description: 'Reader already exists'
+   *         description: Reader already exists or Validation Error
+   *       401:
+   *         description: No Authentication
    */
   app.use('/', router)
   router.post(

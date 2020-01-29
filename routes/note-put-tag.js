@@ -13,9 +13,8 @@ module.exports = function (app) {
    * /notes/{noteId}/tags/{tagId}:
    *   put:
    *     tags:
-   *       - tags
-   *       - notes
-   *     description: PUT /notes/:noteId/tags/:tagId
+   *       - tag-note
+   *     description: Assign a Tag to a Note
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -34,10 +33,12 @@ module.exports = function (app) {
    *         description: Successfully added Tag to Note
    *       400:
    *         description: Cannot assign the same tag twice
-   *       404:
-   *         description:  note or tag not found
+   *       401:
+   *         description: 'No Authentication'
    *       403:
    *         description: 'Access to tag or note disallowed'
+   *       404:
+   *         description:  note or tag not found
    */
   app.use('/', router)
   router

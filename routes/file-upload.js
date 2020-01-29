@@ -16,7 +16,7 @@ const m = multer({ storage: multer.memoryStorage() })
  * /reader-{id}/file-upload:
  *   post:
  *     tags:
- *       - readers
+ *       - upload
  *     description: POST /reader-:id/file-upload
  *     parameters:
  *       - in: path

@@ -6,147 +6,6 @@ const debug = require('debug')('hobb:routes:publication')
 const utils = require('../utils/utils')
 const boom = require('@hapi/boom')
 
-/**
- * @swagger
- * definition:
- *   annotation:
- *     properties:
- *       name:
- *         type: string
- *       type:
- *         type: string
- *         enum: ['Person', 'Organization']
- *   link:
- *     properties:
- *      href:
- *       type: string
- *      mediaType:
- *       type: string
- *      rel:
- *        type: string
- *      name:
- *        type: string
- *      hreflang:
- *        type: string
- *      height:
- *        type: integer
- *      width:
- *        type: integer
- *   publication:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *       summaryMap:
- *         type: object
- *         properties:
- *           en:
- *             type: string
- *       '@context':
- *         type: array
- *       author:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       editor:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       creator:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       contributor:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       illustrator:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       publisher:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       translator:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       copyrightHolder:
- *         type: array
- *         items:
- *           $ref: '#/definitions/annotation'
- *       replies:
- *         type: array
- *         items:
- *           type: string
- *           format: url
- *       abstract:
- *         type: string
- *       datePublished:
- *         type: string
- *         format: timestamp
- *       numberOfPages:
- *         type: number
- *       encodingFormat:
- *         type: string
- *       url:
- *         type: string
- *       dateModified:
- *         type: string
- *         format: timestamp
- *       bookEdition:
- *         type: string
- *       isbn:
- *         type: string
- *       copyrightYear:
- *         type: number
- *       genre:
- *         type: string
- *       license:
- *         type: string
- *       wordCount:
- *         type: number
- *       description:
- *         type: string
- *       status:
- *         type: string
- *         enum: ['test']
- *       inDirection:
- *         type: string
- *         enum: ['ltr', 'rtl']
- *       readingOrder:
- *         type: array
- *         items:
- *           $ref: '#/definitions/link'
- *       resources:
- *         type: array
- *         items:
- *           $ref: '#/definitions/link'
- *       links:
- *         type: array
- *         items:
- *           $ref: '#/definitions/link'
- *       position:
- *         type: object
- *       json:
- *         type: object
- *       readerId:
- *         type: string
- *         format: url
- *       reader:
- *         $ref: '#/definitions/reader'
- *       published:
- *         type: string
- *         format: timestamp
- *       updated:
- *         type: string
- *         format: timestamp
- *
- */
-
 module.exports = function (app) {
   /**
    * @swagger
@@ -154,7 +13,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - publications
-   *     description: GET /publications/{pubId}
+   *     description: Get a single publication by id
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -167,15 +26,17 @@ module.exports = function (app) {
    *       - application/json
    *     responses:
    *       200:
-   *         description: The publication objects, with a list of document references (document object without the content field)
+   *         description: The publication object with a list of replies (noteIds) a list of assigned tags
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/publication'
-   *       404:
-   *         description: 'No Publication with ID {pubId}'
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to publication {pubId} disallowed'
+   *       404:
+   *         description: 'No Publication with ID {pubId}'
    */
   app.use('/', router)
   router.get(

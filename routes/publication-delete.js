@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - publications
-   *     description: DELETE /publications/pubId
+   *     description: Delete a publication by id
    *     parameters:
    *       - in: path
    *         name: pubId
@@ -27,10 +27,12 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully deleted Publication
-   *       404:
-   *         description: Publication not found
+   *       401:
+   *         description: No Authentication
    *       403:
    *         description: 'Access to publication {pubId} disallowed'
+   *       404:
+   *         description: Publication not found
    */
   app.use('/', router)
   router
