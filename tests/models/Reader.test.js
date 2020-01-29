@@ -104,7 +104,6 @@ const test = async app => {
 
     await tap.type(refObject, 'object')
     await tap.type(refObject.id, 'string')
-    await tap.equal(refObject.type, 'Person')
     await tap.equal(refObject.authId, undefined)
 
     const refObject2 = createdReader2.asRef()
