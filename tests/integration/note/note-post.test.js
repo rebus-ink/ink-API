@@ -157,18 +157,10 @@ const test = async app => {
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
+      await tap.equal(error.message, 'body.motivation is a required property')
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(error.details.type, 'Note')
       await tap.equal(error.details.activity, 'Create Note')
-      await tap.type(error.details.validation, 'object')
-      await tap.equal(
-        error.details.validation.motivation[0].keyword,
-        'required'
-      )
-      await tap.equal(
-        error.details.validation.motivation[0].params.missingProperty,
-        'motivation'
-      )
     }
   )
 
@@ -207,6 +199,36 @@ const test = async app => {
     await tap.equal(error.details.validation.json[0].keyword, 'type')
     await tap.equal(error.details.validation.json[0].params.type, 'object')
   })
+
+  await tap.test(
+    'Try to create a Note with an invalid motivation',
+    async () => {
+      const res = await request(app)
+        .post('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'testing!',
+              motivation: 'invalid motivation'
+            }
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(
+        error.message,
+        'invalid motivation is not a valid motivation'
+      )
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Note')
+      await tap.equal(error.details.activity, 'Create Note')
+    }
+  )
 
   // // ---------------------------------------- OTHER ERRORS -----------------------------------
 

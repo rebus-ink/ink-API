@@ -16,6 +16,16 @@ type NoteBodyType = {
 };
 */
 
+const motivations = [
+  'test',
+  'bookmarking',
+  'commenting',
+  'describing',
+  'editing',
+  'highlighting',
+  'replying'
+]
+
 class NoteBody extends BaseModel {
   static get tableName () /*: string */ {
     return 'NoteBody'
@@ -68,7 +78,12 @@ class NoteBody extends BaseModel {
   ) /*: Promise<NoteBodyType> */ {
     if (!noteBody) throw new Error('no noteBody')
     if (!noteId) throw new Error('no noteId')
+    if (!noteBody.motivation) throw new Error('no motivation')
     if (!readerId) throw new Error('no readerId')
+    noteBody.motivation = noteBody.motivation.toLowerCase()
+    if (motivations.indexOf(noteBody.motivation) === -1) {
+      throw new Error('invalid motivation')
+    }
 
     let props = _.pick(noteBody, ['content', 'language', 'motivation'])
     props.noteId = noteId

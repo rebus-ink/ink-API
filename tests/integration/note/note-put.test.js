@@ -115,6 +115,32 @@ const test = async app => {
     await tap.equal(error.details.activity, 'Update Note')
   })
 
+  await tap.test(
+    'Try to update a Note with an invalid motivation',
+    async () => {
+      const newNote = Object.assign(note, {
+        body: { motivation: 'invalid motivation' }
+      })
+      const res = await request(app)
+        .put(`/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify(newNote))
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(
+        error.message,
+        'invalid motivation is not a valid motivation'
+      )
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.details.type, 'Note')
+      await tap.equal(error.details.activity, 'Update Note')
+    }
+  )
+
   await tap.test('Try to update a Note that does not exist', async () => {
     const res = await request(app)
       .put(`/notes/${noteId}abc`)

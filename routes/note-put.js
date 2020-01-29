@@ -95,6 +95,18 @@ module.exports = function (app) {
             )
           }
 
+          if (result.message === 'invalid motivation') {
+            return next(
+              boom.badRequest(
+                `${req.body.body.motivation} is not a valid motivation`,
+                {
+                  activity: 'Update Note',
+                  type: 'Note'
+                }
+              )
+            )
+          }
+
           return next(
             boom.badRequest(result.message, {
               activity: 'Update Note',

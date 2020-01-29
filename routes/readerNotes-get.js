@@ -43,6 +43,7 @@ module.exports = app => {
    *         name: motivation
    *         schema:
    *           type: string
+   *         enum: ['test', 'bookmarking', 'commenting', 'describing', 'editing', 'highlighting', 'replying']
    *       - in: query
    *         name: search
    *         schema:
