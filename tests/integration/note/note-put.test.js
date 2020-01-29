@@ -48,8 +48,8 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    await tap.type(body.body.content, 'string')
-    await tap.equal(body.body.content, 'new content')
+    await tap.type(body.body[0].content, 'string')
+    await tap.equal(body.body[0].content, 'new content')
     await tap.notEqual(body.published, body.updated)
     // check that old properties are still there
     await tap.type(body.publicationId, 'string')

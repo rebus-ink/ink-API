@@ -47,8 +47,8 @@ const test = async app => {
     await tap.equal(body.json.property1, 'value1')
     await tap.ok(body.published)
     await tap.ok(body.body)
-    await tap.ok(body.body.content)
-    await tap.equal(body.body.motivation, 'test')
+    await tap.ok(body.body[0].content)
+    await tap.equal(body.body[0].motivation, 'test')
   })
 
   await tap.test('Create Note with two bodies', async () => {
@@ -107,8 +107,8 @@ const test = async app => {
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.ok(body.published)
     await tap.ok(body.body)
-    await tap.ok(body.body.content)
-    await tap.equal(body.body.motivation, 'test')
+    await tap.ok(body.body[0].content)
+    await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.documentUrl, documentUrl)
     await tap.equal(urlToId(body.publicationId), publicationId)
   })
