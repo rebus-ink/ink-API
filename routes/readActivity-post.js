@@ -87,28 +87,14 @@ module.exports = function (app) {
               })
             )
           }
-          const object = {
-            selector: body['oa:hasSelector'],
-            json: body.json
-          }
 
           const createdReadActivity = await ReadActivity.createReadActivity(
             reader.id,
             pubId,
-            object
+            body
           )
 
           if (createdReadActivity instanceof ValidationError) {
-            // rename selector to oa:hasSelector
-            if (createdReadActivity.data && createdReadActivity.data.selector) {
-              createdReadActivity.data['oa:hasSelector'] =
-                createdReadActivity.data.selector
-              createdReadActivity.data[
-                'oa:hasSelector'
-              ][0].params.missingProperty =
-                'oa:hasSelector'
-              delete createdReadActivity.data.selector
-            }
             return next(
               boom.badRequest('Validation error on create ReadActivity: ', {
                 type: 'Publication',

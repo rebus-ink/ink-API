@@ -694,6 +694,7 @@ class Publication extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
+    json.shortId = urlToId(json.id)
     json.id = json.id + '/'
     if (json.attributions) {
       attributionTypes.forEach(type => {

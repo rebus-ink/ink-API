@@ -34,6 +34,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.name, 'Jane Doe')
     await tap.type(body.profile, 'object')
     await tap.equal(body.profile.property, 'value')
@@ -56,6 +57,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.name, 'Jane Doe')
     await tap.type(body.profile, 'object')
     await tap.equal(body.profile.property, 'value')

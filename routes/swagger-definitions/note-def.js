@@ -7,6 +7,7 @@
  *         type: string
  *       motivation:
  *         type: string
+ *         enum: ['bookmarking', 'commenting', 'describing', 'editing', 'highlighting', 'replying']
  *       language:
  *         type: string
  *     required:

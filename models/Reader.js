@@ -179,21 +179,16 @@ class Reader extends BaseModel {
         builder
           .select(
             'Publication.id',
-            'Publication.abstract',
             'Publication.metadata',
             'Publication.name',
             'Publication.datePublished',
+            'Publication.status',
             'Publication.type',
-            'Publication.numberOfPages',
             'Publication.encodingFormat',
-            'Publication.json',
-            'Publication.readerId',
             'Publication.published',
             'Publication.updated',
             'Publication.deleted',
-            'Publication.resources',
-            'Publication.description',
-            'Publication.abstract'
+            'Publication.resources'
           )
           .from('Publication')
         builder.distinct('Publication.id')
@@ -588,6 +583,7 @@ class Reader extends BaseModel {
       'published',
       'updated'
     ])
+    json.shortId = urlToId(json.id)
 
     return json
   }

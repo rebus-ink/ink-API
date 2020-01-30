@@ -191,6 +191,7 @@ class Note extends BaseModel {
             urlToId(createdNote.id),
             reader.id
           )
+          createdNote.body = note.body
         }
       } else {
         await NoteBody.createNoteBody(
@@ -198,8 +199,8 @@ class Note extends BaseModel {
           urlToId(createdNote.id),
           reader.id
         )
+        createdNote.body = [note.body]
       }
-      createdNote.body = note.body
     } catch (err) {
       noteBodyError = err
     }
@@ -276,14 +277,15 @@ class Note extends BaseModel {
               note.readerId
             )
           }
+          updatedNote.body = note.body
         } else {
           await NoteBody.createNoteBody(
             note.body,
             urlToId(updatedNote.id),
             note.readerId
           )
+          updatedNote.body = [note.body]
         }
-        updatedNote.body = note.body
       }
     } catch (err) {
       noteBodyError = err
@@ -299,12 +301,7 @@ class Note extends BaseModel {
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     json.type = 'Note'
-    if (json.body && json.body.length === 1) {
-      json.body = json.body[0]
-    }
-    if (json.body && json.body.length === 0) {
-      json.body = undefined
-    }
+    json.shortId = urlToId(json.id)
     if (json.documentId) json.documentId = undefined
 
     json = _.omitBy(json, _.isNil)

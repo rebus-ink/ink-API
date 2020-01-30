@@ -83,9 +83,9 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res.body.items[0].body.content, 'last')
-    await tap.equal(res.body.items[1].body.content, 'second last')
-    await tap.equal(res.body.items[2].body.content, 'third last')
+    await tap.equal(res.body.items[0].body[0].content, 'last')
+    await tap.equal(res.body.items[1].body[0].content, 'second last')
+    await tap.equal(res.body.items[2].body[0].content, 'third last')
   })
 
   await tap.test('Order Notes by date created - reversed', async () => {
@@ -95,9 +95,9 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res1.body.items[0].body.content, 'first')
-    await tap.equal(res1.body.items[1].body.content, 'second')
-    await tap.equal(res1.body.items[2].body.content, 'third')
+    await tap.equal(res1.body.items[0].body[0].content, 'first')
+    await tap.equal(res1.body.items[1].body[0].content, 'second')
+    await tap.equal(res1.body.items[2].body[0].content, 'third')
   })
 
   // -------------------------------------- DATE UPDATED ---------------------------------------
@@ -145,9 +145,9 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res1.body.items[0].body.content, 'new content2')
-    await tap.equal(res1.body.items[1].body.content, 'new content1')
-    await tap.equal(res1.body.items[2].body.content, 'last')
+    await tap.equal(res1.body.items[0].body[0].content, 'new content2')
+    await tap.equal(res1.body.items[1].body[0].content, 'new content1')
+    await tap.equal(res1.body.items[2].body[0].content, 'last')
   })
 
   await tap.test('Order Notes by date updated - reversed', async () => {
@@ -157,9 +157,9 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res2.body.items[0].body.content, 'first')
-    await tap.equal(res2.body.items[1].body.content, 'second')
-    await tap.equal(res2.body.items[2].body.content, 'third')
+    await tap.equal(res2.body.items[0].body[0].content, 'first')
+    await tap.equal(res2.body.items[1].body[0].content, 'second')
+    await tap.equal(res2.body.items[2].body[0].content, 'third')
   })
 
   await destroyDB(app)

@@ -92,6 +92,27 @@ module.exports = function (app) {
             )
           }
 
+          if (createdNote.message === 'no motivation') {
+            return next(
+              boom.badRequest(`body.motivation is a required property`, {
+                activity: 'Create Note',
+                type: 'Note'
+              })
+            )
+          }
+
+          if (createdNote.message === 'invalid motivation') {
+            return next(
+              boom.badRequest(
+                `${body.body.motivation} is not a valid motivation`,
+                {
+                  activity: 'Create Note',
+                  type: 'Note'
+                }
+              )
+            )
+          }
+
           if (createdNote.message === 'no document') {
             return next(
               boom.notFound(
@@ -157,6 +178,7 @@ module.exports = function (app) {
         }
 
         res.setHeader('Content-Type', 'application/ld+json')
+        res.setHeader('Location', createdNote.id)
         res.status(201).end(JSON.stringify(createdNote.toJSON()))
       })
       .catch(err => {

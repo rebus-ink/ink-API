@@ -32,7 +32,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          'oa:hasSelector': {
+          selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span'
           }
@@ -40,7 +40,7 @@ const test = async app => {
       )
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
-    await tap.equal(body['oa:hasSelector'].type, 'XPathSelector')
+    await tap.equal(body.selector.type, 'XPathSelector')
     await tap.equal(urlToId(body.publicationId), publicationId)
 
     // Get the latests ReadActivity
@@ -57,7 +57,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          'oa:hasSelector': {
+          selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span'
           },
@@ -69,7 +69,7 @@ const test = async app => {
     const latestAct = await ReadActivity.getLatestReadActivity(publicationId)
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
-    await tap.equal(body['oa:hasSelector'].type, 'XPathSelector')
+    await tap.equal(body.selector.type, 'XPathSelector')
     await tap.equal(urlToId(body.publicationId), publicationId)
     await tap.equal(body.json.property, 'value')
   })
@@ -90,13 +90,10 @@ const test = async app => {
       await tap.equal(error.details.type, 'Publication')
       await tap.equal(error.details.activity, 'Read')
       await tap.type(error.details.validation, 'object')
+      await tap.equal(error.details.validation.selector[0].keyword, 'required')
       await tap.equal(
-        error.details.validation['oa:hasSelector'][0].keyword,
-        'required'
-      )
-      await tap.equal(
-        error.details.validation['oa:hasSelector'][0].params.missingProperty,
-        'oa:hasSelector'
+        error.details.validation.selector[0].params.missingProperty,
+        'selector'
       )
     }
   )
@@ -110,7 +107,7 @@ const test = async app => {
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send({
-          'oa:hasSelector': {
+          selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span'
           },

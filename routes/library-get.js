@@ -5,6 +5,7 @@ const { Reader } = require('../models/Reader')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../utils/utils')
+const _ = require('lodash')
 
 const { libraryCacheGet } = require('../utils/cache')
 
@@ -160,11 +161,29 @@ module.exports = app => {
         })
         .then(count => {
           let reader = returnedReader
+          let publications = reader.publications.map(pub => {
+            return _.pick(pub.toJSON(), [
+              'id',
+              'name',
+              'datePublished',
+              'type',
+              'encodingFormat',
+              'published',
+              'updated',
+              'resources',
+              'tags',
+              'shortId',
+              'author',
+              'editor',
+              'bookFormat',
+              'inLanguage'
+            ])
+          })
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({
               totalItems: parseInt(count),
-              items: reader.publications,
+              items: publications,
               tags: reader.tags,
               page: req.query.page,
               pageSize: parseInt(req.query.limit)

@@ -25,7 +25,17 @@ const test = async app => {
         })
       )
     await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.equal(res.body.name, 'Jane Doe')
+    await tap.ok(res.body.profile)
+    await tap.equal(res.body.profile.property, 'value')
+    await tap.ok(res.body.preferences)
+    await tap.equal(res.body.preferences.favoriteColor, 'blueish brown')
+    await tap.ok(res.body.json)
+    await tap.equal(res.body.json.something, '!!!!')
+
     await tap.type(res.get('Location'), 'string')
+    await tap.equal(res.get('Location'), res.body.id)
     readerUrl = res.get('Location')
   })
 
