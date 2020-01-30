@@ -91,8 +91,11 @@ module.exports = function (app) {
 
         await libraryCacheUpdate(reader.id)
 
+        const finishedPub = createdPub.toJSON()
+
         res.setHeader('Content-Type', 'application/ld+json')
-        res.status(201).end(JSON.stringify(createdPub.toJSON()))
+        res.setHeader('Location', finishedPub.id)
+        res.status(201).end(JSON.stringify(finishedPub))
       })
       .catch(err => {
         next(err)

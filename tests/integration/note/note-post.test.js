@@ -49,6 +49,9 @@ const test = async app => {
     await tap.ok(body.body)
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
+
+    await tap.type(res.get('Location'), 'string')
+    await tap.equal(res.get('Location'), body.id)
   })
 
   await tap.test('Create Note with two bodies', async () => {

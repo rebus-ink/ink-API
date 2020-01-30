@@ -131,6 +131,9 @@ const test = async app => {
     await tap.equal(body.keywords[0], 'one')
     await tap.equal(body.keywords[1], 'two') // keywords converted to lowercase
     await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
+
+    await tap.type(res.get('Location'), 'string')
+    await tap.equal(res.get('Location'), body.id)
   })
 
   await tap.test('invalid properties should be ignored', async () => {

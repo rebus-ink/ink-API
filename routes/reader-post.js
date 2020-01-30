@@ -72,8 +72,8 @@ module.exports = function (app) {
           res.setHeader('Content-Type', 'application/ld+json')
           debug(`Setting location to ${reader.id}`)
           res.setHeader('Location', reader.id)
-          res.sendStatus(201)
-          res.end()
+          res.status(201)
+          res.send(JSON.stringify(reader.toJSON()))
         })
         .catch(err => {
           next(err)

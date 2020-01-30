@@ -178,6 +178,7 @@ module.exports = function (app) {
         }
 
         res.setHeader('Content-Type', 'application/ld+json')
+        res.setHeader('Location', createdNote.id)
         res.status(201).end(JSON.stringify(createdNote.toJSON()))
       })
       .catch(err => {
