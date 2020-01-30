@@ -49,7 +49,7 @@ module.exports = function (app) {
           }
           let tags = await Tag.byReaderId(urlToId(reader.id))
 
-          tags = tags.filter(tag => !tag.deleted)
+          tags = tags.filter(tag => !tag.deleted).map(tag => tag.toJSON())
 
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(JSON.stringify(tags))

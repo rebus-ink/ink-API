@@ -301,7 +301,7 @@ class Note extends BaseModel {
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     json.type = 'Note'
-
+    json.shortId = urlToId(json.id)
     if (json.documentId) json.documentId = undefined
 
     json = _.omitBy(json, _.isNil)

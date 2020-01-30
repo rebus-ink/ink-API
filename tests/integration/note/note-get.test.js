@@ -42,6 +42,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')

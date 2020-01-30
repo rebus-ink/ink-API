@@ -588,6 +588,7 @@ class Reader extends BaseModel {
       'published',
       'updated'
     ])
+    json.shortId = urlToId(json.id)
 
     return json
   }

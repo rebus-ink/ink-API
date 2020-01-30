@@ -169,6 +169,8 @@ class Tag extends BaseModel {
     json = super.$formatJson(json)
     json.tagType = json.type
     json.type = 'reader:Tag'
+    json.shortId = urlToId(json.id)
+    json = _.omitBy(json, _.isNil)
     return json
   }
 }

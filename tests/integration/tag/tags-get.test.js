@@ -6,6 +6,7 @@ const {
   destroyDB,
   createTag
 } = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
@@ -34,6 +35,15 @@ const test = async app => {
 
     await tap.equal(res.status, 200)
     await tap.equal(res.body.length, 6) // 4 default modes + 2 created tags
+
+    const body = res.body[0]
+    console.log(body)
+    await tap.ok(body.id)
+    await tap.equal(body.shortId, urlToId(body.id))
+    await tap.ok(body.name)
+    await tap.ok(body.published)
+    await tap.ok(body.updated)
+    await tap.ok(body.tagType)
   })
 
   await destroyDB(app)
