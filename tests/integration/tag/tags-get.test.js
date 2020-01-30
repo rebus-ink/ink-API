@@ -37,7 +37,6 @@ const test = async app => {
     await tap.equal(res.body.length, 6) // 4 default modes + 2 created tags
 
     const body = res.body[0]
-    console.log(body)
     await tap.ok(body.id)
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.ok(body.name)
