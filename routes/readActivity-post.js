@@ -54,8 +54,8 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.unauthorized(`No user found for this token`, {
-                type: 'Reader',
-                activity: 'Create ReadActivity'
+                requestUrl: req.originalUrl,
+                requestBody: req.body
               })
             )
           }
@@ -63,17 +63,8 @@ module.exports = function (app) {
           if (!checkOwnership(reader.id, pubId)) {
             return next(
               boom.forbidden(`Access to publication ${pubId} disallowed`, {
-                type: 'Publication',
-                id: pubId,
-                activity: 'Create ReadActivity'
-              })
-            )
-          }
-
-          if (!req.is('application/ld+json')) {
-            return next(
-              boom.badRequest('Body must be JSON-LD', {
-                activity: 'Create ReadActivity'
+                requestUrl: req.originalUrl,
+                requestBody: req.body
               })
             )
           }
@@ -81,46 +72,50 @@ module.exports = function (app) {
           const body = req.body
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
-              boom.badRequest('Body must be a JSON object', {
-                activity: 'Create ReadActivity',
-                type: 'ReadActivity'
-              })
-            )
-          }
-
-          const createdReadActivity = await ReadActivity.createReadActivity(
-            reader.id,
-            pubId,
-            body
-          )
-
-          if (createdReadActivity instanceof ValidationError) {
-            return next(
-              boom.badRequest('Validation error on create ReadActivity: ', {
-                type: 'Publication',
-                activity: 'Read',
-                validation: createdReadActivity.data
-              })
-            )
-          }
-
-          if (createdReadActivity instanceof Error) {
-            if (createdReadActivity.message === 'no publication') {
-              return next(
-                boom.notFound(`no publication found with id ${pubId}`, {
-                  type: 'Publication',
-                  id: pubId,
-                  activity: 'Create Read Activity'
-                })
+              boom.badRequest(
+                'Create ReadActivity Error: Body must be a JSON object',
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                }
               )
-            }
-
-            return next(
-              boom.badRequest(createdReadActivity.message, {
-                activity: 'Create ReadActivity',
-                type: 'ReadActivity'
-              })
             )
+          }
+
+          let createdReadActivity
+          try {
+            createdReadActivity = await ReadActivity.createReadActivity(
+              reader.id,
+              pubId,
+              body
+            )
+          } catch (err) {
+            if (err instanceof ValidationError) {
+              return next(
+                boom.badRequest(
+                  `Validation error on create ReadActivity: ${err.message}`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body,
+                    validation: err.data
+                  }
+                )
+              )
+            } else {
+              if (err.message === 'no publication') {
+                return next(
+                  boom.notFound(`No Publication found with id ${pubId}`, {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  })
+                )
+              } else {
+                boom.badRequest(err.message, {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                })
+              }
+            }
           }
 
           res.setHeader('Content-Type', 'application/ld+json')

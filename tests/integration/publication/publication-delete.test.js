@@ -122,8 +122,11 @@ const test = async app => {
     const error = JSON.parse(getres.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.type(error.details.id, 'string')
+    await tap.equal(
+      error.message,
+      `No Publication found with id ${urlToId(publicationId)}`
+    )
+    await tap.equal(error.details.requestUrl, `/publications/${publicationId}`)
 
     // publication should no longer be in the reader library
     const libraryres = await request(app)
@@ -156,9 +159,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
       await tap.equal(error.error, 'Not Found')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Delete Publication')
+      await tap.equal(
+        error.message,
+        `No Publication found with id ${publicationId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
     }
   )
 
@@ -175,9 +183,8 @@ const test = async app => {
       const error1 = JSON.parse(res1.text)
       await tap.equal(error1.statusCode, 404)
       await tap.equal(error1.error, 'Not Found')
-      await tap.equal(error1.details.type, 'Publication')
-      await tap.type(error1.details.id, 'string')
-      await tap.equal(error1.details.activity, 'Delete Publication')
+      await tap.equal(error1.message, `No Publication found with id 1234`)
+      await tap.equal(error1.details.requestUrl, `/publications/1234`)
     }
   )
 

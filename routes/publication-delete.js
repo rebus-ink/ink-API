@@ -43,23 +43,16 @@ module.exports = function (app) {
         .then(async pub => {
           if (!pub) {
             return next(
-              boom.notFound(
-                `publication with id ${pubId} does not exist or has already been deleted`,
-                {
-                  type: 'Publication',
-                  id: pubId,
-                  activity: 'Delete Publication'
-                }
-              )
+              boom.notFound(`No Publication found with id ${pubId}`, {
+                requestUrl: req.originalUrl
+              })
             )
           }
           const reader = await Reader.byAuthId(req.user)
           if (!reader || !checkOwnership(reader.id, pubId)) {
             return next(
               boom.forbidden(`Access to publication ${pubId} disallowed`, {
-                type: 'Publication',
-                id: pubId,
-                activity: 'Delete Publication'
+                requestUrl: req.originalUrl
               })
             )
           }
