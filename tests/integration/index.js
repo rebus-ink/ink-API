@@ -100,7 +100,7 @@ const allTests = async () => {
 
   if (!test || test === 'tag') {
     // await tagsGetTests(app)
-    // await publicationAddTagTests(app)
+    await publicationAddTagTests(app)
     await tagNotePutTests(app)
     await tagNoteDeleteTests(app)
     // await tagDeleteTests(app)

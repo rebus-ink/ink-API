@@ -50,72 +50,37 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.notFound(`No reader with this token`, {
-                type: 'Reader',
-                activity: 'Remove Tag from Publication'
+                requestUrl: req.originalUrl
               })
             )
           } else {
             if (!checkOwnership(reader.id, pubId)) {
               return next(
                 boom.forbidden(`Access to Publication ${pubId} disallowed`, {
-                  type: 'Publication',
-                  id: pubId,
-                  activity: 'Remove Tag from Publication'
+                  requestUrl: req.originalUrl
                 })
               )
             }
             if (!checkOwnership(reader.id, tagId)) {
               return next(
                 boom.forbidden(`Access to Tag ${tagId} disallowed`, {
-                  type: 'Tag',
-                  id: tagId,
-                  activity: 'Remove Tag from Publication'
+                  requestUrl: req.originalUrl
                 })
               )
             }
 
-            Publication_Tag.removeTagFromPub(pubId, tagId).then(
-              async result => {
-                if (result instanceof Error) {
-                  switch (result.message) {
-                    case 'no publication':
-                      return next(
-                        boom.notFound(`no publication found with id ${pubId}`, {
-                          type: 'Publication',
-                          id: pubId,
-                          activity: 'Remove Tag from Publication'
-                        })
-                      )
-
-                    case 'no tag':
-                      return next(
-                        boom.notFound(`no tag found with id ${tagId}`, {
-                          type: 'reader:Tag',
-                          id: tagId,
-                          activity: 'Remove Tag from Publication'
-                        })
-                      )
-
-                    case 'not found':
-                      return next(
-                        boom.notFound(
-                          `no relationship found between Tag ${tagId} and Publication ${pubId}`,
-                          {
-                            type: 'Publication_Tag',
-                            activity: 'Remove Tag from Publication'
-                          }
-                        )
-                      )
-
-                    default:
-                      return next(err)
-                  }
-                } else {
-                  await libraryCacheUpdate(reader.id)
-                  res.status(204).end()
-                }
-              }
-            )
+            Publication_Tag.removeTagFromPub(pubId, tagId)
+              .then(async result => {
+                await libraryCacheUpdate(reader.id)
+                res.status(204).end()
+              })
+              .catch(err => {
+                return next(
+                  boom.notFound(err.message, {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              })
           }
         })
         .catch(err => {

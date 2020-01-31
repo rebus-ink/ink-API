@@ -52,9 +52,7 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.notFound(`No reader with this token`, {
-                type: 'Reader',
-                id: readerId,
-                activity: 'Add Tag to Publication'
+                requestUrl: req.originalUrl
               })
             )
           }
@@ -62,64 +60,50 @@ module.exports = function (app) {
           if (!checkOwnership(reader.id, pubId)) {
             return next(
               boom.forbidden(`Access to Publication ${pubId} disallowed`, {
-                type: 'Publication',
-                id: pubId,
-                activity: 'Add Tag to Publication'
+                requestUrl: req.originalUrl
               })
             )
           }
           if (!checkOwnership(reader.id, tagId)) {
             return next(
               boom.forbidden(`Access to Tag ${tagId} disallowed`, {
-                type: 'Tag',
-                id: tagId,
-                activity: 'Add Tag to Publication'
+                requestUrl: req.originalUrl
               })
             )
           }
 
-          Publication_Tag.addTagToPub(pubId, tagId).then(async result => {
-            if (result instanceof Error) {
-              switch (result.message) {
-                case 'duplicate':
-                  return next(
-                    boom.badRequest(
-                      `duplicate Publication ${pubId} already asssociated with tag ${tagId}`,
-                      {
-                        type: `Publication_Tag`,
-                        target: pubId,
-                        object: tagId,
-                        activity: 'Add Tag to Publication'
-                      }
-                    )
-                  )
-
-                case 'no publication':
-                  return next(
-                    boom.notFound(`no publication found with id ${pubId}`, {
-                      type: 'Publication',
-                      id: pubId,
-                      activity: 'Add Tag to Publication'
-                    })
-                  )
-
-                case 'no tag':
-                  return next(
-                    boom.notFound(`no tag found with id ${tagId}`, {
-                      type: 'reader:Tag',
-                      id: tagId,
-                      activity: 'Add Tag to Publication'
-                    })
-                  )
-
-                default:
-                  return next(err)
-              }
-            } else {
+          Publication_Tag.addTagToPub(pubId, tagId)
+            .then(async result => {
               await libraryCacheUpdate(reader.id)
               res.status(204).end()
-            }
-          })
+            })
+            .catch(err => {
+              if (err.message === 'no publication') {
+                return next(
+                  boom.notFound(
+                    `Add Tag to Publication Error: No Publication found with id ${pubId}`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              } else if (err.message === 'no tag') {
+                return next(
+                  boom.notFound(
+                    `Add Tag to Publication Error: No Tag found with id ${tagId}`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              } else {
+                return next(
+                  boom.badRequest(err.message, {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              }
+            })
         })
         .catch(err => {
           next(err)
