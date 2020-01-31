@@ -55,68 +55,50 @@ module.exports = function (app) {
         if (!reader || !checkOwnership(reader.id, noteId)) {
           return next(
             boom.forbidden(`Access to Note ${noteId} disallowed`, {
-              type: 'Note',
-              id: noteId,
-              activity: 'Update Note'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
 
         const note = Object.assign(req.body, { id: urlToId(noteId) })
 
-        const result = await Note.update(note)
-
-        if (result === null) {
-          return next(
-            boom.notFound(`no note found with id ${noteId}`, {
-              type: 'Note',
-              id: noteId,
-              activity: 'Update Note'
-            })
-          )
-        }
-
-        if (result instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation Error on Update Note: ', {
-              activity: 'Update Note',
-              type: 'Note',
-              validation: result.data
-            })
-          )
-        }
-        if (result instanceof Error) {
-          if (result.message === 'no body') {
-            return next(
-              boom.badRequest('body is a required property', {
-                activity: 'Update Note',
-                type: 'Note'
-              })
-            )
-          }
-
-          if (result.message === 'invalid motivation') {
+        let updatedNote
+        try {
+          updatedNote = await Note.update(note)
+        } catch (err) {
+          if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `${req.body.body.motivation} is not a valid motivation`,
+                `Validation Error on Update Note: ${err.message}`,
                 {
-                  activity: 'Update Note',
-                  type: 'Note'
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body,
+                  validation: err.data
                 }
               )
             )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
           }
+        }
 
+        if (updatedNote === null) {
           return next(
-            boom.badRequest(result.message, {
-              activity: 'Update Note',
-              type: 'Note'
+            boom.notFound(`Put Note Error: No Note found with id ${noteId}`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
 
         res.setHeader('Content-Type', 'application/ld+json')
-        res.status(200).end(JSON.stringify(result.toJSON()))
+        res.status(200).end(JSON.stringify(updatedNote.toJSON()))
       })
 
       .catch(err => {
