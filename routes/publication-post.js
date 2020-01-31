@@ -45,16 +45,8 @@ module.exports = function (app) {
         if (!reader) {
           return next(
             boom.unauthorized(`No user found for this token`, {
-              type: 'Reader',
-              activity: 'Create Publication'
-            })
-          )
-        }
-
-        if (!req.is('application/ld+json')) {
-          return next(
-            boom.badRequest('Body must be JSON-LD', {
-              activity: 'Create Publication'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
@@ -62,31 +54,38 @@ module.exports = function (app) {
         const body = req.body
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
-            boom.badRequest('Body must be a JSON object', {
-              activity: 'Create Publication',
-              type: 'Publication'
-            })
+            boom.badRequest(
+              'Create Publication Error: Request body must be a JSON object',
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
           )
         }
-        const createdPub = await Publication.createPublication(reader, body)
-
-        if (createdPub instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation Error on Create Publication: ', {
-              activity: 'Create Publication',
-              type: 'Publication',
-              validation: createdPub.data
-            })
-          )
-        }
-
-        if (createdPub instanceof Error) {
-          return next(
-            boom.badRequest(createdPub.message, {
-              activity: 'Create Publication',
-              type: 'Publication'
-            })
-          )
+        let createdPub
+        try {
+          createdPub = await Publication.createPublication(reader, body)
+        } catch (err) {
+          if (err instanceof ValidationError) {
+            return next(
+              boom.badRequest(
+                `Validation Error on Create Publication: ${err.message}`,
+                {
+                  validation: err.data,
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                }
+              )
+            )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
+          }
         }
 
         await libraryCacheUpdate(reader.id)
