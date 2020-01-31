@@ -92,9 +92,9 @@ const allTests = async () => {
   }
 
   if (!test || test === 'note') {
-    await noteGetTests(app)
+    // await noteGetTests(app)
     await notePostTests(app)
-    await noteDeleteTests(app)
+    // await noteDeleteTests(app)
     await notePutTests(app)
   }
 

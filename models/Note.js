@@ -125,7 +125,9 @@ class Note extends BaseModel {
     if (note.documentUrl) {
       // first, make sure we also have a publicationId
       if (!note.publicationId) {
-        throw new Error('document without publication')
+        throw new Error(
+          'Note Validation Error: Notes with a documentUrl must also have a publicationId'
+        )
       }
 
       // $FlowFixMe
@@ -139,15 +141,20 @@ class Note extends BaseModel {
       const document = await Document.byPath(publicationId, docPath)
 
       if (document) {
-        if (urlToId(document.publicationId) !== urlToId(note.publicationId)) {
-          throw new Error('document and publication do not match')
+        if (
+          note.publicationId &&
+          note.documentUrl &&
+          urlToId(document.publicationId) !== urlToId(note.publicationId)
+        ) {
+          throw new Error(
+            `Note Validation Error: document with url ${
+              note.documentUrl
+            } does not belong to publication ${note.publicationId}`
+          )
         }
 
         props.documentId = urlToId(document.id)
       } else {
-        const err = new Error('no document')
-        // $FlowFixMe
-        err.note = note
         throw new Error('no document')
       }
     }
@@ -161,7 +168,7 @@ class Note extends BaseModel {
     try {
       props = await Note._formatIncomingNote(note)
     } catch (err) {
-      return err
+      throw err
     }
     props.readerId = reader.id
     props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
@@ -170,16 +177,18 @@ class Note extends BaseModel {
     let noteBodyError
 
     if (!note.body) {
-      noteBodyError = new Error('no body')
+      throw new Error(
+        'Create Note Validation Error: body is a required property'
+      )
     }
 
     try {
       createdNote = await Note.query().insertAndFetch(props)
     } catch (err) {
       if (err.constraint === 'note_publicationid_foreign') {
-        return new Error('no publication')
+        throw new Error('no publication')
       }
-      return err
+      throw err
     }
 
     // create noteBody
@@ -210,7 +219,7 @@ class Note extends BaseModel {
       await Note.query(Note.knex())
         .where('id', '=', urlToId(createdNote.id))
         .del()
-      return noteBodyError
+      throw noteBodyError
     }
     return createdNote
   }
@@ -248,10 +257,11 @@ class Note extends BaseModel {
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
     let updatedNote
-    let noteBodyError
 
     if (!note.body) {
-      noteBodyError = new Error('no body')
+      throw new Error(
+        'Note Update Validation Error: body is a required property'
+      )
     }
 
     try {
@@ -260,7 +270,7 @@ class Note extends BaseModel {
         modifications
       )
     } catch (err) {
-      return err
+      throw err
     }
 
     // if note not found:
@@ -288,11 +298,7 @@ class Note extends BaseModel {
         }
       }
     } catch (err) {
-      noteBodyError = err
-    }
-
-    if (noteBodyError) {
-      return noteBodyError
+      throw err
     }
 
     return updatedNote

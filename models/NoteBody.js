@@ -78,11 +78,19 @@ class NoteBody extends BaseModel {
   ) /*: Promise<NoteBodyType> */ {
     if (!noteBody) throw new Error('no noteBody')
     if (!noteId) throw new Error('no noteId')
-    if (!noteBody.motivation) throw new Error('no motivation')
+    if (!noteBody.motivation) {
+      throw new Error(
+        'Note Validation Error: body.motivation is a required property'
+      )
+    }
     if (!readerId) throw new Error('no readerId')
     noteBody.motivation = noteBody.motivation.toLowerCase()
     if (motivations.indexOf(noteBody.motivation) === -1) {
-      throw new Error('invalid motivation')
+      throw new Error(
+        `Note Validation Error: ${
+          noteBody.motivation
+        } is not a valid value for body.motivation`
+      )
     }
 
     let props = _.pick(noteBody, ['content', 'language', 'motivation'])
