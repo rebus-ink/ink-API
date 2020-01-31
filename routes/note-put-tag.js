@@ -51,9 +51,7 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.notFound(`No reader with this token`, {
-                type: 'Reader',
-                id: readerId,
-                activity: 'Add Tag to Note'
+                requestUrl: req.originalUrl
               })
             )
           }
@@ -61,63 +59,49 @@ module.exports = function (app) {
           if (!checkOwnership(reader.id, noteId)) {
             return next(
               boom.forbidden(`Access to Note ${noteId} disallowed`, {
-                type: 'Note',
-                id: noteId,
-                activity: 'Add Tag to Note'
+                requestUrl: req.originalUrl
               })
             )
           }
           if (!checkOwnership(reader.id, tagId)) {
             return next(
               boom.forbidden(`Access to Tag ${tagId} disallowed`, {
-                type: 'Tag',
-                id: tagId,
-                activity: 'Add Tag to Note'
+                requestUrl: req.originalUrl
               })
             )
           }
 
-          Note_Tag.addTagToNote(noteId, tagId).then(async result => {
-            if (result instanceof Error) {
-              switch (result.message) {
-                case 'duplicate':
-                  return next(
-                    boom.badRequest(
-                      `duplicate Note ${noteId} already asssociated with tag ${tagId}`,
-                      {
-                        type: `Note_Tag`,
-                        target: noteId,
-                        object: tagId,
-                        activity: 'Add Tag to Note'
-                      }
-                    )
-                  )
-
-                case 'no note':
-                  return next(
-                    boom.notFound(`no note found with id ${noteId}`, {
-                      type: 'Note',
-                      id: noteId,
-                      activity: 'Add Tag to Note'
-                    })
-                  )
-
-                case 'no tag':
-                  return next(
-                    boom.notFound(`no tag found with id ${tagId}`, {
-                      type: 'reader:Tag',
-                      id: tagId,
-                      activity: 'Add Tag to Note'
-                    })
-                  )
-
-                default:
-                  return next(err)
-              }
-            } else {
+          Note_Tag.addTagToNote(noteId, tagId)
+            .then(async result => {
               res.status(204).end()
-            }
-          })
+            })
+            .catch(err => {
+              if (err.message === 'no tag') {
+                return next(
+                  boom.notFound(
+                    `Add Tag to Note Error: No Tag found with id ${tagId}`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              } else if (err.message === 'no note') {
+                return next(
+                  boom.notFound(
+                    `Add Tag to Note Error: No Note found with id ${noteId}`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              } else {
+                return next(
+                  boom.badRequest(err.message, {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              }
+            })
         })
         .catch(err => {
           next(err)

@@ -45,10 +45,8 @@ module.exports = function (app) {
         .then(job => {
           if (!job) {
             return next(
-              boom.notFound(`No job with ID ${id}`, {
-                type: 'Job',
-                id: id,
-                activity: 'Get Job'
+              boom.notFound(`No Job found with id ${id}`, {
+                requestUrl: req.originalUrl
               })
             )
           } else {

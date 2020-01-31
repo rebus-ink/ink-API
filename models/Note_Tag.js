@@ -34,11 +34,13 @@ class Note_Tag extends Model {
       })
     } catch (err) {
       if (err.constraint === 'note_tag_tagid_foreign') {
-        return new Error('no tag')
+        throw new Error('no tag')
       } else if (err.constraint === 'note_tag_noteid_foreign') {
-        return new Error('no note')
+        throw new Error('no note')
       } else if (err.constraint === 'note_tag_noteid_tagid_unique') {
-        return new Error('duplicate')
+        throw new Error(
+          `Add Tag To Note Error: Tag ${tagId} is already assigned to Note ${noteId}`
+        )
       }
     }
   }
@@ -47,10 +49,6 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: string */
   ) /*: Promise<NoteTagType|Error> */ {
-    if (!noteId) return new Error('no note')
-
-    if (!tagId) return new Error('no tag')
-
     const result = await Note_Tag.query()
       .delete()
       .where({
@@ -59,7 +57,9 @@ class Note_Tag extends Model {
       })
 
     if (result === 0) {
-      return new Error('not found')
+      throw new Error(
+        `Delete Tag from Note Error: No relationship found between Note ${noteId} and Tag ${tagId}`
+      )
     } else {
       return result
     }
