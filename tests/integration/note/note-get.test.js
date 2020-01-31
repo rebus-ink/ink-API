@@ -78,13 +78,16 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
+
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Note')
+    await tap.equal(
+      error.message,
+      `Get Note Error: No Note found with id ${noteId}123`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}123`)
   })
 
   await tap.test('Get Publication with reference to Notes', async () => {

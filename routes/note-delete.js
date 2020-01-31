@@ -42,9 +42,7 @@ module.exports = function (app) {
         if (!reader || !checkOwnership(reader.id, noteId)) {
           return next(
             boom.forbidden(`Access to Note ${noteId} disallowed`, {
-              type: 'Note',
-              id: noteId,
-              activity: 'Delete Note'
+              requestUrl: req.originalUrl
             })
           )
         }
@@ -52,11 +50,12 @@ module.exports = function (app) {
         const result = await Note.delete(noteId)
         if (result === null) {
           return next(
-            boom.notFound(`no note found with id ${noteId}`, {
-              type: 'Note',
-              id: noteId,
-              activity: 'Delete Note'
-            })
+            boom.notFound(
+              `Note Delete Error: No Note found with id ${noteId}`,
+              {
+                requestUrl: req.originalUrl
+              }
+            )
           )
         }
 
