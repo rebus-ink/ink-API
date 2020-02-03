@@ -92,8 +92,8 @@ module.exports = app => {
       if (!req.query.search) {
         return next(
           boom.badRequest(`missing search query parameter`, {
-            missingParams: ['req.query.search'],
-            activity: 'Search'
+            requestUrl: req.originalUrl,
+            requestBody: req.body
           })
         )
       }
@@ -178,7 +178,8 @@ module.exports = app => {
             return next(
               boom.failedDependency(err.message, {
                 service: 'elastic search',
-                activity: 'Search'
+                requestUrl: req.originalUrl,
+                requestBody: req.body
               })
             )
           }

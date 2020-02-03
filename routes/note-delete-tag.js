@@ -63,7 +63,7 @@ module.exports = function (app) {
             if (!checkOwnership(reader.id, tagId)) {
               return next(
                 boom.forbidden(`Access to Tag ${tagId} disallowed`, {
-                  requestUrl: req.ori
+                  requestUrl: req.originalUrl
                 })
               )
             }

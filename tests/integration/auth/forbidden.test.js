@@ -34,6 +34,7 @@ const test = async app => {
   // create publication and tag for reader 1
   const publication = await createPublication(readerId)
   const publicationUrl = publication.id
+  const publicationId = urlToId(publicationUrl)
 
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
@@ -61,7 +62,7 @@ const test = async app => {
     'Try to get publication belonging to another reader',
     async () => {
       const res = await request(app)
-        .get(`/publications/${urlToId(publicationUrl)}`)
+        .get(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -70,9 +71,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Get Publication')
+      await tap.equal(
+        error.message,
+        `Access to publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
     }
   )
 
@@ -87,9 +93,8 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 403)
     await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Note')
+    await tap.equal(error.message, `Access to note ${noteId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
   await tap.test(
@@ -104,9 +109,8 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Get Reader')
+      await tap.equal(error.message, `Access to reader ${readerId} disallowed`)
+      await tap.equal(error.details.requestUrl, `/readers/${readerId}`)
     }
   )
 
@@ -114,7 +118,7 @@ const test = async app => {
     'Try to delete a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${urlToId(publicationUrl)}`)
+        .delete(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -123,9 +127,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Delete Publication')
+      await tap.equal(
+        error.message,
+        `Access to publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
     }
   )
 
@@ -133,7 +142,7 @@ const test = async app => {
     'Try to update a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${urlToId(publicationUrl)}`)
+        .patch(`/publications/${publicationId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -142,9 +151,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Update Publication')
+      await tap.equal(
+        error.message,
+        `Access to publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
     }
   )
 
@@ -159,9 +173,8 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 403)
     await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Note')
+    await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
   await tap.test('Try to update a note belonging to another user', async () => {
@@ -175,9 +188,8 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 403)
     await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Update Note')
+    await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
   await tap.test('Try to delete a tag belonging to another user', async () => {
@@ -191,9 +203,8 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 403)
     await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Tag')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Tag')
+    await tap.equal(error.message, `Access to tag ${tagId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/tags/${tagId}`)
   })
 
   await tap.test('Try to update a tag belonging to another user', async () => {
@@ -207,16 +218,15 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 403)
     await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.details.type, 'Tag')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Update Tag')
+    await tap.equal(error.message, `Access to tag ${tagId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/tags/${tagId}`)
   })
 
   await tap.test(
     'Try to assign a tag to a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .put(`/publications/${urlToId(publicationUrl)}/tags/${tagId2}`)
+        .put(`/publications/${publicationId}/tags/${tagId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -225,9 +235,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Add Tag to Publication')
+      await tap.equal(
+        error.message,
+        `Access to Publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/tags/${tagId2}`
+      )
     }
   )
 
@@ -244,9 +259,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Tag')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Add Tag to Publication')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId2}/tags/${tagId}`
+      )
     }
   )
 
@@ -254,7 +271,7 @@ const test = async app => {
     'Try to remove a tag from a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${urlToId(publicationUrl)}/tags/${tagId2}`)
+        .delete(`/publications/${publicationId}/tags/${tagId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -263,9 +280,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+      await tap.equal(
+        error.message,
+        `Access to Publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/tags/${tagId2}`
+      )
     }
   )
 
@@ -282,9 +304,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Tag')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId2}/tags/${tagId}`
+      )
     }
   )
 
@@ -301,9 +325,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Note')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Add Tag to Note')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId}/tags/${tagId2}`
+      )
     }
   )
 
@@ -320,9 +346,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Tag')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Add Tag to Note')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId2}/tags/${tagId}`
+      )
     }
   )
 
@@ -339,9 +367,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Note')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Remove Tag from Note')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId}/tags/${tagId2}`
+      )
     }
   )
 
@@ -358,9 +388,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Tag')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Remove Tag from Note')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId2}/tags/${tagId}`
+      )
     }
   )
 
@@ -378,9 +410,9 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Upload File')
+      // await tap.equal(error.details.type, 'Reader')
+      // await tap.type(error.details.id, 'string')
+      // await tap.equal(error.details.activity, 'Upload File')
     }
   )
 
@@ -388,7 +420,7 @@ const test = async app => {
     'Try to create a readActivity for a publication belonging to another user',
     async () => {
       const res = await request(app)
-        .post(`/publications/${urlToId(publicationUrl)}/readActivity`)
+        .post(`/publications/${publicationId}/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -398,9 +430,14 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Create ReadActivity')
+      await tap.equal(
+        error.message,
+        `Access to publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/readActivity`
+      )
     }
   )
 
