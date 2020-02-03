@@ -47,18 +47,17 @@ module.exports = app => {
         .then(reader => {
           if (!reader) {
             return next(
-              boom.notFound(`No reader with ID ${req.params.id}`, {
-                type: 'Reader',
-                id: req.params.id,
-                activity: 'Get Reader'
-              })
+              boom.notFound(
+                `Get Reader Error: No Reader found with id ${req.params.id}`,
+                {
+                  requestUrl: req.originalUrl
+                }
+              )
             )
           } else if (!utils.checkReader(req, reader)) {
             return next(
               boom.forbidden(`Access to reader ${req.params.id} disallowed`, {
-                type: 'Reader',
-                id: req.params.id,
-                activity: 'Get Reader'
+                requestUrl: req.originalUrl
               })
             )
           } else {

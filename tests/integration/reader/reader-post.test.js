@@ -77,8 +77,15 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Reader')
-      await tap.equal(error.details.activity, 'Create Reader')
+      await tap.equal(
+        error.message,
+        'Validation error on create Reader: profile: should be object'
+      )
+      await tap.equal(error.details.requestUrl, '/readers')
+      await tap.equal(
+        error.details.requestBody.profile,
+        'this should not be a string!'
+      )
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.profile[0].keyword, 'type')
       await tap.equal(error.details.validation.profile[0].params.type, 'object')
@@ -100,9 +107,9 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Create Reader')
+    await tap.ok(error.message.startsWith('Reader already exists with id'))
+    await tap.equal(error.details.requestUrl, '/readers')
+    await tap.equal(error.details.requestBody.name, 'Jane Doe')
   })
 
   // TODO: add test for incomplete reader object (once incoming json is validated)

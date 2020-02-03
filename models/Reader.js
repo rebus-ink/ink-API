@@ -451,7 +451,7 @@ class Reader extends BaseModel {
         .insert(props)
         .returning('*')
     } catch (err) {
-      return err
+      throw err
     }
 
     // create default Tags
