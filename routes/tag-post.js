@@ -45,16 +45,8 @@ module.exports = function (app) {
         if (!reader) {
           return next(
             boom.unauthorized(`No user found for this token`, {
-              type: 'Reader',
-              activity: 'Create Tag'
-            })
-          )
-        }
-
-        if (!req.is('application/ld+json')) {
-          return next(
-            boom.badRequest('Body must be JSON-LD', {
-              activity: 'Create Tag'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
@@ -63,38 +55,35 @@ module.exports = function (app) {
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
-              activity: 'Create Tag',
-              type: 'Tag'
-            })
-          )
-        }
-        const createdTag = await Tag.createTag(reader.id, body)
-        if (createdTag instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation Error on Create Tag: ', {
-              activity: 'Create Tag',
-              type: 'Tag',
-              validation: createdTag.data
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
 
-        if (createdTag instanceof Error) {
-          if (createdTag.message === 'duplicate') {
+        let createdTag
+        try {
+          createdTag = await Tag.createTag(reader.id, body)
+        } catch (err) {
+          if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `duplicate error: stack ${body.name} already exists`,
-                { activity: 'Create Tag', type: 'Tag' }
+                `Validation Error on Create Tag: ${err.message}`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body,
+                  validation: err.data
+                }
               )
             )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
           }
-
-          return next(
-            boom.badRequest(createdTag.message, {
-              activity: 'Create Tag',
-              type: 'Tag'
-            })
-          )
         }
 
         await libraryCacheUpdate(reader.id)

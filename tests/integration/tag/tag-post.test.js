@@ -63,10 +63,12 @@ const test = async app => {
 
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 400)
-    await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.activity, 'Create Tag')
-    await tap.type(error.details.validation, 'object')
+    await tap.equal(
+      error.message,
+      'Validation Error on Create Tag: name: is a required property'
+    )
+    await tap.equal(error.details.requestUrl, '/tags')
+    await tap.equal(error.details.requestBody.json.property, 'value')
     await tap.equal(error.details.validation.name[0].keyword, 'required')
     await tap.equal(
       error.details.validation.name[0].params.missingProperty,
@@ -88,9 +90,12 @@ const test = async app => {
       )
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 400)
-    await tap.equal(error.details.type, 'Tag')
-    await tap.equal(error.details.activity, 'Create Tag')
+    await tap.equal(
+      error.message,
+      'Create Tag Error: Tag mystack already exists'
+    )
+    await tap.equal(error.details.requestUrl, '/tags')
+    await tap.equal(error.details.requestBody.name, 'mystack')
   })
 
   await tap.test('Get tag that was created', async () => {

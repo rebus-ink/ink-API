@@ -99,13 +99,13 @@ const allTests = async () => {
   }
 
   if (!test || test === 'tag') {
-    // await tagsGetTests(app)
+    await tagsGetTests(app)
     await publicationAddTagTests(app)
     await tagNotePutTests(app)
     await tagNoteDeleteTests(app)
-    // await tagDeleteTests(app)
-    // await tagsPostTests(app)
-    // await tagPatchTests(app)
+    await tagDeleteTests(app)
+    await tagsPostTests(app)
+    await tagPatchTests(app)
   }
 
   if (!test || test === 'readerNotes') {

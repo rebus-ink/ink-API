@@ -42,8 +42,7 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.notFound(`No reader found with this token`, {
-                type: 'Reader',
-                activity: 'Get Tags'
+                requestUrl: req.originalUrl
               })
             )
           }
