@@ -97,10 +97,16 @@ class Attribution extends BaseModel {
         attribution.type !== 'Person' &&
         attribution.type !== 'Organization'
       ) {
-        throw Error('invalid attribution type')
+        throw Error(
+          `${role} attribution Validation Error: ${
+            attribution.type
+          } is not a valid type. Must be 'Person' or 'Organization'`
+        )
       }
       if (!attribution.name) {
-        throw Error('no attribution name')
+        throw Error(
+          `${role} attribution Validation Error: name is a required property`
+        )
       }
 
       props = _.pick(attribution, ['name', 'type', 'isContributor'])

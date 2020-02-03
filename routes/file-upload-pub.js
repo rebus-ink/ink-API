@@ -63,9 +63,8 @@ module.exports = app => {
       if (!req.file) {
         return next(
           boom.badRequest('no file was included in this upload', {
-            type: 'publication-file-upload',
-            missingParams: ['req.file'],
-            activity: 'Upload File to Publication'
+            requestUrl: req.originalUrl,
+            requestBody: req.body
           })
         )
       } else {
@@ -110,7 +109,8 @@ module.exports = app => {
           return next(
             boom.failedDependency(err.message, {
               service: 'google bucket',
-              activity: 'Upload File to Publication'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         })

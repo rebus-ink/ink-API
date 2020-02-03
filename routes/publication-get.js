@@ -48,18 +48,15 @@ module.exports = function (app) {
         .then(publication => {
           if (!publication || publication.deleted) {
             return next(
-              boom.notFound(`No publication with ID ${pubId}`, {
-                type: 'Publication',
-                id: pubId,
-                activity: 'Get Publication'
+              boom.notFound(`No Publication found with id ${pubId}`, {
+                requestUrl: req.originalUrl
               })
             )
           } else if (!utils.checkReader(req, publication.reader)) {
             return next(
               boom.forbidden(`Access to publication ${pubId} disallowed`, {
                 type: 'Publication',
-                id: pubId,
-                activity: 'Get Publication'
+                requestUrl: req.originalUrl
               })
             )
           } else {

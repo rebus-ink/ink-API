@@ -61,9 +61,14 @@ const test = async app => {
 
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'reader:Tag')
-      await tap.equal(error.details.activity, 'Add Tag to Publication')
+      await tap.equal(
+        error.message,
+        `Add Tag to Publication Error: No Tag found with id ${invalidTagId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/tags/${invalidTagId}`
+      )
     }
   )
 
@@ -79,8 +84,14 @@ const test = async app => {
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Add Tag to Publication')
+      await tap.equal(
+        error.message,
+        `Add Tag to Publication Error: No Publication found with id ${invalidPubId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${invalidPubId}/tags/${tagId}`
+      )
     }
   )
 
@@ -130,8 +141,14 @@ const test = async app => {
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Publication_Tag')
-      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+      await tap.equal(
+        error.message,
+        `Remove Tag from Publication Error: No Relation found between Tag ${invalidTagId} and Publication ${publicationId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/tags/${invalidTagId}`
+      )
     }
   )
 
@@ -147,8 +164,14 @@ const test = async app => {
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Publication_Tag')
-      await tap.equal(error.details.activity, 'Remove Tag from Publication')
+      await tap.equal(
+        error.message,
+        `Remove Tag from Publication Error: No Relation found between Tag ${tagId} and Publication ${invalidPubId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${invalidPubId}/tags/${tagId}`
+      )
     }
   )
 
@@ -167,11 +190,14 @@ const test = async app => {
 
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 400)
-    await tap.equal(error.details.type, 'Publication_Tag')
-    await tap.equal(error.details.activity, 'Add Tag to Publication')
-    await tap.type(error.details.target, 'string')
-    await tap.type(error.details.object, 'string')
+    await tap.equal(
+      error.message,
+      `Add Tag to Publication Error: Relationship already exists between Publication ${publicationId} and Tag ${tagId}`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/publications/${publicationId}/tags/${tagId}`
+    )
   })
 
   await destroyDB(app)

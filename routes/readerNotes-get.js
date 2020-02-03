@@ -103,9 +103,7 @@ module.exports = app => {
           if (!reader) {
             return next(
               boom.notFound(`No reader with ID ${req.user}`, {
-                type: 'Reader',
-                id,
-                activity: 'Get Notes'
+                requestUrl: req.originalUrl
               })
             )
           } else {

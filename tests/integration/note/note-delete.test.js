@@ -47,13 +47,16 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
+
     await tap.equal(getres.statusCode, 404)
     const error = JSON.parse(getres.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Note')
+    await tap.equal(
+      error.message,
+      `Get Note Error: No Note found with id ${noteId}`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
   await tap.test(
@@ -99,9 +102,11 @@ const test = async app => {
     const error1 = JSON.parse(res1.text)
     await tap.equal(error1.statusCode, 404)
     await tap.equal(error1.error, 'Not Found')
-    await tap.equal(error1.details.type, 'Note')
-    await tap.type(error1.details.id, 'string')
-    await tap.equal(error1.details.activity, 'Delete Note')
+    await tap.equal(
+      error1.message,
+      `Note Delete Error: No Note found with id ${noteId}abc`
+    )
+    await tap.equal(error1.details.requestUrl, `/notes/${noteId}abc`)
   })
 
   await tap.test('Try to delete a Note that was already deleted', async () => {
@@ -115,9 +120,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Delete Note')
+    await tap.equal(
+      error.message,
+      `Note Delete Error: No Note found with id ${noteId}`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
   // // DELETE NOTES FOR PUB

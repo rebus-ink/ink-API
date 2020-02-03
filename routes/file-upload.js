@@ -59,9 +59,8 @@ module.exports = app => {
         if (!reader) {
           return next(
             boom.notFound(`No reader with ID ${id}`, {
-              type: 'Reader',
-              id: id,
-              activity: 'Upload File'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         } else if (!utils.checkReader(req, reader)) {
@@ -87,9 +86,8 @@ module.exports = app => {
           if (req.files.length === 0) {
             return next(
               boom.badRequest('no file was included in this upload', {
-                type: 'file-upload',
-                missingParams: ['req.files'],
-                activity: 'Upload File'
+                requestUrl: req.originalUrl,
+                requestBody: req.body
               })
             )
           } else {

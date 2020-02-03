@@ -87,8 +87,16 @@ const test = async app => {
       const error = JSON.parse(readActivity.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Read')
+      await tap.equal(
+        error.message,
+        'Validation error on create ReadActivity: selector: is a required property'
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}/readActivity`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.json.property, 'value')
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.selector[0].keyword, 'required')
       await tap.equal(
@@ -118,9 +126,16 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
       await tap.equal(error.error, 'Not Found')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Create Read Activity')
+      await tap.equal(
+        error.message,
+        `No Publication found with id ${publicationId}abc`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}abc/readActivity`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.json.property, 'value')
     }
   )
 

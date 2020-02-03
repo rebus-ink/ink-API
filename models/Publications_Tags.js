@@ -23,19 +23,8 @@ class Publication_Tag extends BaseModel {
     publicationId /*: string */,
     tagId /*: string */
   ) /*: Promise<any> */ {
-    // check publication
-    if (!publicationId) return new Error('no publication')
-
-    // check tag
-    if (!tagId) return new Error('no tag')
-
-    // // check if already exists - SKIPPED FOR NOW
-    // const result = await Publications_Tags.query().where({
-    //   publicationId: publication.id,
-    //   tagId
-    // })
-    // if (result.length > 0) {
-    //   return new Error('duplicate')
+    if (!publicationId) throw new Error('no publication')
+    if (!tagId) throw new Error('no tag')
 
     try {
       return await Publication_Tag.query().insertAndFetch({
@@ -44,13 +33,15 @@ class Publication_Tag extends BaseModel {
       })
     } catch (err) {
       if (err.constraint === 'publication_tag_tagid_foreign') {
-        return new Error('no tag')
+        throw new Error('no tag')
       } else if (err.constraint === 'publication_tag_publicationid_foreign') {
-        return new Error('no publication')
+        throw new Error('no publication')
       } else if (
         err.constraint === 'publication_tag_publicationid_tagid_unique'
       ) {
-        return new Error('duplicate')
+        throw new Error(
+          `Add Tag to Publication Error: Relationship already exists between Publication ${publicationId} and Tag ${tagId}`
+        )
       }
     }
   }
@@ -59,12 +50,6 @@ class Publication_Tag extends BaseModel {
     publicationId /*: string */,
     tagId /*: string */
   ) /*: Promise<PublicationTagType|Error> */ {
-    // check publication
-    if (!publicationId) return new Error('no publication')
-
-    // check tag
-    if (!tagId) return new Error('no tag')
-
     const result = await Publication_Tag.query()
       .delete()
       .where({
@@ -73,7 +58,9 @@ class Publication_Tag extends BaseModel {
       })
 
     if (result === 0) {
-      return new Error('not found')
+      throw new Error(
+        `Remove Tag from Publication Error: No Relation found between Tag ${tagId} and Publication ${publicationId}`
+      )
     } else {
       return result
     }

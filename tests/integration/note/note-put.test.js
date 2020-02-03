@@ -86,12 +86,18 @@ const test = async app => {
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(JSON.stringify(newNote))
+
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Note')
-      await tap.equal(error.details.activity, 'Update Note')
+      await tap.equal(
+        error.message,
+        `Validation Error on Update Note: target: should be object`
+      )
+      await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.target, 'string!')
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.target[0].keyword, 'type')
       await tap.equal(error.details.validation.target[0].params.type, 'object')
@@ -107,12 +113,17 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(JSON.stringify(newNote))
+
     await tap.equal(res.status, 400)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Note')
-    await tap.equal(error.details.activity, 'Update Note')
+    await tap.equal(
+      error.message,
+      `Note Update Validation Error: body is a required property`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+    await tap.type(error.details.requestBody, 'object')
   })
 
   await tap.test(
@@ -130,14 +141,13 @@ const test = async app => {
 
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'invalid motivation is not a valid motivation'
+        `Note Validation Error: invalid motivation is not a valid value for body.motivation`
       )
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Note')
-      await tap.equal(error.details.activity, 'Update Note')
+      await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+      await tap.type(error.details.requestBody, 'object')
     }
   )
 
@@ -156,9 +166,12 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Note')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Update Note')
+    await tap.equal(
+      error.message,
+      `Put Note Error: No Note found with id ${noteId}abc`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}abc`)
+    await tap.type(error.details.requestBody, 'object')
   })
 
   await destroyDB(app)

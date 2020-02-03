@@ -71,8 +71,11 @@ const test = async app => {
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Tag')
-      await tap.equal(error.details.activity, 'Delete Tag')
+      await tap.equal(
+        error.message,
+        `Delete Tag Error: No Tag found with id ${stack.id}123`
+      )
+      await tap.equal(error.details.requestUrl, `/tags/${stack.id}123`)
     }
   )
 
@@ -127,8 +130,11 @@ const test = async app => {
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Tag')
-    await tap.equal(error.details.activity, 'Delete Tag')
+    await tap.equal(
+      error.message,
+      `Delete Tag Error: No Tag found with id ${stack.id}`
+    )
+    await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
   })
 
   await destroyDB(app)

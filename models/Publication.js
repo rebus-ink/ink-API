@@ -252,13 +252,23 @@ class Publication extends BaseModel {
       })
     }
     if (invalid.length > 0) {
-      throw new Error('invalid language(s): ' + invalid.toString())
+      if (invalid.length === 1) {
+        throw new Error(
+          `Publication validation error: ${
+            invalid[0]
+          } is not a valid language code`
+        )
+      } else {
+        throw new Error(
+          `Publication validation error: ${invalid.toString()} are not valid language codes`
+        )
+      }
     }
 
     // check type -- does not check if type is here. That is checked by objection.js
     if (publication.type && types.indexOf(publication.type) === -1) {
       throw new Error(
-        `${publication.type} is not a valid type for a publication`
+        `Publication validation error: ${publication.type} is not a valid type.`
       )
     }
 
@@ -267,12 +277,18 @@ class Publication extends BaseModel {
       publication.dateModified &&
       !(new Date(publication.dateModified).getTime() > 0)
     ) {
-      throw new Error(`${publication.dateModified} is not a valid timestamp`)
+      throw new Error(
+        `Publication validation error: dateModified must be a timestamp. ${
+          publication.dateModified
+        } is not a valid timestamp`
+      )
     }
 
     // check bookEdition - should be a string
     if (publication.bookEdition && !_.isString(publication.bookEdition)) {
-      throw new Error('bookEdition should be a string')
+      throw new Error(
+        'Publication validation error: bookEdition should be a string'
+      )
     }
 
     // check bookFormat
@@ -280,95 +296,112 @@ class Publication extends BaseModel {
       publication.bookFormat &&
       bookFormats.indexOf(publication.bookFormat) === -1
     ) {
-      throw new Error(`${publication.bookFormat} is not avalid bookFormat`)
+      throw new Error(
+        `Publication validation error: ${
+          publication.bookFormat
+        } is not a valid bookFormat`
+      )
     }
 
     // check isbn - should be string.
     if (publication.isbn && !_.isString(publication.isbn)) {
-      throw new Error('isbn should be a string')
+      throw new Error('Publication validation error: isbn should be a string')
     }
 
     // check genre - should be a string
     if (publication.genre && !_.isString(publication.genre)) {
-      throw new Error('genre should be a string')
+      throw new Error('Publication validation error: genre should be a string')
     }
 
     // check url - should be a string
     if (publication.url && !_.isString(publication.url)) {
-      throw new Error('url should be a string')
+      throw new Error('Publication validation error: url should be a string')
     }
 
     // check keywords - should be a string or an array of strings
     if (publication.keywords) {
-      let keywordError
       if (_.isArray(publication.keywords)) {
         publication.keywords.forEach(word => {
           if (!_.isString(word)) {
-            keywordError = 'keywords should be strings'
+            throw new Error(
+              'Publication validation error: keywords should be strings'
+            )
           }
         })
       } else if (!_.isString(publication.keywords)) {
-        keywordError = 'keywords should be a string or an array of strings'
-      }
-      if (keywordError) {
-        throw new Error(keywordError)
+        throw new Error(
+          'Publication validation error: keywords should be a string or an array of strings'
+        )
       }
     }
 
     // check link objects
-    let linksError
     if (publication.links) {
       if (!_.isArray(publication.links)) {
-        linksError = `links must be an array of links`
+        throw new Error(
+          `Publication validation error: links must be an array of links`
+        )
       } else {
         publication.links.forEach(link => {
           if (!this._isValidLink(link)) {
-            linksError = `links must be either a string or an object with a url property`
+            throw new Error(
+              `Publication validation error: links items must be either a string or an object with a url property`
+            )
           }
         })
       }
     }
-    if (linksError) throw new Error(linksError)
 
     // check resources objects
-    let resourcesError
     if (publication.resources) {
       if (!_.isArray(publication.resources)) {
-        resourcesError = `links must be an array of links`
+        throw new Error(
+          `Publication validation error: resources must be an array of links`
+        )
       } else {
         publication.resources.forEach(link => {
           if (!this._isValidLink(link)) {
-            resourcesError = `links must be either a string or an object with a url property`
+            throw new Error(
+              `Publication validation error: resources items must be either a string or an object with a url property`
+            )
           }
         })
       }
     }
-    if (resourcesError) throw new Error(resourcesError)
 
     // check readingOrder objects
-    let readingOrderError
     if (publication.readingOrder) {
       if (!_.isArray(publication.readingOrder)) {
-        readingOrderError = `links must be an array of links`
+        throw new Error(
+          `Publication validation error: readingOrder must be an array of links`
+        )
       } else {
         publication.readingOrder.forEach(link => {
           if (!this._isValidLink(link)) {
-            readingOrderError = `links must be either a string or an object with a url property`
+            throw new Error(
+              `Publication validation error: readingOrder items must be either a string or an object with a url property`
+            )
           }
         })
       }
     }
-    if (readingOrderError) throw new Error(readingOrderError)
+
     if (
       publication.inDirection &&
       publication.inDirection !== 'ltr' &&
       publication.inDirection !== 'rtl'
     ) {
-      throw new Error('inDirection should be either "ltr" or "rtl"')
+      throw new Error(
+        'Publication validation error: inDirection should be either "ltr" or "rtl"'
+      )
     }
 
     if (publication.status && !statusMap[publication.status]) {
-      throw new Error(`invalid status: ${publication.status}`)
+      throw new Error(
+        `Publication validation error: ${
+          publication.status
+        } is not a valid status`
+      )
     }
   }
 
@@ -469,9 +502,8 @@ class Publication extends BaseModel {
     try {
       this._validateIncomingPub(publication)
     } catch (err) {
-      return err
+      throw err
     }
-
     const pub = this._formatIncomingPub(reader, publication)
     let createdPublication
     pub.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
@@ -480,14 +512,16 @@ class Publication extends BaseModel {
         Publication.knex()
       ).insertAndFetch(pub)
     } catch (err) {
-      return err
+      throw err
     }
 
     // create attributions
     for (const type of attributionTypes) {
       if (publication[type]) {
         if (!_.isString(publication[type]) && !_.isObject(publication[type])) {
-          return new Error(`invalid attribution for ${type}`)
+          throw new Error(
+            `${type} attribution validation error: attribution should be either an attribution object or a string`
+          )
         }
         if (_.isString(publication[type])) {
           publication[type] = [{ type: 'Person', name: publication[type] }]
@@ -502,7 +536,7 @@ class Publication extends BaseModel {
             )
             createdPublication[type].push(createdAttribution)
           } catch (err) {
-            return err
+            throw err
           }
         }
       }
@@ -592,7 +626,7 @@ class Publication extends BaseModel {
     try {
       Publication._validateIncomingPub(body)
     } catch (err) {
-      return err
+      throw err
     }
     const modifications = Publication._formatIncomingPub(null, body)
 
@@ -603,7 +637,7 @@ class Publication extends BaseModel {
         modifications
       )
     } catch (err) {
-      return err
+      throw err
     }
     // attach attributions to the udpatedPub object
     if (publication.attributions) {
@@ -618,65 +652,26 @@ class Publication extends BaseModel {
     // Update Attributions if necessary
     for (const role of attributionTypes) {
       if (body[role]) {
+        if (!_.isString(body[role]) && !_.isObject(body[role])) {
+          throw new Error(
+            `${role} attribution validation error: attribution should be either an attribution object or a string`
+          )
+        }
         // Delete the previous attributions for this role
         await Attribution.deleteAttributionOfPub(id, role)
         // Assign new attributions
         updatedPub[role] = []
         for (let i = 0; i < body[role].length; i++) {
-          const attribution = await Attribution.createAttribution(
-            body[role][i],
-            role,
-            publication
-          )
-          updatedPub[role].push(attribution)
-        }
-      }
-    }
-
-    return updatedPub
-  }
-
-  static async update (
-    newPubObj /*: any */
-  ) /*: Promise<PublicationType|null> */ {
-    try {
-      this._validateIncomingPub(newPubObj)
-    } catch (err) {
-      return err
-    }
-
-    const modifications = this._formatIncomingPub(null, newPubObj)
-
-    // Fetch the Publication that will be modified
-    let publication = await Publication.query().findById(urlToId(newPubObj.id))
-    if (!publication) {
-      return null
-    }
-
-    let updatedPub
-    try {
-      updatedPub = await Publication.query().patchAndFetchById(
-        urlToId(newPubObj.id),
-        modifications
-      )
-    } catch (err) {
-      return err
-    }
-    // Update Attributions if necessary
-    for (const role of attributionTypes) {
-      if (newPubObj[role]) {
-        // Delete the previous attributions for this role
-        await Attribution.deleteAttributionOfPub(urlToId(newPubObj.id), role)
-
-        // Assign new attributions
-        updatedPub[role] = []
-        for (let i = 0; i < newPubObj[role].length; i++) {
-          const attribution = await Attribution.createAttribution(
-            newPubObj[role][i],
-            role,
-            publication
-          )
-          updatedPub[role].push(attribution)
+          try {
+            const attribution = await Attribution.createAttribution(
+              body[role][i],
+              role,
+              publication
+            )
+            updatedPub[role].push(attribution)
+          } catch (err) {
+            throw err
+          }
         }
       }
     }

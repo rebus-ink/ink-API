@@ -340,14 +340,19 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.equal(error.details.activity, 'Create Publication')
+    await tap.equal(
+      error.message,
+      'Validation Error on Create Publication: name: is a required property'
+    )
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.name[0].keyword, 'required')
     await tap.equal(
       error.details.validation.name[0].params.missingProperty,
       'name'
     )
+    await tap.equal(error.details.requestUrl, '/publications')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.type, 'Book')
   })
 
   await tap.test('trying to create a Publication without a type', async () => {
@@ -368,14 +373,19 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.equal(error.details.activity, 'Create Publication')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.type[0].keyword, 'required')
     await tap.equal(
       error.details.validation.type[0].params.missingProperty,
       'type'
     )
+    await tap.equal(
+      error.message,
+      'Validation Error on Create Publication: type: is a required property'
+    )
+    await tap.equal(error.details.requestUrl, '/publications')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Publication C')
   })
 
   await tap.test(
@@ -398,11 +408,16 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.json[0].keyword, 'type')
       await tap.equal(error.details.validation.json[0].params.type, 'object')
+      await tap.equal(
+        error.message,
+        'Validation Error on Create Publication: json: should be object'
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -426,8 +441,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        'Publication validation error: not a valid code,another invalid thing are not valid language codes'
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -451,8 +471,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        'Publication validation error: links items must be either a string or an object with a url property'
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
 
       const res2 = await request(app)
         .post(`/publications`)
@@ -471,8 +496,13 @@ const test = async app => {
       const error2 = JSON.parse(res2.text)
       await tap.equal(error2.statusCode, 400)
       await tap.equal(error2.error, 'Bad Request')
-      await tap.equal(error2.details.type, 'Publication')
-      await tap.equal(error2.details.activity, 'Create Publication')
+      await tap.equal(
+        error2.message,
+        `Publication validation error: resources must be an array of links`
+      )
+      await tap.equal(error2.details.requestUrl, '/publications')
+      await tap.type(error2.details.requestBody, 'object')
+      await tap.equal(error2.details.requestBody.name, 'Publication C')
 
       const res3 = await request(app)
         .post('/publications')
@@ -491,8 +521,13 @@ const test = async app => {
       const error3 = JSON.parse(res3.text)
       await tap.equal(error3.statusCode, 400)
       await tap.equal(error3.error, 'Bad Request')
-      await tap.equal(error3.details.type, 'Publication')
-      await tap.equal(error3.details.activity, 'Create Publication')
+      await tap.equal(
+        error3.message,
+        `Publication validation error: readingOrder items must be either a string or an object with a url property`
+      )
+      await tap.equal(error3.details.requestUrl, '/publications')
+      await tap.type(error3.details.requestBody, 'object')
+      await tap.equal(error3.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -515,8 +550,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: not valid is not a valid type.`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
 
       const res2 = await request(app)
         .post('/publications')
@@ -534,8 +574,13 @@ const test = async app => {
       const error2 = JSON.parse(res2.text)
       await tap.equal(error2.statusCode, 400)
       await tap.equal(error2.error, 'Bad Request')
-      await tap.equal(error2.details.type, 'Publication')
-      await tap.equal(error2.details.activity, 'Create Publication')
+      await tap.equal(
+        error2.message,
+        `Publication validation error: 123 is not a valid type.`
+      )
+      await tap.equal(error2.details.requestUrl, '/publications')
+      await tap.type(error2.details.requestBody, 'object')
+      await tap.equal(error2.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -559,8 +604,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: dateModified must be a timestamp. not a date is not a valid timestamp`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -584,8 +634,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        'Publication validation error: bookEdition should be a string'
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -609,8 +664,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: invalid format is not a valid bookFormat`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
 
       const res2 = await request(app)
         .post('/publications')
@@ -629,8 +689,13 @@ const test = async app => {
       const error2 = JSON.parse(res2.text)
       await tap.equal(error2.statusCode, 400)
       await tap.equal(error2.error, 'Bad Request')
-      await tap.equal(error2.details.type, 'Publication')
-      await tap.equal(error2.details.activity, 'Create Publication')
+      await tap.equal(
+        error2.message,
+        `Publication validation error: 123 is not a valid bookFormat`
+      )
+      await tap.equal(error2.details.requestUrl, '/publications')
+      await tap.type(error2.details.requestBody, 'object')
+      await tap.equal(error2.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -654,8 +719,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: isbn should be a string`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -679,8 +749,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        'Publication validation error: keywords should be a string or an array of strings'
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -704,8 +779,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: genre should be a string`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -729,8 +809,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: url should be a string`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -754,8 +839,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `illustrator attribution validation error: attribution should be either an attribution object or a string`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -778,8 +868,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `creator attribution Validation Error: invalid is not a valid type. Must be 'Person' or 'Organization'`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -802,8 +897,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `creator attribution Validation Error: name is a required property`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -827,8 +927,13 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Create Publication')
+      await tap.equal(
+        error.message,
+        `Publication validation error: inDirection should be either "ltr" or "rtl"`
+      )
+      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'Publication C')
     }
   )
 
@@ -843,8 +948,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.equal(error.details.activity, 'Create Publication')
+    await tap.equal(
+      error.message,
+      `Create Publication Error: Request body must be a JSON object`
+    )
+    await tap.equal(error.details.requestUrl, '/publications')
   })
 
   await destroyDB(app)

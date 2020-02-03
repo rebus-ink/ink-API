@@ -134,8 +134,13 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Note')
-    await tap.equal(error.details.activity, 'Create Note')
+    await tap.equal(
+      error.message,
+      'Create Note Validation Error: body is a required property'
+    )
+    await tap.equal(error.details.requestUrl, `/notes`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.canonical, 'one')
   })
 
   await tap.test(
@@ -160,10 +165,14 @@ const test = async app => {
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
-      await tap.equal(error.message, 'body.motivation is a required property')
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Note')
-      await tap.equal(error.details.activity, 'Create Note')
+      await tap.equal(
+        error.message,
+        'Note Validation Error: body.motivation is a required property'
+      )
+      await tap.equal(error.details.requestUrl, `/notes`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.canonical, 'one')
     }
   )
 
@@ -196,8 +205,13 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 400)
     await tap.equal(error.error, 'Bad Request')
-    await tap.equal(error.details.type, 'Note')
-    await tap.equal(error.details.activity, 'Create Note')
+    await tap.equal(
+      error.message,
+      'Validation Error on Create Note: json: should be object'
+    )
+    await tap.equal(error.details.requestUrl, `/notes`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.json, 'a string!')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.json[0].keyword, 'type')
     await tap.equal(error.details.validation.json[0].params.type, 'object')
@@ -225,11 +239,12 @@ const test = async app => {
       await tap.equal(error.statusCode, 400)
       await tap.equal(
         error.message,
-        'invalid motivation is not a valid motivation'
+        'Note Validation Error: invalid motivation is not a valid value for body.motivation'
       )
+      await tap.equal(error.details.requestUrl, `/notes`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.body.content, 'testing!')
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Note')
-      await tap.equal(error.details.activity, 'Create Note')
     }
   )
 
@@ -243,6 +258,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
+          body: { motivation: 'test' },
           target: { property: 'something' },
           publicationId,
           documentUrl: documentUrl + 'abc'
@@ -252,9 +268,13 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Document')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Create Note')
+    await tap.equal(
+      error.message,
+      `Create Note Error: No Document found with documentUrl: ${documentUrl}abc`
+    )
+    await tap.equal(error.details.requestUrl, `/notes`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.body.motivation, 'test')
   })
 
   await tap.test('Try to create Note with invalid Publication id', async () => {
@@ -274,9 +294,13 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Publication')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Create Note')
+    await tap.equal(
+      error.message,
+      `Create Note Error: No Publication found with id: ${publicationId}abc`
+    )
+    await tap.equal(error.details.requestUrl, `/notes`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.body.motivation, 'test')
   })
 
   await tap.test(
@@ -290,20 +314,26 @@ const test = async app => {
         .send(
           JSON.stringify({
             target: { property: 'something' },
+            body: { motivation: 'test' },
             documentUrl: documentUrl
           })
         )
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
-      await tap.equal(error.details.type, 'Document')
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.activity, 'Create Note')
+      await tap.equal(
+        error.message,
+        'Note Validation Error: Notes with a documentUrl must also have a publicationId'
+      )
+      await tap.equal(error.details.requestUrl, `/notes`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.body.motivation, 'test')
     }
   )
 
   await tap.test(
-    'Try to create Note with a documentUrl buta publicationId for another publication',
+    'Try to create Note with a documentUrl but a publicationId for another publication',
     async () => {
       const res = await request(app)
         .post('/notes')
@@ -313,6 +343,7 @@ const test = async app => {
         .send(
           JSON.stringify({
             target: { property: 'something' },
+            body: { motivation: 'test' },
             documentUrl: documentUrl,
             publicationId: publicationId2
           })
@@ -321,8 +352,13 @@ const test = async app => {
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
-      await tap.equal(error.details.type, 'Document')
-      await tap.equal(error.details.activity, 'Create Note')
+      await tap.equal(
+        error.message,
+        `Note Validation Error: document with url ${documentUrl} does not belong to publication ${publicationId2}`
+      )
+      await tap.equal(error.details.requestUrl, `/notes`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.body.motivation, 'test')
     }
   )
 

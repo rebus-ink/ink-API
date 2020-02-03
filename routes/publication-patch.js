@@ -55,31 +55,18 @@ module.exports = function (app) {
       .then(async pub => {
         if (!pub) {
           return next(
-            boom.notFound(
-              `publication with id ${pubId} does not exist or has been deleted`,
-              {
-                type: 'Publication',
-                id: pubId,
-                activity: 'Update Publication'
-              }
-            )
+            boom.notFound(`No Publication found with id ${pubId}`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
           )
         }
         const reader = await Reader.byAuthId(req.user)
         if (!reader || !checkOwnership(reader.id, pubId)) {
           return next(
             boom.forbidden(`Access to publication ${pubId} disallowed`, {
-              type: 'Publication',
-              id: pubId,
-              activity: 'Update Publication'
-            })
-          )
-        }
-        // check body
-        if (!req.is('application/ld+json')) {
-          return next(
-            boom.badRequest('Body must be JSON-LD', {
-              activity: 'Update Publication'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
@@ -87,39 +74,47 @@ module.exports = function (app) {
         const body = req.body
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
-            boom.badRequest('Body must be a JSON object', {
-              activity: 'Update Publication',
-              type: 'Publication'
-            })
+            boom.badRequest(
+              'Patch Publication Request Error: Body must be a JSON object',
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
           )
         }
 
         // update pub
-        const updatedPub = await pub.update(body)
-        if (updatedPub === null) {
-          return next(
-            boom.notFound(`no publication found with id ${body.id}`, {
-              type: 'Publication',
-              id: body.id,
-              activity: 'Update Publication'
-            })
-          )
+        let updatedPub
+        try {
+          updatedPub = await pub.update(body)
+        } catch (err) {
+          if (err instanceof ValidationError) {
+            return next(
+              boom.badRequest(
+                `Validation Error on Patch Publication: ${err.message}`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body,
+                  validation: err.data
+                }
+              )
+            )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
+          }
         }
 
-        if (updatedPub instanceof ValidationError) {
+        if (updatedPub === null) {
           return next(
-            boom.badRequest('Validation Error on Update Publication: ', {
-              activity: 'Update Publication',
-              type: 'Publication',
-              validation: updatedPub.data
-            })
-          )
-        }
-        if (updatedPub instanceof Error) {
-          return next(
-            boom.badRequest(updatedPub.message, {
-              activity: 'Update Publication',
-              type: 'Publication'
+            boom.notFound(`No Publication found with id ${body.id}`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }

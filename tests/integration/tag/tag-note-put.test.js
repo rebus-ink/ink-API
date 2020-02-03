@@ -92,9 +92,14 @@ const test = async app => {
 
       await tap.equal(res.status, 400)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.details.type, 'Note_Tag')
-      await tap.equal(error.details.activity, 'Add Tag to Note')
+      await tap.equal(
+        error.message,
+        `Add Tag To Note Error: Tag ${tagId} is already assigned to Note ${noteId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId}/tags/${tagId}`
+      )
     }
   )
 
@@ -108,8 +113,14 @@ const test = async app => {
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'reader:Tag')
-    await tap.equal(error.details.activity, 'Add Tag to Note')
+    await tap.equal(
+      error.message,
+      `Add Tag to Note Error: No Tag found with id ${tagId}abc`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/notes/${noteId}/tags/${tagId}abc`
+    )
   })
 
   await tap.test('Try to assign Note to Tag with invalid Note', async () => {
@@ -121,9 +132,14 @@ const test = async app => {
 
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Note')
-    await tap.equal(error.details.activity, 'Add Tag to Note')
+    await tap.equal(
+      error.message,
+      `Add Tag to Note Error: No Note found with id ${noteId}abc`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/notes/${noteId}abc/tags/${tagId}`
+    )
   })
 
   await destroyDB(app)

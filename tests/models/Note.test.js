@@ -95,7 +95,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
-    await tap.equal(response.body.motivation, 'test')
+    await tap.equal(response.body[0].motivation, 'test')
   })
 
   await tap.test('Create Note with One Body', async () => {
@@ -104,9 +104,9 @@ const test = async app => {
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
     await tap.ok(response.body)
-    await tap.equal(response.body.motivation, 'test')
-    await tap.equal(response.body.content, noteWithOneBody.body.content)
-    await tap.equal(response.body.language, 'en')
+    await tap.equal(response.body[0].motivation, 'test')
+    await tap.equal(response.body[0].content, noteWithOneBody.body.content)
+    await tap.equal(response.body[0].language, 'en')
     await tap.equal(response.target.property, 'value')
     note = response
   })
@@ -140,9 +140,9 @@ const test = async app => {
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
     await tap.ok(response.body)
-    await tap.equal(response.body.motivation, 'test')
-    await tap.equal(response.body.content, 'new content')
-    await tap.notOk(response.body.language) // should be gone
+    await tap.equal(response.body[0].motivation, 'test')
+    await tap.equal(response.body[0].content, 'new content')
+    await tap.notOk(response.body[0].language) // should be gone
     await tap.equal(response.target.property1, 'value1')
     await tap.notOk(response.target.property) // should be gone
   })
@@ -156,7 +156,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
-    await tap.equal(response.body.motivation, 'test')
+    await tap.equal(response.body[0].motivation, 'test')
     await tap.equal(response.target.property2, 'value2')
     await tap.notOk(response.target.property1) // should be gone
   })
@@ -177,7 +177,7 @@ const test = async app => {
 
   await tap.test('Update Note with document', async () => {
     const newNote = Object.assign(noteWithDoc, {
-      body: { content: 'something else', motivation: 'test2' }
+      body: { content: 'something else', motivation: 'highlighting' }
     })
     let response = await Note.update(newNote)
     await tap.ok(response)

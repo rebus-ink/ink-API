@@ -75,7 +75,7 @@ const test = async app => {
     await tap.equal(response.readerId, createdReader.id)
   })
 
-  await tap.test('Create Attribution with invalid type', async () => {
+  await tap.test('Try to create Attribution with invalid type', async () => {
     try {
       await Attribution.createAttribution(
         invalidAttributionObject,
@@ -83,7 +83,25 @@ const test = async app => {
         publication
       )
     } catch (err) {
-      await tap.equal(err.message, 'invalid attribution type')
+      await tap.equal(
+        err.message,
+        `author attribution Validation Error: Robot is not a valid type. Must be 'Person' or 'Organization'`
+      )
+    }
+  })
+
+  await tap.test('Try to create Attribution without a name', async () => {
+    try {
+      await Attribution.createAttribution(
+        { type: 'Person' },
+        'author',
+        publication
+      )
+    } catch (err) {
+      await tap.equal(
+        err.message,
+        `author attribution Validation Error: name is a required property`
+      )
     }
   })
 

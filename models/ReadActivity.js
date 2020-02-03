@@ -69,8 +69,7 @@ class ReadActivity extends BaseModel {
     publicationId /*: string */,
     object /*: any */
   ) /*: Promise<any> */ {
-    if (!readerId) return new Error('no reader')
-    if (!publicationId) return new Error('no publication')
+    if (!publicationId) throw new Error('no publication')
 
     const props = _.pick(object, ['selector', 'json'])
 
@@ -83,11 +82,11 @@ class ReadActivity extends BaseModel {
         .returning('*')
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
-        throw 'no reader' // NOTE: should not happen. Should be caught by the post-outbox route
+        throw 'no reader' // NOTE: should not happen. Should be caught by the post readActivity route
       } else if (err.constraint === 'readactivity_publicationid_foreign') {
-        return new Error('no publication')
+        throw new Error('no publication') // keep this message... needed to differentiate 400 and 404 errors.
       } else if (err instanceof ValidationError) {
-        return err
+        throw err
       } else throw err
     }
   }

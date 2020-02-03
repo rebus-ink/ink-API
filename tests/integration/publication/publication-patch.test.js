@@ -168,8 +168,16 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Update Publication')
+      await tap.equal(
+        error.message,
+        'Validation Error on Patch Publication: name: should be string'
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 1234)
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.name[0].keyword, 'type')
       await tap.equal(error.details.validation.name[0].params.type, 'string')
@@ -194,8 +202,78 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.equal(error.details.activity, 'Update Publication')
+      await tap.equal(
+        error.message,
+        'Publication validation error: genre should be a string'
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.genre, 123)
+    }
+  )
+
+  await tap.test(
+    'Try to update a Publication to an invalid attribution',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            illustrator: 123
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.illustrator, 123)
+    }
+  )
+
+  await tap.test(
+    'Try to update a Publication to an invalid link object',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            links: [123, 456]
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'Publication validation error: links items must be either a string or an object with a url property'
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.links[0], 123)
     }
   )
 
@@ -225,9 +303,16 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
       await tap.equal(error.error, 'Not Found')
-      await tap.equal(error.details.type, 'Publication')
-      await tap.type(error.details.id, 'string')
-      await tap.equal(error.details.activity, 'Update Publication')
+      await tap.equal(
+        error.message,
+        `No Publication found with id ${publicationId}1`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}1`
+      )
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.name, 'New name for pub A')
     }
   )
 

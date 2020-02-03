@@ -153,9 +153,12 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 400)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 400)
-    await tap.equal(error.details.type, 'Tag')
-    await tap.equal(error.details.activity, 'Update Tag')
+    await tap.equal(
+      error.message,
+      'Validation Error on Update Tag: name: should be string'
+    )
+    await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
+    await tap.equal(error.details.requestBody.name.shouldNotBe, 'an object')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.name[0].keyword, 'type')
     await tap.equal(error.details.validation.name[0].params.type, 'string')
@@ -170,10 +173,8 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 400)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 400)
     await tap.equal(error.message, 'Body must be a JSON object')
-    await tap.equal(error.details.type, 'Tag')
-    await tap.equal(error.details.activity, 'Update Tag')
+    await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
   })
 
   await tap.test('Try to update a Tag that was already deleted', async () => {
@@ -196,9 +197,12 @@ const test = async app => {
 
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Tag')
-    await tap.equal(error.details.activity, 'Update Tag')
+    await tap.equal(
+      error.message,
+      `Patch Tag Error: No Tag found with id ${stack.id}`
+    )
+    await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
+    await tap.equal(error.details.requestBody.name, 'anotherNewName')
   })
 
   await tap.test(
@@ -217,9 +221,12 @@ const test = async app => {
 
       await tap.equal(res.statusCode, 404)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Tag')
-      await tap.equal(error.details.activity, 'Update Tag')
+      await tap.equal(
+        error.message,
+        `Patch Tag Error: No Tag found with id ${stack.id}123`
+      )
+      await tap.equal(error.details.requestUrl, `/tags/${stack.id}123`)
+      await tap.equal(error.details.requestBody.name, 'newName')
     }
   )
 

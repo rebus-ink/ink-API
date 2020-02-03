@@ -49,68 +49,35 @@ module.exports = function (app) {
           if (!reader) {
             return next(
               boom.notFound(`No reader with this token`, {
-                type: 'Reader',
-                activity: 'Remove Tag from Note'
+                requestUrl: req.originalUrl
               })
             )
           } else {
             if (!checkOwnership(reader.id, noteId)) {
               return next(
                 boom.forbidden(`Access to Note ${noteId} disallowed`, {
-                  type: 'Note',
-                  id: noteId,
-                  activity: 'Remove Tag from Note'
+                  requestUrl: req.originalUrl
                 })
               )
             }
             if (!checkOwnership(reader.id, tagId)) {
               return next(
                 boom.forbidden(`Access to Tag ${tagId} disallowed`, {
-                  type: 'Tag',
-                  id: tagId,
-                  activity: 'Remove Tag from Note'
+                  requestUrl: req.originalUrl
                 })
               )
             }
-            Note_Tag.removeTagFromNote(noteId, tagId).then(async result => {
-              if (result instanceof Error) {
-                switch (result.message) {
-                  case 'no note':
-                    return next(
-                      boom.notFound(`no note found with id ${noteId}`, {
-                        type: 'Note',
-                        id: noteId,
-                        activity: 'Remove Tag from Note'
-                      })
-                    )
-
-                  case 'no tag':
-                    return next(
-                      boom.notFound(`no tag found with id ${tagId}`, {
-                        type: 'reader:Tag',
-                        id: tagId,
-                        activity: 'Remove Tag from Note'
-                      })
-                    )
-
-                  case 'not found':
-                    return next(
-                      boom.notFound(
-                        `no relationship found between Tag ${tagId} and Note ${noteId}`,
-                        {
-                          type: 'Note_Tag',
-                          activity: 'Remove Tag from Note'
-                        }
-                      )
-                    )
-
-                  default:
-                    return next(err)
-                }
-              } else {
+            Note_Tag.removeTagFromNote(noteId, tagId)
+              .then(async () => {
                 res.status(204).end()
-              }
-            })
+              })
+              .catch(err => {
+                return next(
+                  boom.notFound(err.message, {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              })
           }
         })
         .catch(err => {

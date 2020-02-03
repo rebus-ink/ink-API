@@ -41,14 +41,9 @@ module.exports = function (app) {
       .then(async tag => {
         if (!tag) {
           return next(
-            boom.notFound(
-              `tag with id ${tagId} does not exist or has been deleted`,
-              {
-                type: 'Tag',
-                id: tagId,
-                activity: 'Delete Tag'
-              }
-            )
+            boom.notFound(`Delete Tag Error: No Tag found with id ${tagId}`, {
+              requestUrl: req.originalUrl
+            })
           )
         }
 
@@ -56,21 +51,18 @@ module.exports = function (app) {
         if (!reader || !checkOwnership(reader.id, tagId)) {
           return next(
             boom.forbidden(`Access to tag ${tagId} disallowed`, {
-              type: 'Tag',
-              id: tagId,
-              activity: 'Delete Tag'
+              requestUrl: req.originalUrl
             })
           )
         }
 
         // delete Tag
-        const deletedTag = await tag.delete()
-
-        if (deletedTag instanceof Error) {
+        try {
+          await tag.delete()
+        } catch (err) {
           return next(
-            boom.badRequest(deletedTag.message, {
-              activity: 'Delete Tag',
-              type: 'Tag'
+            boom.badRequest(err.message, {
+              requestUrl: req.originalUrl
             })
           )
         }

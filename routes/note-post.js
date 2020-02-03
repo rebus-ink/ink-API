@@ -46,16 +46,8 @@ module.exports = function (app) {
         if (!reader) {
           return next(
             boom.unauthorized(`No user found for this token`, {
-              type: 'Reader',
-              activity: 'Create Note'
-            })
-          )
-        }
-
-        if (!req.is('application/ld+json')) {
-          return next(
-            boom.badRequest('Body must be JSON-LD', {
-              activity: 'Create Note'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
@@ -64,117 +56,59 @@ module.exports = function (app) {
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
-              activity: 'Create Note',
-              type: 'Note'
+              requestUrl: req.originalUrl,
+              requestBody: req.body
             })
           )
         }
 
-        const createdNote = await Note.createNote(reader, body)
-
-        if (createdNote instanceof ValidationError) {
-          return next(
-            boom.badRequest('Validation Error on Create Note: ', {
-              activity: 'Create Note',
-              type: 'Note',
-              validation: createdNote.data
-            })
-          )
-        }
-
-        if (createdNote instanceof Error) {
-          if (createdNote.message === 'no body') {
-            return next(
-              boom.badRequest('body is a required property', {
-                activity: 'Create Note',
-                type: 'Note'
-              })
-            )
-          }
-
-          if (createdNote.message === 'no motivation') {
-            return next(
-              boom.badRequest(`body.motivation is a required property`, {
-                activity: 'Create Note',
-                type: 'Note'
-              })
-            )
-          }
-
-          if (createdNote.message === 'invalid motivation') {
+        let createdNote
+        try {
+          createdNote = await Note.createNote(reader, body)
+        } catch (err) {
+          if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `${body.body.motivation} is not a valid motivation`,
+                `Validation Error on Create Note: ${err.message}`,
                 {
-                  activity: 'Create Note',
-                  type: 'Note'
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body,
+                  validation: err.data
                 }
               )
             )
-          }
-
-          if (createdNote.message === 'no document') {
+          } else if (err.message === 'no document') {
             return next(
               boom.notFound(
-                `no document found with documentUrl: ${body.documentUrl}`,
-                {
-                  activity: 'Create Note',
-                  type: 'Document',
-                  id: body.documentUrl
-                }
-              )
-            )
-          }
-
-          if (createdNote.message === 'no publication') {
-            return next(
-              boom.notFound(
-                `no publication found with id: ${body.publicationId}`,
-                {
-                  activity: 'Create Note',
-                  type: 'Publication',
-                  id: body.publicationId
-                }
-              )
-            )
-          }
-
-          if (createdNote.message === 'document without publication') {
-            return next(
-              boom.badRequest(
-                `notes with a documentUrl should also have a publicationId for the corresponding publication. Error for documentUrl: ${
+                `Create Note Error: No Document found with documentUrl: ${
                   body.documentUrl
                 }`,
                 {
-                  activity: 'Create Note',
-                  type: 'Document',
-                  id: body.documentUrl
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
                 }
               )
             )
-          }
-
-          if (createdNote.message === 'document and publication do not match') {
+          } else if (err.message === 'no publication') {
             return next(
-              boom.badRequest(
-                `document with url: ${
-                  body.documentUrl
-                } does not belong to publication ${body.publicationId}`,
+              boom.notFound(
+                `Create Note Error: No Publication found with id: ${
+                  body.publicationId
+                }`,
                 {
-                  activity: 'Create Note',
-                  type: 'Document',
-                  id: body.documentUrl
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
                 }
               )
             )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
           }
-
-          return next(
-            boom.badRequest(createdNote.message, {
-              activity: 'Create Note',
-              type: 'Note'
-            })
-          )
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

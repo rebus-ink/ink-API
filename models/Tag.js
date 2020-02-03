@@ -67,9 +67,9 @@ class Tag extends BaseModel {
       return await Tag.query().insert(props)
     } catch (err) {
       if (err.constraint === 'tag_readerid_name_type_unique') {
-        return new Error('duplicate')
+        throw new Error(`Create Tag Error: Tag ${tag.name} already exists`)
       }
-      return err
+      throw err
     }
   }
 
@@ -92,7 +92,7 @@ class Tag extends BaseModel {
     }
   }
 
-  async delete () /*: Promise<number|Error> */ {
+  async delete () /*: Promise<number> */ {
     const tagId = this.id
     // Delete all Publication_Tags associated with this tag
     await Publication_Tag.deletePubTagsOfTag(urlToId(tagId))
@@ -100,7 +100,11 @@ class Tag extends BaseModel {
     // Delete all Note_Tags associated with this tag
     await Note_Tag.deleteNoteTagsOfTag(urlToId(tagId))
 
-    return await Tag.query().deleteById(urlToId(tagId))
+    try {
+      return await Tag.query().deleteById(urlToId(tagId))
+    } catch (err) {
+      throw err
+    }
   }
 
   // deprecated
@@ -124,7 +128,7 @@ class Tag extends BaseModel {
         modifications
       )
     } catch (err) {
-      return err
+      throw err
     }
   }
 

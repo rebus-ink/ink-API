@@ -86,9 +86,11 @@ const test = async app => {
 
     await tap.equal(res.status, 404)
     const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.details.type, 'Note_Tag')
-    await tap.equal(error.details.activity, 'Remove Tag from Note')
+    await tap.equal(
+      error.message,
+      `Delete Tag from Note Error: No relationship found between Note ${noteId} and Tag ${tagId}`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}/tags/${tagId}`)
   })
 
   await tap.test(
@@ -102,9 +104,14 @@ const test = async app => {
 
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Note_Tag')
-      await tap.equal(error.details.activity, 'Remove Tag from Note')
+      await tap.equal(
+        error.message,
+        `Delete Tag from Note Error: No relationship found between Note ${noteId} and Tag ${tagId}123`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId}/tags/${tagId}123`
+      )
     }
   )
 
@@ -119,9 +126,14 @@ const test = async app => {
 
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.details.type, 'Note_Tag')
-      await tap.equal(error.details.activity, 'Remove Tag from Note')
+      await tap.equal(
+        error.message,
+        `Delete Tag from Note Error: No relationship found between Note ${noteId}123 and Tag ${tagId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notes/${noteId}123/tags/${tagId}`
+      )
     }
   )
 

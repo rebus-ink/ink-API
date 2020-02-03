@@ -98,9 +98,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.details.type, 'Reader')
-    await tap.type(error.details.id, 'string')
-    await tap.equal(error.details.activity, 'Get Reader')
+    await tap.equal(
+      error.message,
+      `Get Reader Error: No Reader found with id ${readerId}abc`
+    )
+    await tap.equal(error.details.requestUrl, `/readers/${readerId}abc`)
   })
 
   await destroyDB(app)
