@@ -291,8 +291,14 @@ const test = async app => {
     const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
     // Update the tag
-    const updatedTag = await tagCreated.update({ name: 123 })
-    await tap.ok(updatedTag instanceof ValidationError)
+    let error
+    try {
+      await tagCreated.update({ name: 123 })
+    } catch (err) {
+      error = err
+    }
+
+    await tap.ok(error instanceof ValidationError)
   })
 
   await destroyDB(app)

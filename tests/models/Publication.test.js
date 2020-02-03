@@ -205,20 +205,28 @@ const test = async app => {
   })
 
   await tap.test('addTagToPub with invalid tag id ', async () => {
-    const res = await Publication_Tag.addTagToPub(
-      urlToId(publication.id),
-      createdTag.id + '123'
-    )
-
-    await tap.ok(typeof res, Error)
-    await tap.equal(res.message, 'no tag')
+    let error
+    try {
+      await Publication_Tag.addTagToPub(
+        urlToId(publication.id),
+        createdTag.id + '123'
+      )
+    } catch (err) {
+      error = err
+    }
+    await tap.ok(error)
+    await tap.equal(error.message, 'no tag')
   })
 
   await tap.test('addTagToPub with invalid publication id ', async () => {
-    const res = await Publication_Tag.addTagToPub(undefined, createdTag.id)
-
-    await tap.ok(typeof res, Error)
-    await tap.equal(res.message, 'no publication')
+    let error
+    try {
+      await Publication_Tag.addTagToPub(undefined, createdTag.id)
+    } catch (err) {
+      error = err
+    }
+    await tap.ok(error)
+    await tap.equal(error.message, 'no publication')
   })
 
   await tap.test('Publication remove tag', async () => {
@@ -230,20 +238,37 @@ const test = async app => {
   })
 
   await tap.test('removeTagFromPub with invalid tag id ', async () => {
-    const res = await Publication_Tag.removeTagFromPub(
-      urlToId(publication.id),
-      createdTag.id + '123'
+    let error
+    try {
+      await Publication_Tag.removeTagFromPub(
+        urlToId(publication.id),
+        createdTag.id + '123'
+      )
+    } catch (err) {
+      error = err
+    }
+    await tap.ok(error)
+    await tap.ok(
+      error.message.startsWith(
+        'Remove Tag from Publication Error: No Relation found'
+      )
     )
-
-    await tap.ok(typeof res, Error)
-    await tap.equal(res.message, 'not found')
   })
 
   await tap.test('removeTagFromPub with invalid publication id ', async () => {
-    const res = await Publication_Tag.removeTagFromPub(undefined, createdTag.id)
+    let error
+    try {
+      await Publication_Tag.removeTagFromPub('123', createdTag.id)
+    } catch (err) {
+      error = err
+    }
 
-    await tap.ok(typeof res, Error)
-    await tap.equal(res.message, 'no publication')
+    await tap.ok(error)
+    await tap.ok(
+      error.message.startsWith(
+        'Remove Tag from Publication Error: No Relation found'
+      )
+    )
   })
 
   // await tap.test('Try to assign same tag twice', async () => {
