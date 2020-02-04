@@ -265,10 +265,9 @@ class Note extends BaseModel {
     }
 
     try {
-      updatedNote = await Note.query().updateAndFetchById(
-        urlToId(note.id),
-        modifications
-      )
+      updatedNote = await Note.query()
+        .updateAndFetchById(urlToId(note.id), modifications)
+        .whereNull('deleted')
     } catch (err) {
       throw err
     }

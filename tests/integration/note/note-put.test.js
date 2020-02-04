@@ -126,6 +126,31 @@ const test = async app => {
     await tap.type(error.details.requestBody, 'object')
   })
 
+  await tap.test('Try to update by removing the motivation', async () => {
+    const newNote = Object.assign(note, {
+      target: undefined,
+      body: { content: 'something' }
+    })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Note Validation Error: body.motivation is a required property`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+    await tap.type(error.details.requestBody, 'object')
+  })
+
   await tap.test(
     'Try to update a Note with an invalid motivation',
     async () => {

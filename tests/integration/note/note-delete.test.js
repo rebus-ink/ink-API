@@ -40,24 +40,28 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.statusCode, 204)
-
-    // note should no longer exist
-    const getres = await request(app)
-      .get(`/notes/${noteId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    await tap.equal(getres.statusCode, 404)
-    const error = JSON.parse(getres.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(
-      error.message,
-      `Get Note Error: No Note found with id ${noteId}`
-    )
-    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
+
+  await tap.test(
+    'Trying to get a deleted note should return a 404 error',
+    async () => {
+      const getres = await request(app)
+        .get(`/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(getres.statusCode, 404)
+      const error = JSON.parse(getres.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(
+        error.message,
+        `Get Note Error: No Note found with id ${noteId}`
+      )
+      await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+    }
+  )
 
   await tap.test(
     'Deleted Note should no longer be attached to publication',
@@ -125,6 +129,31 @@ const test = async app => {
       `Note Delete Error: No Note found with id ${noteId}`
     )
     await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+  })
+
+  await tap.test('Try to update a Note that was already deleted', async () => {
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          readerId,
+          body: { content: 'something', motivation: 'test' }
+        })
+      )
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(
+      error.message,
+      `Put Note Error: No Note found with id ${noteId}`
+    )
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+    await tap.equal(error.details.requestBody.body.content, 'something')
   })
 
   // // DELETE NOTES FOR PUB

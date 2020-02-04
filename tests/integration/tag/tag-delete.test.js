@@ -7,7 +7,9 @@ const {
   createPublication,
   createNote,
   createDocument,
-  createTag
+  createTag,
+  addNoteToCollection,
+  addPubToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const { Reader } = require('../../../models/Reader')
@@ -87,14 +89,44 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    // Add a tag to the note
-    await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
+    await tap.equal(libraryBefore.body.tags.length, 5) // 4 default modes + our tag
 
-    // Fetch the note with the tag
-    const noteWithTag = await Note.byId(urlToId(noteUrl))
-    await tap.equal(noteWithTag.tags.length, 1)
-    await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
-    await tap.equal(libraryBefore.body.tags.length, 5) // 4 default modes + tag created
+    // get the tags list before
+    const tagsBefore = await request(app)
+      .get(`/tags`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(tagsBefore.body.length, 5) // 4 default modes + our tag
+
+    // Add a tag to the note and pub
+    await addNoteToCollection(app, token, urlToId(noteUrl), urlToId(stack.id))
+    await addPubToCollection(
+      app,
+      token,
+      urlToId(publication.id),
+      urlToId(stack.id)
+    )
+
+    // Note and Publication have the tag
+    const resNote = await request(app)
+      .get(`/notes/${urlToId(noteUrl)}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resNote.body.tags.length, 1)
+    await tap.equal(resNote.body.tags[0].id, stack.id)
+
+    const resPub = await request(app)
+      .get(`/publications/${urlToId(publication.id)}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resPub.body.tags.length, 1)
+    await tap.equal(resPub.body.tags[0].id, stack.id)
 
     // Delete the tag
     const res = await request(app)
@@ -112,13 +144,61 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    // Get the note after the modifications
-    const noteWithoutTag = await Note.byId(urlToId(noteUrl))
-
     await tap.equal(libraryAfter.body.tags.length, 4)
     await tap.equal(libraryAfter.body.items[0].tags.length, 0)
-    // await tap.equal(noteWithoutTag.tags.length, 0) TODO: figure out why this fails
+
+    // get the tags list after
+    const tagsAfter = await request(app)
+      .get(`/tags`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(tagsAfter.body.length, 4) // 4 default modes
+
+    // Note and Publication should no longer have the tag
+    const resNoteAfter = await request(app)
+      .get(`/notes/${urlToId(noteUrl)}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resNoteAfter.body.tags.length, 0)
+
+    const resPubAfter = await request(app)
+      .get(`/publications/${urlToId(publication.id)}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resPubAfter.body.tags.length, 0)
   })
+
+  await tap.test(
+    'Getting library by deleted collection should return nothing',
+    async () => {
+      res = await request(app)
+        .get(`/library?stack=mystack`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.body.items.length, 0)
+    }
+  )
+
+  await tap.test(
+    'Getting readerNotes by deleted collection should return nothing',
+    async () => {
+      res = await request(app)
+        .get(`/notes?stack=mystack`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.body.items.length, 0)
+    }
+  )
 
   await tap.test('Try to delete a Tag that was already deleted', async () => {
     const res = await request(app)
@@ -133,6 +213,24 @@ const test = async app => {
     await tap.equal(
       error.message,
       `Delete Tag Error: No Tag found with id ${stack.id}`
+    )
+    await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
+  })
+
+  await tap.test('Try to update a Tag that was already deleted', async () => {
+    const res = await request(app)
+      .patch(`/tags/${stack.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify({ name: 'new name' }))
+
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(
+      error.message,
+      `Patch Tag Error: No Tag found with id ${stack.id}`
     )
     await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
   })

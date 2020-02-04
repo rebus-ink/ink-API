@@ -57,6 +57,7 @@ const test = async app => {
   })
   const noteId2 = urlToId(note2.id)
 
+  // ------------------------ PUBLICATION -------------------------------------
   await tap.test(
     'Try to get publication belonging to another reader',
     async () => {
@@ -78,38 +79,6 @@ const test = async app => {
         error.details.requestUrl,
         `/publications/${publicationId}`
       )
-    }
-  )
-
-  await tap.test('Try to get note belonging to another reader', async () => {
-    const res = await request(app)
-      .get(`/notes/${noteId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token2}`)
-      .type('application/ld+json')
-
-    await tap.equal(res.statusCode, 403)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 403)
-    await tap.equal(error.error, 'Forbidden')
-    await tap.equal(error.message, `Access to note ${noteId} disallowed`)
-    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
-  })
-
-  await tap.test(
-    'Try to get reader object belonging to another reader',
-    async () => {
-      const res = await request(app)
-        .get(`/readers/${readerId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(error.message, `Access to reader ${readerId} disallowed`)
-      await tap.equal(error.details.requestUrl, `/readers/${readerId}`)
     }
   )
 
@@ -161,6 +130,23 @@ const test = async app => {
     }
   )
 
+  // --------------------------------------- NOTE ----------------------------
+
+  await tap.test('Try to get note belonging to another reader', async () => {
+    const res = await request(app)
+      .get(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.message, `Access to note ${noteId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
+  })
+
   await tap.test('Try to delete a note belonging to another user', async () => {
     const res = await request(app)
       .delete(`/notes/${noteId}`)
@@ -191,6 +177,27 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
 
+  // ---------------------------------------- READER --------------------------
+
+  await tap.test(
+    'Try to get reader object belonging to another reader',
+    async () => {
+      const res = await request(app)
+        .get(`/readers/${readerId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to reader ${readerId} disallowed`)
+      await tap.equal(error.details.requestUrl, `/readers/${readerId}`)
+    }
+  )
+
+  // ------------------------------------------- TAG -------------------------------
+
   await tap.test('Try to delete a tag belonging to another user', async () => {
     const res = await request(app)
       .delete(`/tags/${tagId}`)
@@ -220,6 +227,8 @@ const test = async app => {
     await tap.equal(error.message, `Access to tag ${tagId} disallowed`)
     await tap.equal(error.details.requestUrl, `/tags/${tagId}`)
   })
+
+  // ------------------------------------- TAG - PUBLICATION ---------------------------
 
   await tap.test(
     'Try to assign a tag to a publication belonging to another user',
@@ -311,6 +320,8 @@ const test = async app => {
     }
   )
 
+  // ---------------------------------------- TAG - NOTE ---------------------------
+
   await tap.test(
     'Try to assign a tag to a note belonging to another user',
     async () => {
@@ -395,6 +406,8 @@ const test = async app => {
     }
   )
 
+  // -------------------------------------- UPLOADS -------------------------------
+
   await tap.test(
     'Try to upload files to a folder belonging to another reader',
     async () => {
@@ -414,6 +427,8 @@ const test = async app => {
       // await tap.equal(error.details.activity, 'Upload File')
     }
   )
+
+  // ----------------------------------- READACTIVITY ---------------------------
 
   await tap.test(
     'Try to create a readActivity for a publication belonging to another user',

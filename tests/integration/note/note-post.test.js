@@ -88,7 +88,7 @@ const test = async app => {
     await tap.equal(body.body[1].motivation, 'test')
   })
 
-  await tap.test('Create Note with documentUrl', async () => {
+  await tap.test('Create Note with documentUrl and publicationId', async () => {
     const res = await request(app)
       .post('/notes')
       .set('Host', 'reader-api.test')
@@ -115,6 +115,61 @@ const test = async app => {
     await tap.equal(body.documentUrl, documentUrl)
     await tap.equal(urlToId(body.publicationId), publicationId)
   })
+
+  await tap.test(
+    'Create Note with publicationId but no documentUrl',
+    async () => {
+      const res = await request(app)
+        .post('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            publicationId
+          })
+        )
+      await tap.equal(res.status, 201)
+      const body = res.body
+      await tap.ok(body.id)
+      await tap.equal(urlToId(body.readerId), readerId)
+      await tap.ok(body.published)
+      await tap.ok(body.body)
+      await tap.ok(body.body[0].content)
+      await tap.equal(body.body[0].motivation, 'test')
+      await tap.equal(urlToId(body.publicationId), publicationId)
+    }
+  )
+
+  await tap.test(
+    'Note with publicationId should be attached to publication',
+    async () => {
+      const res = await request(app)
+        .get(`/publications/${urlToId(publicationUrl)}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.ok(res.body)
+      await tap.equal(res.body.replies.length, 2)
+    }
+  )
+
+  await tap.test(
+    'All notes created should show up in the list of notes',
+    async () => {
+      const res = await request(app)
+        .get(`/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+      await tap.equal(res.body.totalItems, 4)
+    }
+  )
 
   // ------------------------------------- VALIDATION ERRORS ------------------------------------
 
@@ -182,7 +237,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 3)
+    await tap.equal(res.body.totalItems, 4)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -359,6 +414,18 @@ const test = async app => {
       await tap.equal(error.details.requestUrl, `/notes`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.body.motivation, 'test')
+    }
+  )
+
+  await tap.test(
+    'None of the error scenario should have created a note',
+    async () => {
+      const res = await request(app)
+        .get(`/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+      await tap.equal(res.body.totalItems, 4)
     }
   )
 

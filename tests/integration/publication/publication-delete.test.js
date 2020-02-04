@@ -171,6 +171,31 @@ const test = async app => {
   )
 
   await tap.test(
+    'Try to update Publication that was already deleted',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ name: 'new name!!' }))
+
+      await tap.equal(res.statusCode, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(
+        error.message,
+        `No Publication found with id ${publicationId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/publications/${publicationId}`
+      )
+    }
+  )
+
+  await tap.test(
     'Try to delete a Publication that does not exist',
     async () => {
       const res1 = await request(app)
