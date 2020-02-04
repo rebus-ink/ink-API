@@ -137,29 +137,29 @@ class Publication extends BaseModel {
         readerId: { type: 'string' },
         name: { type: 'string' },
         type: { type: 'string' },
-        author: { type: 'array' },
-        abstract: { type: 'string' },
-        description: { type: 'string' },
-        editor: { type: 'array' },
-        datePublished: { type: 'string', format: 'date-time' },
-        inLanguage: { type: 'array' },
-        keywords: { type: 'array' },
-        url: { type: 'string', format: 'url' },
-        dateModified: { type: 'string', format: 'date-time' },
-        bookEdition: { type: 'string' },
-        bookFormat: { type: 'string ' },
-        isbn: { type: 'string' },
-        copyrightYear: { type: 'integer' },
-        genre: { type: 'string' },
-        license: { type: 'string' },
-        numberOfPages: { type: 'integer' },
-        wordCount: { type: 'integer' },
-        status: { type: 'integer' },
-        encodingFormat: { type: 'string' },
-        readingOrder: { type: 'object' },
-        resources: { type: 'object' },
-        links: { type: 'object' },
-        json: { type: 'object' },
+        author: { type: ['array', 'null'] },
+        abstract: { type: ['string', 'null'] },
+        description: { type: ['string', 'null'] },
+        editor: { type: ['array', 'null'] },
+        datePublished: { type: ['string', 'null'], format: 'date-time' },
+        inLanguage: { type: ['array', 'null'] },
+        keywords: { type: ['array', 'null'] },
+        url: { type: ['string', 'null'], format: 'url' },
+        dateModified: { type: ['string', 'null'], format: 'date-time' },
+        bookEdition: { type: ['string', 'null'] },
+        bookFormat: { type: ['string ', 'null'] },
+        isbn: { type: ['string', 'null'] },
+        copyrightYear: { type: ['integer', 'null'] },
+        genre: { type: ['string', 'null'] },
+        license: { type: ['string', 'null'] },
+        numberOfPages: { type: ['integer', 'null'] },
+        wordCount: { type: ['integer', 'null'] },
+        status: { type: ['integer', 'null'] },
+        encodingFormat: { type: ['string', 'null'] },
+        readingOrder: { type: ['object', 'null'] },
+        resources: { type: ['object', 'null'] },
+        links: { type: ['object', 'null'] },
+        json: { type: ['object', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
@@ -673,6 +673,9 @@ class Publication extends BaseModel {
             throw err
           }
         }
+      } else if (body[role] === null) {
+        await Attribution.deleteAttributionOfPub(id, role)
+        updatedPub[role] = null
       }
     }
 

@@ -13,8 +13,6 @@ const {
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const { Reader } = require('../../../models/Reader')
-const { Note_Tag } = require('../../../models/Note_Tag')
-const { Note } = require('../../../models/Note')
 
 const test = async app => {
   const token = getToken()

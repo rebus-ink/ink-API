@@ -151,6 +151,62 @@ const test = async app => {
   })
 
   await tap.test(
+    'Update a publication by setting a value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            abstract: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.abstract)
+    }
+  )
+
+  await tap.test(
+    'Update a publication by setting a metadata value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            url: null,
+            numberOfPages: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.url)
+      await tap.notOk(res.body.numberOfPages)
+    }
+  )
+
+  await tap.test(
+    'Update a publication by setting an attribution value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            creator: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.creator)
+    }
+  )
+
+  await tap.test(
     'Try to update a Publication to an invalid value',
     async () => {
       const res = await request(app)

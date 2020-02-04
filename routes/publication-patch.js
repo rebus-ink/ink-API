@@ -72,7 +72,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        if (typeof body !== 'object' || _.isEmpty(body)) {
+        if (typeof body !== 'object' || Object.keys(body).length === 0) {
           return next(
             boom.badRequest(
               'Patch Publication Request Error: Body must be a JSON object',
