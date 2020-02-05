@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Reader } = require('../models/Reader')
+const { ReaderNotes } = require('../models/readerNotes')
 const { getId } = require('../utils/get-id.js')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
@@ -98,7 +98,7 @@ module.exports = app => {
         collection: req.query.stack
       }
       let returnedReader
-      Reader.getNotes(req.user, req.query.limit, req.skip, filters)
+      ReaderNotes.getNotes(req.user, req.query.limit, req.skip, filters)
         .then(reader => {
           if (!reader) {
             return next(
@@ -115,7 +115,7 @@ module.exports = app => {
             if (length < req.query.limit && length !== 0) {
               return Promise.resolve(length + req.skip)
             }
-            return Reader.getNotesCount(urlToId(reader.id), filters)
+            return ReaderNotes.getNotesCount(urlToId(reader.id), filters)
           }
         })
         .then(count => {
