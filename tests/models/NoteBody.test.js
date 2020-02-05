@@ -5,7 +5,6 @@ const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 const { NoteBody } = require('../../models/NoteBody')
-const { ValidationError } = require('objection')
 
 const test = async app => {
   const reader = {
