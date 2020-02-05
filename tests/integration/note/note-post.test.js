@@ -43,6 +43,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
     const body = res.body
     await tap.ok(body.id)
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.json.property1, 'value1')
     await tap.ok(body.published)

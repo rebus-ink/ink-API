@@ -1,6 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
@@ -102,6 +103,7 @@ const test = async app => {
     const body = res.body
 
     await tap.equal(body.name, 'Publication A')
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.type, 'Book')
     await tap.equal(body.abstract, 'this is a description!!')
     await tap.equal(body.json.property, 'value')

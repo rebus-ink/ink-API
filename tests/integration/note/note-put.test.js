@@ -48,6 +48,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.type(body.body[0].content, 'string')
     await tap.equal(body.body[0].content, 'new content')
     await tap.notEqual(body.published, body.updated)

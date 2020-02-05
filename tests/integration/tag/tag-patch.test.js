@@ -91,6 +91,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
     const body = res.body
     await tap.equal(body.name, 'newName')
+    await tap.equal(body.shortId, urlToId(body.id))
 
     // Get the library after the modifications
     const libraryAfter = await request(app)

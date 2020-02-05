@@ -1,6 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
 const { getToken, destroyDB } = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
@@ -26,6 +27,7 @@ const test = async app => {
       )
     await tap.equal(res.status, 201)
     await tap.ok(res.body)
+    await tap.equal(res.body.shortId, urlToId(res.body.id))
     await tap.equal(res.body.name, 'Jane Doe')
     await tap.ok(res.body.profile)
     await tap.equal(res.body.profile.property, 'value')

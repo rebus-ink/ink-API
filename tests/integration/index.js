@@ -34,7 +34,8 @@ const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.tes
 const readerNotesFilterTests = require('./readerNotes/readerNotes-filter.test')
 const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
 
-const publicationAddTagTests = require('./tag/publication-tag.test')
+const publicationAddTagTests = require('./tag/publication-tag-put.test')
+const publicationRemoveTagTests = require('./tag/publication-tag-delete.test')
 const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPatchTests = require('./tag/tag-patch.test')
@@ -101,6 +102,7 @@ const allTests = async () => {
   if (!test || test === 'tag') {
     await tagsGetTests(app)
     await publicationAddTagTests(app)
+    await publicationRemoveTagTests(app)
     await tagNotePutTests(app)
     await tagNoteDeleteTests(app)
     await tagDeleteTests(app)

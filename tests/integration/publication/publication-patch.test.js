@@ -117,6 +117,7 @@ const test = async app => {
       )
     await tap.equal(res.status, 200)
     const body = res.body
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.name, 'New name for pub A')
     await tap.equal(body.abstract, 'New description for Publication')
     // await tap.equal(body.datePublished, timestamp)
