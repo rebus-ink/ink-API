@@ -117,6 +117,7 @@ const test = async app => {
       )
     await tap.equal(res.status, 200)
     const body = res.body
+    await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.name, 'New name for pub A')
     await tap.equal(body.abstract, 'New description for Publication')
     // await tap.equal(body.datePublished, timestamp)
@@ -149,6 +150,62 @@ const test = async app => {
     await tap.equal(body.publisher[0].name, 'Sample Publisher2')
     await tap.equal(body.translator[0].name, 'Sample Translator2')
   })
+
+  await tap.test(
+    'Update a publication by setting a value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            abstract: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.abstract)
+    }
+  )
+
+  await tap.test(
+    'Update a publication by setting a metadata value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            url: null,
+            numberOfPages: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.url)
+      await tap.notOk(res.body.numberOfPages)
+    }
+  )
+
+  await tap.test(
+    'Update a publication by setting an attribution value to null',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            creator: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      await tap.notOk(res.body.creator)
+    }
+  )
 
   await tap.test(
     'Try to update a Publication to an invalid value',

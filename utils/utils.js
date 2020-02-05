@@ -13,18 +13,9 @@ const checkOwnership = (readerId, resourceId) => {
 const urlToId = url => {
   if (!url) return undefined
   if (!url.startsWith('http')) return url
-  let path = parseurl(url).path
+  let path = parseurl(url).path.substring(1) // remove first '/'
   if (path.endsWith('/')) path = path.substring(0, path.length - 1)
-  if (path.startsWith('/publications/')) {
-    return path.substring(14) // 14 is '/publications/'.length
-  }
-  if (path.startsWith('/readers/')) {
-    return path.substring(9)
-  }
-  if (path.startsWith('/notes/')) {
-    return path.substring(7)
-  }
-  return path.substring(path.indexOf('-') + 1)
+  return path.substring(path.indexOf('/') + 1)
 }
 
 module.exports = { checkReader, urlToId, checkOwnership }

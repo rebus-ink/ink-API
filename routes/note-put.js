@@ -62,7 +62,6 @@ module.exports = function (app) {
         }
 
         const note = Object.assign(req.body, { id: urlToId(noteId) })
-
         let updatedNote
         try {
           updatedNote = await Note.update(note)
