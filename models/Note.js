@@ -37,14 +37,14 @@ class Note extends BaseModel {
       properties: {
         id: { type: 'string' },
         readerId: { type: 'string ' },
-        canonical: { type: 'string' },
-        stylesheet: { type: 'object' },
-        target: { type: 'object' },
-        publicationId: { type: 'string' },
-        documentId: { type: 'string' },
-        documentUrl: { type: 'string' },
+        canonical: { type: ['string', 'null'] },
+        stylesheet: { type: ['object', 'null'] },
+        target: { type: ['object', 'null'] },
+        publicationId: { type: ['string', 'null'] },
+        documentId: { type: ['string', 'null'] },
+        documentUrl: { type: ['string', 'null'] },
         body: { type: 'object' },
-        json: { type: 'object' },
+        json: { type: ['object', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
@@ -158,6 +158,9 @@ class Note extends BaseModel {
         throw new Error('no document')
       }
     }
+    // else if (note.documentUrl === null) {
+    //   note.documentId = null
+    // }
     return props
   }
   static async createNote (
@@ -253,7 +256,20 @@ class Note extends BaseModel {
   }
 
   static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
-    const modifications = await Note._formatIncomingNote(note)
+    // replace undefined to null for properties that can be deleted by the user
+    const propsCanBeDeleted = [
+      'canonical',
+      'stylesheet',
+      'target',
+      /* 'publicationId', 'documentUrl', */ 'json'
+    ]
+    propsCanBeDeleted.forEach(prop => {
+      if (note[prop] === undefined) {
+        note[prop] = null
+      }
+    })
+    let modifications = await Note._formatIncomingNote(note)
+
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
     let updatedNote
@@ -271,7 +287,6 @@ class Note extends BaseModel {
     } catch (err) {
       throw err
     }
-
     // if note not found:
     if (!updatedNote) return null
 

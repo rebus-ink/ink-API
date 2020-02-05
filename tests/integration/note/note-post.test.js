@@ -263,14 +263,14 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Create Note: json: should be object'
+      'Validation Error on Create Note: json: should be object,null'
     )
     await tap.equal(error.details.requestUrl, `/notes`)
     await tap.type(error.details.requestBody, 'object')
     await tap.equal(error.details.requestBody.json, 'a string!')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.json[0].keyword, 'type')
-    await tap.equal(error.details.validation.json[0].params.type, 'object')
+    await tap.equal(error.details.validation.json[0].params.type, 'object,null')
   })
 
   await tap.test(

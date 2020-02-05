@@ -28,7 +28,8 @@ const test = async app => {
     body: { content: 'test content', motivation: 'test' },
     publicationId,
     documentUrl,
-    json: { property: 'value' }
+    json: { property: 'value' },
+    canonical: '123'
   })
   const noteId = urlToId(note.id)
 
@@ -76,6 +77,46 @@ const test = async app => {
     await tap.equal(body.target.property1, 'something')
   })
 
+  await tap.test('Remove the target of a Note', async () => {
+    const newNote = Object.assign(note, { target: undefined })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.notOk(body.target)
+  })
+
+  await tap.test('Remove the other properties of a Note', async () => {
+    const newNote = Object.assign(note, {
+      canonical: undefined,
+      stylesheet: undefined /* publicationId: undefined, documentUrl: undefined */
+    })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.notOk(body.canonical)
+    await tap.notOk(body.stylesheet)
+    // await tap.notOk(body.publicationId)
+    // await tap.notOk(body.documentUrl)
+  })
+
   await tap.test(
     'Try to update the target of a note to the wrong type',
     async () => {
@@ -94,14 +135,17 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        `Validation Error on Update Note: target: should be object`
+        `Validation Error on Update Note: target: should be object,null`
       )
       await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.target, 'string!')
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.target[0].keyword, 'type')
-      await tap.equal(error.details.validation.target[0].params.type, 'object')
+      await tap.equal(
+        error.details.validation.target[0].params.type,
+        'object,null'
+      )
     }
   )
 
