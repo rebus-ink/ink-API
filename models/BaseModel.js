@@ -40,8 +40,6 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/notes/${json.id}`
-    } else if (type && json.id && !json.id.startsWith(process.env.DOMAIN)) {
-      json.id = `${domain}/${type}-${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
       json.readerId = `${domain}/readers/${json.readerId}`
