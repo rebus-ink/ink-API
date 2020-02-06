@@ -48,7 +48,7 @@ module.exports = function (app) {
         }
 
         const result = await Note.delete(noteId)
-        if (result === null) {
+        if (!result) {
           return next(
             boom.notFound(
               `Note Delete Error: No Note found with id ${noteId}`,

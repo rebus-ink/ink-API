@@ -242,17 +242,15 @@ class Note extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
-    let note = await Note.query().findById(id)
-    if (!note || note.deleted) return null
-
     // Delete all Note_Tag associated with the note
     const { Note_Tag } = require('./Note_Tag')
     await Note_Tag.deleteNoteTagsOfNote(id)
 
     await NoteBody.softDeleteBodiesOfNote(id)
 
-    note.deleted = new Date().toISOString()
-    return await Note.query().updateAndFetchById(id, note)
+    return await Note.query()
+      .patchAndFetchById(id, { deleted: new Date().toISOString() })
+      .whereNull('deleted')
   }
 
   static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {

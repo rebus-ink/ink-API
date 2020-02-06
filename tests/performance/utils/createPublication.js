@@ -17,7 +17,6 @@ const createPublication = async (token, readerUrl, number = 1) => {
           'content-type': 'application/ld+json'
         },
         body: JSON.stringify({
-          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Create',
           object: {
             type: 'Book',
