@@ -138,7 +138,6 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Read',
           context: publicationUrl,
           selector: {

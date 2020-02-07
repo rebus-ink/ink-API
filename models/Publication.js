@@ -516,31 +516,12 @@ class Publication extends BaseModel {
     }
 
     // create attributions
-    for (const type of attributionTypes) {
-      if (publication[type]) {
-        if (!_.isString(publication[type]) && !_.isObject(publication[type])) {
-          throw new Error(
-            `${type} attribution validation error: attribution should be either an attribution object or a string`
-          )
-        }
-        if (_.isString(publication[type])) {
-          publication[type] = [{ type: 'Person', name: publication[type] }]
-        }
-        createdPublication[type] = []
-        for (const instance of publication[type]) {
-          try {
-            const createdAttribution = await Attribution.createAttribution(
-              instance,
-              type,
-              createdPublication
-            )
-            createdPublication[type].push(createdAttribution)
-          } catch (err) {
-            throw err
-          }
-        }
-      }
-    }
+    const attributions = await Attribution.createAttributionsForPublication(
+      publication,
+      pub.id,
+      urlToId(reader.id)
+    )
+    createdPublication = Object.assign(createdPublication, attributions)
 
     // exceptionally, doing this instead of in the routes because of the complexity of
     // the whole file upload thing.
@@ -567,23 +548,22 @@ class Publication extends BaseModel {
     return pub
   }
 
-  async delete () {
-    this.id = urlToId(this.id)
+  static async delete (id /*: string */) {
     // Mark documents associated with pub as deleted
     const { Document } = require('./Document')
-    await Document.deleteDocumentsByPubId(this.id)
+    await Document.deleteDocumentsByPubId(id)
 
     // Delete Publication_Tag associated with pub
     const { Publication_Tag } = require('./Publications_Tags')
-    await Publication_Tag.deletePubTagsOfPub(this.id)
+    await Publication_Tag.deletePubTagsOfPub(id)
 
     // remove documents from elasticsearch index
     if (elasticsearchQueue) {
-      await elasticsearchQueue.add({ type: 'delete', publicationId: this.id })
+      await elasticsearchQueue.add({ type: 'delete', publicationId: id })
     }
 
     const date = new Date().toISOString()
-    return await Publication.query().patchAndFetchById(this.id, {
+    return await Publication.query().patchAndFetchById(id, {
       deleted: date
     })
   }
@@ -649,7 +629,7 @@ class Publication extends BaseModel {
       publication.attributions = undefined
     }
 
-    // Update Attributions if necessary
+    // delete attributions that were replacced
     for (const role of attributionTypes) {
       if (body[role]) {
         if (!_.isString(body[role]) && !_.isObject(body[role])) {
@@ -659,25 +639,19 @@ class Publication extends BaseModel {
         }
         // Delete the previous attributions for this role
         await Attribution.deleteAttributionOfPub(id, role)
-        // Assign new attributions
-        updatedPub[role] = []
-        for (let i = 0; i < body[role].length; i++) {
-          try {
-            const attribution = await Attribution.createAttribution(
-              body[role][i],
-              role,
-              publication
-            )
-            updatedPub[role].push(attribution)
-          } catch (err) {
-            throw err
-          }
-        }
       } else if (body[role] === null) {
         await Attribution.deleteAttributionOfPub(id, role)
         updatedPub[role] = null
       }
     }
+
+    // Update Attributions if necessary
+    const attributions = await Attribution.createAttributionsForPublication(
+      body,
+      id,
+      urlToId(updatedPub.readerId)
+    )
+    updatedPub = Object.assign(updatedPub, attributions)
 
     return updatedPub
   }

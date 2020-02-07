@@ -11,7 +11,6 @@ const createTags = async (token, readerUrl, number = 1) => {
     promises.push(
       requestPost(`${readerUrl}/activity`, {
         body: JSON.stringify({
-          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Create',
           object: {
             type: 'reader:Tag',

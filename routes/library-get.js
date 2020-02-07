@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Reader } = require('../models/Reader')
+const { Library } = require('../models/library')
 const paginate = require('./middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../utils/utils')
@@ -136,7 +136,12 @@ module.exports = app => {
           ) {
             res.status(304)
           }
-          return Reader.getLibrary(req.user, req.query.limit, req.skip, filters)
+          return Library.getLibrary(
+            req.user,
+            req.query.limit,
+            req.skip,
+            filters
+          )
         })
         .then(reader => {
           if (!reader) {
@@ -154,7 +159,7 @@ module.exports = app => {
             ) {
               return Promise.resolve(reader.publications.length + req.skip)
             }
-            return Reader.getLibraryCount(urlToId(reader.id), filters)
+            return Library.getLibraryCount(urlToId(reader.id), filters)
           }
         })
         .then(count => {

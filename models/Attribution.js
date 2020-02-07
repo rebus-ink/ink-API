@@ -69,25 +69,20 @@ class Attribution extends BaseModel {
     }
   }
 
-  /*
-  Note: attribution parameter can be either a string (the name of the person) or an object with name, type and isContributor properties (isContributor is optional. Defaults to false)
-  If the attribution is a string, type defaults to 'Person'
-  If attribution is an object, type can be either 'Person' or 'Organization'
-  */
-  static async createAttribution (
+  static _formatAttribution (
     attribution /*: any */,
-    role /*: string */,
-    publication /*: any */
-  ) /*: Promise<AttributionType> */ {
+    pubId /*: string */,
+    readerId /*: string */,
+    role /*: string */
+  ) /*: any */ {
     let props
-
     if (_.isString(attribution)) {
       props = {
         name: attribution,
         type: 'Person',
         published: undefined,
-        publicationId: publication.id,
-        readerId: publication.readerId,
+        publicationId: pubId,
+        readerId: readerId,
         normalizedName: undefined,
         role: role
       }
@@ -111,13 +106,61 @@ class Attribution extends BaseModel {
 
       props = _.pick(attribution, ['name', 'type', 'isContributor'])
       props.role = role
-      props.readerId = publication.readerId
-      props.publicationId = publication.id
+      props.readerId = readerId
+      props.publicationId = pubId
     }
 
     props.normalizedName = this.normalizeName(props.name)
 
-    return await Attribution.query(Attribution.knex()).insertAndFetch(props)
+    return props
+  }
+
+  static async createAttributionsForPublication (
+    publication /*: any */,
+    pubId /*: string */,
+    readerId /*: string */
+  ) /*: any */ {
+    let attributions = []
+    let returnedAttributions = {}
+    const attributionRoles = [
+      'author',
+      'editor',
+      'contributor',
+      'creator',
+      'illustrator',
+      'publisher',
+      'translator',
+      'copyrightHolder'
+    ]
+    attributionRoles.forEach(role => {
+      if (publication[role]) {
+        returnedAttributions[role] = []
+        if (!_.isString(publication[role]) && !_.isObject(publication[role])) {
+          throw new Error(
+            `${role} attribution validation error: attribution should be either an attribution object or a string`
+          )
+        }
+        if (_.isString(publication[role])) {
+          publication[role] = [{ type: 'Person', name: publication[role] }]
+        }
+        publication[role].forEach(attribution => {
+          let formatedAttribution = Attribution._formatAttribution(
+            attribution,
+            pubId,
+            readerId,
+            role
+          )
+          attributions.push(formatedAttribution)
+          returnedAttributions[role].push({
+            name: formatedAttribution.name,
+            type: formatedAttribution.type
+          })
+        })
+      }
+    })
+
+    await Attribution.query(Attribution.knex()).insert(attributions)
+    return returnedAttributions
   }
 
   static normalizeName (name /*: string */) /*: string */ {

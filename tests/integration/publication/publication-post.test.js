@@ -10,7 +10,6 @@ const test = async app => {
   const now = new Date().toISOString()
 
   const publicationObject = {
-    '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
     type: 'Book',
     name: 'Publication A',
     author: ['John Smith'],
@@ -101,7 +100,6 @@ const test = async app => {
 
     await tap.equal(res.status, 201)
     const body = res.body
-
     await tap.equal(body.name, 'Publication A')
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.type, 'Book')

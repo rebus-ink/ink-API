@@ -10,7 +10,6 @@ const createNotes = async (token, readerUrl, publicationUrl, number = 1) => {
     promises.push(
       requestPost(`${readerUrl}/activity`, {
         body: JSON.stringify({
-          '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
           type: 'Create',
           object: {
             type: 'Note',

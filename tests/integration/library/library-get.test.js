@@ -75,6 +75,8 @@ const test = async () => {
     await tap.type(body, 'object')
     await tap.type(body.totalItems, 'number')
     await tap.equal(body.totalItems, 1)
+    await tap.equal(body.page, 1)
+    await tap.equal(body.pageSize, 10)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
     const pub = body.items[0]
@@ -165,7 +167,6 @@ const test = async () => {
           .type('application/ld+json')
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
               type: 'Update',
               object: {
                 type: 'reader:Tag',
@@ -223,7 +224,6 @@ const test = async () => {
           .type('application/ld+json')
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
               type: 'Update',
               object: {
                 type: 'Publication',
@@ -314,7 +314,6 @@ const test = async () => {
           .type('application/ld+json')
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
               type: 'Delete',
               object: {
                 type: 'Publication',
@@ -349,7 +348,6 @@ const test = async () => {
           .type('application/ld+json')
           .send(
             JSON.stringify({
-              '@context': [{ reader: 'https://rebus.foundation/ns/reader' }],
               type: 'Delete',
               object: {
                 type: 'reader:Tag',

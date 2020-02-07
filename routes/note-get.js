@@ -64,13 +64,7 @@ module.exports = app => {
           } else {
             debug(note)
             res.setHeader('Content-Type', 'application/ld+json')
-            res.end(
-              JSON.stringify(
-                Object.assign(note.toJSON(), {
-                  '@context': [{ reader: 'https://rebus.foundation/ns/reader' }]
-                })
-              )
-            )
+            res.end(JSON.stringify(note.toJSON()))
           }
         })
         .catch(next)
