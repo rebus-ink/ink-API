@@ -232,7 +232,7 @@ const test = async app => {
 
   await tap.test('Try to delete a note that does not exist', async () => {
     const res = await Note.delete('123')
-    await tap.equal(res, null)
+    await tap.notOk(res)
   })
 
   // --------------------------------------------------------------------------------

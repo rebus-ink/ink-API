@@ -71,32 +71,48 @@ class NoteBody extends BaseModel {
     }
   }
 
+  static async createMultipleNoteBodies (
+    noteBodies /*: any */,
+    noteId /*: string */,
+    readerId /*: string */
+  ) /*: Promise<void> */ {
+    // validate
+    if (!noteBodies || !noteBodies[0]) throw new Error('no noteBody')
+    if (!noteId) throw new Error('no noteId')
+    if (!readerId) throw new Error('no readerId')
+
+    noteBodies.forEach(body => {
+      if (!body.motivation) {
+        throw new Error(
+          'Note Validation Error: body.motivation is a required property'
+        )
+      }
+      if (motivations.indexOf(body.motivation.toLowerCase()) === -1) {
+        throw new Error(
+          `Note Validation Error: ${
+            body.motivation
+          } is not a valid value for body.motivation`
+        )
+      }
+    })
+
+    let bodies = noteBodies.map(body => {
+      let props = _.pick(body, ['content', 'language', 'motivation'])
+      props.motivation = props.motivation.toLowerCase()
+      props.noteId = noteId
+      props.readerId = readerId
+      return props
+    })
+
+    await NoteBody.query(NoteBody.knex()).insert(bodies)
+  }
+
   static async createNoteBody (
     noteBody /*: any */,
     noteId /*: string */,
     readerId /*: string */
-  ) /*: Promise<NoteBodyType> */ {
-    if (!noteBody) throw new Error('no noteBody')
-    if (!noteId) throw new Error('no noteId')
-    if (!noteBody.motivation) {
-      throw new Error(
-        'Note Validation Error: body.motivation is a required property'
-      )
-    }
-    if (!readerId) throw new Error('no readerId')
-    noteBody.motivation = noteBody.motivation.toLowerCase()
-    if (motivations.indexOf(noteBody.motivation) === -1) {
-      throw new Error(
-        `Note Validation Error: ${
-          noteBody.motivation
-        } is not a valid value for body.motivation`
-      )
-    }
-
-    let props = _.pick(noteBody, ['content', 'language', 'motivation'])
-    props.noteId = noteId
-    props.readerId = readerId
-    return await NoteBody.query(NoteBody.knex()).insertAndFetch(props)
+  ) /*: Promise<void> */ {
+    return await NoteBody.createMultipleNoteBodies([noteBody], noteId, readerId)
   }
 
   static async deleteBodiesOfNote (noteId /*: string */) /*: Promise<number> */ {

@@ -34,31 +34,37 @@ const test = async app => {
   }
 
   await tap.test('Create Simple NoteBody', async () => {
-    let response = await NoteBody.createNoteBody(
-      noteBodySimple,
-      noteId,
-      readerId
-    )
-    await tap.ok(response)
-    await tap.ok(response instanceof NoteBody)
-    await tap.equal(urlToId(response.readerId), readerId)
-    await tap.equal(urlToId(response.noteId), noteId)
-    await tap.equal(response.motivation, noteBodySimple.motivation)
-    await tap.ok(response.id)
-    await tap.ok(response.published)
+    let error
+    try {
+      await NoteBody.createNoteBody(noteBodySimple, noteId, readerId)
+    } catch (err) {
+      error = err
+    }
+    await tap.notOk(error)
   })
 
   await tap.test('Create NoteBody', async () => {
-    let response = await NoteBody.createNoteBody(noteBody, noteId, readerId)
-    await tap.ok(response)
-    await tap.ok(response instanceof NoteBody)
-    await tap.equal(urlToId(response.readerId), readerId)
-    await tap.equal(urlToId(response.noteId), noteId)
-    await tap.equal(response.motivation, noteBody.motivation)
-    await tap.equal(response.language, noteBody.language)
-    await tap.equal(response.content, noteBody.content)
-    await tap.ok(response.id)
-    await tap.ok(response.published)
+    let error
+    try {
+      await NoteBody.createNoteBody(noteBody, noteId, readerId)
+    } catch (err) {
+      error = err
+    }
+    await tap.notOk(error)
+  })
+
+  await tap.test('Create MultipleNoteBody', async () => {
+    let error
+    try {
+      await NoteBody.createMultipleNoteBodies(
+        [noteBody, noteBodySimple],
+        noteId,
+        readerId
+      )
+    } catch (err) {
+      error = err
+    }
+    await tap.notOk(error)
   })
 
   await tap.test('Try to create NoteBody without a motivation', async () => {
@@ -108,7 +114,7 @@ const test = async app => {
   await tap.test('Delete Bodies of Note', async () => {
     const res = await NoteBody.deleteBodiesOfNote(noteId)
 
-    await tap.equal(res, 3)
+    await tap.equal(res, 5)
 
     // trying again with same note, should return 0
     const res2 = await NoteBody.deleteBodiesOfNote(noteId)

@@ -197,14 +197,12 @@ class Note extends BaseModel {
     // create noteBody
     try {
       if (_.isArray(note.body)) {
-        for (const body of note.body) {
-          await NoteBody.createNoteBody(
-            body,
-            urlToId(createdNote.id),
-            reader.id
-          )
-          createdNote.body = note.body
-        }
+        await NoteBody.createMultipleNoteBodies(
+          note.body,
+          urlToId(createdNote.id),
+          reader.id
+        )
+        createdNote.body = note.body
       } else {
         await NoteBody.createNoteBody(
           note.body,
