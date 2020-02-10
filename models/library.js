@@ -149,7 +149,8 @@ class Library {
             'Publication.published',
             'Publication.updated',
             'Publication.deleted',
-            'Publication.resources'
+            'Publication.resources',
+            'Publication.links'
           )
           .from('Publication')
         builder.distinct('Publication.id')

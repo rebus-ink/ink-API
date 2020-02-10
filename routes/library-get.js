@@ -186,6 +186,7 @@ module.exports = app => {
               'published',
               'updated',
               'resources',
+              'links',
               'tags',
               'shortId',
               'author',
