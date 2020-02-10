@@ -95,7 +95,7 @@ class Publication_Tag extends BaseModel {
       .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
       .where('Tag.name', '=', tagName)
       .andWhere('Tag.readerId', '=', urlToId(readerId))
-      .andWhere('Tag.type', '=', 'reader:Stack')
+      .andWhere('Tag.type', '=', 'stack')
 
     return res.map(object => urlToId(object.publicationId))
   }

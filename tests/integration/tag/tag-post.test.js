@@ -15,7 +15,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          type: 'stack',
           name: 'mystack',
           json: { property: 'value' }
         })
@@ -24,7 +24,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
     await tap.type(res.body.id, 'string')
     await tap.equal(res.body.shortId, urlToId(res.body.id))
-    await tap.equal(res.body.tagType, 'reader:Stack')
+    await tap.equal(res.body.type, 'stack')
     await tap.equal(res.body.name, 'mystack')
     await tap.equal(res.body.json.property, 'value')
     await tap.equal(res.body.readerId, readerCompleteUrl)
@@ -38,13 +38,13 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'newTagType!',
+          type: 'newTagType!',
           name: 'mystack',
           json: { property: 'value' }
         })
       )
     await tap.equal(res.status, 201)
-    await tap.equal(res.body.tagType, 'newTagType!')
+    await tap.equal(res.body.type, 'newTagType!')
     await tap.equal(res.body.name, 'mystack')
     await tap.equal(res.body.json.property, 'value')
     await tap.equal(res.body.readerId, readerCompleteUrl)
@@ -58,7 +58,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          type: 'stack',
           json: { property: 'value' }
         })
       )
@@ -86,7 +86,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          type: 'stack',
           name: 'mystack'
         })
       )
@@ -115,7 +115,7 @@ const test = async app => {
     await tap.ok(
       urlToId(body.tags[0].id).startsWith(urlToId(body.tags[0].readerId))
     ) // check that id contains readerId
-    await tap.equal(body.tags[0].tagType, 'newTagType!')
+    await tap.equal(body.tags[0].type, 'newTagType!')
     await tap.type(body.tags[0].json, 'object')
 
     // in GET tags endpoint
@@ -130,7 +130,7 @@ const test = async app => {
     await tap.ok(Array.isArray(body2))
     await tap.type(body2[0].name, 'string')
     await tap.ok(urlToId(body2[0].id).startsWith(urlToId(body2[0].readerId))) // check that id contains readerId
-    await tap.equal(body2[0].tagType, 'newTagType!')
+    await tap.equal(body2[0].type, 'newTagType!')
     await tap.type(body2[0].json, 'object')
   })
 

@@ -86,6 +86,7 @@ const test = async () => {
     await tap.equal(pub.name, 'Publication A')
     await tap.equal(pub.author[0].name, 'John Smith')
     await tap.equal(pub.editor[0].name, 'Jane Doe')
+    await tap.ok(pub.links)
     // await tap.equal(pub.contributor[0].name, 'Sample Contributor')
     // await tap.equal(pub.creator[0].name, 'Sample Creator')
     // await tap.equal(pub.illustrator[0].name, 'Sample Illustrator')
@@ -98,7 +99,6 @@ const test = async () => {
     await tap.equal(pub.bookFormat, 'EBook')
     // // documents should NOT include:
     await tap.notOk(pub.readingOrder)
-    await tap.notOk(pub.links)
     await tap.notOk(pub.contributor)
     await tap.notOk(pub.creator)
     await tap.notOk(pub.illustrator)
@@ -169,7 +169,6 @@ const test = async () => {
             JSON.stringify({
               type: 'Update',
               object: {
-                type: 'reader:Tag',
                 id: collectionId,
                 name: 'new collection name'
               }

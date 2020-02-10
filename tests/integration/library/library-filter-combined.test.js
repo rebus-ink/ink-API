@@ -10,11 +10,21 @@ const {
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async () => {
   const token = getToken()
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
+
+  // get reader workspace tags:
+  const tagsres = await request(app)
+    .get(`/tags`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+
+  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
 
   const createPublicationSimplified = async object => {
     return await createPublication(readerId, object)
@@ -103,7 +113,7 @@ const test = async () => {
     description: 'testing',
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  const pub01 = await createPublicationSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`,
     type: 'Article',
@@ -142,7 +152,7 @@ const test = async () => {
     translator: 'John Doe'
   })
 
-  await createPublicationSimplified({
+  const pub02 = await createPublicationSimplified({
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
@@ -174,7 +184,7 @@ const test = async () => {
     inLanguage: ['en'],
     type: 'Article'
   })
-  await createPublicationSimplified({
+  const pub03 = await createPublicationSimplified({
     name: 'new book 9 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
@@ -220,6 +230,11 @@ const test = async () => {
     inLanguage: ['fr']
   })
 
+  // add pubs to collection
+  await addPubToCollection(app, token, urlToId(pub01.id), researchTagId)
+  await addPubToCollection(app, token, urlToId(pub02.id), researchTagId)
+  await addPubToCollection(app, token, urlToId(pub03.id), researchTagId)
+
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
       .get(`/library?author=Jane%20Smith&title=sequel`)
@@ -230,6 +245,9 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 8 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 15 - the sequel' }))
   })
 
   await tap.test('filter by collection and language', async () => {
@@ -242,6 +260,9 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { name: 'Publication 10' }))
+    await tap.ok(_.find(body.items, { name: 'Publication 11' }))
+    await tap.ok(_.find(body.items, { name: 'Publication 13' }))
   })
 
   await tap.test('filter by author and language', async () => {
@@ -254,6 +275,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
   await tap.test('filter by attribution and title', async () => {
@@ -266,6 +288,10 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 4)
     await tap.equal(body.items.length, 4)
+    await tap.ok(_.find(body.items, { name: 'new book 15 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 8 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
   })
 
   await tap.test('filter by collection and title', async () => {
@@ -278,6 +304,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'Publication 4 test' }))
   })
 
   await tap.test('filter by author and type', async () => {
@@ -290,6 +317,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
   })
 
   await tap.test('filter by attribution and type', async () => {
@@ -302,6 +331,11 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 5)
     await tap.equal(body.items.length, 5)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 3' }))
+    await tap.ok(_.find(body.items, { name: 'new book 8 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
   await tap.test('filter by title and type', async () => {
@@ -314,6 +348,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 8 - the sequel' }))
   })
 
   await tap.test('filter by language and type', async () => {
@@ -326,6 +362,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
   // Keywords
@@ -340,6 +377,14 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 8)
     await tap.equal(body.items.length, 8)
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 3b' }))
+    await tap.ok(_.find(body.items, { name: 'new book 3c' }))
+    await tap.ok(_.find(body.items, { name: 'new book 3d' }))
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 10' }))
+    await tap.ok(_.find(body.items, { name: 'new book 14' }))
   })
 
   await tap.test('filter by keyword and author', async () => {
@@ -352,6 +397,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
   })
 
   await tap.test('filter by keyword and language', async () => {
@@ -364,6 +411,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 14' }))
   })
 
   await tap.test('filter by keyword and title', async () => {
@@ -376,6 +424,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
   })
 
   await tap.test('filter by keyword, author and title', async () => {
@@ -388,6 +438,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
   })
 
   await tap.test('filter by keyword and type', async () => {
@@ -400,6 +451,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
   })
 
   await tap.test('filter by search and author', async () => {
@@ -412,6 +465,8 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
   })
 
   await tap.test('filter by search and type', async () => {
@@ -424,6 +479,9 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { name: 'new book 1' }))
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
   await tap.test('filter by search and language', async () => {
@@ -437,6 +495,7 @@ const test = async () => {
 
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
   await tap.test('filter by search and title', async () => {
@@ -450,6 +509,66 @@ const test = async () => {
 
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+  })
+
+  await tap.test('filter by workspace and title', async () => {
+    const res = await request(app)
+      .get(`/library?workspace=research&title=sequel`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+  })
+
+  await tap.test('filter by workspace and language', async () => {
+    const res = await request(app)
+      .get(`/library?workspace=research&language=km`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
+  })
+
+  await tap.test('filter by workspace and author', async () => {
+    const res = await request(app)
+      .get(`/library?workspace=research&author=Jane%20Smith`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
+  })
+
+  await tap.test('filter by workspace and keyword', async () => {
+    const res = await request(app)
+      .get(`/library?workspace=research&keyword=word`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
+    await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
   })
 
   await destroyDB(app)

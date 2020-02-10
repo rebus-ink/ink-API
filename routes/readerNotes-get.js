@@ -53,7 +53,7 @@ module.exports = app => {
    *         name: stack
    *         schema:
    *           type: string
-   *         description: stack to which notes belong (tag with type 'reader:Stack')
+   *         description: stack to which notes belong (tag with type 'stack')
    *       - in: query
    *         name: orderBy
    *         schema:

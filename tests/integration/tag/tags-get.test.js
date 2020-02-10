@@ -42,7 +42,7 @@ const test = async app => {
     await tap.ok(body.name)
     await tap.ok(body.published)
     await tap.ok(body.updated)
-    await tap.ok(body.tagType)
+    await tap.ok(body.type)
   })
 
   await destroyDB(app)

@@ -275,6 +275,10 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
+ *       links:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/link'
  *       published:
  *         type: string
  *         format: timestamp

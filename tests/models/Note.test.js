@@ -239,8 +239,7 @@ const test = async app => {
   // TODO: move to another file!
   // // Create a valid tag
   // const newTag = await Tag.createTag(createdReader.id, {
-  //   type: 'reader:Tag',
-  //   tagType: 'reader:Stack',
+  //   type: 'stack',
   //   name: 'mystack'
   // })
 
@@ -279,13 +278,11 @@ const test = async app => {
   // await tap.test('Delete all Note_Tags associated with a note', async () => {
   //   // Create valid tags
   //   const tag1 = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'someStack1'
   //   })
   //   const tag2 = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'someStack2'
   //   })
 
@@ -338,8 +335,7 @@ const test = async app => {
   // await tap.test('Delete all Note_Tags associated with a Tag', async () => {
   //   // Create 1 tag, 2 notes, and add this tag to the notes
   //   const createdTag = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'another random stack'
   //   })
 
@@ -370,13 +366,11 @@ const test = async app => {
   // await tap.test('Remove a valid tag from a valid note', async () => {
   //   // Create valid tags
   //   const tag1 = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'MyStack1'
   //   })
   //   const tag2 = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'MyStack2'
   //   })
 
@@ -430,8 +424,7 @@ const test = async app => {
 
   // await tap.test('Delete a Note', async () => {
   //   const tag = await Tag.createTag(createdReader.id, {
-  //     type: 'reader:Tag',
-  //     tagType: 'reader:Stack',
+  //     type: 'stack',
   //     name: 'random name for tag'
   //   })
 

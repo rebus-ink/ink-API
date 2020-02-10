@@ -59,6 +59,17 @@ module.exports = app => {
    *           type: string
    *         description: the two-letter language code to filter by.
    *       - in: query
+   *         name: stack
+   *         schema:
+   *           type: string
+   *         description: the name of the tag of type stack to filter by
+   *       - in: query
+   *         name: workspace
+   *         schema:
+   *           type: string
+   *         description: the workspace to filter by
+   *         enum: ['Personal', 'Public Scholarships', 'Teaching', 'Research']
+   *       - in: query
    *         name: type
    *         schema:
    *           type: string
@@ -122,7 +133,8 @@ module.exports = app => {
         language: req.query.language,
         type: req.query.type,
         keyword: req.query.keyword,
-        search: req.query.search
+        search: req.query.search,
+        workspace: req.query.workspace
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
@@ -174,6 +186,7 @@ module.exports = app => {
               'published',
               'updated',
               'resources',
+              'links',
               'tags',
               'shortId',
               'author',

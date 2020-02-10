@@ -42,7 +42,7 @@ class ReaderNotes {
         .leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
         .whereNull('Tag.deleted')
         .where('Tag.name', '=', filters.collection)
-        .andWhere('Tag.type', '=', 'reader:Stack')
+        .andWhere('Tag.type', '=', 'stack')
     }
 
     const result = await resultQuery
@@ -124,7 +124,7 @@ class ReaderNotes {
         if (filters.collection) {
           builder
             .where('Tag.name', '=', filters.collection)
-            .andWhere('Tag.type', '=', 'reader:Stack')
+            .andWhere('Tag.type', '=', 'stack')
         }
 
         // orderBy

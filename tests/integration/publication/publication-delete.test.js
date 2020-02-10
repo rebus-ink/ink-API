@@ -86,8 +86,7 @@ const test = async app => {
 
     // Create a tag for testing purposes
     const createdTag = await Tag.createTag(readerId, {
-      type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      type: 'stack',
       name: 'mystack'
     })
 
