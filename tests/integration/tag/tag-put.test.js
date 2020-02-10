@@ -51,7 +51,7 @@ const test = async app => {
   const noteUrl = note.id
 
   // create Tag
-  const stack = await createTag(app, token, {
+  let stack = await createTag(app, token, {
     type: 'reader:Tag',
     tagType: 'reader:Stack',
     name: 'mystack',
@@ -78,20 +78,23 @@ const test = async app => {
 
     // Update the tag
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
-        JSON.stringify({
-          name: 'newName'
-        })
+        JSON.stringify(
+          Object.assign(stack, {
+            name: 'newName'
+          })
+        )
       )
 
     await tap.equal(res.statusCode, 200)
     const body = res.body
     await tap.equal(body.name, 'newName')
     await tap.equal(body.shortId, urlToId(body.id))
+    stack = body
 
     // Get the library after the modifications
     const libraryAfter = await request(app)
@@ -111,19 +114,22 @@ const test = async app => {
   await tap.test('Update a Tag json', async () => {
     // Update the tag
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
-        JSON.stringify({
-          json: { property: 'value!!' }
-        })
+        JSON.stringify(
+          Object.assign(stack, {
+            json: { property: 'value!!' }
+          })
+        )
       )
 
     await tap.equal(res.statusCode, 200)
     await tap.equal(res.body.json.property, 'value!!')
     await tap.equal(res.body.name, 'newName')
+    stack = res.body
 
     // Get the library after the modifications
     const libraryAfter = await request(app)
@@ -142,14 +148,16 @@ const test = async app => {
 
   await tap.test('Try to update a Tag with invalid values', async () => {
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
-        JSON.stringify({
-          name: { shouldNotBe: 'an object' }
-        })
+        JSON.stringify(
+          Object.assign(stack, {
+            name: { shouldNotBe: 'an object' }
+          })
+        )
       )
 
     await tap.equal(res.statusCode, 400)
@@ -167,7 +175,7 @@ const test = async app => {
 
   await tap.test('Try to update a Tag with an empty body', async () => {
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -186,7 +194,7 @@ const test = async app => {
       .type('application/ld+json')
 
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -200,7 +208,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Patch Tag Error: No Tag found with id ${stack.id}`
+      `Put Tag Error: No Tag found with id ${stack.id}`
     )
     await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
     await tap.equal(error.details.requestBody.name, 'anotherNewName')
@@ -210,7 +218,7 @@ const test = async app => {
     'Try to update a Tag with a tagId that does not exist',
     async () => {
       const res = await request(app)
-        .patch(`/tags/${stack.id}123`)
+        .put(`/tags/${stack.id}123`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -224,7 +232,7 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Patch Tag Error: No Tag found with id ${stack.id}123`
+        `Put Tag Error: No Tag found with id ${stack.id}123`
       )
       await tap.equal(error.details.requestUrl, `/tags/${stack.id}123`)
       await tap.equal(error.details.requestBody.name, 'newName')

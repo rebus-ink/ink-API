@@ -217,18 +217,18 @@ const test = async app => {
 
   await tap.test('Try to update a Tag that was already deleted', async () => {
     const res = await request(app)
-      .patch(`/tags/${stack.id}`)
+      .put(`/tags/${stack.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-      .send(JSON.stringify({ name: 'new name' }))
+      .send(JSON.stringify(Object.assign(stack, { name: 'new name' })))
 
     await tap.equal(res.statusCode, 404)
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(
       error.message,
-      `Patch Tag Error: No Tag found with id ${stack.id}`
+      `Put Tag Error: No Tag found with id ${stack.id}`
     )
     await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
   })

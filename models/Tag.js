@@ -121,9 +121,10 @@ class Tag extends BaseModel {
   }
 
   async update (object /*: any */) /*: Promise<TagType|null> */ {
-    const modifications = _.pick(object, ['name', 'json'])
+    const modifications = _.pick(object, ['name', 'json', 'readerId', 'id'])
+    modifications.type = object.tagType
     try {
-      return await Tag.query().patchAndFetchById(
+      return await Tag.query().updateAndFetchById(
         urlToId(this.id),
         modifications
       )

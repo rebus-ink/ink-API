@@ -215,7 +215,7 @@ const test = async app => {
 
   await tap.test('Try to update a tag belonging to another user', async () => {
     const res = await request(app)
-      .patch(`/tags/${tagId}`)
+      .put(`/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token2}`)
       .type('application/ld+json')

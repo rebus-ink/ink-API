@@ -38,7 +38,7 @@ const publicationAddTagTests = require('./tag/publication-tag-put.test')
 const publicationRemoveTagTests = require('./tag/publication-tag-delete.test')
 const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
-const tagPatchTests = require('./tag/tag-patch.test')
+const tagPutTests = require('./tag/tag-put.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
 const tagNotePutTests = require('./tag/tag-note-put.test')
 const tagNoteDeleteTests = require('./tag/tag-note-delete.test')
@@ -107,7 +107,7 @@ const allTests = async () => {
     await tagNoteDeleteTests(app)
     await tagDeleteTests(app)
     await tagsPostTests(app)
-    await tagPatchTests(app)
+    await tagPutTests(app)
   }
 
   if (!test || test === 'readerNotes') {

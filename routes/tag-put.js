@@ -14,7 +14,7 @@ module.exports = function (app) {
   /**
    * @swagger
    * /tags/{tagId}:
-   *   patch:
+   *   put:
    *     tags:
    *       - tags
    *     description: Update properties of a tag
@@ -31,7 +31,6 @@ module.exports = function (app) {
    *         application/json:
    *           schema:
    *             $ref: '#/definitions/tag'
-   *       description: body should only include properties to be updated
    *     responses:
    *       200:
    *         description: Successfully updated Tag
@@ -49,13 +48,13 @@ module.exports = function (app) {
    *         description: Tag not found
    */
   app.use('/', router)
-  router.route('/tags/:tagId').patch(jwtAuth, function (req, res, next) {
+  router.route('/tags/:tagId').put(jwtAuth, function (req, res, next) {
     const tagId = req.params.tagId
     Tag.byId(tagId)
       .then(async tag => {
         if (!tag) {
           return next(
-            boom.notFound(`Patch Tag Error: No Tag found with id ${tagId}`, {
+            boom.notFound(`Put Tag Error: No Tag found with id ${tagId}`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
