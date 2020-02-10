@@ -23,7 +23,7 @@ const test = async app => {
 
   // create Tag
   const tag = await createTag(app, token, {
-    tagType: 'stack',
+    type: 'stack',
     name: 'mystack',
     json: { property: 'value' }
   })

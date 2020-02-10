@@ -50,8 +50,7 @@ const test = async app => {
 
   // create Tag
   const tag = await createTag(app, token, {
-    type: 'reader:Tag',
-    tagType: 'stack',
+    type: 'stack',
     name: 'mystack',
     json: { property: 'value' }
   })
@@ -77,7 +76,7 @@ const test = async app => {
     const body = tagsForNotes.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 1)
-    await tap.equal(body.tags[0].type, 'reader:Tag')
+    await tap.equal(body.tags[0].type, 'stack')
     await tap.equal(body.tags[0].name, 'mystack')
   })
 

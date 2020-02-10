@@ -51,9 +51,8 @@ const test = async app => {
   const noteUrl = note.id
 
   // create Tag
-  let stack = await createTag(app, token, {
-    type: 'reader:Tag',
-    tagType: 'stack',
+  const stack = await createTag(app, token, {
+    type: 'stack',
     name: 'mystack',
     json: { property: 'value' }
   })

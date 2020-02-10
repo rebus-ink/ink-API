@@ -37,7 +37,7 @@ const test = async () => {
     const res1 = await requestPost(`${readerUrl}/activity`, {
       body: JSON.stringify({
         type: 'Add',
-        object: { id: tagId, type: 'reader:Tag', tagType: 'stack' },
+        object: { id: tagId, type: 'stack' },
         target: { id: publicationUrl, type: 'Publication' }
       }),
       headers: {
@@ -59,7 +59,7 @@ const test = async () => {
     const res1 = await requestPost(`${readerUrl}/activity`, {
       body: JSON.stringify({
         type: 'Remove',
-        object: { id: tagId, type: 'reader:Tag', tagType: 'stack' },
+        object: { id: tagId, type: 'stack' },
         target: { id: publicationUrl, type: 'Publication' }
       }),
       headers: {

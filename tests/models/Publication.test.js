@@ -109,8 +109,7 @@ const test = async app => {
   }
 
   const createdTag = await Tag.createTag(urlToId(createdReader.id), {
-    type: 'reader:Tag',
-    tagType: 'stack',
+    type: 'stack',
     name: 'mystack'
   })
 
@@ -607,14 +606,12 @@ const test = async app => {
     async () => {
       // Create 2 additional tags for testing purposes
       const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
-        type: 'reader:Tag',
-        tagType: 'stack',
+        type: 'stack',
         name: 'mystack2'
       })
 
       const createdTag3 = await Tag.createTag(urlToId(createdReader.id), {
-        type: 'reader:Tag',
-        tagType: 'stack',
+        type: 'stack',
         name: 'mystack3'
       })
 
@@ -684,8 +681,7 @@ const test = async app => {
 
     // Add Tag to the publication
     const tagAdded = await Tag.createTag(urlToId(createdReader.id), {
-      type: 'reader:Tag',
-      tagType: 'stack',
+      type: 'stack',
       name: 'tagAdded'
     })
 
@@ -742,8 +738,7 @@ const test = async app => {
 
     // add tag2 to publication1
     const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
-      type: 'reader:Tag',
-      tagType: 'stack',
+      type: 'stack',
       name: 'mystack9'
     })
 

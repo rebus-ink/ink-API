@@ -135,8 +135,7 @@ const createNote = async (app, token, readerId, object = {}) => {
 const createTag = async (app, token, object = {}) => {
   const tagObject = Object.assign(
     {
-      type: 'reader:Tag',
-      tagType: 'stack',
+      type: 'stack',
       name: 'mystack'
     },
     object

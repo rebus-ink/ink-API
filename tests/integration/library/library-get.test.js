@@ -169,7 +169,6 @@ const test = async () => {
             JSON.stringify({
               type: 'Update',
               object: {
-                type: 'reader:Tag',
                 id: collectionId,
                 name: 'new collection name'
               }

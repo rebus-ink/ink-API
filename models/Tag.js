@@ -55,12 +55,12 @@ class Tag extends BaseModel {
 
   static async createTag (
     readerId /*: string */,
-    tag /*: {type: string, name: string, tagType: string, json?: {}, readerId?: string} */
+    tag /*: {type: string, name: string, type: string, json?: {}, readerId?: string} */
   ) /*: Promise<any> */ {
     tag.readerId = readerId
 
     const props = _.pick(tag, ['name', 'json', 'readerId'])
-    props.type = tag.tagType
+    props.type = tag.type
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
     try {
@@ -79,7 +79,6 @@ class Tag extends BaseModel {
   ) /*: Promise<any> */ {
     const tagArray = tags.map(tag => {
       tag.readerId = readerId
-      tag.type = tag.tagType
       tag = _.pick(tag, ['name', 'json', 'readerId', 'type'])
       tag.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
       return tag
@@ -172,8 +171,6 @@ class Tag extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
-    json.tagType = json.type
-    json.type = 'reader:Tag'
     json.shortId = urlToId(json.id)
     json = _.omitBy(json, _.isNil)
     return json
