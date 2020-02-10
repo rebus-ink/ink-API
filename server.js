@@ -39,7 +39,7 @@ const searchRoute = require('./routes/search') // not working!
 // Tags
 const getTagsRoute = require('./routes/tags-get') // GET /tags
 const tagPostRoute = require('./routes/tag-post') // POST /tags
-const tagPatchRoute = require('./routes/tag-patch') // PATCH /tags/:id
+const tagPutRoute = require('./routes/tag-put') // PUT /tags/:id
 const tagDeleteRoute = require('./routes/tag-delete') // DELETE /tags/:id
 
 // Library
@@ -213,7 +213,7 @@ publicationPutTagRoute(app)
 publicationDeleteTagRoute(app)
 publicationGetRoute(app)
 tagPostRoute(app)
-tagPatchRoute(app)
+tagPutRoute(app)
 tagDeleteRoute(app)
 readerGetRoute(app)
 readerLibraryRoute(app)

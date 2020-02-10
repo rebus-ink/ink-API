@@ -129,7 +129,7 @@ const test = async app => {
 
   await tap.test('Update Tag without Authentication', async () => {
     const res15 = await request(app)
-      .patch(`/tags/${tagId}`)
+      .put(`/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 
