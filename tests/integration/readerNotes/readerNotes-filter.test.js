@@ -11,6 +11,7 @@ const {
   addNoteToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -341,6 +342,34 @@ const test = async app => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 3)
     await tap.equal(res.body.items.length, 3)
+  })
+
+  // -------------------------------------------WORKSPACE---------------------------------------
+
+  // get reader workspace tags:
+  const tagsres = await request(app)
+    .get(`/tags`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+
+  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
+
+  // assign notes to workspace
+  await addNoteToCollection(app, token, urlToId(noteId1), researchTagId)
+  await addNoteToCollection(app, token, urlToId(noteId2), researchTagId)
+
+  await tap.test('Get Notes by Workspace', async () => {
+    const res = await request(app)
+      .get(`/notes?workspace=Research`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 2)
+    await tap.equal(res.body.items.length, 2)
   })
 
   // ----------------------------------- COMBINING FILTERS -----------------------------------

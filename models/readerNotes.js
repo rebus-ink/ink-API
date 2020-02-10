@@ -6,7 +6,12 @@ const urlparse = require('url').parse
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {
     // note: not applied with filters.document
-
+    let workspace
+    if (filters.workspace) {
+      workspace =
+        filters.workspace.charAt(0).toUpperCase() +
+        filters.workspace.substring(1).toLowerCase()
+    }
     let resultQuery = Note.query(Note.knex())
       .count()
       .whereNull('Note.deleted')
@@ -36,13 +41,48 @@ class ReaderNotes {
       )
     }
 
+    // if (filters.collection || filters.workspace) {
+    //   resultQuery = resultQuery
+    //     .leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
+    //     .leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
+    // }
+
     if (filters.collection) {
       resultQuery = resultQuery
-        .leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
-        .leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
-        .whereNull('Tag.deleted')
-        .where('Tag.name', '=', filters.collection)
-        .andWhere('Tag.type', '=', 'stack')
+        .leftJoin(
+          'note_tag AS note_tag_collection',
+          'note_tag_collection.noteId',
+          '=',
+          'Note.id'
+        )
+        .leftJoin(
+          'Tag AS Tag_collection',
+          'note_tag_collection.tagId',
+          '=',
+          'Tag_collection.id'
+        )
+        .whereNull('Tag_collection.deleted')
+        .where('Tag_collection.name', '=', filters.collection)
+        .andWhere('Tag_collection.type', '=', 'stack')
+    }
+
+    if (filters.workspace) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'note_tag AS note_tag_workspace',
+          'note_tag_workspace.noteId',
+          '=',
+          'Note.id'
+        )
+        .leftJoin(
+          'Tag AS Tag_workspace',
+          'note_tag_workspace.tagId',
+          '=',
+          'Tag_workspace.id'
+        )
+        .whereNull('Tag_workspace.deleted')
+        .where('Tag_workspace.name', '=', workspace)
+        .andWhere('Tag_workspace.type', '=', 'workspace')
     }
 
     const result = await resultQuery
@@ -59,7 +99,12 @@ class ReaderNotes {
     offset = !offset ? 0 : offset
     const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
-    let doc
+    let doc, workspace
+    if (filters.workspace) {
+      workspace =
+        filters.workspace.charAt(0).toUpperCase() +
+        filters.workspace.substring(1).toLowerCase()
+    }
     if (filters.document) {
       const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'
       const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
@@ -118,13 +163,42 @@ class ReaderNotes {
           )
         }
 
-        builder.leftJoin('note_tag', 'note_tag.noteId', '=', 'Note.id')
-        builder.leftJoin('Tag', 'note_tag.tagId', '=', 'Tag.id')
-        builder.whereNull('Tag.deleted')
         if (filters.collection) {
+          builder.leftJoin(
+            'note_tag AS note_tag_collection',
+            'note_tag_collection.noteId',
+            '=',
+            'Note.id'
+          )
+          builder.leftJoin(
+            'Tag AS Tag_collection',
+            'note_tag_collection.tagId',
+            '=',
+            'Tag_collection.id'
+          )
+          builder.whereNull('Tag_collection.deleted')
+
           builder
-            .where('Tag.name', '=', filters.collection)
-            .andWhere('Tag.type', '=', 'stack')
+            .where('Tag_collection.name', '=', filters.collection)
+            .andWhere('Tag_collection.type', '=', 'stack')
+        }
+        if (filters.workspace) {
+          builder.leftJoin(
+            'note_tag AS note_tag_workspace',
+            'note_tag_workspace.noteId',
+            '=',
+            'Note.id'
+          )
+          builder.leftJoin(
+            'Tag AS Tag_workspace',
+            'note_tag_workspace.tagId',
+            '=',
+            'Tag_workspace.id'
+          )
+          builder.whereNull('Tag_workspace.deleted')
+          builder
+            .where('Tag_workspace.name', '=', workspace)
+            .andWhere('Tag_workspace.type', '=', 'workspace')
         }
 
         // orderBy

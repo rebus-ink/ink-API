@@ -95,7 +95,8 @@ module.exports = app => {
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack
+        collection: req.query.stack,
+        workspace: req.query.workspace
       }
       let returnedReader
       ReaderNotes.getNotes(req.user, req.query.limit, req.skip, filters)
