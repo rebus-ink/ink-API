@@ -259,13 +259,16 @@ const test = async app => {
 
     await tap.equal(pubBefore.tags.length, 1)
     await tap.equal(pubBefore.tags[0].name, tagCreated.name)
-
+    console.log(tagCreated)
     // Update the tag - name and json should be updated, invalid should be ignored
-    const updatedTag = await tagCreated.update({
-      name: 'new name',
-      json: { property2: 2 },
-      invalid: 'something'
-    })
+    const updatedTag = await tagCreated.update(
+      Object.assign(tagCreated, {
+        name: 'new name',
+        json: { property2: 2 },
+        invalid: 'something',
+        tagType: tagCreated.type
+      })
+    )
     await tap.equal(updatedTag.name, 'new name')
     await tap.equal(updatedTag.json.property2, 2)
     await tap.notOk(updatedTag.json.property) // updating json replaces the whole object
