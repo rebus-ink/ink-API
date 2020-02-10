@@ -65,20 +65,20 @@ const allTests = async () => {
   }
 
   if (!test || test === 'library') {
-    // await libraryGetTests(app)
-    // await libraryPaginateTests(app)
-    // await libraryFilterCollectionTests(app)
+    await libraryGetTests(app)
+    await libraryPaginateTests(app)
+    await libraryFilterCollectionTests(app)
     await libraryFilterWorkspaceTests(app)
-    // await libraryFilterTitleTests(app)
-    // await libraryFilterAttributionTests(app)
-    // await libraryFilterLanguageTests(app)
-    // await libraryFilterTypeTests(app)
-    // await libraryFilterCombinedTests(app)
-    // await libraryOrderByDefaultTests(app)
-    // await libraryOrderByTitleTests(app)
-    // await libraryOrderByDatePublishedTests(app)
-    // await libraryFilterKeyword(app)
-    // await libraryFilterSearch(app)
+    await libraryFilterTitleTests(app)
+    await libraryFilterAttributionTests(app)
+    await libraryFilterLanguageTests(app)
+    await libraryFilterTypeTests(app)
+    await libraryFilterCombinedTests(app)
+    await libraryOrderByDefaultTests(app)
+    await libraryOrderByTitleTests(app)
+    await libraryOrderByDatePublishedTests(app)
+    await libraryFilterKeyword(app)
+    await libraryFilterSearch(app)
   }
 
   if (!test || test === 'publication') {
