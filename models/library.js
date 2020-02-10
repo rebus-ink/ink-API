@@ -4,7 +4,7 @@ const { Reader } = require('./Reader')
 
 class Library {
   static async getLibraryCount (readerId, filter) {
-    let author, attribution, type
+    let author, attribution, type, workspace
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
@@ -13,6 +13,11 @@ class Library {
       type =
         filter.type.charAt(0).toUpperCase() +
         filter.type.substring(1).toLowerCase()
+    }
+    if (filter.workspace) {
+      workspace =
+        filter.workspace.charAt(0).toUpperCase() +
+        filter.workspace.substring(1).toLowerCase()
     }
     let resultQuery = Publication.query(Publication.knex())
       .count()
@@ -75,7 +80,19 @@ class Library {
         )
         .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
         .where('Tag.name', '=', filter.collection)
-        .andWhere('Tag.type', '=', 'reader:Stack')
+        .andWhere('Tag.type', '=', 'stack')
+    }
+    if (filter.workspace) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'publication_tag',
+          'publication_tag.publicationId',
+          '=',
+          'Publication.id'
+        )
+        .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
+        .where('Tag.name', '=', workspace)
+        .andWhere('Tag.type', '=', 'workspace')
     }
     if (filter.search) {
       const search = filter.search.toLowerCase()
@@ -99,7 +116,7 @@ class Library {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    let author, attribution, type
+    let author, attribution, type, workspace
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
@@ -108,6 +125,11 @@ class Library {
       type =
         filter.type.charAt(0).toUpperCase() +
         filter.type.substring(1).toLowerCase()
+    }
+    if (filter.workspace) {
+      workspace =
+        filter.workspace.charAt(0).toUpperCase() +
+        filter.workspace.substring(1).toLowerCase()
     }
 
     const readers = await Reader.query(Reader.knex())
@@ -182,7 +204,12 @@ class Library {
         if (filter.collection) {
           builder
             .where('Tag.name', '=', filter.collection)
-            .andWhere('Tag.type', '=', 'reader:Stack')
+            .andWhere('Tag.type', '=', 'stack')
+        }
+        if (filter.workspace) {
+          builder
+            .where('Tag.name', '=', workspace)
+            .andWhere('Tag.type', '=', 'workspace')
         }
         if (filter.search) {
           const search = filter.search.toLowerCase()

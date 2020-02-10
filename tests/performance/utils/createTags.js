@@ -14,7 +14,7 @@ const createTags = async (token, readerUrl, number = 1) => {
           type: 'Create',
           object: {
             type: 'reader:Tag',
-            tagType: 'reader:Stack',
+            tagType: 'stack',
             name: crypto.randomBytes(8).toString('hex')
           }
         }),

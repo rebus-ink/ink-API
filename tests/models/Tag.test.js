@@ -17,7 +17,7 @@ const test = async app => {
 
   const tagObject = {
     type: 'reader:Tag',
-    tagType: 'reader:Stack',
+    tagType: 'stack',
     name: 'mystack',
     json: { property: 1 }
   }
@@ -95,7 +95,7 @@ const test = async app => {
   await tap.test('Get tags by readerId', async () => {
     await Tag.createTag(createdReader.id, {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'tag2'
     })
     let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
@@ -111,13 +111,13 @@ const test = async app => {
     // Create 2 additional tags for testing purposes
     const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'mystack2'
     })
 
     const createdTag3 = await Tag.createTag(urlToId(createdReader.id), {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'mystack3'
     })
 
@@ -157,7 +157,7 @@ const test = async app => {
       // Create 2 additional tags for testing purposes
       const createdTag4 = await Tag.createTag(urlToId(createdReader.id), {
         type: 'reader:Tag',
-        tagType: 'reader:Stack',
+        tagType: 'stack',
         name: 'mystack4'
       })
 
@@ -186,7 +186,7 @@ const test = async app => {
       // Create 2 additional tags for testing purposes
       const createdTag5 = await Tag.createTag(urlToId(createdReader.id), {
         type: 'reader:Tag',
-        tagType: 'reader:Stack',
+        tagType: 'stack',
         name: 'mystack5'
       })
 
@@ -211,7 +211,7 @@ const test = async app => {
   await tap.test('Delete tag', async () => {
     const newTagObject = {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'random stack name',
       json: { property: 1 }
     }
@@ -244,7 +244,7 @@ const test = async app => {
   await tap.test('Update tag', async () => {
     const newTagObject = {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'random stack name',
       json: { property: 1 }
     }
@@ -286,7 +286,7 @@ const test = async app => {
   await tap.test('Try to update tag with invalid data', async () => {
     const newTagObject = {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'random stack name',
       json: { property: 1 }
     }

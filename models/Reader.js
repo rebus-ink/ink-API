@@ -89,19 +89,19 @@ class Reader extends BaseModel {
     await Tag.createMultipleTags(newReader.id, [
       {
         name: 'Research',
-        tagType: 'mode'
+        tagType: 'workspace'
       },
       {
         name: 'Teaching',
-        tagType: 'mode'
+        tagType: 'workspace'
       },
       {
         name: 'Public Scholarships',
-        tagType: 'mode'
+        tagType: 'workspace'
       },
       {
         name: 'Personal',
-        tagType: 'mode'
+        tagType: 'workspace'
       }
     ])
 

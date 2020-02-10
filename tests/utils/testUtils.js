@@ -136,7 +136,7 @@ const createTag = async (app, token, object = {}) => {
   const tagObject = Object.assign(
     {
       type: 'reader:Tag',
-      tagType: 'reader:Stack',
+      tagType: 'stack',
       name: 'mystack'
     },
     object

@@ -15,7 +15,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          tagType: 'stack',
           name: 'mystack',
           json: { property: 'value' }
         })
@@ -24,7 +24,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
     await tap.type(res.body.id, 'string')
     await tap.equal(res.body.shortId, urlToId(res.body.id))
-    await tap.equal(res.body.tagType, 'reader:Stack')
+    await tap.equal(res.body.tagType, 'stack')
     await tap.equal(res.body.name, 'mystack')
     await tap.equal(res.body.json.property, 'value')
     await tap.equal(res.body.readerId, readerCompleteUrl)
@@ -58,7 +58,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          tagType: 'stack',
           json: { property: 'value' }
         })
       )
@@ -86,7 +86,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          tagType: 'reader:Stack',
+          tagType: 'stack',
           name: 'mystack'
         })
       )
