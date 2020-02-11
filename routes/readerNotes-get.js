@@ -59,6 +59,14 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         description: workspace to which notes belong (tag with type 'workspace')
+   *         enum: ['Research', 'Personal', 'Teaching', 'Public Scholarships']
+   *       - in: query
+   *         name: flag
+   *         schema:
+   *           type: string
+   *         description: flag assigned to notes (tag with type 'flag')
+   *         enum: ['important', 'question', 'revisit', 'to do', 'idea', 'important term', 'further reading',
+   *           'urgent', 'reference', 'colour 1', 'colour 2', 'colour 3', 'colour 4']
    *       - in: query
    *         name: publishedStart
    *         schema:
@@ -114,6 +122,7 @@ module.exports = app => {
         reverse: req.query.reverse,
         collection: req.query.stack,
         workspace: req.query.workspace,
+        flag: req.query.flag,
         publishedStart: req.query.publishedStart,
         publishedEnd: req.query.publishedEnd
       }

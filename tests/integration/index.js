@@ -41,6 +41,7 @@ const readerNotesFilterCollectionTests = require('./readerNotes/readerNotes-filt
 const readerNotesFilterWorkspaceTests = require('./readerNotes/readerNotes-filter-workspace.test')
 const readerNotesFilterCombinedTests = require('./readerNotes/readerNotes-filter-combined.test')
 const readerNotesFilterDateRange = require('./readerNotes/readerNotes-filter-dateRange.test')
+const readerNotesFilterFlagTests = require('./readerNotes/readerNotes-filter-flag.test')
 
 const publicationAddTagTests = require('./tag/publication-tag-put.test')
 const publicationRemoveTagTests = require('./tag/publication-tag-delete.test')
@@ -132,6 +133,7 @@ const allTests = async () => {
     await readerNotesFilterWorkspaceTests(app)
     await readerNotesFilterCombinedTests(app)
     await readerNotesFilterDateRange(app)
+    await readerNotesFilterFlagTests(app)
   }
 
   if (!test || test === 'jobs') {

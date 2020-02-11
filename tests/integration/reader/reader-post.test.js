@@ -48,7 +48,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res.body.length, 4)
+    await tap.equal(res.body.length, 17)
   })
 
   await tap.test('Create Simple Reader', async () => {

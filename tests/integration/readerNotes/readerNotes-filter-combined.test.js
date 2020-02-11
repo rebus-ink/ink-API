@@ -87,7 +87,7 @@ const test = async app => {
   })
 
   const note3 = await createNoteSimplified({
-    // collection & workspace
+    // collection & workspace & flag
     publicationId: publicationId2,
     documentUrl: documentUrl2,
     body: { motivation: 'highlighting', content: 'this contains abc' }
@@ -157,11 +157,15 @@ const test = async app => {
     .type('application/ld+json')
 
   const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
+  const questionTagId = _.find(tagsres.body, { name: 'question' }).id
 
   // assign notes to workspace
   await addNoteToCollection(app, token, urlToId(note3.id), researchTagId)
   await addNoteToCollection(app, token, urlToId(note4.id), researchTagId)
   await addNoteToCollection(app, token, urlToId(note5.id), researchTagId)
+
+  // assign notes to flag
+  await addNoteToCollection(app, token, urlToId(note3.id), questionTagId)
 
   await tap.test('Filter Notes by motivation and PubId', async () => {
     const res2 = await request(app)
@@ -231,6 +235,19 @@ const test = async app => {
   await tap.test('Filter Notes by collection and workspace', async () => {
     const res2 = await request(app)
       .get(`/notes?stack=testCollection&workspace=Research`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+  })
+
+  await tap.test('Filter Notes by collection, tag and workspace', async () => {
+    const res2 = await request(app)
+      .get(`/notes?stack=testCollection&workspace=Research&tag=question`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

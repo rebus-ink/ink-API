@@ -14,14 +14,14 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
 
-  // get reader workspace tags:
+  // get reader flag tags:
   const tagsres = await request(app)
     .get(`/tags`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
 
-  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
+  const importantTagId = _.find(tagsres.body, { name: 'important' }).id
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
@@ -50,14 +50,14 @@ const test = async app => {
   await createNoteSimplified()
   await createNoteSimplified()
 
-  // add 13 notes to research workspace
-  await addNoteToCollection(app, token, urlToId(note1.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note2.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note3.id), researchTagId)
+  // add 13 notes to important flag
+  await addNoteToCollection(app, token, urlToId(note1.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note2.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note3.id), importantTagId)
 
-  await tap.test('Get Notes by Workspace', async () => {
+  await tap.test('Get Notes by flag', async () => {
     const res = await request(app)
-      .get(`/notes?workspace=ReseArch`) // not case sensitive
+      .get(`/notes?flag=impORtanT`) // not case sensitive
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -68,20 +68,20 @@ const test = async app => {
     await tap.equal(res.body.items.length, 3)
   })
 
-  await addNoteToCollection(app, token, urlToId(note4.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note5.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note6.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note7.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note8.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note9.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note10.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note11.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note12.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note13.id), researchTagId)
+  await addNoteToCollection(app, token, urlToId(note4.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note5.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note6.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note7.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note8.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note9.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note10.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note11.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note12.id), importantTagId)
+  await addNoteToCollection(app, token, urlToId(note13.id), importantTagId)
 
-  await tap.test('Get Notes by Workspace with pagination', async () => {
+  await tap.test('Get Notes by flag with pagination', async () => {
     const res = await request(app)
-      .get(`/notes?workspace=research&limit=12&page=2`)
+      .get(`/notes?flag=important&limit=12&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
