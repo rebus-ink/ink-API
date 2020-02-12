@@ -86,7 +86,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(libraryBefore.body.tags.length, 5) // 4 default modes + our tag
+    await tap.equal(libraryBefore.body.tags.length, 18) // 4 default modes + 13 flags + our tag
 
     // get the tags list before
     const tagsBefore = await request(app)
@@ -95,7 +95,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(tagsBefore.body.length, 5) // 4 default modes + our tag
+    await tap.equal(tagsBefore.body.length, 18) // 4 default modes + 13 flags + our tag
 
     // Add a tag to the note and pub
     await addNoteToCollection(app, token, urlToId(noteUrl), urlToId(stack.id))
@@ -141,7 +141,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(libraryAfter.body.tags.length, 4)
+    await tap.equal(libraryAfter.body.tags.length, 17) // default modes + flags
     await tap.equal(libraryAfter.body.items[0].tags.length, 0)
 
     // get the tags list after
@@ -151,7 +151,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(tagsAfter.body.length, 4) // 4 default modes
+    await tap.equal(tagsAfter.body.length, 17) // 4 default modes + 13 flags
 
     // Note and Publication should no longer have the tag
     const resNoteAfter = await request(app)

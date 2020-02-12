@@ -73,26 +73,36 @@ class Library {
     if (filter.collection) {
       resultQuery = resultQuery
         .leftJoin(
-          'publication_tag',
-          'publication_tag.publicationId',
+          'publication_tag as publication_tag_collection',
+          'publication_tag_collection.publicationId',
           '=',
           'Publication.id'
         )
-        .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
-        .where('Tag.name', '=', filter.collection)
-        .andWhere('Tag.type', '=', 'stack')
+        .leftJoin(
+          'Tag as Tag_collection',
+          'publication_tag_collection.tagId',
+          '=',
+          'Tag_collection.id'
+        )
+        .where('Tag_collection.name', '=', filter.collection)
+        .andWhere('Tag_collection.type', '=', 'stack')
     }
     if (filter.workspace) {
       resultQuery = resultQuery
         .leftJoin(
-          'publication_tag',
-          'publication_tag.publicationId',
+          'publication_tag as publication_tag_workspace',
+          'publication_tag_workspace.publicationId',
           '=',
           'Publication.id'
         )
-        .leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
-        .where('Tag.name', '=', workspace)
-        .andWhere('Tag.type', '=', 'workspace')
+        .leftJoin(
+          'Tag as Tag_workspace',
+          'publication_tag_workspace.tagId',
+          '=',
+          'Tag_workspace.id'
+        )
+        .where('Tag_workspace.name', '=', workspace)
+        .andWhere('Tag_workspace.type', '=', 'workspace')
     }
     if (filter.search) {
       const search = filter.search.toLowerCase()
@@ -178,14 +188,7 @@ class Library {
           '=',
           'Publication.id'
         )
-        builder.leftJoin(
-          'publication_tag',
-          'publication_tag.publicationId',
-          '=',
-          'Publication.id'
-        )
-        builder.leftJoin('Tag', 'publication_tag.tagId', '=', 'Tag.id')
-        builder.whereNull('Tag.deleted')
+
         if (filter.author) {
           builder
             .where('Attribution.normalizedName', '=', author)
@@ -203,14 +206,40 @@ class Library {
         }
         builder.eager('[tags, attributions]')
         if (filter.collection) {
+          builder.leftJoin(
+            'publication_tag as publication_tag_collection',
+            'publication_tag_collection.publicationId',
+            '=',
+            'Publication.id'
+          )
+          builder.leftJoin(
+            'Tag as Tag_collection',
+            'publication_tag_collection.tagId',
+            '=',
+            'Tag_collection.id'
+          )
+          builder.whereNull('Tag_collection.deleted')
           builder
-            .where('Tag.name', '=', filter.collection)
-            .andWhere('Tag.type', '=', 'stack')
+            .where('Tag_collection.name', '=', filter.collection)
+            .andWhere('Tag_collection.type', '=', 'stack')
         }
         if (filter.workspace) {
+          builder.leftJoin(
+            'publication_tag as publication_tag_workspace',
+            'publication_tag_workspace.publicationId',
+            '=',
+            'Publication.id'
+          )
+          builder.leftJoin(
+            'Tag as Tag_workspace',
+            'publication_tag_workspace.tagId',
+            '=',
+            'Tag_workspace.id'
+          )
+          builder.whereNull('Tag_workspace.deleted')
           builder
-            .where('Tag.name', '=', workspace)
-            .andWhere('Tag.type', '=', 'workspace')
+            .where('Tag_workspace.name', '=', workspace)
+            .andWhere('Tag_workspace.type', '=', 'workspace')
         }
         if (filter.search) {
           const search = filter.search.toLowerCase()

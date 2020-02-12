@@ -102,6 +102,58 @@ class Reader extends BaseModel {
       {
         name: 'Personal',
         type: 'workspace'
+      },
+      {
+        name: 'important',
+        type: 'flag'
+      },
+      {
+        name: 'question',
+        type: 'flag'
+      },
+      {
+        name: 'revisit',
+        type: 'flag'
+      },
+      {
+        name: 'to do',
+        type: 'flag'
+      },
+      {
+        name: 'idea',
+        type: 'flag'
+      },
+      {
+        name: 'important term',
+        type: 'flag'
+      },
+      {
+        name: 'further reading',
+        type: 'flag'
+      },
+      {
+        name: 'urgent',
+        type: 'flag'
+      },
+      {
+        name: 'reference',
+        type: 'flag'
+      },
+      {
+        name: 'colour 1',
+        type: 'flag'
+      },
+      {
+        name: 'colour 2',
+        type: 'flag'
+      },
+      {
+        name: 'colour 3',
+        type: 'flag'
+      },
+      {
+        name: 'colour 4',
+        type: 'flag'
       }
     ])
 

@@ -98,7 +98,7 @@ const test = async app => {
     })
     let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
 
-    await tap.equal(responseGet.length, 8) // 4 default modes and 4 tags we created
+    await tap.equal(responseGet.length, 21) // 4 default modes, 13 flags and 4 tags we created
     await tap.ok(responseGet[0] instanceof Tag)
     await tap.ok(responseGet[1] instanceof Tag)
     await tap.ok(responseGet[2] instanceof Tag)
@@ -251,7 +251,6 @@ const test = async app => {
 
     await tap.equal(pubBefore.tags.length, 1)
     await tap.equal(pubBefore.tags[0].name, tagCreated.name)
-    console.log(tagCreated)
     // Update the tag - name and json should be updated, invalid should be ignored
     const updatedTag = await tagCreated.update(
       Object.assign(tagCreated, {

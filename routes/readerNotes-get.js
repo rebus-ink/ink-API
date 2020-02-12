@@ -55,6 +55,31 @@ module.exports = app => {
    *           type: string
    *         description: stack to which notes belong (tag with type 'stack')
    *       - in: query
+   *         name: workspace
+   *         schema:
+   *           type: string
+   *         description: workspace to which notes belong (tag with type 'workspace')
+   *         enum: ['Research', 'Personal', 'Teaching', 'Public Scholarships']
+   *       - in: query
+   *         name: flag
+   *         schema:
+   *           type: string
+   *         description: flag assigned to notes (tag with type 'flag')
+   *         enum: ['important', 'question', 'revisit', 'to do', 'idea', 'important term', 'further reading',
+   *           'urgent', 'reference', 'colour 1', 'colour 2', 'colour 3', 'colour 4']
+   *       - in: query
+   *         name: publishedStart
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: the earliest publishedAt time to filter by
+   *       - in: query
+   *         name: publishedEnd
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: the latest publishedAt time to filter by
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -76,6 +101,8 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/notes'
+   *       400:
+   *         description: Invalid time range
    *       401:
    *         description: No Authentication
    *       404:
@@ -95,7 +122,25 @@ module.exports = app => {
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack
+        collection: req.query.stack,
+        workspace: req.query.workspace,
+        flag: req.query.flag,
+        publishedStart: req.query.publishedStart,
+        publishedEnd: req.query.publishedEnd
+      }
+      if (
+        filters.publishedStart &&
+        filters.publishedEnd &&
+        filters.publishedStart > filters.publishedEnd
+      ) {
+        return next(
+          boom.badRequest(
+            `Invalid time range: end time should be larger than start time`,
+            {
+              requestUrl: req.originalUrl
+            }
+          )
+        )
       }
       let returnedReader
       ReaderNotes.getNotes(req.user, req.query.limit, req.skip, filters)

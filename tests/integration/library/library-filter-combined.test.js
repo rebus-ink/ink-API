@@ -234,6 +234,8 @@ const test = async () => {
   await addPubToCollection(app, token, urlToId(pub01.id), researchTagId)
   await addPubToCollection(app, token, urlToId(pub02.id), researchTagId)
   await addPubToCollection(app, token, urlToId(pub03.id), researchTagId)
+  await addPubToCollection(app, token, pubId1, researchTagId)
+  await addPubToCollection(app, token, pubId2, researchTagId)
 
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
@@ -536,8 +538,8 @@ const test = async () => {
 
     const body = res.body
 
-    await tap.equal(body.totalItems, 1)
-    await tap.equal(body.items.length, 1)
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
     await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
@@ -569,6 +571,19 @@ const test = async () => {
     await tap.equal(body.items.length, 2)
     await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
     await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
+  })
+
+  await tap.test('filter by workspace and stack', async () => {
+    const res = await request(app)
+      .get(`/library?workspace=research&stack=mystack`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
   })
 
   await destroyDB(app)

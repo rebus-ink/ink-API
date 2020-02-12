@@ -32,8 +32,16 @@ const readerGetTests = require('./reader/reader-get.test')
 
 const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
-const readerNotesFilterTests = require('./readerNotes/readerNotes-filter.test')
 const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
+const readerNotesFilterPubTests = require('./readerNotes/readerNotes-filter-publication.test')
+const readerNotesFilterDocTests = require('./readerNotes/readerNotes-filter-document.test')
+const readerNotesFilterMotivationTests = require('./readerNotes/readerNotes-filter-motivation.test')
+const readerNotesFilterSearchTests = require('./readerNotes/readerNotes-filter-search.test')
+const readerNotesFilterCollectionTests = require('./readerNotes/readerNotes-filter-collection.test')
+const readerNotesFilterWorkspaceTests = require('./readerNotes/readerNotes-filter-workspace.test')
+const readerNotesFilterCombinedTests = require('./readerNotes/readerNotes-filter-combined.test')
+const readerNotesFilterDateRange = require('./readerNotes/readerNotes-filter-dateRange.test')
+const readerNotesFilterFlagTests = require('./readerNotes/readerNotes-filter-flag.test')
 
 const publicationAddTagTests = require('./tag/publication-tag-put.test')
 const publicationRemoveTagTests = require('./tag/publication-tag-delete.test')
@@ -115,8 +123,17 @@ const allTests = async () => {
   if (!test || test === 'readerNotes') {
     await readerNotesGetTests(app)
     await readerNotesPaginateTests(app)
-    await readerNotesFilterTests(app)
     await readerNotesOrderByTests(app)
+    // filter
+    await readerNotesFilterPubTests(app)
+    await readerNotesFilterDocTests(app)
+    await readerNotesFilterMotivationTests(app)
+    await readerNotesFilterSearchTests(app)
+    await readerNotesFilterCollectionTests(app)
+    await readerNotesFilterWorkspaceTests(app)
+    await readerNotesFilterCombinedTests(app)
+    await readerNotesFilterDateRange(app)
+    await readerNotesFilterFlagTests(app)
   }
 
   if (!test || test === 'jobs') {
