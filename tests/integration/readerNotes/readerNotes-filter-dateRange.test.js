@@ -120,6 +120,16 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(
+      error.message,
+      `Invalid time range: end time should be larger than start time`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/notes?publishedStart=${time3}&publishedEnd=${time1}`
+    )
   })
 
   await destroyDB(app)

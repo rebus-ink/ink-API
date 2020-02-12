@@ -101,6 +101,8 @@ module.exports = app => {
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/notes'
+   *       400:
+   *         description: Invalid time range
    *       401:
    *         description: No Authentication
    *       404:
