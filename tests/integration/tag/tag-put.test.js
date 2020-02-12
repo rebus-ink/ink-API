@@ -67,7 +67,13 @@ const test = async app => {
       .type('application/ld+json')
 
     // Add a tag to the note
-    await Note_Tag.addTagToNote(urlToId(noteUrl), libraryBefore.body.tags[0].id)
+    const tagIndexBefore = _.findIndex(libraryBefore.body.tags, {
+      name: 'mystack'
+    })
+    await Note_Tag.addTagToNote(
+      urlToId(noteUrl),
+      libraryBefore.body.tags[tagIndexBefore].id
+    )
 
     // Fetch the note with the tag
     const noteWithTag = await Note.byId(urlToId(noteUrl))
