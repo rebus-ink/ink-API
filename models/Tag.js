@@ -18,15 +18,6 @@ type TagType = {
 };
 */
 
-/**
- * @property {Document} document - returns the document, if any, that this tag is a property of.
- * @property {Publication} publication - returns the publication, if any, that this tag is a property of.
- * @property {Note} note - returns the note, if any, that this tag is a property of.
- * @property {Reader} reader - returns the owning reader.
- *
- * This is a slightly generic link model. Conceptually, this is a link from the document or publication to a URL. These links can have types such as as:HashTag, stack, or Mention. (Mentions are used to list out characters and people who are mentioned in the text.)
- *
- */
 class Tag extends BaseModel {
   static get tableName () /*: string */ {
     return 'Tag'
