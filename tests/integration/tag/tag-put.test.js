@@ -13,6 +13,7 @@ const { urlToId } = require('../../../utils/utils')
 const { Reader } = require('../../../models/Reader')
 const { Note_Tag } = require('../../../models/Note_Tag')
 const { Note } = require('../../../models/Note')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -73,7 +74,8 @@ const test = async app => {
     await tap.equal(noteWithTag.tags.length, 1)
     await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
     await tap.equal(libraryBefore.body.tags.length, 18) // 4 modes + 13 flags + created tag
-    await tap.equal(libraryBefore.body.tags[0].name, stack.name)
+    const tagIndex = _.findIndex(libraryBefore.body.tags, { name: stack.name })
+    await tap.ok(tagIndex !== -1)
 
     // Update the tag
     const res = await request(app)
@@ -105,7 +107,8 @@ const test = async app => {
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
     await tap.equal(libraryAfter.body.tags.length, 18) // modes + flags + created
-    await tap.equal(libraryAfter.body.tags[0].name, 'newName')
+    const tagIndex2 = _.findIndex(libraryAfter.body.tags, { name: 'newName' })
+    await tap.ok(tagIndex2 !== -1)
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].name, 'newName')
   })
@@ -140,7 +143,9 @@ const test = async app => {
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
     await tap.equal(libraryAfter.body.tags.length, 18) // modes + tags + 1 created
-    await tap.equal(libraryAfter.body.tags[0].json.property, 'value!!')
+    const tagIndex = _.findIndex(libraryAfter.body.tags, { name: 'newName' })
+    await tap.ok(tagIndex !== -1)
+    await tap.equal(libraryAfter.body.tags[tagIndex].json.property, 'value!!')
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].json.property, 'value!!')
   })

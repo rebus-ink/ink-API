@@ -2,6 +2,7 @@ const request = require('supertest')
 const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -115,8 +116,9 @@ const test = async app => {
     await tap.ok(
       urlToId(body.tags[0].id).startsWith(urlToId(body.tags[0].readerId))
     ) // check that id contains readerId
-    await tap.equal(body.tags[0].type, 'newTagType!')
-    await tap.type(body.tags[0].json, 'object')
+    const tagIndex = _.findIndex(body.tags, { type: 'newTagType!' })
+    await tap.ok(tagIndex !== -1)
+    await tap.type(body.tags[tagIndex].json, 'object')
 
     // in GET tags endpoint
     const res2 = await request(app)
@@ -130,8 +132,10 @@ const test = async app => {
     await tap.ok(Array.isArray(body2))
     await tap.type(body2[0].name, 'string')
     await tap.ok(urlToId(body2[0].id).startsWith(urlToId(body2[0].readerId))) // check that id contains readerId
-    await tap.equal(body2[0].type, 'newTagType!')
-    await tap.type(body2[0].json, 'object')
+
+    const tagIndex2 = _.findIndex(body2, { type: 'newTagType!' })
+    await tap.ok(tagIndex2 !== -1)
+    await tap.type(body2[tagIndex2].json, 'object')
   })
 
   await destroyDB(app)
