@@ -78,7 +78,10 @@ const test = async app => {
     // Fetch the note with the tag
     const noteWithTag = await Note.byId(urlToId(noteUrl))
     await tap.equal(noteWithTag.tags.length, 1)
-    await tap.equal(noteWithTag.tags[0].name, libraryBefore.body.tags[0].name)
+    await tap.equal(
+      noteWithTag.tags[0].name,
+      libraryBefore.body.tags[tagIndexBefore].name
+    )
     await tap.equal(libraryBefore.body.tags.length, 18) // 4 modes + 13 flags + created tag
     const tagIndex = _.findIndex(libraryBefore.body.tags, { name: stack.name })
     await tap.ok(tagIndex !== -1)
