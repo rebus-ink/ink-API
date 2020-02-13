@@ -121,10 +121,28 @@ class NoteRelation extends BaseModel {
       'json'
     ])
 
-    return await NoteRelation.query(NoteRelation.knex()).updateAndFetchById(
-      relationId,
-      props
-    )
+    let updatedRel
+    try {
+      updatedRel = await NoteRelation.query(
+        NoteRelation.knex()
+      ).updateAndFetchById(relationId, props)
+    } catch (err) {
+      if (!(err instanceof ValidationError)) {
+        if (err.constraint === 'noterelation_from_foreign') {
+          throw new Error('no from')
+        } else if (err.constraint === 'noterelation_to_foreign') {
+          throw new Error('no to')
+        } else if (err.constraint === 'noterelation_previous_foreign') {
+          throw new Error('no previous')
+        } else if (err.constraint === 'noterelation_next_foreign') {
+          throw new Error('no next')
+        }
+      }
+
+      throw err
+    }
+
+    return updatedRel
   }
 
   static async getRelationsForNote (
