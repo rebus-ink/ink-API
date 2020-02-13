@@ -54,6 +54,8 @@ const tagNoteDeleteTests = require('./tag/tag-note-delete.test')
 
 const jobGetTests = require('./job/job-get.test')
 
+const noteRelationPostTests = require('./noteRelation/noteRelation-post.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -138,6 +140,10 @@ const allTests = async () => {
 
   if (!test || test === 'jobs') {
     await jobGetTests(app)
+  }
+
+  if (!test || test === 'noteRelation') {
+    await noteRelationPostTests(app)
   }
 
   await app.knex.migrate.rollback()
