@@ -1,8 +1,8 @@
 // @flow
 'use strict'
-const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+const { Model, ValidationError } = require('objection')
 
 class NoteRelation extends BaseModel {
   static get tableName () /*: string */ {
@@ -85,7 +85,27 @@ class NoteRelation extends BaseModel {
     ])
     props.readerId = readerId
 
-    return await NoteRelation.query(NoteRelation.knex()).insertAndFetch(props)
+    let createdNoteRel
+    try {
+      createdNoteRel = await NoteRelation.query(
+        NoteRelation.knex()
+      ).insertAndFetch(props)
+    } catch (err) {
+      if (!(err instanceof ValidationError)) {
+        if (err.constraint === 'noterelation_from_foreign') {
+          throw new Error('no from')
+        } else if (err.constraint === 'noterelation_to_foreign') {
+          throw new Error('no to')
+        } else if (err.constraint === 'noterelation_previous_foreign') {
+          throw new Error('no previous')
+        } else if (err.constraint === 'noterelation_next_foreign') {
+          throw new Error('no next')
+        }
+      }
+
+      throw err
+    }
+    return createdNoteRel
   }
 
   static async updateNoteRelation (object /*: any */) /*: Promise<any> */ {
