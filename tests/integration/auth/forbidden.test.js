@@ -7,7 +7,8 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createTag
+  createTag,
+  createNoteRelation
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
 const { urlToId } = require('../../../utils/utils')
@@ -56,6 +57,17 @@ const test = async app => {
     body: { motivation: 'test' }
   })
   const noteId2 = urlToId(note2.id)
+
+  // create noteRelation for reader1
+  const noteRelation1 = await createNoteRelation(app, token, {
+    type: 'test',
+    from: noteId
+  })
+  // and reader2
+  const noteRelation2 = await createNoteRelation(app, token2, {
+    type: 'test',
+    from: noteId2
+  })
 
   // ------------------------ PUBLICATION -------------------------------------
   await tap.test(
@@ -176,6 +188,283 @@ const test = async app => {
     await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
     await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
   })
+
+  // --------------------------------------- NOTERELATION ---------------------------------
+
+  // CREATE
+
+  await tap.test(
+    'Try to create a noteRelation with a note belonging to another user (from)',
+    async () => {
+      const res = await request(app)
+        .post(`/noteRelations`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Note in 'from' property disallowed: ${noteId}`
+      )
+      await tap.equal(error.details.requestUrl, `/noteRelations`)
+    }
+  )
+
+  await tap.test(
+    'Try to create a noteRelation with a note belonging to another user (to)',
+    async () => {
+      const res = await request(app)
+        .post(`/noteRelations`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId2, to: noteId }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Note in 'to' property disallowed: ${noteId}`
+      )
+      await tap.equal(error.details.requestUrl, `/noteRelations`)
+    }
+  )
+
+  await tap.test(
+    'Try to create a noteRelation with link to another noteRelation belonging to another user (previous)',
+    async () => {
+      const res = await request(app)
+        .post(`/noteRelations`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            type: 'test2',
+            from: noteId2,
+            previous: noteRelation1.id
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation in 'previous' property disallowed: ${
+          noteRelation1.id
+        }`
+      )
+      await tap.equal(error.details.requestUrl, `/noteRelations`)
+    }
+  )
+
+  await tap.test(
+    'Try to create a noteRelation with link to another noteRelation belonging to another user (next)',
+    async () => {
+      const res = await request(app)
+        .post(`/noteRelations`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            type: 'test2',
+            from: noteId2,
+            next: noteRelation1.id
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation in 'next' property disallowed: ${
+          noteRelation1.id
+        }`
+      )
+      await tap.equal(error.details.requestUrl, `/noteRelations`)
+    }
+  )
+
+  // UPDATE
+
+  await tap.test(
+    'Try to update a noteRelation belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/noteRelations/${noteRelation1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId2 }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation ${noteRelation1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation1.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to update a noteRelation with a note belonging to another user (from)',
+    async () => {
+      const res = await request(app)
+        .put(`/noteRelations/${noteRelation2.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Note in 'from' property disallowed: ${noteId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation2.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to update a noteRelation with a note belonging to another user (to)',
+    async () => {
+      const res = await request(app)
+        .put(`/noteRelations/${noteRelation2.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId2, to: noteId }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Note in 'to' property disallowed: ${noteId}`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation2.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to update a noteRelation with link to another noteRelation belonging to another user (previous)',
+    async () => {
+      const res = await request(app)
+        .put(`/noteRelations/${noteRelation2.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            type: 'test2',
+            from: noteId2,
+            previous: noteRelation1.id
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation in 'previous' property disallowed: ${
+          noteRelation1.id
+        }`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation2.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to update a noteRelation with link to another noteRelation belonging to another user (next)',
+    async () => {
+      const res = await request(app)
+        .put(`/noteRelations/${noteRelation2.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            type: 'test2',
+            from: noteId2,
+            next: noteRelation1.id
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation in 'next' property disallowed: ${
+          noteRelation1.id
+        }`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation2.id}`
+      )
+    }
+  )
+
+  // DELETE
+  await tap.test(
+    'Try to delete a noteRelation belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/noteRelations/${noteRelation1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2', from: noteId2 }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteRelation ${noteRelation1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteRelations/${noteRelation1.id}`
+      )
+    }
+  )
 
   // ---------------------------------------- READER --------------------------
 

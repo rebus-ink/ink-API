@@ -3,11 +3,11 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Note } = require('../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteRelation } = require('../models/NoteRelation')
+const { checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -60,6 +60,56 @@ module.exports = function (app) {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
+          )
+        }
+
+        // check owndership of 'to', 'from', 'previous', 'next' resources
+        if (body.from && !checkOwnership(reader.id, body.from)) {
+          return next(
+            boom.forbidden(
+              `Access to Note in 'from' property disallowed: ${body.from}`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.to && !checkOwnership(reader.id, body.to)) {
+          return next(
+            boom.forbidden(
+              `Access to Note in 'to' property disallowed: ${body.to}`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.previous && !checkOwnership(reader.id, body.previous)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation in 'previous' property disallowed: ${
+                body.previous
+              }`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.next && !checkOwnership(reader.id, body.next)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation in 'next' property disallowed: ${
+                body.next
+              }`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
           )
         }
 

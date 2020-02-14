@@ -42,6 +42,7 @@ const test = async app => {
     await tap.equal(res.status, 201)
     const body = res.body
     await tap.ok(body.id)
+    await tap.ok(body.id.startsWith(readerId))
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.from, noteId1)
     await tap.equal(body.type, 'test')

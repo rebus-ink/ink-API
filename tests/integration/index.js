@@ -56,6 +56,7 @@ const jobGetTests = require('./job/job-get.test')
 
 const noteRelationPostTests = require('./noteRelation/noteRelation-post.test')
 const noteRelationPutTests = require('./noteRelation/noteRelation-put.test')
+const noteRelationDeleteTests = require('./noteRelation/noteRelation-delete.test')
 
 const app = require('../../server').app
 
@@ -146,6 +147,7 @@ const allTests = async () => {
   if (!test || test === 'noteRelation') {
     await noteRelationPostTests(app)
     await noteRelationPutTests(app)
+    await noteRelationDeleteTests(app)
   }
 
   await app.knex.migrate.rollback()

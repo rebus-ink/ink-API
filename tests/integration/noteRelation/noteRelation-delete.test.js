@@ -64,6 +64,30 @@ const test = async app => {
     }
   )
 
+  await tap.test('Try to update a noteRelation that was deleted', async () => {
+    const res = await request(app)
+      .put(`/noteRelations/${noteRelation.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify(
+          Object.assign(noteRelation, { type: 'test2', from: noteId1 })
+        )
+      )
+
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(
+      error.message,
+      `No NoteRelation found with id ${noteRelation.id}`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/noteRelations/${noteRelation.id}`
+    )
+  })
+
   await destroyDB(app)
 }
 

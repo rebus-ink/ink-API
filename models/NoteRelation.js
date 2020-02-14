@@ -3,6 +3,8 @@
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { Model, ValidationError } = require('objection')
+const { urlToId } = require('../utils/utils')
+const crypto = require('crypto')
 
 class NoteRelation extends BaseModel {
   static get tableName () /*: string */ {
@@ -84,6 +86,7 @@ class NoteRelation extends BaseModel {
       'json'
     ])
     props.readerId = readerId
+    props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
     let createdNoteRel
     try {
@@ -123,9 +126,9 @@ class NoteRelation extends BaseModel {
 
     let updatedRel
     try {
-      updatedRel = await NoteRelation.query(
-        NoteRelation.knex()
-      ).updateAndFetchById(relationId, props)
+      updatedRel = await NoteRelation.query(NoteRelation.knex())
+        .updateAndFetchById(relationId, props)
+        .whereNull('deleted')
     } catch (err) {
       if (!(err instanceof ValidationError)) {
         if (err.constraint === 'noterelation_from_foreign') {
@@ -143,6 +146,12 @@ class NoteRelation extends BaseModel {
     }
 
     return updatedRel
+  }
+
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    return await NoteRelation.query(NoteRelation.knex()).patchAndFetchById(id, {
+      deleted: new Date().toISOString()
+    })
   }
 
   static async getRelationsForNote (

@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteRelation } = require('../models/NoteRelation')
+const { urlToId, checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -63,7 +64,69 @@ module.exports = function (app) {
           )
         }
 
+        // check owndership of 'to', 'from', 'previous', 'next' resources and the NoteRelation itself
+        if (!checkOwnership(reader.id, req.params.id)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation ${req.params.id} disallowed`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.from && !checkOwnership(reader.id, body.from)) {
+          return next(
+            boom.forbidden(
+              `Access to Note in 'from' property disallowed: ${body.from}`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.to && !checkOwnership(reader.id, body.to)) {
+          return next(
+            boom.forbidden(
+              `Access to Note in 'to' property disallowed: ${body.to}`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.previous && !checkOwnership(reader.id, body.previous)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation in 'previous' property disallowed: ${
+                body.previous
+              }`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+        if (body.next && !checkOwnership(reader.id, body.next)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation in 'next' property disallowed: ${
+                body.next
+              }`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
+
         body.id = req.params.id
+        body.readerId = urlToId(reader.id)
 
         let updatedNoteRelation
         try {
