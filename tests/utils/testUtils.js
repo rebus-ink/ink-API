@@ -166,6 +166,16 @@ const createDocument = async (readerId, publicationId, object = {}) => {
   )
 }
 
+const createNoteRelation = async (app, token, object) => {
+  const res = await request(app)
+    .post('/noteRelations')
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .send(object)
+
+  return res.body
+}
+
 const addPubToCollection = async (app, token, pubId, tagId) => {
   tagId = urlToId(tagId)
   pubId = urlToId(pubId)
@@ -195,5 +205,6 @@ module.exports = {
   createTag,
   createDocument,
   addPubToCollection,
-  addNoteToCollection
+  addNoteToCollection,
+  createNoteRelation
 }

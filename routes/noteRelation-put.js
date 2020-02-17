@@ -3,20 +3,21 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
+const { Note } = require('../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteRelation } = require('../models/NoteRelation')
-const { checkOwnership } = require('../utils/utils')
+const { urlToId, checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /noteRelations:
-   *   post:
+   * /noteRelations/:id:
+   *   put:
    *     tags:
    *       - noteRelations
-   *     description: Create a noteRelation
+   *     description: Update a noteRelation
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -25,8 +26,8 @@ module.exports = function (app) {
    *           schema:
    *             $ref: '#/definitions/noteRelation'
    *     responses:
-   *       201:
-   *         description: Successfully created NoteRelation
+   *       200:
+   *         description: Successfully updated NoteRelation
    *         content:
    *           application/json:
    *             schema:
@@ -41,7 +42,7 @@ module.exports = function (app) {
    *         description: no Note or NoteRelation found with id passed to 'to', 'from', 'previous' or 'next'
    */
   app.use('/', router)
-  router.route('/noteRelations').post(jwtAuth, function (req, res, next) {
+  router.route('/noteRelations/:id').put(jwtAuth, function (req, res, next) {
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader) {
@@ -63,7 +64,18 @@ module.exports = function (app) {
           )
         }
 
-        // check owndership of 'to', 'from', 'previous', 'next' resources
+        // check owndership of 'to', 'from', 'previous', 'next' resources and the NoteRelation itself
+        if (!checkOwnership(reader.id, req.params.id)) {
+          return next(
+            boom.forbidden(
+              `Access to NoteRelation ${req.params.id} disallowed`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
+        }
         if (body.from && !checkOwnership(reader.id, body.from)) {
           return next(
             boom.forbidden(
@@ -113,17 +125,17 @@ module.exports = function (app) {
           )
         }
 
-        let createdNoteRelation
+        body.id = req.params.id
+        body.readerId = urlToId(reader.id)
+
+        let updatedNoteRelation
         try {
-          createdNoteRelation = await NoteRelation.createNoteRelation(
-            body,
-            reader.id
-          )
+          updatedNoteRelation = await NoteRelation.updateNoteRelation(body)
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `Validation Error on Create NoteRelation: ${err.message}`,
+                `Validation Error on Update NoteRelation: ${err.message}`,
                 {
                   requestUrl: req.originalUrl,
                   requestBody: req.body,
@@ -173,8 +185,17 @@ module.exports = function (app) {
           }
         }
 
+        if (!updatedNoteRelation) {
+          return next(
+            boom.notFound(`No NoteRelation found with id ${req.params.id}`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
+        }
+
         res.setHeader('Content-Type', 'application/ld+json')
-        res.status(201).end(JSON.stringify(createdNoteRelation.toJSON()))
+        res.status(200).end(JSON.stringify(updatedNoteRelation.toJSON()))
       })
       .catch(err => {
         next(err)

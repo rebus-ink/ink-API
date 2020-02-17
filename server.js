@@ -59,6 +59,8 @@ const notePutRoute = require('./routes/note-put') // PUT /notes/:id
 
 // NoteRelations
 const noteRelationPostRoute = require('./routes/noteRelation-post') // POST /noteRelations
+const noteRelationPutRoute = require('./routes/noteRelation-put') // PUT /noteRelations/:id
+const noteRelationDeleteRoute = require('./routes/noteRelation-delete') // DELETE /noteRelations/:id
 
 const setupKnex = async skip_migrate => {
   let config
@@ -229,6 +231,8 @@ notePostRoute(app)
 noteDeleteRoute(app)
 notePutRoute(app)
 noteRelationPostRoute(app)
+noteRelationPutRoute(app)
+noteRelationDeleteRoute(app)
 
 app.use(errorHandling)
 

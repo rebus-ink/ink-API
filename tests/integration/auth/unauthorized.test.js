@@ -255,6 +255,32 @@ const test = async app => {
     await tap.equal(res24.statusCode, 401)
   })
 
+  // -----------------------------------NOTERELATION --------------------------
+
+  await tap.test('Post NoteRelation without authentication', async () => {
+    const res24 = await request(app)
+      .post('/noteRelations')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res24.statusCode, 401)
+  })
+
+  await tap.test('Put NoteRelation without authentication', async () => {
+    const res24 = await request(app)
+      .put('/noteRelations/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res24.statusCode, 401)
+  })
+
+  await tap.test('Delete NoteRelation without authentication', async () => {
+    const res24 = await request(app)
+      .delete('/noteRelations/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res24.statusCode, 401)
+  })
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {
