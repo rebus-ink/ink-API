@@ -4,12 +4,12 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 
-class NoteRelationContext extends BaseModel {
+class NoteContext extends BaseModel {
   static get tableName () /*: string */ {
-    return 'NoteRelationContext'
+    return 'NoteContext'
   }
   get path () /*: string */ {
-    return 'noteRelationContext'
+    return 'noteContext'
   }
   static get jsonSchema () /*: any */ {
     return {
@@ -42,17 +42,15 @@ class NoteRelationContext extends BaseModel {
     }
   }
 
-  static async createNoteRelationContext (
+  static async createNoteContext (
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
     const props = _.pick(object, ['type', 'name', 'description', 'json'])
     props.readerId = readerId
 
-    return await NoteRelationContext.query(
-      NoteRelationContext.knex()
-    ).insertAndFetch(props)
+    return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
   }
 }
 
-module.exports = { NoteRelationContext }
+module.exports = { NoteContext }

@@ -21,10 +21,6 @@
  *         format: url
  *       contextId:
  *         type: string
- *       previous:
- *         type: string
- *       next:
- *         type: string
  *       published:
  *         type: string
  *         format: date-time
@@ -38,6 +34,7 @@
  *   required:
  *     - id
  *     - from
+ *     - to
  *     - type
  *     - published
  *     - readerId

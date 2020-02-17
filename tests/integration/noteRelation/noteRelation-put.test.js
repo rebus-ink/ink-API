@@ -75,27 +75,6 @@ const test = async app => {
     noteRelation = body
   })
 
-  await tap.test('Update to property to null', async () => {
-    const res = await request(app)
-      .put(`/noteRelations/${noteRelation.id}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(JSON.stringify(Object.assign(noteRelation, { to: null })))
-
-    await tap.equal(res.status, 200)
-    const body = res.body
-    await tap.ok(body.id)
-    await tap.equal(urlToId(body.readerId), readerId)
-    await tap.equal(body.from, noteId3)
-    await tap.notOk(body.to)
-    await tap.equal(body.type, 'test2')
-    await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
-    await tap.equal(body.json.property, 'value')
-    noteRelation = body
-  })
-
   await tap.test('Update json object to null', async () => {
     const res = await request(app)
       .put(`/noteRelations/${noteRelation.id}`)
@@ -140,6 +119,32 @@ const test = async app => {
     await tap.equal(error.details.requestBody.type, 'test2')
   })
 
+  await tap.test('Try to remove the to property', async () => {
+    const res = await request(app)
+      .put(`/noteRelations/${noteRelation.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify(Object.assign(noteRelation, { to: null, from: noteId1 }))
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      'Validation Error on Update NoteRelation: to: should be string'
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/noteRelations/${noteRelation.id}`
+    )
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.type, 'test2')
+  })
+
   await tap.test('Try to remove the type property', async () => {
     const res = await request(app)
       .put(`/noteRelations/${noteRelation.id}`)
@@ -148,7 +153,11 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify(
-          Object.assign(noteRelation, { from: noteId1, type: null })
+          Object.assign(noteRelation, {
+            from: noteId1,
+            to: noteId2,
+            type: null
+          })
         )
       )
 
@@ -178,7 +187,11 @@ const test = async app => {
         .type('application/ld+json')
         .send(
           JSON.stringify(
-            Object.assign(noteRelation, { type: 'test', from: noteId1 + 'abc' })
+            Object.assign(noteRelation, {
+              type: 'test',
+              from: noteId1 + 'abc',
+              to: noteId2
+            })
           )
         )
 
@@ -205,7 +218,11 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-        .send(JSON.stringify(Object.assign(noteRelation, { from: noteId1 })))
+        .send(
+          JSON.stringify(
+            Object.assign(noteRelation, { from: noteId1, to: noteId2 })
+          )
+        )
 
       await tap.equal(res.status, 404)
       const error = JSON.parse(res.text)

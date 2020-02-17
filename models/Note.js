@@ -19,6 +19,10 @@ type NoteType = {
   json?: Object,
   documentUrl?: string,
   publicationId?: string,
+  contextId?: string,
+  original?: string,
+  previous?: string,
+  next?: string,
   published: Date,
   updated?: Date
 };
@@ -45,6 +49,10 @@ class Note extends BaseModel {
         documentUrl: { type: ['string', 'null'] },
         body: { type: 'object' },
         json: { type: ['object', 'null'] },
+        contextId: { type: ['string', 'null'] },
+        original: { type: ['string', 'null'] },
+        previous: { type: ['string', 'null'] },
+        next: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }

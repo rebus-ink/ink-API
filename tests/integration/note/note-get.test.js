@@ -40,6 +40,7 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
+    console.log(body)
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.equal(body.shortId, urlToId(body.id))
