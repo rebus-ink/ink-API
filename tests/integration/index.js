@@ -58,6 +58,8 @@ const noteRelationPostTests = require('./noteRelation/noteRelation-post.test')
 const noteRelationPutTests = require('./noteRelation/noteRelation-put.test')
 const noteRelationDeleteTests = require('./noteRelation/noteRelation-delete.test')
 
+const noteContextPostTests = require('./noteContext/noteContext-post.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -148,6 +150,10 @@ const allTests = async () => {
     await noteRelationPostTests(app)
     await noteRelationPutTests(app)
     await noteRelationDeleteTests(app)
+  }
+
+  if (!test || test === 'noteContext') {
+    await noteContextPostTests(app)
   }
 
   await app.knex.migrate.rollback()

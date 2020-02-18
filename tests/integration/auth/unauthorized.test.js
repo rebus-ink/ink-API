@@ -281,6 +281,16 @@ const test = async app => {
     await tap.equal(res24.statusCode, 401)
   })
 
+  // -------------------------------------NOTECONTEXT --------------------------------
+
+  await tap.test('POST NoteContext without authentication', async () => {
+    const res = await request(app)
+      .post('/noteContexts')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {
