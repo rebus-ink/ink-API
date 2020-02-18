@@ -18,10 +18,8 @@ const test = async app => {
   const readerId = urlToId(createdReader.id)
 
   // relations to create with the tests:
-  // note1 alone
   // from note1 to note2
   // from note2 to note3 with context
-  // note4 alone with context
   const note1 = await Note.createNote(createdReader, {
     body: { motivation: 'test', content: 'note 1' }
   })

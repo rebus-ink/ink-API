@@ -67,6 +67,7 @@ class Note extends BaseModel {
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
+    const { NoteRelation } = require('./NoteRelation')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -98,6 +99,22 @@ class Note extends BaseModel {
         join: {
           from: 'Note.id',
           to: 'NoteBody.noteId'
+        }
+      },
+      relationsTo: {
+        relation: Model.HasManyRelation,
+        modelClass: NoteRelation,
+        join: {
+          from: 'Note.id',
+          to: 'NoteRelation.to'
+        }
+      },
+      relationsFrom: {
+        relation: Model.HasManyRelation,
+        modelClass: NoteRelation,
+        join: {
+          from: 'Note.id',
+          to: 'NoteRelation.from'
         }
       },
       tags: {
@@ -236,9 +253,17 @@ class Note extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const note = await Note.query()
       .findById(id)
-      .eager('[reader, tags, body]')
+      .eager(
+        '[reader, tags, body, relationsFrom.[toNote], relationsTo.[fromNote]]'
+      )
 
     if (!note) return undefined
+
+    if (note.relationsFrom || note.relationsTo) {
+      note.relations = _.concat(note.relationsFrom, note.relationsTo)
+      note.relationsFrom = null
+      note.relationsTo = null
+    }
 
     return note
   }
