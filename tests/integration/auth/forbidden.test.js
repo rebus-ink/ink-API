@@ -440,6 +440,30 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to delete a noteContext belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/noteContexts/${noteContext1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext1.id}`
+      )
+    }
+  )
+
   // ---------------------------------------- READER --------------------------
 
   await tap.test(

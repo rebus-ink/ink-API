@@ -69,6 +69,10 @@ class NoteContext extends BaseModel {
       props
     )
   }
+
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    return await NoteContext.query().deleteById(id)
+  }
 }
 
 module.exports = { NoteContext }
