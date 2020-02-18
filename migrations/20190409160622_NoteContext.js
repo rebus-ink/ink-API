@@ -1,5 +1,5 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('NoteRelationContext', function (table) {
+  return knex.schema.createTable('NoteContext', function (table) {
     table.string('id').primary()
     table.string('name')
     table.string('description')
@@ -26,5 +26,5 @@ exports.up = function (knex, Promise) {
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('NoteRelationContext')
+  return knex.schema.dropTable('NoteContext')
 }

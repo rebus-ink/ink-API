@@ -19,6 +19,10 @@ type NoteType = {
   json?: Object,
   documentUrl?: string,
   publicationId?: string,
+  contextId?: string,
+  original?: string,
+  previous?: string,
+  next?: string,
   published: Date,
   updated?: Date
 };
@@ -45,6 +49,10 @@ class Note extends BaseModel {
         documentUrl: { type: ['string', 'null'] },
         body: { type: 'object' },
         json: { type: ['object', 'null'] },
+        contextId: { type: ['string', 'null'] },
+        original: { type: ['string', 'null'] },
+        previous: { type: ['string', 'null'] },
+        next: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
@@ -59,6 +67,7 @@ class Note extends BaseModel {
     const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
+    const { NoteRelation } = require('./NoteRelation')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -90,6 +99,22 @@ class Note extends BaseModel {
         join: {
           from: 'Note.id',
           to: 'NoteBody.noteId'
+        }
+      },
+      relationsTo: {
+        relation: Model.HasManyRelation,
+        modelClass: NoteRelation,
+        join: {
+          from: 'Note.id',
+          to: 'NoteRelation.to'
+        }
+      },
+      relationsFrom: {
+        relation: Model.HasManyRelation,
+        modelClass: NoteRelation,
+        join: {
+          from: 'Note.id',
+          to: 'NoteRelation.from'
         }
       },
       tags: {
@@ -228,9 +253,17 @@ class Note extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const note = await Note.query()
       .findById(id)
-      .eager('[reader, tags, body]')
+      .eager(
+        '[reader, tags, body, relationsFrom.[toNote], relationsTo.[fromNote]]'
+      )
 
     if (!note) return undefined
+
+    if (note.relationsFrom || note.relationsTo) {
+      note.relations = _.concat(note.relationsFrom, note.relationsTo)
+      note.relationsFrom = null
+      note.relationsTo = null
+    }
 
     return note
   }

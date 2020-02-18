@@ -72,6 +72,19 @@
  *                   $ref: '#/definitions/annotation'
  *               type:
  *                 type: string
+ *
+ *   noteWithContext:
+ *     allOf:
+ *       - $ref: '#/definitions/note'
+ *       - type: object
+ *         properties:
+ *           contextId:
+ *             type: string
+ *           previous:
+ *             type: string
+ *           next:
+ *             type: string
+ *
  *   notes:
  *     properties:
  *       id:

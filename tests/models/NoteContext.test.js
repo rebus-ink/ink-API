@@ -3,7 +3,7 @@ const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
-const { NoteRelationContext } = require('../../models/NoteRelationContext')
+const { NoteRelationContext } = require('../../models/NoteContext')
 const { ValidationError } = require('objection')
 
 const test = async app => {

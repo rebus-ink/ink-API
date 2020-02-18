@@ -61,12 +61,14 @@ const test = async app => {
   // create noteRelation for reader1
   const noteRelation1 = await createNoteRelation(app, token, {
     type: 'test',
-    from: noteId
+    from: noteId,
+    to: noteId
   })
   // and reader2
   const noteRelation2 = await createNoteRelation(app, token2, {
     type: 'test',
-    from: noteId2
+    from: noteId2,
+    to: noteId2
   })
 
   // ------------------------ PUBLICATION -------------------------------------
@@ -201,7 +203,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
-        .send(JSON.stringify({ type: 'test2', from: noteId }))
+        .send(JSON.stringify({ type: 'test2', from: noteId, to: noteId2 }))
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
@@ -232,66 +234,6 @@ const test = async app => {
       await tap.equal(
         error.message,
         `Access to Note in 'to' property disallowed: ${noteId}`
-      )
-      await tap.equal(error.details.requestUrl, `/noteRelations`)
-    }
-  )
-
-  await tap.test(
-    'Try to create a noteRelation with link to another noteRelation belonging to another user (previous)',
-    async () => {
-      const res = await request(app)
-        .post(`/noteRelations`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            type: 'test2',
-            from: noteId2,
-            previous: noteRelation1.id
-          })
-        )
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to NoteRelation in 'previous' property disallowed: ${
-          noteRelation1.id
-        }`
-      )
-      await tap.equal(error.details.requestUrl, `/noteRelations`)
-    }
-  )
-
-  await tap.test(
-    'Try to create a noteRelation with link to another noteRelation belonging to another user (next)',
-    async () => {
-      const res = await request(app)
-        .post(`/noteRelations`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            type: 'test2',
-            from: noteId2,
-            next: noteRelation1.id
-          })
-        )
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to NoteRelation in 'next' property disallowed: ${
-          noteRelation1.id
-        }`
       )
       await tap.equal(error.details.requestUrl, `/noteRelations`)
     }

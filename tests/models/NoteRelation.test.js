@@ -3,7 +3,7 @@ const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
-const { NoteRelationContext } = require('../../models/NoteRelationContext')
+const { NoteContext } = require('../../models/NoteContext')
 const { ValidationError } = require('objection')
 const { Note } = require('../../models/Note')
 const { NoteRelation } = require('../../models/NoteRelation')
@@ -18,10 +18,8 @@ const test = async app => {
   const readerId = urlToId(createdReader.id)
 
   // relations to create with the tests:
-  // note1 alone
   // from note1 to note2
   // from note2 to note3 with context
-  // note4 alone with context
   const note1 = await Note.createNote(createdReader, {
     body: { motivation: 'test', content: 'note 1' }
   })
@@ -39,29 +37,12 @@ const test = async app => {
   })
   const noteId4 = urlToId(note4.id)
 
-  const noteRelContext = await NoteRelationContext.createNoteRelationContext(
+  const noteRelContext = await NoteContext.createNoteContext(
     { type: 'test' },
     readerId
   )
 
-  let noteRel1, noteRel1_2, noteRel2_3, noteRel4
-
-  await tap.test('Create NoteRelation with one note', async () => {
-    let error
-    try {
-      noteRel1 = await NoteRelation.createNoteRelation(
-        {
-          from: noteId1,
-          type: 'test'
-        },
-        readerId
-      )
-    } catch (err) {
-      console.log(err)
-      error = err
-    }
-    await tap.notOk(error)
-  })
+  let noteRel1_2, noteRel2_3, noteRel4
 
   await tap.test('Create NoteRelation with two notes', async () => {
     let error
@@ -98,32 +79,13 @@ const test = async app => {
     await tap.notOk(error)
   })
 
-  await tap.test(
-    'Create NoteRelation with only one note with context',
-    async () => {
-      let error
-      try {
-        noteRel4 = await NoteRelation.createNoteRelation(
-          {
-            from: noteId4,
-            type: 'test',
-            contextId: noteRelContext.id
-          },
-          readerId
-        )
-      } catch (err) {
-        error = err
-      }
-      await tap.notOk(error)
-    }
-  )
-
   await tap.test('Try to create a NoteRelation without a type', async () => {
     let error
     try {
       noteRel4 = await NoteRelation.createNoteRelation(
         {
           from: noteId4,
+          to: noteId2,
           contextId: noteRelContext.id
         },
         readerId
@@ -143,6 +105,7 @@ const test = async app => {
         noteRel4 = await NoteRelation.createNoteRelation(
           {
             type: 'test',
+            to: noteId2,
             contextId: noteRelContext.id
           },
           readerId
@@ -155,18 +118,35 @@ const test = async app => {
     }
   )
 
+  await tap.test('Try to create a NoteRelation without a to Note', async () => {
+    let error
+    try {
+      noteRel4 = await NoteRelation.createNoteRelation(
+        {
+          type: 'test',
+          from: noteId1,
+          contextId: noteRelContext.id
+        },
+        readerId
+      )
+    } catch (err) {
+      error = err
+    }
+    await tap.ok(error)
+    await tap.ok(error instanceof ValidationError)
+  })
+
   await tap.test('Get NoteRelations for a Note', async () => {
-    const result = await NoteRelation.getRelationsForNote(noteId1)
+    const result = await NoteRelation.getRelationsForNote(noteId2)
     await tap.equal(result.length, 2)
-    await tap.ok(_.find(result, { id: noteRel1.id }))
+    await tap.ok(_.find(result, { id: noteRel2_3.id }))
     await tap.ok(_.find(result, { id: noteRel1_2.id }))
   })
 
   await tap.test('Get NoteRelations for a Context', async () => {
     const result = await NoteRelation.getRelationsForContext(noteRelContext.id)
-    await tap.equal(result.length, 2)
-    await tap.ok(_.find(result, { id: noteRel2_3.id }))
-    await tap.ok(_.find(result, { id: noteRel4.id }))
+    await tap.equal(result.length, 1)
+    result[0].id = noteRel2_3
   })
 
   await tap.test('update NoteRelation', async () => {

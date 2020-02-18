@@ -7,9 +7,11 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument
+  createDocument,
+  createNoteRelation
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -30,6 +32,9 @@ const test = async app => {
     publicationId
   })
   const noteId = urlToId(note.id)
+
+  const note2 = await createNote(app, token, urlToId(readerId))
+  const note3 = await createNote(app, token, urlToId(readerId))
 
   await tap.test('Get Note', async () => {
     const res = await request(app)
@@ -70,6 +75,40 @@ const test = async app => {
     await tap.equal(urlToId(body.publicationId), publicationId)
     await tap.ok(body.published)
     await tap.ok(body.updated)
+  })
+
+  // create NoteRelations
+  await createNoteRelation(app, token, {
+    type: 'test',
+    from: note2.shortId,
+    to: note3.shortId
+  })
+  await createNoteRelation(app, token, {
+    type: 'test',
+    from: noteId,
+    to: note2.shortId
+  })
+
+  await tap.test('Get Note with NoteRelations', async () => {
+    const res = await request(app)
+      .get(`/notes/${note2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.ok(body.relations)
+    await tap.equal(body.relations.length, 2)
+    let index1 = _.findIndex(body.relations, { from: noteId })
+    let index2 = _.findIndex(body.relations, { to: note3.shortId })
+    await tap.notEqual(index1, -1)
+    await tap.ok(body.relations[index1].fromNote)
+    await tap.equal(body.relations[index1].fromNote.shortId, noteId)
+
+    await tap.notEqual(index2, -1)
+    await tap.ok(body.relations[index2].toNote)
+    await tap.equal(body.relations[index2].toNote.shortId, note3.shortId)
   })
 
   await tap.test('Try to get Note that does not exist', async () => {

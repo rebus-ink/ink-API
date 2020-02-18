@@ -25,6 +25,23 @@ exports.up = function (knex, Promise) {
       .inTable('Publication')
       .index()
     table
+      .string('original')
+      .references('id')
+      .inTable('Note')
+    table
+      .string('contextId')
+      .references('id')
+      .inTable('NoteContext')
+      .index()
+    table.string('previous')
+      .references('id')
+      .inTable('Note')
+      .onDelete('CASCADE')
+    table.string('next')
+      .references('id')
+      .inTable('Note')
+      .onDelete('CASCADE')
+    table
       .timestamp('published')
       .defaultTo(knex.fn.now())
       .notNullable()

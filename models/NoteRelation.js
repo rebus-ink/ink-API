@@ -19,23 +19,21 @@ class NoteRelation extends BaseModel {
       properties: {
         id: { type: 'string' },
         from: { type: 'string' },
-        to: { type: ['string', 'null'] },
+        to: { type: 'string' },
         type: { type: 'string' },
-        previous: { type: ['string', 'null'] },
-        next: { type: ['string', 'null'] },
         contextId: { type: ['string', 'null'] },
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' }
       },
-      required: ['from', 'type', 'readerId']
+      required: ['from', 'to', 'type', 'readerId']
     }
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
-    const { Publication } = require('./Publication')
     const { Note } = require('./Note')
+    const { NoteContext } = require('./NoteContext')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -45,14 +43,14 @@ class NoteRelation extends BaseModel {
           to: 'Reader.id'
         }
       },
-      // context: {
-      //   relation: Model.BelongsToOneRelation,
-      //   modelClass: NoteRelationContext,
-      //   join: {
-      //     from: 'NoteRelation.contextId',
-      //     to: 'NoteRelationContext.id'
-      //   }
-      // },
+      context: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: NoteContext,
+        join: {
+          from: 'NoteRelation.contextId',
+          to: 'NoteContext.id'
+        }
+      },
       toNote: {
         relation: Model.BelongsToOneRelation,
         modelClass: Note,
@@ -76,15 +74,7 @@ class NoteRelation extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, [
-      'from',
-      'to',
-      'type',
-      'previous',
-      'next',
-      'contextId',
-      'json'
-    ])
+    const props = _.pick(object, ['from', 'to', 'type', 'contextId', 'json'])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
@@ -135,10 +125,6 @@ class NoteRelation extends BaseModel {
           throw new Error('no from')
         } else if (err.constraint === 'noterelation_to_foreign') {
           throw new Error('no to')
-        } else if (err.constraint === 'noterelation_previous_foreign') {
-          throw new Error('no previous')
-        } else if (err.constraint === 'noterelation_next_foreign') {
-          throw new Error('no next')
         }
       }
 

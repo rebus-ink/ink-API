@@ -86,32 +86,6 @@ module.exports = function (app) {
             )
           )
         }
-        if (body.previous && !checkOwnership(reader.id, body.previous)) {
-          return next(
-            boom.forbidden(
-              `Access to NoteRelation in 'previous' property disallowed: ${
-                body.previous
-              }`,
-              {
-                requestUrl: req.originalUrl,
-                requestBody: req.body
-              }
-            )
-          )
-        }
-        if (body.next && !checkOwnership(reader.id, body.next)) {
-          return next(
-            boom.forbidden(
-              `Access to NoteRelation in 'next' property disallowed: ${
-                body.next
-              }`,
-              {
-                requestUrl: req.originalUrl,
-                requestBody: req.body
-              }
-            )
-          )
-        }
 
         let createdNoteRelation
         try {
@@ -143,18 +117,7 @@ module.exports = function (app) {
               }`
               isNotFound = true
             }
-            if (err.message === 'no previous') {
-              err.message = `No NoteRelation found with id passed into 'previous': ${
-                body.previous
-              }`
-              isNotFound = true
-            }
-            if (err.message === 'no next') {
-              err.message = `No NoteRelation found with id passed into 'next': ${
-                body.next
-              }`
-              isNotFound = true
-            }
+
             if (isNotFound) {
               return next(
                 boom.notFound(err.message, {
