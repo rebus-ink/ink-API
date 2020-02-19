@@ -143,7 +143,10 @@ class Note extends BaseModel {
       'publicationId',
       'json',
       'readerId',
-      'documentUrl'
+      'documentUrl',
+      'contextId',
+      'previous',
+      'next'
     ])
     if (note.id) props.id = urlToId(note.id)
 
@@ -215,6 +218,8 @@ class Note extends BaseModel {
     } catch (err) {
       if (err.constraint === 'note_publicationid_foreign') {
         throw new Error('no publication')
+      } else if ((err.constraint = 'note_contextid_foreign')) {
+        throw new Error('no context')
       }
       throw err
     }
