@@ -281,6 +281,43 @@ const test = async app => {
     await tap.equal(res24.statusCode, 401)
   })
 
+  // -------------------------------------NOTECONTEXT --------------------------------
+
+  await tap.test('POST NoteContext without authentication', async () => {
+    const res = await request(app)
+      .post('/noteContexts')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('PUT NoteContext without authentication', async () => {
+    const res = await request(app)
+      .put('/noteContexts/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('Delete NoteContext without authentication', async () => {
+    const res = await request(app)
+      .delete('/noteContexts/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test(
+    'Add a Note to a NoteContext without authentication',
+    async () => {
+      const res = await request(app)
+        .post('/noteContexts/123/notes')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {

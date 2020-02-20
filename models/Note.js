@@ -143,7 +143,10 @@ class Note extends BaseModel {
       'publicationId',
       'json',
       'readerId',
-      'documentUrl'
+      'documentUrl',
+      'contextId',
+      'previous',
+      'next'
     ])
     if (note.id) props.id = urlToId(note.id)
 
@@ -215,6 +218,8 @@ class Note extends BaseModel {
     } catch (err) {
       if (err.constraint === 'note_publicationid_foreign') {
         throw new Error('no publication')
+      } else if (err.constraint === 'note_contextid_foreign') {
+        throw new Error('no context')
       }
       throw err
     }
@@ -248,6 +253,30 @@ class Note extends BaseModel {
       throw noteBodyError
     }
     return createdNote
+  }
+
+  static async copyToContext (
+    noteId /*: string */,
+    contextId /*: string */
+  ) /*: Promise<any> */ {
+    const originalNote = await Note.query()
+      .findById(noteId)
+      .eager('[body, reader]')
+    if (!originalNote) throw new Error('no note')
+    originalNote.contextId = contextId
+    originalNote.original = urlToId(originalNote.id)
+    originalNote.body = originalNote.body.map(body => {
+      return {
+        content: body.content,
+        motivation: body.motivation,
+        language: body.language
+      }
+    })
+    const newNote = await Note.createNote(
+      originalNote.reader,
+      _.omit(originalNote, ['published', 'updated', 'id'])
+    )
+    return newNote
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {

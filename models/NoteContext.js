@@ -3,6 +3,8 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+const { urlToId } = require('../utils/utils')
+const crypto = require('crypto')
 
 class NoteContext extends BaseModel {
   static get tableName () /*: string */ {
@@ -48,8 +50,28 @@ class NoteContext extends BaseModel {
   ) /*: Promise<any> */ {
     const props = _.pick(object, ['type', 'name', 'description', 'json'])
     props.readerId = readerId
+    props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
     return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
+  }
+
+  static async update (object /*: any */) /*: Promise<any> */ {
+    const props = _.pick(object, [
+      'readerId',
+      'type',
+      'name',
+      'description',
+      'json'
+    ])
+
+    return await NoteContext.query(NoteContext.knex()).updateAndFetchById(
+      object.id,
+      props
+    )
+  }
+
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    return await NoteContext.query().deleteById(id)
   }
 }
 

@@ -4,73 +4,73 @@ const passport = require('passport')
 const { Reader } = require('../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const { checkOwnership } = require('../utils/utils')
-const { Note } = require('../models/Note')
-const { urlToId } = require('../utils/utils')
+const _ = require('lodash')
 const { ValidationError } = require('objection')
+const { NoteContext } = require('../models/NoteContext')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /notes/{noteId}:
-   *   put:
+   * /noteContexts:
+   *   post:
    *     tags:
-   *       - notes
-   *     description: Update a note
-   *     parameters:
-   *       - in: path
-   *         name: noteId
-   *         schema:
-   *           type: string
-   *         required: true
+   *       - noteContexts
+   *     description: Create a noteContext
+   *     security:
+   *       - Bearer: []
    *     requestBody:
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
-   *     security:
-   *       - Bearer: []
+   *             $ref: '#/definitions/noteContext'
    *     responses:
-   *       200:
-   *         description: Successfully updated Note
+   *       201:
+   *         description: Successfully created NoteContext
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/noteContext'
    *       400:
-   *         description: 'Validation Error'
+   *         description: Validation error
    *       401:
    *         description: 'No Authentication'
    *       403:
-   *         description: 'Access to publication {noteId} disallowed'
-   *       404:
-   *         description: No note found with id {noteId}
+   *         description: 'Access to reader {id} disallowed'
    */
   app.use('/', router)
-  router.route('/notes/:noteId').put(jwtAuth, function (req, res, next) {
-    const noteId = req.params.noteId
-
+  router.route('/noteContexts').post(jwtAuth, function (req, res, next) {
     Reader.byAuthId(req.user)
       .then(async reader => {
-        if (!reader || !checkOwnership(reader.id, noteId)) {
+        if (!reader) {
           return next(
-            boom.forbidden(`Access to Note ${noteId} disallowed`, {
+            boom.unauthorized(`No user found for this token`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
           )
         }
 
-        const note = Object.assign(req.body, { id: urlToId(noteId) })
-        note.readerId = reader.id
-        let updatedNote
+        const body = req.body
+        if (typeof body !== 'object' || _.isEmpty(body)) {
+          return next(
+            boom.badRequest('Body must be a JSON object', {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
+        }
+
+        let createdNoteContext
         try {
-          updatedNote = await Note.update(note)
+          createdNoteContext = await NoteContext.createNoteContext(
+            body,
+            reader.id
+          )
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `Validation Error on Update Note: ${err.message}`,
+                `Validation Error on Create NoteContext: ${err.message}`,
                 {
                   requestUrl: req.originalUrl,
                   requestBody: req.body,
@@ -88,19 +88,9 @@ module.exports = function (app) {
           }
         }
 
-        if (updatedNote === null) {
-          return next(
-            boom.notFound(`Put Note Error: No Note found with id ${noteId}`, {
-              requestUrl: req.originalUrl,
-              requestBody: req.body
-            })
-          )
-        }
-
         res.setHeader('Content-Type', 'application/ld+json')
-        res.status(200).end(JSON.stringify(updatedNote.toJSON()))
+        res.status(201).end(JSON.stringify(createdNoteContext.toJSON()))
       })
-
       .catch(err => {
         next(err)
       })

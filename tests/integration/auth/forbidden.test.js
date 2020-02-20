@@ -8,7 +8,8 @@ const {
   createPublication,
   createNote,
   createTag,
-  createNoteRelation
+  createNoteRelation,
+  createNoteContext
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
 const { urlToId } = require('../../../utils/utils')
@@ -70,6 +71,10 @@ const test = async app => {
     from: noteId2,
     to: noteId2
   })
+
+  // create noteContexts
+  const noteContext1 = await createNoteContext(app, token, { type: 'test' })
+  const noteContext2 = await createNoteContext(app, token2, { type: 'test' })
 
   // ------------------------ PUBLICATION -------------------------------------
   await tap.test(
@@ -404,6 +409,103 @@ const test = async app => {
       await tap.equal(
         error.details.requestUrl,
         `/noteRelations/${noteRelation1.id}`
+      )
+    }
+  )
+
+  // ------------------------------------- NOTECONTEXT -----------------------
+
+  await tap.test(
+    'Try to update a noteContext belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/noteContexts/${noteContext1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2' }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext1.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to delete a noteContext belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/noteContexts/${noteContext1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext1.id}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to add a note to a noteContext belonging to another user',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${noteContext1.id}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ body: { motivation: 'test' } }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext1.id} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext1.id}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to copy a note belonging to another user to a noteContext',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${noteContext2.id}/notes?source=${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext2.id}/notes?source=${noteId}`
       )
     }
   )
