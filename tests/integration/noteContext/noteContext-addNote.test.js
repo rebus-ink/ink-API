@@ -6,7 +6,8 @@ const {
   destroyDB,
   createPublication,
   createDocument,
-  createNoteContext
+  createNoteContext,
+  createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -31,6 +32,11 @@ const test = async app => {
     name: 'my context'
   })
   const contextId = context.id
+  const note = await createNote(app, token, readerId, {
+    body: { content: 'to be copied', motivation: 'test' }
+  })
+  const noteId = urlToId(note.id)
+  let noteCopy
 
   await tap.test('Add to context a Note with a single body', async () => {
     const res = await request(app)
@@ -228,6 +234,107 @@ const test = async app => {
       )
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.canonical, 'one')
+    }
+  )
+
+  // copy existing note
+  await tap.test('Copy an existing note to the context', async () => {
+    const res = await request(app)
+      .post(`/noteContexts/${contextId}/notes?source=${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 201)
+    const body = res.body
+    await tap.ok(body.id)
+    await tap.equal(body.shortId, urlToId(body.id))
+    await tap.notEqual(body.shortId, noteId)
+    await tap.equal(urlToId(body.readerId), readerId)
+    await tap.equal(body.contextId, contextId)
+    await tap.ok(body.published)
+    await tap.ok(body.body)
+    await tap.ok(body.body[0].content)
+    await tap.equal(body.body[0].content, 'to be copied')
+    await tap.equal(body.body[0].motivation, 'test')
+
+    await tap.type(res.get('Location'), 'string')
+    await tap.equal(res.get('Location'), body.id)
+    noteCopy = res.body
+  })
+
+  await tap.test(
+    'Updating the copied Note should not affect the original',
+    async () => {
+      const res = await request(app)
+        .put(`/notes/${noteCopy.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { content: 'new content', motivation: 'test' },
+            json: { property: 'new' }
+          })
+        )
+
+      await tap.equal(res.body.body[0].content, 'new content')
+      await tap.equal(res.body.json.property, 'new')
+
+      // get old note
+      const resNote = await request(app)
+        .get(`/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(resNote.body.body[0].content, 'to be copied')
+      await tap.notOk(resNote.body.json)
+    }
+  )
+
+  await tap.test('Try to copy a note that does not exist', async () => {
+    const res = await request(app)
+      .post(`/noteContexts/${contextId}/notes?source=${noteId}abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(
+      error.message,
+      `Add Note to Context Error: No Note found with id: ${noteId}abc`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/noteContexts/${contextId}/notes?source=${noteId}abc`
+    )
+  })
+
+  await tap.test(
+    'Try to copy a note to a Context that does not exist',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${contextId}abc/notes?source=${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 404)
+      await tap.equal(error.error, 'Not Found')
+      await tap.equal(
+        error.message,
+        `Add Note to Context Error: No Context found with id: ${contextId}abc`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${contextId}abc/notes?source=${noteId}`
+      )
     }
   )
 

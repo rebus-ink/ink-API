@@ -7,6 +7,7 @@ const { Note } = require('../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
+const { checkOwnership } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -22,6 +23,11 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         required: true
+   *       - in: query
+   *         name: source
+   *         schema:
+   *           type: string
+   *         description: id of the note to be copied. When source is used, no body is needed.
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -59,7 +65,70 @@ module.exports = function (app) {
               })
             )
           }
+          if (!checkOwnership(reader.id, req.params.id)) {
+            return next(
+              boom.forbidden(
+                `Access to NoteContext ${req.params.id} disallowed`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                }
+              )
+            )
+          }
 
+          // copy
+          if (req.query.source) {
+            if (!checkOwnership(reader.id, req.query.source)) {
+              return next(
+                boom.forbidden(
+                  `Access to Note ${req.query.source} disallowed`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            }
+
+            let copiedNote
+            try {
+              copiedNote = await Note.copyToContext(
+                req.query.source,
+                req.params.id
+              )
+            } catch (err) {
+              if (err.message === 'no context') {
+                return next(
+                  boom.notFound(
+                    `Add Note to Context Error: No Context found with id: ${
+                      req.params.id
+                    }`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              } else if (err.message === 'no note') {
+                return next(
+                  boom.notFound(
+                    `Add Note to Context Error: No Note found with id: ${
+                      req.query.source
+                    }`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              }
+            }
+
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.setHeader('Location', copiedNote.id)
+            res.status(201).end(JSON.stringify(copiedNote.toJSON()))
+          }
+
+          // create new note
           const body = req.body
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
