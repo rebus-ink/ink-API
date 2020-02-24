@@ -109,6 +109,7 @@ const test = async app => {
     await tap.notEqual(index2, -1)
     await tap.ok(body.relations[index2].toNote)
     await tap.equal(body.relations[index2].toNote.shortId, note3.shortId)
+    await tap.ok(body.relations[index2].toNote.body)
   })
 
   await tap.test('Try to get Note that does not exist', async () => {

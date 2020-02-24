@@ -292,7 +292,7 @@ class Note extends BaseModel {
     const note = await Note.query()
       .findById(id)
       .eager(
-        '[reader, tags, body, relationsFrom.[toNote], relationsTo.[fromNote]]'
+        '[reader, tags, body, relationsFrom.toNote.body, relationsTo.fromNote.body]'
       )
 
     if (!note) return undefined

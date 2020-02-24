@@ -83,6 +83,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
 
     const body = res.body
+    console.log(body.notes[0].relations)
     await tap.ok(body.id)
     await tap.equal(body.name, 'context1')
     await tap.equal(body.description, 'description1')
@@ -93,6 +94,9 @@ const test = async app => {
     await tap.equal(body.notes.length, 2)
     await tap.equal(body.notes[0].relations.length, 1)
     await tap.equal(body.notes[1].relations.length, 1)
+    // those two tests might break if order changes?
+    await tap.ok(body.notes[0].relations[0].toNote)
+    await tap.ok(body.notes[0].relations[0].toNote.body)
   })
 
   await tap.test('Try to get a NoteContext that does not exist', async () => {

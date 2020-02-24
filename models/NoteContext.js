@@ -68,7 +68,7 @@ class NoteContext extends BaseModel {
     const noteContext = await NoteContext.query()
       .findById(id)
       .eager(
-        '[reader, notes.[relationsFrom.toNote, relationsTo.fromNote, body]]'
+        '[reader, notes.[relationsFrom.toNote.body, relationsTo.fromNote.body, body]]'
       )
 
     if (noteContext) {
