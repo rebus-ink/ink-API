@@ -143,12 +143,6 @@ const test = async app => {
     await tap.ok(_.find(result, { id: noteRel1_2.id }))
   })
 
-  await tap.test('Get NoteRelations for a Context', async () => {
-    const result = await NoteRelation.getRelationsForContext(noteRelContext.id)
-    await tap.equal(result.length, 1)
-    result[0].id = noteRel2_3
-  })
-
   await tap.test('update NoteRelation', async () => {
     const result = await NoteRelation.updateNoteRelation(
       Object.assign(noteRel1_2, { to: noteId4, type: 'test2' })

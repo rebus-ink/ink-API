@@ -31,14 +31,23 @@ class NoteContext extends BaseModel {
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
+    const { Note } = require('./Note')
 
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
         join: {
-          from: 'NoteRelation.readerId',
+          from: 'NoteContext.readerId',
           to: 'Reader.id'
+        }
+      },
+      notes: {
+        relation: Model.HasManyRelation,
+        modelClass: Note,
+        join: {
+          from: 'NoteContext.id',
+          to: 'Note.contextId'
         }
       }
     }
@@ -53,6 +62,27 @@ class NoteContext extends BaseModel {
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
     return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
+  }
+
+  static async byId (id /*: string */) /*: Promise<any> */ {
+    const noteContext = await NoteContext.query()
+      .findById(id)
+      .eager(
+        '[reader, notes.[relationsFrom.toNote, relationsTo.fromNote, body]]'
+      )
+
+    if (noteContext) {
+      noteContext.notes.forEach((note, index) => {
+        noteContext.notes[index].relations = _.concat(
+          note.relationsFrom,
+          note.relationsTo
+        )
+        noteContext.notes[index].relationsFrom = null
+        noteContext.notes[index].relationsTo = null
+      })
+    }
+
+    return noteContext
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
