@@ -7,7 +7,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteRelation } = require('../models/NoteRelation')
-const { checkOwnership } = require('../utils/utils')
+const { checkOwnership, urlToId } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -54,6 +54,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -62,7 +63,8 @@ module.exports = function (app) {
             })
           )
         }
-
+        body.from = urlToId(body.from)
+        body.to = urlToId(body.to)
         // check owndership of 'to', 'from', 'previous', 'next' resources
         if (body.from && !checkOwnership(reader.id, body.from)) {
           return next(

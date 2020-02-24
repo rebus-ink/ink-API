@@ -62,6 +62,7 @@ const noteContextPostTests = require('./noteContext/noteContext-post.test')
 const noteContextPutTests = require('./noteContext/noteContext-put.test')
 const noteContextDeleteTests = require('./noteContext/noteContext-delete.test')
 const noteContextAddNoteTests = require('./noteContext/noteContext-addNote.test')
+const noteContextGetTests = require('./noteContext/noteContext-get.test')
 
 const app = require('../../server').app
 
@@ -156,10 +157,11 @@ const allTests = async () => {
   }
 
   if (!test || test === 'noteContext') {
-    await noteContextPostTests(app)
-    await noteContextPutTests(app)
-    await noteContextDeleteTests(app)
-    await noteContextAddNoteTests(app)
+    // await noteContextPostTests(app)
+    // await noteContextPutTests(app)
+    // await noteContextDeleteTests(app)
+    // await noteContextAddNoteTests(app)
+    await noteContextGetTests(app)
   }
 
   await app.knex.migrate.rollback()

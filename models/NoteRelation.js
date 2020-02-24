@@ -21,7 +21,6 @@ class NoteRelation extends BaseModel {
         from: { type: 'string' },
         to: { type: 'string' },
         type: { type: 'string' },
-        contextId: { type: ['string', 'null'] },
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
         published: { type: 'string', format: 'date-time' },
@@ -33,7 +32,6 @@ class NoteRelation extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
     const { Note } = require('./Note')
-    const { NoteContext } = require('./NoteContext')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -41,14 +39,6 @@ class NoteRelation extends BaseModel {
         join: {
           from: 'NoteRelation.readerId',
           to: 'Reader.id'
-        }
-      },
-      context: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: NoteContext,
-        join: {
-          from: 'NoteRelation.contextId',
-          to: 'NoteContext.id'
         }
       },
       toNote: {
@@ -74,7 +64,7 @@ class NoteRelation extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, ['from', 'to', 'type', 'contextId', 'json'])
+    const props = _.pick(object, ['from', 'to', 'type', 'json'])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
@@ -110,7 +100,6 @@ class NoteRelation extends BaseModel {
       'readerId',
       'previous',
       'next',
-      'contextId',
       'json'
     ])
 
@@ -146,15 +135,6 @@ class NoteRelation extends BaseModel {
     return await NoteRelation.query(NoteRelation.knex())
       .where('to', noteId)
       .orWhere('from', noteId)
-  }
-
-  static async getRelationsForContext (
-    contextId /*: string */
-  ) /*: Promise<Array<any>> */ {
-    return await NoteRelation.query(NoteRelation.knex()).where(
-      'contextId',
-      contextId
-    )
   }
 }
 

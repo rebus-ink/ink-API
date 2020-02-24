@@ -14,11 +14,6 @@ exports.up = function (knex, Promise) {
       .onDelete('CASCADE')
       .index()
     table.string('type').notNullable().index()
-    table.string('contextId')
-      .references('id')
-      .inTable('NoteContext')
-      .onDelete('CASCADE')
-      .index()
     table.jsonb('json')
     table
       .string('readerId')
