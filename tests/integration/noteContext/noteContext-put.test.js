@@ -17,7 +17,7 @@ const test = async app => {
 
   await tap.test('Update type of NoteContext', async () => {
     const res = await request(app)
-      .put(`/noteContexts/${noteContext.id}`)
+      .put(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -34,7 +34,7 @@ const test = async app => {
 
   await tap.test('Update name and description of NoteContext', async () => {
     const res = await request(app)
-      .put(`/noteContexts/${noteContext.id}`)
+      .put(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -59,7 +59,7 @@ const test = async app => {
 
   await tap.test('Update name and description to null', async () => {
     const res = await request(app)
-      .put(`/noteContexts/${noteContext.id}`)
+      .put(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -78,7 +78,7 @@ const test = async app => {
 
   await tap.test('Try to remove the type property', async () => {
     const res = await request(app)
-      .put(`/noteContexts/${noteContext.id}`)
+      .put(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -92,7 +92,10 @@ const test = async app => {
       error.message,
       'Validation Error on Update NoteContext: type: should be string'
     )
-    await tap.equal(error.details.requestUrl, `/noteContexts/${noteContext.id}`)
+    await tap.equal(
+      error.details.requestUrl,
+      `/noteContexts/${noteContext.shortId}`
+    )
     await tap.type(error.details.requestBody, 'object')
     await tap.equal(error.details.requestBody.type, null)
   })
@@ -101,7 +104,7 @@ const test = async app => {
     'Try to update a noteContext that does not exist',
     async () => {
       const res = await request(app)
-        .put(`/noteContexts/${noteContext.id}abc`)
+        .put(`/noteContexts/${noteContext.shortId}abc`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -111,11 +114,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `No NoteContext found with id ${noteContext.id}abc`
+        `No NoteContext found with id ${noteContext.shortId}abc`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext.id}abc`
+        `/noteContexts/${noteContext.shortId}abc`
       )
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.type, 'test3')

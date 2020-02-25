@@ -157,10 +157,10 @@ const allTests = async () => {
   }
 
   if (!test || test === 'noteContext') {
-    // await noteContextPostTests(app)
-    // await noteContextPutTests(app)
-    // await noteContextDeleteTests(app)
-    // await noteContextAddNoteTests(app)
+    await noteContextPostTests(app)
+    await noteContextPutTests(app)
+    await noteContextDeleteTests(app)
+    await noteContextAddNoteTests(app)
     await noteContextGetTests(app)
   }
 

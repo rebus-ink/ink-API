@@ -103,6 +103,14 @@ class NoteContext extends BaseModel {
   static async delete (id /*: string */) /*: Promise<any> */ {
     return await NoteContext.query().deleteById(id)
   }
+
+  $formatJson (json /*: any */) /*: any */ {
+    json = super.$formatJson(json)
+    json.shortId = urlToId(json.id)
+    json = _.omitBy(json, _.isNil)
+
+    return json
+  }
 }
 
 module.exports = { NoteContext }

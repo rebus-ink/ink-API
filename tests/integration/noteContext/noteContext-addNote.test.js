@@ -31,7 +31,7 @@ const test = async app => {
     type: 'test',
     name: 'my context'
   })
-  const contextId = context.id
+  const contextId = context.shortId
   const note = await createNote(app, token, readerId, {
     body: { content: 'to be copied', motivation: 'test' }
   })

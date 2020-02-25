@@ -40,6 +40,12 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/notes/${json.id}`
+    } else if (
+      type === 'notecontext' &&
+      json.id &&
+      !json.id.startsWith(process.env.DOMAIN)
+    ) {
+      json.id = `${domain}/noteContexts/${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
       json.readerId = `${domain}/readers/${json.readerId}`
@@ -110,7 +116,14 @@ class BaseModel extends Model {
   }
 
   getType () /*: ?string */ {
-    const tables = ['Publication', 'Reader', 'Note', 'ReadActivity', 'Job']
+    const tables = [
+      'Publication',
+      'Reader',
+      'Note',
+      'ReadActivity',
+      'Job',
+      'NoteContext'
+    ]
 
     if (_.indexOf(tables, this.constructor.name) > -1) {
       return this.constructor.name.toLowerCase()
