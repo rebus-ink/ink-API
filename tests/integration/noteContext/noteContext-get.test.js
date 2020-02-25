@@ -20,10 +20,9 @@ const test = async app => {
     type: 'test',
     json: { property: 'value1' }
   })
-
   await tap.test('Get empty noteContext', async () => {
     const res = await request(app)
-      .get(`/noteContexts/${noteContext.id}`)
+      .get(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -41,13 +40,13 @@ const test = async app => {
   })
 
   // add notes to noteContext
-  await addNoteToContext(app, token, noteContext.id)
-  await addNoteToContext(app, token, noteContext.id)
+  await addNoteToContext(app, token, noteContext.shortId)
+  await addNoteToContext(app, token, noteContext.shortId)
   let note1, note2
 
   await tap.test('Get noteContext with notes', async () => {
     const res = await request(app)
-      .get(`/noteContexts/${noteContext.id}`)
+      .get(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -75,7 +74,7 @@ const test = async app => {
 
   await tap.test('Get noteContext with notes and a noteRelation', async () => {
     const res = await request(app)
-      .get(`/noteContexts/${noteContext.id}`)
+      .get(`/noteContexts/${noteContext.shortId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -83,8 +82,9 @@ const test = async app => {
     await tap.equal(res.status, 200)
 
     const body = res.body
-    console.log(body.notes[0].relations)
     await tap.ok(body.id)
+    await tap.ok(body.id.startsWith('http'))
+    await tap.equal(urlToId(body.id), body.shortId)
     await tap.equal(body.name, 'context1')
     await tap.equal(body.description, 'description1')
     await tap.equal(body.type, 'test')
@@ -101,7 +101,7 @@ const test = async app => {
 
   await tap.test('Try to get a NoteContext that does not exist', async () => {
     const res = await request(app)
-      .get(`/noteContexts/${noteContext.id}abc`)
+      .get(`/noteContexts/${noteContext.shortId}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -112,11 +112,13 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(
       error.message,
-      `Get NoteContext Error: No NoteContext found with id ${noteContext.id}abc`
+      `Get NoteContext Error: No NoteContext found with id ${
+        noteContext.shortId
+      }abc`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/noteContexts/${noteContext.id}abc`
+      `/noteContexts/${noteContext.shortId}abc`
     )
   })
 
