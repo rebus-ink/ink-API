@@ -110,7 +110,12 @@ class Document extends BaseModel {
   }> */ {
     return await Document.query()
       .findById(id)
-      .eager('[reader, replies]')
+      .withGraphFetched('[reader, replies(notDeleted)]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
   }
 
   // TODO: add tests

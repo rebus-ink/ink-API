@@ -270,7 +270,7 @@ class Note extends BaseModel {
   ) /*: Promise<any> */ {
     const originalNote = await Note.query()
       .findById(noteId)
-      .eager('[body, reader]')
+      .withGraphFetched('[body, reader]')
     if (!originalNote) throw new Error('no note')
     originalNote.contextId = contextId
     originalNote.original = urlToId(originalNote.id)
@@ -291,9 +291,14 @@ class Note extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const note = await Note.query()
       .findById(id)
-      .eager(
-        '[reader, tags, body, relationsFrom.toNote.body, relationsTo.fromNote.body]'
+      .withGraphFetched(
+        '[reader, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body]'
       )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
 
     if (!note) return undefined
 

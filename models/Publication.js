@@ -533,7 +533,14 @@ class Publication extends BaseModel {
   static async byId (id /*: string */) /*: Promise<PublicationType|null> */ {
     const pub = await Publication.query()
       .findById(id)
-      .eager('[reader, replies, tags, attributions]')
+      .withGraphFetched(
+        '[reader, replies(notDeleted), tags(notDeleted), attributions]'
+      )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
 
     if (!pub || pub.deleted) return null
 

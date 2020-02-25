@@ -53,7 +53,7 @@ class Reader extends BaseModel {
     eager /*: string */
   ) /*: Promise<ReaderType> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
-    const readers = await qb.eager(eager)
+    const readers = await qb.withGraphFetched(eager)
 
     return readers[0]
   }

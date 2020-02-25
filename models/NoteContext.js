@@ -67,9 +67,14 @@ class NoteContext extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const noteContext = await NoteContext.query()
       .findById(id)
-      .eager(
-        '[reader, notes.[relationsFrom.toNote.body, relationsTo.fromNote.body, body]]'
+      .withGraphFetched(
+        '[reader, notes(notDeleted).[relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body]]'
       )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
 
     if (noteContext) {
       noteContext.notes.forEach((note, index) => {

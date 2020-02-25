@@ -145,8 +145,8 @@ class Library {
     const readers = await Reader.query(Reader.knex())
       .where('Reader.authId', '=', readerAuthId)
       .skipUndefined()
-      .eager('[tags, publications]')
-      .modifyEager('publications', builder => {
+      .withGraphFetched('[tags, publications]')
+      .modifyGraph('publications', builder => {
         builder
           .select(
             'Publication.id',
@@ -204,7 +204,7 @@ class Library {
             builder.andWhere('Attribution.role', '=', filter.role)
           }
         }
-        builder.eager('[tags, attributions]')
+        builder.withGraphFetched('[tags, attributions]')
         if (filter.collection) {
           builder.leftJoin(
             'publication_tag as publication_tag_collection',

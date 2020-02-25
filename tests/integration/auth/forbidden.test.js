@@ -419,7 +419,7 @@ const test = async app => {
     'Try to update a noteContext belonging to another user',
     async () => {
       const res = await request(app)
-        .put(`/noteContexts/${noteContext1.id}`)
+        .put(`/noteContexts/${noteContext1.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -431,11 +431,11 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(
         error.message,
-        `Access to NoteContext ${noteContext1.id} disallowed`
+        `Access to NoteContext ${noteContext1.shortId} disallowed`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext1.id}`
+        `/noteContexts/${noteContext1.shortId}`
       )
     }
   )
@@ -444,7 +444,7 @@ const test = async app => {
     'Try to delete a noteContext belonging to another user',
     async () => {
       const res = await request(app)
-        .delete(`/noteContexts/${noteContext1.id}`)
+        .delete(`/noteContexts/${noteContext1.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -455,11 +455,11 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(
         error.message,
-        `Access to NoteContext ${noteContext1.id} disallowed`
+        `Access to NoteContext ${noteContext1.shortId} disallowed`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext1.id}`
+        `/noteContexts/${noteContext1.shortId}`
       )
     }
   )
@@ -468,7 +468,7 @@ const test = async app => {
     'Try to add a note to a noteContext belonging to another user',
     async () => {
       const res = await request(app)
-        .post(`/noteContexts/${noteContext1.id}/notes`)
+        .post(`/noteContexts/${noteContext1.shortId}/notes`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -480,11 +480,11 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(
         error.message,
-        `Access to NoteContext ${noteContext1.id} disallowed`
+        `Access to NoteContext ${noteContext1.shortId} disallowed`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext1.id}/notes`
+        `/noteContexts/${noteContext1.shortId}/notes`
       )
     }
   )
@@ -493,7 +493,7 @@ const test = async app => {
     'Try to copy a note belonging to another user to a noteContext',
     async () => {
       const res = await request(app)
-        .post(`/noteContexts/${noteContext2.id}/notes?source=${noteId}`)
+        .post(`/noteContexts/${noteContext2.shortId}/notes?source=${noteId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -505,7 +505,7 @@ const test = async app => {
       await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext2.id}/notes?source=${noteId}`
+        `/noteContexts/${noteContext2.shortId}/notes?source=${noteId}`
       )
     }
   )
@@ -514,7 +514,7 @@ const test = async app => {
     'Try to get a NoteContext belonging to another user',
     async () => {
       const res = await request(app)
-        .get(`/noteContexts/${noteContext1.id}`)
+        .get(`/noteContexts/${noteContext1.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -525,11 +525,11 @@ const test = async app => {
       await tap.equal(error.error, 'Forbidden')
       await tap.equal(
         error.message,
-        `Access to NoteContext ${noteContext1.id} disallowed`
+        `Access to NoteContext ${noteContext1.shortId} disallowed`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/noteContexts/${noteContext1.id}`
+        `/noteContexts/${noteContext1.shortId}`
       )
     }
   )
