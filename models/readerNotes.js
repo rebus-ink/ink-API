@@ -150,16 +150,16 @@ class ReaderNotes {
     }
 
     const readers = await qb
-      .eager('replies.[publication.[attributions], body]')
-      .modifyEager('replies', builder => {
-        builder.modifyEager('body', bodyBuilder => {
+      .withGraphFetched('replies.[publication.[attributions], body]')
+      .modifyGraph('replies', builder => {
+        builder.modifyGraph('body', bodyBuilder => {
           bodyBuilder.select('content', 'language', 'motivation')
           bodyBuilder.whereNull('deleted')
         })
         builder.select('Note.*').from('Note')
         builder.distinct('Note.id')
         // load details of parent publication for each note
-        builder.modifyEager('publication', pubBuilder => {
+        builder.modifyGraph('publication', pubBuilder => {
           pubBuilder.whereNull('Publication.deleted')
           pubBuilder.select(
             'id',
