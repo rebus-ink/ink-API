@@ -18,6 +18,7 @@ class ReaderNotes {
     let resultQuery = Note.query(Note.knex())
       .count()
       .whereNull('Note.deleted')
+      .whereNull('Note.contextId')
       .andWhere('Note.readerId', '=', readerId)
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
 
@@ -171,6 +172,7 @@ class ReaderNotes {
           )
         })
         builder.whereNull('Note.deleted')
+        builder.whereNull('Note.contextId')
 
         // filters
         if (filters.publication) {
