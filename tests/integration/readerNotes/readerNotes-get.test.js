@@ -6,9 +6,12 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument
+  createDocument,
+  createNoteContext,
+  addNoteToContext
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -102,6 +105,28 @@ const test = async app => {
       await tap.equal(body.items.length, 4)
     }
   )
+
+  await tap.test('Should not include notes that have a contextId', async () => {
+    const context = await createNoteContext(app, token)
+    await addNoteToContext(app, token, context.shortId, {
+      body: { motivation: 'test', content: 'context note' }
+    })
+
+    const res = await request(app)
+      .get('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.totalItems, 4)
+    await tap.equal(body.items.length, 4)
+    const index = _.findIndex(body.items, item => {
+      return item.body[0].content === 'context note'
+    })
+    await tap.equal(index, -1)
+  })
 
   await destroyDB(app)
 }
