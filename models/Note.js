@@ -53,6 +53,7 @@ class Note extends BaseModel {
         original: { type: ['string', 'null'] },
         previous: { type: ['string', 'null'] },
         next: { type: ['string', 'null'] },
+        parentId: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
@@ -155,7 +156,8 @@ class Note extends BaseModel {
       'documentUrl',
       'contextId',
       'previous',
-      'next'
+      'next',
+      'parentId'
     ])
     if (note.id) props.id = urlToId(note.id)
 
@@ -333,6 +335,9 @@ class Note extends BaseModel {
       'canonical',
       'stylesheet',
       'target',
+      'previous',
+      'next',
+      'parentId',
       /* 'publicationId', 'documentUrl', */ 'json'
     ]
     propsCanBeDeleted.forEach(prop => {

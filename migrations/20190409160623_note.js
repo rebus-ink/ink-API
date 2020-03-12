@@ -41,6 +41,10 @@ exports.up = function (knex, Promise) {
       .references('id')
       .inTable('Note')
       .onDelete('CASCADE')
+    table.string('parentId')
+      .references('id')
+      .inTable('Note')
+      .onDelete('CASCADE')
     table
       .timestamp('published')
       .defaultTo(knex.fn.now())
