@@ -1,5 +1,6 @@
 const { arrayToTree } = require('performant-array-to-tree')
 const _ = require('lodash')
+const { urlToId } = require('./utils')
 
 const orderLinkedList = list => {
   const orderedList = []
@@ -28,6 +29,12 @@ const orderLinkedList = list => {
 }
 
 const notesListToTree = notes => {
+  if (notes.length === 0) return notes
+  notes = notes.map(note => {
+    note.shortId = urlToId(note.id)
+    return note
+  })
+
   const orderedList = orderLinkedList(notes)
   if (orderedList.length !== notes.length) {
     throw new Error('Invalid linked list')

@@ -64,6 +64,8 @@ const noteContextDeleteTests = require('./noteContext/noteContext-delete.test')
 const noteContextAddNoteTests = require('./noteContext/noteContext-addNote.test')
 const noteContextGetTests = require('./noteContext/noteContext-get.test')
 
+const outlineGetTests = require('./outline/outline-get.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -162,6 +164,10 @@ const allTests = async () => {
     await noteContextDeleteTests(app)
     await noteContextAddNoteTests(app)
     await noteContextGetTests(app)
+  }
+
+  if (!test || test === 'outline') {
+    await outlineGetTests(app)
   }
 
   await app.knex.migrate.rollback()

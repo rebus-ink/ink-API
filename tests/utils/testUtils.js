@@ -132,6 +132,17 @@ const createNote = async (app, token, readerId, object = {}) => {
   return response.body
 }
 
+const updateNote = async (app, token, object) => {
+  const response = await request(app)
+    .put(`/notes/${object.shortId}`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+    .send(JSON.stringify(object))
+
+  return response.body
+}
+
 const createTag = async (app, token, object = {}) => {
   const tagObject = Object.assign(
     {
@@ -244,5 +255,6 @@ module.exports = {
   addNoteToCollection,
   createNoteRelation,
   createNoteContext,
-  addNoteToContext
+  addNoteToContext,
+  updateNote
 }

@@ -1,20 +1,18 @@
 const tap = require('tap')
-const { destroyDB } = require('../utils/testUtils')
-const { Reader } = require('../../models/Reader')
-const { Publication } = require('../../models/Publication')
-const { Attribution } = require('../../models/Attribution')
-const { urlToId } = require('../../utils/utils')
-const crypto = require('crypto')
 const { notesListToTree } = require('../../utils/outline')
 
 /*
 note1
   note4
+    note6
   note2
+    note7
     note3
+    note8
+note5
 */
 
-const test = async app => {
+const test = async () => {
   const listOfNotes = [
     {
       id: 'https://reader-api.test/notes/1',
@@ -266,8 +264,7 @@ const test = async app => {
   await tap.test('invalid tree should fail', async () => {
     let error
     try {
-      const result = notesListToTree(badList4)
-      console.log(result)
+      notesListToTree(badList4)
     } catch (err) {
       error = err
     }
@@ -279,6 +276,4 @@ const test = async app => {
     )
   })
 }
-
 test()
-module.exports = test
