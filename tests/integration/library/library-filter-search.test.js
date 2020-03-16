@@ -89,14 +89,6 @@ const test = async () => {
 
     await tap.equal(res3.body.totalItems, 14)
     await tap.equal(res3.body.items.length, 11)
-
-    const res4 = await request(app)
-      .get(`/library?search=publication&limit=50`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    console.log(res4.body.items.length)
   })
 
   await tap.test(

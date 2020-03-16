@@ -259,6 +259,12 @@ class Library {
           } else {
             builder.orderByRaw('"datePublished" DESC NULLS LAST')
           }
+        } else if (filter.orderBy === 'type') {
+          if (filter.reverse) {
+            builder.orderByRaw('"type" DESC NULLS FIRST')
+          } else {
+            builder.orderByRaw('"type" NULLS LAST')
+          }
         } else {
           if (filter.reverse) {
             builder.orderBy('Publication.updated')

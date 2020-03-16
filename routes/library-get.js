@@ -80,11 +80,16 @@ module.exports = app => {
    *         schema:
    *           type: string
    *       - in: query
+   *         name: search
+   *         schema:
+   *            type: string
+   *         description: searches in title, description, abstract, keywords and attributions
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
-   *           enum: ['title', 'datePublished']
-   *         description: used to order either alphabetically by title or by date of creation of the publication object (most recent first)
+   *           enum: ['title', 'datePublished', 'type']
+   *         description: used to order either alphabetically by title or type or by date of creation of the publication object (most recent first)
    *       - in: query
    *         name: reverse
    *         schema:
