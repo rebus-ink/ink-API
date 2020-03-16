@@ -38,7 +38,8 @@ const test = async () => {
   await createPublicationSimplified({ name: 'Publication 8' })
   await createPublicationSimplified({ name: 'Publication 9' })
   await createPublicationSimplified({
-    name: 'Publication 10'
+    name: 'Publication 10',
+    author: 'super dude!'
   })
   await createPublicationSimplified({
     name: 'Publication 11'
@@ -54,7 +55,7 @@ const test = async () => {
   await createPublicationSimplified({ name: 'Super great book!' })
 
   await tap.test(
-    'Filter Library by searching through title, abstract, keywords and desription',
+    'Filter Library by searching through title, abstract, keywords, author and desription',
     async () => {
       const res = await request(app)
         .get(`/library?search=super`)
@@ -64,9 +65,9 @@ const test = async () => {
 
       await tap.equal(res.status, 200)
       await tap.ok(res.body)
-      await tap.equal(res.body.totalItems, 5)
+      await tap.equal(res.body.totalItems, 6)
       await tap.ok(res.body.items)
-      await tap.equal(res.body.items.length, 5)
+      await tap.equal(res.body.items.length, 6)
     }
   )
 

@@ -19,104 +19,99 @@ class Library {
         filter.workspace.charAt(0).toUpperCase() +
         filter.workspace.substring(1).toLowerCase()
     }
-    let resultQuery = Publication.query(Publication.knex())
-      .count()
-      .whereNull('Publication.deleted')
-      .andWhere('Publication.readerId', '=', readerId)
 
+    let builder = Publication.query(Publication.knex())
+      .select('Publication.id')
+      .from('Publication')
+    builder.distinct('Publication.id')
+    builder.whereNull('Publication.deleted')
+    builder.where('Publication.readerId', '=', readerId)
     if (filter.title) {
-      resultQuery = resultQuery.where(
-        'Publication.name',
-        'ilike',
-        `%${filter.title.toLowerCase()}%`
-      )
-    }
-    if (filter.type) {
-      resultQuery = resultQuery.where('Publication.type', '=', type)
+      const title = filter.title.toLowerCase()
+      builder.where('Publication.name', 'ilike', `%${title}%`)
     }
     if (filter.language) {
-      resultQuery = resultQuery.whereJsonSupersetOf(
-        'Publication.metadata:inLanguage',
-        [filter.language]
-      )
+      builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
+        filter.language
+      ])
     }
     if (filter.keyword) {
-      resultQuery = resultQuery.whereJsonSupersetOf(
-        'Publication.metadata:keywords',
-        [filter.keyword.toLowerCase()]
-      )
+      builder.whereJsonSupersetOf('Publication.metadata:keywords', [
+        filter.keyword.toLowerCase()
+      ])
     }
+    if (filter.type) {
+      builder.where('Publication.type', '=', type)
+    }
+    builder.leftJoin(
+      'Attribution',
+      'Attribution.publicationId',
+      '=',
+      'Publication.id'
+    )
+
     if (filter.author) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'Attribution',
-          'Attribution.publicationId',
-          '=',
-          'Publication.id'
-        )
+      builder
         .where('Attribution.normalizedName', '=', author)
         .andWhere('Attribution.role', '=', 'author')
     }
     if (filter.attribution) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'Attribution',
-          'Attribution.publicationId',
-          '=',
-          'Publication.id'
-        )
-        .where('Attribution.normalizedName', 'like', `%${attribution}%`)
+      builder.where('Attribution.normalizedName', 'like', `%${attribution}%`)
       if (filter.role) {
-        resultQuery = resultQuery.andWhere('Attribution.role', '=', filter.role)
+        builder.andWhere('Attribution.role', '=', filter.role)
       }
     }
+    builder.withGraphFetched('[tags, attributions]')
     if (filter.collection) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'publication_tag as publication_tag_collection',
-          'publication_tag_collection.publicationId',
-          '=',
-          'Publication.id'
-        )
-        .leftJoin(
-          'Tag as Tag_collection',
-          'publication_tag_collection.tagId',
-          '=',
-          'Tag_collection.id'
-        )
+      builder.leftJoin(
+        'publication_tag as publication_tag_collection',
+        'publication_tag_collection.publicationId',
+        '=',
+        'Publication.id'
+      )
+      builder.leftJoin(
+        'Tag as Tag_collection',
+        'publication_tag_collection.tagId',
+        '=',
+        'Tag_collection.id'
+      )
+      builder.whereNull('Tag_collection.deleted')
+      builder
         .where('Tag_collection.name', '=', filter.collection)
         .andWhere('Tag_collection.type', '=', 'stack')
     }
     if (filter.workspace) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'publication_tag as publication_tag_workspace',
-          'publication_tag_workspace.publicationId',
-          '=',
-          'Publication.id'
-        )
-        .leftJoin(
-          'Tag as Tag_workspace',
-          'publication_tag_workspace.tagId',
-          '=',
-          'Tag_workspace.id'
-        )
+      builder.leftJoin(
+        'publication_tag as publication_tag_workspace',
+        'publication_tag_workspace.publicationId',
+        '=',
+        'Publication.id'
+      )
+      builder.leftJoin(
+        'Tag as Tag_workspace',
+        'publication_tag_workspace.tagId',
+        '=',
+        'Tag_workspace.id'
+      )
+      builder.whereNull('Tag_workspace.deleted')
+      builder
         .where('Tag_workspace.name', '=', workspace)
         .andWhere('Tag_workspace.type', '=', 'workspace')
     }
     if (filter.search) {
       const search = filter.search.toLowerCase()
-      resultQuery = resultQuery.where(nestedQuery => {
-        nestedQuery
+      builder.where(nestedBuilder => {
+        nestedBuilder
           .where('Publication.name', 'ilike', `%${search}%`)
+          .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
           .orWhere('Publication.abstract', 'ilike', `%${search}%`)
           .orWhere('Publication.description', 'ilike', `%${search}%`)
           .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
       })
     }
 
-    const result = await resultQuery
-    return result[0].count
+    const result = await builder
+    return result.length
   }
 
   static async getLibrary (
@@ -246,6 +241,7 @@ class Library {
           builder.where(nestedBuilder => {
             nestedBuilder
               .where('Publication.name', 'ilike', `%${search}%`)
+              .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
               .orWhere('Publication.abstract', 'ilike', `%${search}%`)
               .orWhere('Publication.description', 'ilike', `%${search}%`)
               .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
@@ -262,6 +258,12 @@ class Library {
             builder.orderByRaw('"datePublished" NULLS FIRST')
           } else {
             builder.orderByRaw('"datePublished" DESC NULLS LAST')
+          }
+        } else if (filter.orderBy === 'type') {
+          if (filter.reverse) {
+            builder.orderByRaw('"type" DESC NULLS FIRST')
+          } else {
+            builder.orderByRaw('"type" NULLS LAST')
           }
         } else {
           if (filter.reverse) {

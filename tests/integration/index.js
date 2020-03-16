@@ -15,6 +15,7 @@ const libraryFilterCombinedTests = require('./library/library-filter-combined.te
 const libraryOrderByDefaultTests = require('./library/library-orderBy-default.test')
 const libraryOrderByTitleTests = require('./library/library-orderBy-title.test')
 const libraryOrderByDatePublishedTests = require('./library/library-orderBy-datePublished.test')
+const libraryOrderByTypeTest = require('./library/library-orderBy-type.test')
 
 const noteGetTests = require('./note/note-get.test')
 const notePostTests = require('./note/note-post.test')
@@ -96,6 +97,7 @@ const allTests = async () => {
     await libraryFilterCombinedTests(app)
     await libraryOrderByDefaultTests(app)
     await libraryOrderByTitleTests(app)
+    await libraryOrderByTypeTest(app)
     await libraryOrderByDatePublishedTests(app)
     await libraryFilterKeyword(app)
     await libraryFilterSearch(app)
