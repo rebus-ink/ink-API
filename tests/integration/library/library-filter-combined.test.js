@@ -161,7 +161,7 @@ const test = async () => {
   })
   await createPublicationSimplified({
     name: 'new book 5',
-    author: 'Jane Smith',
+    author: 'Jane Smith testing',
     editor: 'John Doe',
     inLanguage: ['en']
   })
