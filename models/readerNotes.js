@@ -151,7 +151,7 @@ class ReaderNotes {
     }
 
     const readers = await qb
-      .withGraphFetched('replies.[publication.[attributions], body]')
+      .withGraphFetched('replies.[publication.[attributions], body, tags]')
       .modifyGraph('replies', builder => {
         builder.modifyGraph('body', bodyBuilder => {
           bodyBuilder.select('content', 'language', 'motivation')
@@ -268,7 +268,7 @@ class ReaderNotes {
           }
         }
 
-        if (filters.orderBy === 'updated') {
+        if (filters.orderBy === 'updated' || !filters.orderBy) {
           if (filters.reverse) {
             builder.orderBy('Note.updated')
           } else {

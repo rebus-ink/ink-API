@@ -8,7 +8,9 @@ const {
   createNote,
   createDocument,
   createNoteContext,
-  addNoteToContext
+  addNoteToContext,
+  addNoteToCollection,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
@@ -59,9 +61,12 @@ const test = async app => {
     await createNoteSimplified({
       body: { content: 'second', motivation: 'test' }
     })
-    await createNoteSimplified({
+    const note3 = await createNoteSimplified({
       body: { content: 'third', motivation: 'test' }
     })
+
+    const tag = await createTag(app, token, { name: 'test' })
+    await addNoteToCollection(app, token, note3.shortId, tag.id)
 
     const res = await request(app)
       .get('/notes')
@@ -84,6 +89,9 @@ const test = async app => {
     await tap.type(firstItem.publication.name, 'string')
     await tap.ok(firstItem.publication.author)
     await tap.type(firstItem.publication.author[0].name, 'string')
+    // should include tags
+    await tap.ok(firstItem.tags)
+    await tap.equal(firstItem.tags.length, 1)
   })
 
   await tap.test(
