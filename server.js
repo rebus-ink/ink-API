@@ -73,6 +73,7 @@ const noteContextGetRoute = require('./routes/noteContext-get') // GET /noteCont
 const outlineGetRoute = require('./routes/outline-get') // GET /outlines/:id
 const outlinePostRoute = require('./routes/outline-post') // POST /outlines
 const outlineDeleteRoute = require('./routes/outline-delete') // DELETE /outlines/:id
+const outlinePutRoute = require('./routes/outline-put') // PUT /outlines:id
 
 const setupKnex = async skip_migrate => {
   let config
@@ -253,6 +254,7 @@ noteContextGetRoute(app)
 outlineGetRoute(app)
 outlinePostRoute(app)
 outlineDeleteRoute(app)
+outlinePutRoute(app)
 
 app.use(errorHandling)
 

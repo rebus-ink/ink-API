@@ -68,6 +68,7 @@ const noteContextGetTests = require('./noteContext/noteContext-get.test')
 const outlineGetTests = require('./outline/outline-get.test')
 const outlinePostTests = require('./outline/outline-post.test')
 const outlineDeleteTests = require('./outline/outlline-delete.test')
+const outlinePutTests = require('./outline/outline-put.test')
 
 const app = require('../../server').app
 
@@ -174,6 +175,7 @@ const allTests = async () => {
     await outlineGetTests(app)
     await outlinePostTests(app)
     await outlineDeleteTests(app)
+    await outlinePutTests(app)
   }
 
   await app.knex.migrate.rollback()
