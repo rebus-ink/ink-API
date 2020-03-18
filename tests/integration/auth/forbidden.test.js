@@ -540,30 +540,27 @@ const test = async app => {
 
   // ------------------------------------- OUTLINE -----------------------
 
-  // await tap.test(
-  //   'Try to update an outline belonging to another user',
-  //   async () => {
-  //     const res = await request(app)
-  //       .put(`/outlines/${outline1.shortId}`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token2}`)
-  //       .type('application/ld+json')
-  //       .send(JSON.stringify({ type: 'test2' }))
+  await tap.test(
+    'Try to update an outline belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/outlines/${outline1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'outline' }))
 
-  //     await tap.equal(res.statusCode, 403)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 403)
-  //     await tap.equal(error.error, 'Forbidden')
-  //     await tap.equal(
-  //       error.message,
-  //       `Access to Outline ${outline1.shortId} disallowed`
-  //     )
-  //     await tap.equal(
-  //       error.details.requestUrl,
-  //       `/outlines/${outline1.shortId}`
-  //     )
-  //   }
-  // )
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline1.shortId} disallowed`
+      )
+      await tap.equal(error.details.requestUrl, `/outlines/${outline1.shortId}`)
+    }
+  )
 
   await tap.test(
     'Try to delete an outline belonging to another user',

@@ -62,19 +62,20 @@ module.exports = function (app) {
             })
           )
         }
-        if (body.type !== 'outline') {
+
+        // check owndership of Outline
+        if (!checkOwnership(reader.id, req.params.id)) {
           return next(
-            boom.badRequest(`Outline type must be 'outline'`, {
+            boom.forbidden(`Access to Outline ${req.params.id} disallowed`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
           )
         }
 
-        // check owndership of Outline
-        if (!checkOwnership(reader.id, req.params.id)) {
+        if (body.type !== 'outline') {
           return next(
-            boom.forbidden(`Access to Outline ${req.params.id} disallowed`, {
+            boom.badRequest(`Outline type must be 'outline'`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })

@@ -108,25 +108,26 @@ const test = async app => {
   //   }
   // )
 
-  // await tap.test('Try to update an Outline that was deleted', async () => {
-  //   const res = await request(app)
-  //     .put(`/outlines/${outline.shortId}`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type('application/ld+json')
-  //     .send(JSON.stringify(Object.assign(outline, { type: 'test2' })))
+  await tap.test('Try to update an Outline that was deleted', async () => {
+    const res = await request(app)
+      .put(`/outlines/${outline.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify(
+          Object.assign(outline, { type: 'outline', name: 'something new' })
+        )
+      )
 
-  //   await tap.equal(res.status, 404)
-  //   const error = JSON.parse(res.text)
-  //   await tap.equal(
-  //     error.message,
-  //     `No Outline found with id ${outline.shortId}`
-  //   )
-  //   await tap.equal(
-  //     error.details.requestUrl,
-  //     `/outlines/${outline.shortId}`
-  //   )
-  // })
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(
+      error.message,
+      `No Outline found with id ${outline.shortId}`
+    )
+    await tap.equal(error.details.requestUrl, `/outlines/${outline.shortId}`)
+  })
 
   await destroyDB(app)
 }
