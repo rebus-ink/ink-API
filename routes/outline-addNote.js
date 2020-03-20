@@ -65,13 +65,10 @@ module.exports = function (app) {
         }
         if (!checkOwnership(reader.id, req.params.id)) {
           return next(
-            boom.forbidden(
-              `Access to NoteContext ${req.params.id} disallowed`,
-              {
-                requestUrl: req.originalUrl,
-                requestBody: req.body
-              }
-            )
+            boom.forbidden(`Access to Outline ${req.params.id} disallowed`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
           )
         }
 

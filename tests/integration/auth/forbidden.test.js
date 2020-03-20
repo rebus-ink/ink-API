@@ -583,51 +583,96 @@ const test = async app => {
     }
   )
 
-  // await tap.test(
-  //   'Try to add a note to an outline belonging to another user',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`/outlines/${outline1.shortId}/notes`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token2}`)
-  //       .type('application/ld+json')
-  //       .send(JSON.stringify({ body: { motivation: 'test' } }))
+  await tap.test(
+    'Try to add a note to an outline belonging to another user',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline1.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ body: { motivation: 'test' } }))
 
-  //     await tap.equal(res.statusCode, 403)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 403)
-  //     await tap.equal(error.error, 'Forbidden')
-  //     await tap.equal(
-  //       error.message,
-  //       `Access to Outline ${outline1.shortId} disallowed`
-  //     )
-  //     await tap.equal(
-  //       error.details.requestUrl,
-  //       `/outlines/${outline1.shortId}/notes`
-  //     )
-  //   }
-  // )
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline1.shortId}/notes`
+      )
+    }
+  )
 
-  // await tap.test(
-  //   'Try to copy a note belonging to another user to an outline',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`/outlines/${outline2.shortId}/notes?source=${noteId}`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token2}`)
-  //       .type('application/ld+json')
+  await tap.test(
+    'Try to copy a note belonging to another user to an outline',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline2.shortId}/notes?source=${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
 
-  //     await tap.equal(res.statusCode, 403)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 403)
-  //     await tap.equal(error.error, 'Forbidden')
-  //     await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
-  //     await tap.equal(
-  //       error.details.requestUrl,
-  //       `/outlines/${outline2.shortId}/notes?source=${noteId}`
-  //     )
-  //   }
-  // )
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline2.shortId}/notes?source=${noteId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to delete a note from an outline belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/outlines/${outline1.shortId}/notes/${note2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline1.shortId}/notes/${note2.shortId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to delete a note belonging to another user from an outline',
+    async () => {
+      const res = await request(app)
+        .delete(`/outlines/${outline2.shortId}/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline2.shortId}/notes/${noteId}`
+      )
+    }
+  )
 
   await tap.test(
     'Try to get an Outline belonging to another user',

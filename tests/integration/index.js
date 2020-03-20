@@ -174,11 +174,11 @@ const allTests = async () => {
   }
 
   if (!test || test === 'outline') {
-    // await outlineGetTests(app)
-    // await outlinePostTests(app)
-    // await outlineDeleteTests(app)
-    // await outlinePutTests(app)
-    // await outlineAddNoteTests(app)
+    await outlineGetTests(app)
+    await outlinePostTests(app)
+    await outlineDeleteTests(app)
+    await outlinePutTests(app)
+    await outlineAddNoteTests(app)
     await outlineDeleteNoteTests(app)
   }
 

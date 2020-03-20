@@ -75,38 +75,38 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/outlines/${outline.shortId}`)
   })
 
-  // await tap.test(
-  //   'Try to add a note to an outline that was deleted',
-  //   async () => {
-  //     const res = await request(app)
-  //       .post(`/outlines/${outline.shortId}/notes`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type('application/ld+json')
-  //       .send(
-  //         JSON.stringify({
-  //           body: {
-  //             content: 'this is the content of the note',
-  //             motivation: 'test'
-  //           },
-  //           json: { property1: 'value1' }
-  //         })
-  //       )
+  await tap.test(
+    'Try to add a note to an outline that was deleted',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            json: { property1: 'value1' }
+          })
+        )
 
-  //     await tap.equal(res.status, 404)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(
-  //       error.message,
-  //       `Add Note to Outline Error: No Outline found with id: ${
-  //         outline.shortId
-  //       }`
-  //     )
-  //     await tap.equal(
-  //       error.details.requestUrl,
-  //       `/outlines/${outline.shortId}/notes`
-  //     )
-  //   }
-  // )
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(
+        error.message,
+        `Add Note to Outline Error: No Outline found with id: ${
+          outline.shortId
+        }`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline.shortId}/notes`
+      )
+    }
+  )
 
   await tap.test('Try to update an Outline that was deleted', async () => {
     const res = await request(app)

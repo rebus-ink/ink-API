@@ -4,13 +4,10 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
-  createDocument,
   createNoteContext,
   createNote,
   addNoteToOutline
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
 
 const test = async app => {
