@@ -220,7 +220,6 @@ module.exports = function (app) {
             )
           }
         }
-
         // if createdNote.previous
         if (createdNote.previous) {
           const previousNote = await Note.byId(createdNote.previous)
