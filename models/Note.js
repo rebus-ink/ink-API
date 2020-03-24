@@ -231,6 +231,10 @@ class Note extends BaseModel {
         throw new Error('no publication')
       } else if (err.constraint === 'note_contextid_foreign') {
         throw new Error('no context')
+      } else if (err.constraint === 'note_previous_foreign') {
+        throw new Error('no previous')
+      } else if (err.constraint === 'note_next_foreign') {
+        throw new Error('no next')
       }
       throw err
     }

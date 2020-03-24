@@ -1,7 +1,7 @@
 /**
  * @swagger
  * definition:
- *   noteContext:
+ *   noteContextGeneral:
  *     properties:
  *       id:
  *         type: string
@@ -11,8 +11,6 @@
  *         type: string
  *         format: url
  *         readOnly: true
- *       type:
- *         type: string
  *       name:
  *         type: string
  *       description:
@@ -32,5 +30,19 @@
  *     - type
  *     - published
  *     - readerId
+ *
+ *   noteContext:
+ *     allOf:
+ *       - $ref: '#/definitions/noteContextGeneral'
+ *     properties:
+ *       type:
+ *         type: string
+ *
+ *   outline:
+ *     allOf:
+ *       - $ref: '#/definitions/noteContextGeneral'
+ *     type:
+ *       type: string
+ *       enum: ['outline']
  *
  */

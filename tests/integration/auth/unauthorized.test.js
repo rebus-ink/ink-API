@@ -326,6 +326,62 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
+  // -------------------------------------OUTLINE --------------------------------
+
+  await tap.test('POST Outline without authentication', async () => {
+    const res = await request(app)
+      .post('/outlines')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('PUT Outline without authentication', async () => {
+    const res = await request(app)
+      .put('/outlines/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test('Delete Outline without authentication', async () => {
+    const res = await request(app)
+      .delete('/outlines/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test(
+    'Add a Note to an Outline without authentication',
+    async () => {
+      const res = await request(app)
+        .post('/outlines/123/notes')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
+
+  await tap.test(
+    'Delete a Note from an Outline without authentication',
+    async () => {
+      const res = await request(app)
+        .delete('/outlines/123/notes/123')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
+
+  await tap.test('Get a Outline without authentication', async () => {
+    const res = await request(app)
+      .get('/outlines/123')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {

@@ -90,6 +90,13 @@ class NoteContext extends BaseModel {
     return noteContext
   }
 
+  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
+    const noteContext = await NoteContext.query().findById(id)
+    if (!noteContext || noteContext.deleted) {
+      return false
+    } else return true
+  }
+
   static async update (object /*: any */) /*: Promise<any> */ {
     const props = _.pick(object, [
       'readerId',

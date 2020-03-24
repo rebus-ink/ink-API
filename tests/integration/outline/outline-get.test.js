@@ -35,7 +35,7 @@ const test = async app => {
     await tap.equal(body.type, 'outline')
     await tap.ok(body.json)
     await tap.equal(body.json.property, 'value1')
-    // notes & noteRelations
+    // notes
     await tap.equal(body.notes.length, 0)
   })
 

@@ -19,6 +19,7 @@ const orderLinkedList = list => {
       }
       orderedList.push(next)
       if (orderedList.length > list.length) {
+        console.log(orderedList)
         throw new Error('circular linked list')
       }
       current = next
@@ -29,6 +30,7 @@ const orderLinkedList = list => {
 }
 
 const notesListToTree = notes => {
+  let notesBefore = notes
   if (notes.length === 0) return notes
   notes = notes.map(note => {
     note.shortId = urlToId(note.id)
