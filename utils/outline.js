@@ -19,7 +19,6 @@ const orderLinkedList = list => {
       }
       orderedList.push(next)
       if (orderedList.length > list.length) {
-        console.log(orderedList)
         throw new Error('circular linked list')
       }
       current = next
@@ -30,7 +29,6 @@ const orderLinkedList = list => {
 }
 
 const notesListToTree = notes => {
-  let notesBefore = notes
   if (notes.length === 0) return notes
   notes = notes.map(note => {
     note.shortId = urlToId(note.id)
@@ -41,11 +39,17 @@ const notesListToTree = notes => {
   if (orderedList.length !== notes.length) {
     throw new Error('Invalid linked list')
   }
-  const tree = arrayToTree(orderedList, {
-    id: 'shortId',
-    dataField: null,
-    throwIfOrphans: true
-  })
+
+  let tree
+  try {
+    tree = arrayToTree(orderedList, {
+      id: 'shortId',
+      dataField: null
+      // throwIfOrphans: true
+    })
+  } catch (err) {
+    throw err
+  }
 
   return tree
 }
