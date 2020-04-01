@@ -27,6 +27,7 @@ const publicationDeleteTests = require('./publication/publication-delete.test')
 const publicationPostTests = require('./publication/publication-post.test')
 const publicationPatchTests = require('./publication/publication-patch.test')
 const readActivityPostTests = require('./publication/readActivity-post.test')
+const publicationBatchUpdateTests = require('./publication/publication-batchUpdate.test')
 
 const readerCreateTests = require('./reader/reader-post.test')
 const readerGetTests = require('./reader/reader-get.test')
@@ -110,11 +111,12 @@ const allTests = async () => {
   }
 
   if (!test || test === 'publication') {
-    await publicationGetTests(app)
-    await publicationDeleteTests(app)
-    await publicationPostTests(app)
-    await publicationPatchTests(app)
-    await readActivityPostTests(app)
+    // await publicationGetTests(app)
+    // await publicationDeleteTests(app)
+    // await publicationPostTests(app)
+    // await publicationPatchTests(app)
+    // await readActivityPostTests(app)
+    await publicationBatchUpdateTests(app)
   }
 
   if (!test || test === 'reader') {

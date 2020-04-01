@@ -607,6 +607,28 @@ class Publication extends BaseModel {
       .where('publicationId', '=', id)
   }
 
+  static async batchUpdate (body /*: any */) /*: Promise<any> */ {
+    const arrayProperties = attributionTypes.concat(['keywords', 'inLanguage'])
+
+    if (body.operation === 'replace') {
+      if (arrayProperties.indexOf(body.property) > -1) {
+        throw new Error('no replace array')
+      }
+
+      let modification = {}
+      modification[body.property] = body.value
+      try {
+        Publication._validateIncomingPub(modification)
+      } catch (err) {
+        throw err
+      }
+      const modificationFormatted = this._formatIncomingPub(null, modification)
+      return await Publication.query()
+        .patch(modificationFormatted)
+        .whereIn('id', body.publications)
+    }
+  }
+
   async update (body /*: any */) /*: Promise<PublicationType|null> */ {
     const id = urlToId(this.id)
     const publication = this
