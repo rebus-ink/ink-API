@@ -555,6 +555,13 @@ class Publication extends BaseModel {
     return pub
   }
 
+  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
+    const pub = await Publication.query().findById(id)
+    if (!pub || pub.deleted) {
+      return false
+    } else return true
+  }
+
   static async delete (id /*: string */) {
     // Mark documents associated with pub as deleted
     const { Document } = require('./Document')

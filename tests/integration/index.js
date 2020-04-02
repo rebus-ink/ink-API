@@ -111,11 +111,11 @@ const allTests = async () => {
   }
 
   if (!test || test === 'publication') {
-    await publicationGetTests(app)
-    await publicationDeleteTests(app)
-    await publicationPostTests(app)
-    await publicationPatchTests(app)
-    await readActivityPostTests(app)
+    // await publicationGetTests(app)
+    // await publicationDeleteTests(app)
+    // await publicationPostTests(app)
+    // await publicationPatchTests(app)
+    // await readActivityPostTests(app)
     await publicationBatchUpdateTests(app)
   }
 

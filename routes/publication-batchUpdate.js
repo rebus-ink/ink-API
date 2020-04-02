@@ -64,7 +64,36 @@ module.exports = function (app) {
 
       try {
         const result = await Publication.batchUpdate(req.body)
-        console.log(result)
+        if (result < req.body.publications.length) {
+          const numberOfErrors = req.body.publications.length - result
+          const status = []
+          let index = 0
+          while (
+            status.length < numberOfErrors ||
+            index < req.body.publications.length
+          ) {
+            const exists = await Publication.checkIfExists(
+              req.body.publications[index]
+            )
+            if (!exists) {
+              status.push({
+                id: req.body.publications[index],
+                status: 404,
+                message: `No Publication found with id ${
+                  req.body.publications[index]
+                }`
+              })
+            } else {
+              status.push({
+                id: req.body.publications[index],
+                status: 204
+              })
+            }
+            index++
+          }
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.status(207).end(JSON.stringify({ status }))
+        }
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(204).end()
       } catch (err) {

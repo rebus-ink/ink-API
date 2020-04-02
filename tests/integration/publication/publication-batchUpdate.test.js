@@ -209,36 +209,69 @@ const test = async app => {
     }
   )
 
-  // await tap.test(
-  //   'Batch Update Publications - Try to replace with one publication that does not exist',
-  //   async () => {
-  //     const res = await request(app)
-  //       .patch(`/publications/batchUpdate`)
-  //       .set('Host', 'reader-api.test')
-  //       .set('Authorization', `Bearer ${token}`)
-  //       .type('application/ld+json')
-  //       .send(
-  //         JSON.stringify({
-  //           publications: [pub1.shortId, pub2.shortId + 'abc'],
-  //           operation: 'replace',
-  //           property: 'name',
-  //           value: 'new name'
-  //         })
-  //       )
+  await tap.test(
+    'Batch Update Publications - Try to replace with one publication that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId + 'abc'],
+            operation: 'replace',
+            property: 'name',
+            value: 'new name'
+          })
+        )
 
-  //     await tap.equal(res.status, 400)
-  //     const error = JSON.parse(res.text)
-  //     await tap.equal(error.statusCode, 400)
-  //     await tap.equal(error.error, 'Bad Request')
-  //     await tap.equal(
-  //       error.message,
-  //       `Validation Error on Batch Update Publication: name: should be string`
-  //     )
-  //     await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
-  //     await tap.type(error.details.requestBody, 'object')
-  //     await tap.equal(error.details.requestBody.operation, 'replace')
-  //   }
-  // )
+      await tap.equal(res.status, 207)
+      const status = res.body.status
+      await tap.equal(status[0].id, pub1.shortId)
+      await tap.equal(status[0].status, 204)
+      await tap.equal(status[1].id, pub2.shortId + 'abc')
+      await tap.equal(status[1].status, 404)
+      await tap.equal(
+        status[1].message,
+        `No Publication found with id ${pub2.shortId}abc`
+      )
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - Try to replace with both publications that do not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId + 'abc', pub2.shortId + 'abc'],
+            operation: 'replace',
+            property: 'name',
+            value: 'new name'
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const status = res.body.status
+      await tap.equal(status[0].id, pub1.shortId + 'abc')
+      await tap.equal(status[0].status, 404)
+      await tap.equal(
+        status[0].message,
+        `No Publication found with id ${pub1.shortId}abc`
+      )
+      await tap.equal(status[1].id, pub2.shortId + 'abc')
+      await tap.equal(status[1].status, 404)
+      await tap.equal(
+        status[1].message,
+        `No Publication found with id ${pub2.shortId}abc`
+      )
+    }
+  )
 
   // await tap.test('Batch Update Publications - add a keyword', async () => {
 
