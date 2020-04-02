@@ -19,7 +19,7 @@ const test = async () => {
   const readerId = urlToId(readerCompleteUrl)
 
   const createPublicationSimplified = async object => {
-    return await createPublication(readerId, object)
+    return await createPublication(app, token, object)
   }
 
   await createPublicationSimplified({

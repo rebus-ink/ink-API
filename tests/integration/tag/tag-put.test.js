@@ -26,7 +26,7 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
 
   // Create a Document for that publication
   const documentObject = {
@@ -41,7 +41,7 @@ const test = async app => {
     documentObject
   )
 
-  const documentUrl = `${publication.id}/${document.documentPath}`
+  const documentUrl = `${publication.id}${document.documentPath}`
 
   // create Note for reader 1
   const note = await createNote(app, token, readerId, {

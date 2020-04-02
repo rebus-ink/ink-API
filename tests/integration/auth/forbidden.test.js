@@ -34,14 +34,14 @@ const test = async app => {
   const readerId2 = urlToId(readerCompleteUrl2)
 
   // create publication and tag for reader 1
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationId = urlToId(publication.id)
 
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
   // create publication and tag for reader 2
-  const publication2 = await createPublication(readerId2)
+  const publication2 = await createPublication(app, token2)
   publicationId2 = urlToId(publication2.id)
 
   const tag2 = await createTag(app, token2, readerUrl2)

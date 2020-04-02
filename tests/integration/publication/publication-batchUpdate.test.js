@@ -76,6 +76,47 @@ const test = async app => {
   })
 
   await tap.test(
+    'Batch Update Publications - replace genre (metadata)',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'replace',
+            property: 'genre',
+            value: 'new genre!'
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.genre, 'new genre!')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.genre, 'new genre!')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test(
     'Batch Update Publications - Try to replace an array property',
     async () => {
       const res = await request(app)
@@ -105,6 +146,99 @@ const test = async app => {
       await tap.equal(error.details.requestBody.operation, 'replace')
     }
   )
+
+  await tap.test(
+    'Batch Update Publications - replace with validation error',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'replace',
+            property: 'name',
+            value: 123
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        `Validation Error on Batch Update Publication: name: should be string`
+      )
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.operation, 'replace')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - replace with validation error in metadata',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'replace',
+            property: 'genre',
+            value: 123
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'Publication validation error: genre should be a string'
+      )
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.operation, 'replace')
+    }
+  )
+
+  // await tap.test(
+  //   'Batch Update Publications - Try to replace with one publication that does not exist',
+  //   async () => {
+  //     const res = await request(app)
+  //       .patch(`/publications/batchUpdate`)
+  //       .set('Host', 'reader-api.test')
+  //       .set('Authorization', `Bearer ${token}`)
+  //       .type('application/ld+json')
+  //       .send(
+  //         JSON.stringify({
+  //           publications: [pub1.shortId, pub2.shortId + 'abc'],
+  //           operation: 'replace',
+  //           property: 'name',
+  //           value: 'new name'
+  //         })
+  //       )
+
+  //     await tap.equal(res.status, 400)
+  //     const error = JSON.parse(res.text)
+  //     await tap.equal(error.statusCode, 400)
+  //     await tap.equal(error.error, 'Bad Request')
+  //     await tap.equal(
+  //       error.message,
+  //       `Validation Error on Batch Update Publication: name: should be string`
+  //     )
+  //     await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+  //     await tap.type(error.details.requestBody, 'object')
+  //     await tap.equal(error.details.requestBody.operation, 'replace')
+  //   }
+  // )
 
   // await tap.test('Batch Update Publications - add a keyword', async () => {
 

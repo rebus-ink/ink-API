@@ -23,7 +23,7 @@ const test = async app => {
   }
   await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
 
   // create Note for reader 1
   const note = await createNote(app, token, readerId, {

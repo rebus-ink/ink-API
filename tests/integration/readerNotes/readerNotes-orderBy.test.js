@@ -13,7 +13,7 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const publication = await createPublication(urlToId(readerId), {
+  const publication = await createPublication(app, token, {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
@@ -21,7 +21,7 @@ const test = async app => {
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(

@@ -17,13 +17,13 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationUrl = publication.id
-  const publicationId = urlToId(publication.id)
+  const publicationId = publication.shortId
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const note = await createNote(app, token, urlToId(readerId), {
     body: { motivation: 'test', content: 'content goes here' },

@@ -63,14 +63,15 @@ module.exports = function (app) {
       })
 
       try {
-        await Publication.batchUpdate(req.body)
+        const result = await Publication.batchUpdate(req.body)
+        console.log(result)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(204).end()
       } catch (err) {
         if (err instanceof ValidationError) {
           return next(
             boom.badRequest(
-              `Validation Error on Patch Publication: ${err.message}`,
+              `Validation Error on Batch Update Publication: ${err.message}`,
               {
                 requestUrl: req.originalUrl,
                 requestBody: req.body,
@@ -78,20 +79,25 @@ module.exports = function (app) {
               }
             )
           )
-        } else {
-          if (err.message === 'no replace array') {
-            return next(
-              boom.badRequest(
-                `Cannot use 'replace' to update an array property: ${
-                  req.body.property
-                }. Use 'add' or 'remove' instead`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
+        } else if (err.message === 'no replace array') {
+          return next(
+            boom.badRequest(
+              `Cannot use 'replace' to update an array property: ${
+                req.body.property
+              }. Use 'add' or 'remove' instead`,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
             )
-          }
+          )
+        } else {
+          return next(
+            boom.badRequest(err.message, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
         }
       }
 

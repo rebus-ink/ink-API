@@ -15,13 +15,13 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationUrl = publication.id
   const publicationId = urlToId(publication.id)
 
   const createdDocument = await createDocument(readerUrl, publicationUrl)
 
-  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const note = await createNote(app, token, readerId, {
     target: { property: 'value' },

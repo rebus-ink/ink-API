@@ -35,7 +35,7 @@ const test = async app => {
   const tagId = urlToId(tag.id)
 
   // create publication for reader 2
-  const publication2 = await createPublication(readerCompleteUrl2)
+  const publication2 = await createPublication(app, token2)
   publicationId2 = urlToId(publication2.id)
 
   // --------------------------------------- READER ----------------------------------------

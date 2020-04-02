@@ -27,7 +27,7 @@ const test = async () => {
   const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
 
   const createPublicationSimplified = async object => {
-    return await createPublication(readerId, object)
+    return await createPublication(app, token, object)
   }
 
   await createPublicationSimplified({

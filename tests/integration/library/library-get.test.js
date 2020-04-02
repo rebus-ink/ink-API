@@ -36,7 +36,7 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a publication', async () => {
-    await createPublication(readerId, {
+    await createPublication(app, token, {
       type: 'Book',
       name: 'Publication A',
       author: ['John Smith'],
@@ -195,7 +195,7 @@ const test = async () => {
     await tap.test(
       'Get Library with if-modified-since header - after publication created',
       async () => {
-        publication = await createPublication(readerId)
+        publication = await createPublication(app, token)
 
         const res = await request(app)
           .get('/library')
