@@ -62,71 +62,82 @@ module.exports = function (app) {
         }
       })
 
-      try {
-        const result = await Publication.batchUpdate(req.body)
-        if (result < req.body.publications.length) {
-          const numberOfErrors = req.body.publications.length - result
-          const status = []
-          let index = 0
-          while (
-            status.length < numberOfErrors ||
-            index < req.body.publications.length
-          ) {
-            const exists = await Publication.checkIfExists(
-              req.body.publications[index]
-            )
-            if (!exists) {
-              status.push({
-                id: req.body.publications[index],
-                status: 404,
-                message: `No Publication found with id ${
-                  req.body.publications[index]
-                }`
-              })
-            } else {
-              status.push({
-                id: req.body.publications[index],
-                status: 204
-              })
+      // REPLACE
+      if (req.body.operation === 'replace') {
+        try {
+          const result = await Publication.batchUpdate(req.body)
+          if (result < req.body.publications.length) {
+            const numberOfErrors = req.body.publications.length - result
+            const status = []
+            let index = 0
+            while (
+              status.length < numberOfErrors ||
+              index < req.body.publications.length
+            ) {
+              const exists = await Publication.checkIfExists(
+                req.body.publications[index]
+              )
+              if (!exists) {
+                status.push({
+                  id: req.body.publications[index],
+                  status: 404,
+                  message: `No Publication found with id ${
+                    req.body.publications[index]
+                  }`
+                })
+              } else {
+                status.push({
+                  id: req.body.publications[index],
+                  status: 204
+                })
+              }
+              index++
             }
-            index++
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.status(207).end(JSON.stringify({ status }))
           }
           res.setHeader('Content-Type', 'application/ld+json')
-          res.status(207).end(JSON.stringify({ status }))
-        }
-        res.setHeader('Content-Type', 'application/ld+json')
-        res.status(204).end()
-      } catch (err) {
-        if (err instanceof ValidationError) {
-          return next(
-            boom.badRequest(
-              `Validation Error on Batch Update Publication: ${err.message}`,
-              {
-                requestUrl: req.originalUrl,
-                requestBody: req.body,
-                validation: err.data
-              }
+          res.status(204).end()
+        } catch (err) {
+          if (err instanceof ValidationError) {
+            return next(
+              boom.badRequest(
+                `Validation Error on Batch Update Publication: ${err.message}`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body,
+                  validation: err.data
+                }
+              )
             )
-          )
-        } else if (err.message === 'no replace array') {
-          return next(
-            boom.badRequest(
-              `Cannot use 'replace' to update an array property: ${
-                req.body.property
-              }. Use 'add' or 'remove' instead`,
-              {
+          } else if (err.message === 'no replace array') {
+            return next(
+              boom.badRequest(
+                `Cannot use 'replace' to update an array property: ${
+                  req.body.property
+                }. Use 'add' or 'remove' instead`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                }
+              )
+            )
+          } else {
+            return next(
+              boom.badRequest(err.message, {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
-              }
+              })
             )
-          )
-        } else {
-          return next(
-            boom.badRequest(err.message, {
-              requestUrl: req.originalUrl,
-              requestBody: req.body
-            })
-          )
+          }
+        }
+      } else {
+        try {
+          const result = await Publication.batchUpdateArrayProperty(req.body)
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.status(207).end(JSON.stringify({ status: result }))
+        } catch (err) {
+          console.log('error!!!', err)
         }
       }
 

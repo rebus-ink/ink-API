@@ -88,6 +88,8 @@ const statusMap = {
   test: 99
 }
 
+const arrayProperties = attributionTypes.concat(['keywords', 'inLanguage'])
+
 /*::
 type PublicationType = {
   id: string,
@@ -551,7 +553,6 @@ class Publication extends BaseModel {
     if (pub.readingOrder) pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
-
     return pub
   }
 
@@ -615,36 +616,94 @@ class Publication extends BaseModel {
   }
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {
-    const arrayProperties = attributionTypes.concat(['keywords', 'inLanguage'])
+    if (arrayProperties.indexOf(body.property) > -1) {
+      throw new Error('no replace array')
+    }
 
-    if (body.operation === 'replace') {
-      if (arrayProperties.indexOf(body.property) > -1) {
-        throw new Error('no replace array')
-      }
+    let modification = {}
+    modification[body.property] = body.value
+    try {
+      Publication._validateIncomingPub(modification)
+    } catch (err) {
+      throw err
+    }
+    const modificationFormatted = this._formatIncomingPub(null, modification)
+    return await Publication.query()
+      .patch(modificationFormatted)
+      .whereIn('id', body.publications)
+  }
 
-      let modification = {}
-      modification[body.property] = body.value
-      try {
-        Publication._validateIncomingPub(modification)
-      } catch (err) {
-        throw err
+  static async batchUpdateArrayProperty (body /*: any */) /*: Promise<any> */ {
+    if (arrayProperties.indexOf(body.property) === -1) {
+      throw new Error('add only array')
+    }
+
+    if (body.property === 'keywords' || body.property === 'inLanguage') {
+      const result = []
+      for (const pub of body.publications) {
+        const publication = await Publication.query().findById(pub)
+        if (!publication) {
+          result.push({
+            id: pub,
+            status: 404,
+            message: `No Publication found with id ${pub}`
+          })
+        }
+        if (
+          publication.metadata[body.property] &&
+          publication.metadata[body.property].indexOf(body.value) === -1
+        ) {
+          const newMetadata = publication.metadata
+          newMetadata[body.property] = publication.metadata[
+            body.property
+          ].concat(body.value)
+          await Publication.query().patchAndFetchById(pub, {
+            metadata: newMetadata
+          })
+          result.push({
+            id: pub,
+            status: 204
+          })
+        } else if (!publication.metadata[body.property]) {
+          const newMetadata = publication.metadata
+          newMetadata[body.property] = body.value
+          await Publication.query().patchAndFetchById(pub, {
+            metadata: newMetadata
+          })
+          result.push({
+            id: pub,
+            status: 204
+          })
+        } else {
+          result.push({
+            id: pub,
+            status: 204
+          })
+        }
       }
-      const modificationFormatted = this._formatIncomingPub(null, modification)
-      return await Publication.query()
-        .patch(modificationFormatted)
-        .whereIn('id', body.publications)
+      return result
     }
   }
 
-  async update (body /*: any */) /*: Promise<PublicationType|null> */ {
-    const id = urlToId(this.id)
-    const publication = this
+  static async update (
+    publication /*: any */,
+    body /*: any */
+  ) /*: Promise<PublicationType|null> */ {
+    const id = urlToId(publication.id)
     try {
       Publication._validateIncomingPub(body)
     } catch (err) {
       throw err
     }
+
     const modifications = Publication._formatIncomingPub(null, body)
+    if (modifications.metadata) {
+      modifications.metadata = _.omitBy(modifications.metadata, _.isUndefined)
+      modifications.metadata = Object.assign(
+        publication.metadata,
+        modifications.metadata
+      )
+    }
 
     let updatedPub
     try {

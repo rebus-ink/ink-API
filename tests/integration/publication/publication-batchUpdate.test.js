@@ -34,7 +34,8 @@ const test = async app => {
 
   const pub3 = await createPublication(app, token, {
     type: 'Book',
-    name: 'Publication C'
+    name: 'Publication C',
+    keywords: []
   })
 
   await tap.test('Batch Update Publications - replace type', async () => {
@@ -273,39 +274,46 @@ const test = async app => {
     }
   )
 
-  // await tap.test('Batch Update Publications - add a keyword', async () => {
+  await tap.test('Batch Update Publications - add a keyword', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub3.shortId],
+          operation: 'add',
+          property: 'keywords',
+          value: ['three']
+        })
+      )
 
-  //   const res = await request(app)
-  //     .patch(`/publications/batchUpdate`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type('application/ld+json')
-  //     .send(
-  //       JSON.stringify({
-  //         publications: [pub1.shortId, pub3.shortId],
-  //         operation: 'add',
-  //         property: 'keywords',
-  //         value: ['three']
-  //       })
-  //     )
+    await tap.equal(res.status, 204)
 
-  //   await tap.equal(res.status, 200)
-  //   const status = res.body.status
-  //   await res.equal(status.length, 2)
-  //   const index1 = _.findIndex(status, {publicationId: pub1.shortId})
-  //   await res.equal(status[index1].statusCode, 200)
-  //   await res.equal(status[index1].body.shortId, pub1.shortId)
-  //   await res.equal(status[index1].keywords.length, 3)
-  //   await res.ok(_.find(status[index1].keywords, 'one'))
-  //   await res.ok(_.find(status[index1].keywords, 'two'))
-  //   await res.ok(_.find(status[index1].keywords, 'three'))
+    const getPub1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-  //   const index3 = _.findIndex(status, {publicationId: pub3.shortId})
-  //   await res.equal(status[index3].statusCode, 200)
-  //   await res.equal(status[index3].body.shortId, pub3.shortId)
-  //   await res.equal(status[index3].keywords.length, 1)
-  //   await res.equal(status[index3].keywords[0], 'three')
-  // })
+    const pub1Body = getPub1.body
+    console.log(pub1Body)
+    await tap.equal(pub1Body.keywords[0], 'one')
+    await tap.equal(pub1Body.keywords[1], 'two')
+    await tap.equal(pub1Body.keywords[2], 'three')
+    await tap.equal(pub1Body.name, 'Publication A')
+
+    const getPub3 = await request(app)
+      .get(`/publications/${pub3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub3Body = getPub3.body
+    await tap.equal((pub3Body.keywords[0] = 'three'))
+    await tap.equal(pub3Body.name, 'Publication C')
+  })
 
   // await tap.test('Batch Update Publications - remove a keyword', async () => {
 
