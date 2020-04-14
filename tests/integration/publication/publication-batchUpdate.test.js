@@ -38,6 +38,8 @@ const test = async app => {
     keywords: []
   })
 
+  // ********************************** REPLACE ********************************
+
   await tap.test('Batch Update Publications - replace type', async () => {
     const res = await request(app)
       .patch(`/publications/batchUpdate`)
@@ -77,47 +79,6 @@ const test = async app => {
   })
 
   await tap.test(
-    'Batch Update Publications - replace genre (metadata)',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/batchUpdate`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            publications: [pub1.shortId, pub2.shortId],
-            operation: 'replace',
-            property: 'genre',
-            value: 'new genre!'
-          })
-        )
-
-      await tap.equal(res.status, 204)
-
-      const getPub1 = await request(app)
-        .get(`/publications/${pub1.shortId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
-      const pub1Body = getPub1.body
-      await tap.equal(pub1Body.genre, 'new genre!')
-      await tap.equal(pub1Body.name, 'Publication A')
-
-      const getPub2 = await request(app)
-        .get(`/publications/${pub2.shortId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
-      const pub2Body = getPub2.body
-      await tap.equal(pub2Body.genre, 'new genre!')
-      await tap.equal(pub2Body.name, 'Publication B')
-    }
-  )
-
-  await tap.test(
     'Batch Update Publications - Try to replace an array property',
     async () => {
       const res = await request(app)
@@ -138,10 +99,35 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 400)
       await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        `Cannot use 'replace' to update an array property: keywords. Use 'add' or 'remove' instead`
-      )
+      await tap.equal(error.message, 'Cannot replace property keywords')
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.operation, 'replace')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - Try to replace a property that cannot be changed with batch updates',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'replace',
+            property: 'name',
+            value: 'new name'
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.message, 'Cannot replace property name')
       await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.operation, 'replace')
@@ -160,7 +146,7 @@ const test = async app => {
           JSON.stringify({
             publications: [pub1.shortId, pub2.shortId],
             operation: 'replace',
-            property: 'name',
+            property: 'type',
             value: 123
           })
         )
@@ -171,7 +157,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        `Validation Error on Batch Update Publication: name: should be string`
+        `Publication validation error: 123 is not a valid type.`
       )
       await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
       await tap.type(error.details.requestBody, 'object')
@@ -180,7 +166,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'Batch Update Publications - replace with validation error in metadata',
+    'Batch Update Publications - replace with (built-in) validation error',
     async () => {
       const res = await request(app)
         .patch(`/publications/batchUpdate`)
@@ -191,7 +177,7 @@ const test = async app => {
           JSON.stringify({
             publications: [pub1.shortId, pub2.shortId],
             operation: 'replace',
-            property: 'genre',
+            property: 'encodingFormat',
             value: 123
           })
         )
@@ -202,7 +188,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: genre should be a string'
+        'Validation Error on Batch Update Publication: encodingFormat: should be string,null'
       )
       await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
       await tap.type(error.details.requestBody, 'object')
@@ -222,8 +208,8 @@ const test = async app => {
           JSON.stringify({
             publications: [pub1.shortId, pub2.shortId + 'abc'],
             operation: 'replace',
-            property: 'name',
-            value: 'new name'
+            property: 'type',
+            value: 'Book'
           })
         )
 
@@ -252,8 +238,8 @@ const test = async app => {
           JSON.stringify({
             publications: [pub1.shortId + 'abc', pub2.shortId + 'abc'],
             operation: 'replace',
-            property: 'name',
-            value: 'new name'
+            property: 'type',
+            value: 'Book'
           })
         )
 
@@ -273,6 +259,8 @@ const test = async app => {
       )
     }
   )
+
+  // ******************************** ADD - keywords, inLanguage *****************************
 
   await tap.test('Batch Update Publications - add a keyword', async () => {
     const res = await request(app)
@@ -298,7 +286,6 @@ const test = async app => {
       .type('application/ld+json')
 
     const pub1Body = getPub1.body
-    console.log(pub1Body)
     await tap.equal(pub1Body.keywords[0], 'one')
     await tap.equal(pub1Body.keywords[1], 'two')
     await tap.equal(pub1Body.keywords[2], 'three')
@@ -311,43 +298,327 @@ const test = async app => {
       .type('application/ld+json')
 
     const pub3Body = getPub3.body
-    await tap.equal((pub3Body.keywords[0] = 'three'))
+    await tap.equal(pub3Body.keywords[0], 'three')
     await tap.equal(pub3Body.name, 'Publication C')
   })
 
-  // await tap.test('Batch Update Publications - remove a keyword', async () => {
+  await tap.test(
+    'Batch Update Publications - add a keyword, including one pub that already has the keyword',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'keywords',
+            value: ['three']
+          })
+        )
 
-  //   const res = await request(app)
-  //     .patch(`/publications/batchUpdate`)
-  //     .set('Host', 'reader-api.test')
-  //     .set('Authorization', `Bearer ${token}`)
-  //     .type('application/ld+json')
-  //     .send(
-  //       JSON.stringify({
-  //         publications: [pub1.shortId, pub2.shortId],
-  //         operation: 'remove',
-  //         property: 'keywords',
-  //         value: ['one', 'two']
-  //       })
-  //     )
+      await tap.equal(res.status, 204)
 
-  //   await tap.equal(res.status, 200)
-  //   const status = res.body.status
-  //   await res.equal(status.length, 2)
-  //   const index1 = _.findIndex(status, {publicationId: pub1.shortId})
-  //   await res.equal(status[index1].statusCode, 200)
-  //   await res.equal(status[index1].body.shortId, pub1.shortId)
-  //   await res.equal(status[index1].keywords.length, 1)
-  //   await res.equal(status[index1].keywords[0], 'three')
-  //   await res.ok(_.find(status[index1].keywords, ''))
-  //   await res.ok(_.find(status[index1].keywords, 'two'))
-  //   await res.ok(_.find(status[index1].keywords, 'three'))
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
 
-  //   const index2 = _.findIndex(status, {publicationId: pub2.shortId})
-  //   await res.equal(status[index2].statusCode, 200)
-  //   await res.equal(status[index2].body.shortId, pub2.shortId)
-  //   await res.equal(status[index2].keywords.length, 0)
-  // })
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.keywords.length, 3)
+      await tap.equal(pub1Body.keywords[0], 'one')
+      await tap.equal(pub1Body.keywords[1], 'two')
+      await tap.equal(pub1Body.keywords[2], 'three')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.keywords.length, 2)
+      await tap.equal(pub2Body.keywords[0], 'one')
+      await tap.equal(pub2Body.keywords[1], 'three')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test('Batch Update Publications - add a language', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub2.shortId],
+          operation: 'add',
+          property: 'inLanguage',
+          value: ['fr']
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getPub1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub1Body = getPub1.body
+
+    await tap.equal(pub1Body.inLanguage.length, 1)
+    await tap.equal(pub1Body.inLanguage[0], 'fr')
+    await tap.equal(pub1Body.name, 'Publication A')
+
+    const getPub2 = await request(app)
+      .get(`/publications/${pub2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub2Body = getPub2.body
+    await tap.equal(pub2Body.inLanguage.length, 1)
+    await tap.equal(pub1Body.inLanguage[0], 'fr')
+    await tap.equal(pub2Body.name, 'Publication B')
+  })
+
+  await tap.test(
+    'Try to batch update keyword with validation error',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'keywords',
+            value: 123
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'keywords should be a string or an array of strings'
+      )
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+      await tap.equal(error.details.requestBody.operation, 'add')
+    }
+  )
+
+  // ***************************************** REMOVE keyword, language ******************************
+
+  await tap.test('Batch Update Publications - remove a keyword', async () => {
+    // before:
+    // 1: 'one', 'two', 'three'
+    // 2: 'one', 'three'
+
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub2.shortId],
+          operation: 'remove',
+          property: 'keywords',
+          value: ['one', 'two']
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const res1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const keywords1 = res1.body.keywords
+    await tap.equal(keywords1.length, 1)
+    await tap.equal(keywords1[0], 'three')
+
+    const res2 = await request(app)
+      .get(`/publications/${pub2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const keywords2 = res2.body.keywords
+    await tap.equal(keywords2.length, 1)
+    await tap.equal(keywords2[0], 'three')
+  })
+
+  await tap.test(
+    'Batch Update Publications - remove a keyword with one pub not found',
+    async () => {
+      // before:
+      // 1: 'one', 'two', 'three'
+      // 2: 'one', 'three'
+
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId + 'abc', pub2.shortId],
+            operation: 'remove',
+            property: 'keywords',
+            value: ['three']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, pub1.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Publication found with id ${pub1.shortId}abc`
+      )
+      await tap.equal(result[1].status, 204)
+      await tap.equal(result[1].id, pub2.shortId)
+
+      const res1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const keywords1 = res1.body.keywords
+      await tap.equal(keywords1.length, 1)
+      await tap.equal(keywords1[0], 'three')
+
+      const res2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const keywords2 = res2.body.keywords
+      await tap.equal(keywords2.length, 0)
+    }
+  )
+
+  // ********************************************** ADD ATTRIBUTIONS **********************************
+
+  /*
+  before:
+  1: author: 'John Smith'
+     editor: 'Jane S. Doe'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+
+  3: author: 'generic author'
+     editor: 'generic editor'
+
+   */
+
+  await tap.test('Batch Update Publications - add an attribution', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub3.shortId],
+          operation: 'add',
+          property: 'author',
+          value: ['Author1']
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getPub1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub1Body = getPub1.body
+    await tap.equal(pub1Body.author.length, 2)
+    await tap.equal(pub1Body.author[0], 'John Smith')
+    await tap.equal(pub1Body.author[1], 'Author1')
+    await tap.equal(pub1Body.name, 'Publication A')
+
+    const getPub3 = await request(app)
+      .get(`/publications/${pub3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub3Body = getPub3.body
+    await tap.equal(pub3Body.author[0], 'generic author')
+    await tap.equal(pub3Body.author[1], 'Author1')
+    await tap.equal(pub3Body.name, 'Publication C')
+  })
+
+  // *********************************************** GENERAL ERRORS ***********************************
+
+  await tap.test('Try to batch update with empty body', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify({}))
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      'Batch Update Publication Request Error: Body must be a JSON object'
+    )
+    await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+    await tap.type(error.details.requestBody, 'object')
+  })
+
+  await tap.test(
+    'Try to batch update with body missing properties',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ property: 'keywords' }))
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'Batch Update Publication Request Error: Body missing properties: value,operation,publications '
+      )
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+    }
+  )
 
   await destroyDB(app)
 }

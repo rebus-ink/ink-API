@@ -10,6 +10,20 @@ const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../utils/cache')
 const { checkOwnership } = require('../utils/utils')
 
+const batchUpdateSimpleProperties = [
+  'type',
+  'bookFormat',
+  'status',
+  'encodingFormat'
+]
+
+const batchUpdateArrayProperties = ['keywords', 'inLanguage']
+
+const batchUpdateProperties = batchUpdateSimpleProperties
+  .concat(batchUpdateArrayProperties)
+  .concat(Publication.attributionTypes)
+  .concat(['tags'])
+
 module.exports = function (app) {
   /**
    * @swagger
@@ -47,6 +61,37 @@ module.exports = function (app) {
     .route('/publications/batchUpdate')
     .patch(jwtAuth, async function (req, res, next) {
       let responses = []
+
+      if (!req.body || _.isEmpty(req.body)) {
+        return next(
+          boom.badRequest(
+            'Batch Update Publication Request Error: Body must be a JSON object',
+            {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            }
+          )
+        )
+      }
+
+      // check that it has the right properties
+      let missingProps = []
+      if (!req.body.hasOwnProperty('property')) missingProps.push('property')
+      if (!req.body.hasOwnProperty('value')) missingProps.push('value')
+      if (!req.body.hasOwnProperty('operation')) missingProps.push('operation')
+      if (!req.body.hasOwnProperty('publications')) { missingProps.push('publications') }
+      if (missingProps.length) {
+        return next(
+          boom.badRequest(
+            `Batch Update Publication Request Error: Body missing properties: ${missingProps} `,
+            {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            }
+          )
+        )
+      }
+
       const reader = await Reader.byAuthId(req.user)
       req.body.publications.forEach(async publicationId => {
         if (!checkOwnership(reader.id, publicationId)) {
@@ -62,83 +107,199 @@ module.exports = function (app) {
         }
       })
 
-      // REPLACE
-      if (req.body.operation === 'replace') {
-        try {
-          const result = await Publication.batchUpdate(req.body)
-          if (result < req.body.publications.length) {
-            const numberOfErrors = req.body.publications.length - result
-            const status = []
-            let index = 0
-            while (
-              status.length < numberOfErrors ||
-              index < req.body.publications.length
-            ) {
-              const exists = await Publication.checkIfExists(
-                req.body.publications[index]
-              )
-              if (!exists) {
-                status.push({
-                  id: req.body.publications[index],
-                  status: 404,
-                  message: `No Publication found with id ${
-                    req.body.publications[index]
-                  }`
-                })
-              } else {
-                status.push({
-                  id: req.body.publications[index],
-                  status: 204
-                })
-              }
-              index++
-            }
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.status(207).end(JSON.stringify({ status }))
-          }
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.status(204).end()
-        } catch (err) {
-          if (err instanceof ValidationError) {
+      switch (req.body.operation) {
+        // ************************************** REPLACE *********************************
+        case 'replace':
+          if (batchUpdateSimpleProperties.indexOf(req.body.property) === -1) {
             return next(
-              boom.badRequest(
-                `Validation Error on Batch Update Publication: ${err.message}`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body,
-                  validation: err.data
-                }
-              )
-            )
-          } else if (err.message === 'no replace array') {
-            return next(
-              boom.badRequest(
-                `Cannot use 'replace' to update an array property: ${
-                  req.body.property
-                }. Use 'add' or 'remove' instead`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
-            )
-          } else {
-            return next(
-              boom.badRequest(err.message, {
+              boom.badRequest(`Cannot replace property ${req.body.property}`, {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
             )
           }
-        }
-      } else {
-        try {
-          const result = await Publication.batchUpdateArrayProperty(req.body)
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.status(207).end(JSON.stringify({ status: result }))
-        } catch (err) {
-          console.log('error!!!', err)
-        }
+
+          try {
+            const result = await Publication.batchUpdate(req.body)
+
+            // if some publicaitons were note found...
+            if (result < req.body.publications.length) {
+              const numberOfErrors = req.body.publications.length - result
+              const status = []
+              let index = 0
+              while (
+                status.length < numberOfErrors ||
+                index < req.body.publications.length
+              ) {
+                const exists = await Publication.checkIfExists(
+                  req.body.publications[index]
+                )
+                if (!exists) {
+                  status.push({
+                    id: req.body.publications[index],
+                    status: 404,
+                    message: `No Publication found with id ${
+                      req.body.publications[index]
+                    }`
+                  })
+                } else {
+                  status.push({
+                    id: req.body.publications[index],
+                    status: 204
+                  })
+                }
+                index++
+              }
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify({ status }))
+            } else {
+              // if all went well...
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            }
+          } catch (err) {
+            if (err instanceof ValidationError) {
+              return next(
+                boom.badRequest(
+                  `Validation Error on Batch Update Publication: ${
+                    err.message
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body,
+                    validation: err.data
+                  }
+                )
+              )
+            } else {
+              return next(
+                boom.badRequest(err.message, {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                })
+              )
+            }
+          }
+
+        // *********************************************** ADD *******************************
+        case 'add':
+          if (
+            batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
+            Publication.attributionTypes.indexOf(req.body.property) === -1
+          ) {
+            return next(
+              boom.badRequest(`Cannot add property ${req.body.property}`, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
+          }
+
+          if (!_.isArray(req.body.value)) {
+            req.body.value = [req.body.value]
+          }
+
+          // metadata array properties
+          if (batchUpdateArrayProperties.indexOf(req.body.property) > -1) {
+            // only takes string or array of strings
+            let error
+            req.body.value.forEach(word => {
+              if (!_.isString(word)) {
+                error = true
+              }
+            })
+            if (error) {
+              return next(
+                boom.badRequest(
+                  `${
+                    req.body.property
+                  } should be a string or an array of strings`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            }
+
+            const result = await Publication.batchUpdateAddArrayProperty(
+              req.body
+            )
+            if (!_.find(result, { status: 404 })) {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify(result))
+            }
+          } else {
+            const result = await Publication.batchUpdateAddAttribution(req.body)
+            if (!_.find(result, { status: 404 })) {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify(result))
+            }
+          }
+          break
+
+        // *********************************************** REMOVE *******************************
+        case 'remove':
+          if (
+            batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
+            Publication.attributionTypes.indexOf(req.body.property) === -1
+          ) {
+            return next(
+              boom.badRequest(`Cannot remove property ${req.body.property}`, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
+          }
+
+          // metadata array properties
+          if (batchUpdateArrayProperties.indexOf(req.body.property) > -1) {
+            // only takes string or array of strings
+            if (!_.isArray(req.body.value)) {
+              req.body.value = [req.body.value]
+            }
+            let error
+            req.body.value.forEach(word => {
+              if (!_.isString(word)) {
+                error = true
+              }
+            })
+            if (error) {
+              return next(
+                boom.badRequest(
+                  `${
+                    req.body.property
+                  } should be a string or an array of strings`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            }
+
+            try {
+              const result = await Publication.batchUpdateRemoveArrayProperty(
+                req.body
+              )
+              if (!_.find(result, { status: 404 })) {
+                res.setHeader('Content-Type', 'application/ld+json')
+                res.status(204).end()
+              } else {
+                res.setHeader('Content-Type', 'application/ld+json')
+                res.status(207).end(JSON.stringify(result))
+              }
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break
       }
 
       // const pubId = req.params.pubId
