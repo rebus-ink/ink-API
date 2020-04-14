@@ -559,8 +559,8 @@ const test = async app => {
 
     const pub1Body = getPub1.body
     await tap.equal(pub1Body.author.length, 2)
-    await tap.equal(pub1Body.author[0], 'John Smith')
-    await tap.equal(pub1Body.author[1], 'Author1')
+    await tap.equal(pub1Body.author[1].name, 'John Smith')
+    await tap.equal(pub1Body.author[0].name, 'Author1')
     await tap.equal(pub1Body.name, 'Publication A')
 
     const getPub3 = await request(app)
@@ -570,10 +570,249 @@ const test = async app => {
       .type('application/ld+json')
 
     const pub3Body = getPub3.body
-    await tap.equal(pub3Body.author[0], 'generic author')
-    await tap.equal(pub3Body.author[1], 'Author1')
+    await tap.equal(pub3Body.author[1].name, 'generic author')
+    await tap.equal(pub3Body.author[0].name, 'Author1')
     await tap.equal(pub3Body.name, 'Publication C')
   })
+
+  /*
+  before:
+  1: author: 'John Smith', 'Author1'
+     editor: 'Jane S. Doe'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+
+  3: author: 'generic author', 'Author1'
+     editor: 'generic editor'
+
+   */
+
+  await tap.test(
+    'Batch Update Publications - add an attribution that already exists for one pub',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'author',
+            value: ['author1'] // when checking if already exists, is not case sensitive
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.author.length, 2)
+      await tap.equal(pub1Body.author[1].name, 'John Smith')
+      await tap.equal(pub1Body.author[0].name, 'Author1')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.author[1].name, 'John Smith')
+      await tap.equal(pub2Body.author[0].name, 'author1')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - add a new type of attribution',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'illustrator',
+            value: ['illustrator1']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.illustrator.length, 1)
+      await tap.equal(pub1Body.illustrator[0].name, 'illustrator1')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.illustrator[0].name, 'illustrator1')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - try to add an attribution with validation error',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'illustrator',
+            value: 123
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result[0].status, 400)
+      await tap.equal(result[0].id, pub1.shortId)
+      await tap.equal(
+        result[0].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+
+      await tap.equal(result[1].status, 400)
+      await tap.equal(result[1].id, pub2.shortId)
+      await tap.equal(
+        result[1].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - try to add an attribution with multiple validation errors',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'illustrator',
+            value: [123, 456]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+
+      await tap.equal(result.length, 4)
+
+      await tap.equal(result[0].status, 400)
+      await tap.equal(result[0].id, pub1.shortId)
+      await tap.equal(
+        result[0].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[0].value, 123)
+
+      await tap.equal(result[1].status, 400)
+      await tap.equal(result[1].id, pub1.shortId)
+      await tap.equal(
+        result[1].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[1].value, 456)
+
+      await tap.equal(result[2].status, 400)
+      await tap.equal(result[2].id, pub2.shortId)
+      await tap.equal(
+        result[2].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[2].value, 123)
+
+      await tap.equal(result[3].status, 400)
+      await tap.equal(result[3].id, pub2.shortId)
+      await tap.equal(
+        result[3].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[3].value, 456)
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - try to add an attribution with validation error on some items',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'add',
+            property: 'illustrator',
+            value: [123, 'illustrator2']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+
+      await tap.equal(result.length, 4)
+
+      await tap.equal(result[0].status, 400)
+      await tap.equal(result[0].id, pub1.shortId)
+      await tap.equal(
+        result[0].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[0].value, 123)
+
+      await tap.equal(result[1].status, 204)
+      await tap.equal(result[1].id, pub1.shortId)
+      await tap.equal(result[1].value, 'illustrator2')
+
+      await tap.equal(result[2].status, 400)
+      await tap.equal(result[2].id, pub2.shortId)
+      await tap.equal(
+        result[2].message,
+        'illustrator attribution validation error: attribution should be either an attribution object or a string'
+      )
+      await tap.equal(result[2].value, 123)
+
+      await tap.equal(result[3].status, 204)
+      await tap.equal(result[3].id, pub2.shortId)
+      await tap.equal(result[3].value, 'illustrator2')
+    }
+  )
 
   // *********************************************** GENERAL ERRORS ***********************************
 

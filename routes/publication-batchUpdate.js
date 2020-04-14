@@ -79,7 +79,9 @@ module.exports = function (app) {
       if (!req.body.hasOwnProperty('property')) missingProps.push('property')
       if (!req.body.hasOwnProperty('value')) missingProps.push('value')
       if (!req.body.hasOwnProperty('operation')) missingProps.push('operation')
-      if (!req.body.hasOwnProperty('publications')) { missingProps.push('publications') }
+      if (!req.body.hasOwnProperty('publications')) {
+        missingProps.push('publications')
+      }
       if (missingProps.length) {
         return next(
           boom.badRequest(
@@ -233,8 +235,12 @@ module.exports = function (app) {
               res.status(207).end(JSON.stringify(result))
             }
           } else {
+            // ATTRIBUTIONS
             const result = await Publication.batchUpdateAddAttribution(req.body)
-            if (!_.find(result, { status: 404 })) {
+            if (
+              !_.find(result, { status: 404 }) &&
+              !_.find(result, { status: 400 })
+            ) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {

@@ -115,6 +115,31 @@ class Attribution extends BaseModel {
     return props
   }
 
+  static async createSingleAttribution (
+    role /*: string */,
+    attribution /*: any */,
+    pubId /*: string */,
+    readerId /*: string */
+  ) {
+    if (!_.isString(attribution) && !_.isObject(attribution)) {
+      throw new Error(
+        `${role} attribution validation error: attribution should be either an attribution object or a string`
+      )
+    }
+    if (_.isString(attribution)) {
+      attribution = { type: 'Person', name: attribution }
+    }
+    let formattedAttribution = Attribution._formatAttribution(
+      attribution,
+      pubId,
+      readerId,
+      role
+    )
+    return await Attribution.query(Attribution.knex()).insert(
+      formattedAttribution
+    )
+  }
+
   static async createAttributionsForPublication (
     publication /*: any */,
     pubId /*: string */,
