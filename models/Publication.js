@@ -715,8 +715,12 @@ class Publication extends BaseModel {
     return result
   }
 
-  static async batchUpdateAddAttribution (body /*: any */) /*: Promise<any> */ {
+  static async batchUpdateAddAttribution (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
     const result = []
+
     for (const pub of body.publications) {
       const publication = await Publication.query()
         .findById(pub)
@@ -770,6 +774,67 @@ class Publication extends BaseModel {
                 value: attribution
               })
             }
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateRemoveAttribution (
+    body /*: any */
+  ) /*: Promise<any> */ {
+    const result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('attributions')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const attribution of body.value) {
+          // normalize name
+          let normalizedName = ''
+          if (_.isString(attribution)) {
+            normalizedName = Attribution.normalizeName(attribution)
+          } else if (_.isString(attribution.name)) {
+            normalizedName = Attribution.normalizeName(attribution.name)
+          }
+          // if attribution already exists, remove it
+          if (
+            _.find(publication.attributions, {
+              role: body.property,
+              normalizedName
+            })
+          ) {
+            try {
+              await Attribution.deleteAttribution(
+                pub,
+                body.property,
+                normalizedName
+              )
+              result.push({
+                id: pub,
+                status: 204,
+                value: attribution
+              })
+            } catch (err) {
+              result.push({
+                id: pub,
+                status: 400,
+                value: attribution
+              })
+            }
+          } else {
+            result.push({
+              id: pub,
+              status: 204,
+              value: attribution
+            })
           }
         }
       }

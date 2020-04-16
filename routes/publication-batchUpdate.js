@@ -8,7 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../utils/cache')
-const { checkOwnership } = require('../utils/utils')
+const { checkOwnership, urlToId } = require('../utils/utils')
 
 const batchUpdateSimpleProperties = [
   'type',
@@ -236,7 +236,10 @@ module.exports = function (app) {
             }
           } else {
             // ATTRIBUTIONS
-            const result = await Publication.batchUpdateAddAttribution(req.body)
+            const result = await Publication.batchUpdateAddAttribution(
+              req.body,
+              urlToId(reader.id)
+            )
             if (
               !_.find(result, { status: 404 }) &&
               !_.find(result, { status: 400 })
@@ -304,7 +307,41 @@ module.exports = function (app) {
             } catch (err) {
               console.log(err)
             }
+          } else {
+            // ATTRIBUTIONS
+            // validate values
+            let errors = []
+            if (!_.every(req.body.value, _.isString)) {
+              validValues = []
+              req.body.value.forEach(value => {
+                if (_.isString(value)) {
+                  validValues.push(value)
+                } else {
+                  req.body.publications.forEach(pub => {
+                    errors.push({
+                      id: pub,
+                      status: 400,
+                      value: value,
+                      message: `Values for ${req.body.property} must be strings`
+                    })
+                  })
+                }
+              })
+              req.body.value = validValues
+            }
+
+            const result = await Publication.batchUpdateRemoveAttribution(
+              req.body
+            )
+            if (!_.find(result, { status: 404 }) && errors.length === 0) {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify(result.concat(errors)))
+            }
           }
+
           break
       }
 

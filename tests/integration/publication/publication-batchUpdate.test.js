@@ -20,7 +20,8 @@ const test = async app => {
     editor: 'Jané S. Doe',
     contributor: ['Sample Contributor'],
     bookFormat: 'EBook',
-    keywords: ['one', 'two']
+    keywords: ['one', 'two'],
+    translator: ['translator1', 'translator2', 'translator3']
   })
 
   const pub2 = await createPublication(app, token, {
@@ -29,7 +30,8 @@ const test = async app => {
     author: ['John Smith'],
     contributor: ['Contributor1', 'Contributor2'],
     bookFormat: 'EBook',
-    keywords: ['one']
+    keywords: ['one'],
+    translator: ['translator1', 'translator2']
   })
 
   const pub3 = await createPublication(app, token, {
@@ -524,10 +526,12 @@ const test = async app => {
   before:
   1: author: 'John Smith'
      editor: 'Jane S. Doe'
+     translator: 'translator1', 'translator2', 'translator3'
 
   2: author: 'John Smith'
      contributor: 'Contributor1', 'Contributor2'
      editor: 'generic editor'
+    translator: 'translator1', 'translator2'
 
   3: author: 'generic author'
      editor: 'generic editor'
@@ -579,10 +583,12 @@ const test = async app => {
   before:
   1: author: 'John Smith', 'Author1'
      editor: 'Jane S. Doe'
+     translator: 'translator1', 'translator2', 'translator3'
 
   2: author: 'John Smith'
      contributor: 'Contributor1', 'Contributor2'
      editor: 'generic editor'
+     translator: 'translator1', 'translator2'
 
   3: author: 'generic author', 'Author1'
      editor: 'generic editor'
@@ -776,7 +782,7 @@ const test = async app => {
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            publications: [pub1.shortId, pub2.shortId],
+            publications: [pub1.shortId, pub3.shortId],
             operation: 'add',
             property: 'illustrator',
             value: [123, 'illustrator2']
@@ -801,7 +807,7 @@ const test = async app => {
       await tap.equal(result[1].value, 'illustrator2')
 
       await tap.equal(result[2].status, 400)
-      await tap.equal(result[2].id, pub2.shortId)
+      await tap.equal(result[2].id, pub3.shortId)
       await tap.equal(
         result[2].message,
         'illustrator attribution validation error: attribution should be either an attribution object or a string'
@@ -809,8 +815,417 @@ const test = async app => {
       await tap.equal(result[2].value, 123)
 
       await tap.equal(result[3].status, 204)
-      await tap.equal(result[3].id, pub2.shortId)
+      await tap.equal(result[3].id, pub3.shortId)
       await tap.equal(result[3].value, 'illustrator2')
+    }
+  )
+
+  /*
+  before:
+  1: author: 'John Smith', 'Author1'
+     editor: 'Jane S. Doe'
+     illustrator: 'illustrator1', 'illustrator2'
+     translator: 'translator1', 'translator2', 'translator3'
+
+  2: author: 'John Smith', 'author1
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2'
+
+  3: author: 'generic author', 'Author1'
+     editor: 'generic editor'
+     illustrator: 'illustrator2'
+
+   */
+
+  // ********************************************* REMOVE ATTRIBUTIONS ********************************
+
+  await tap.test(
+    'Batch Update Publications - remove an attribution',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'author',
+            value: ['Author1']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.author.length, 1)
+      await tap.equal(pub1Body.author[0].name, 'John Smith')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.author.length, 1)
+      await tap.equal(pub2Body.author[0].name, 'John Smith')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - remove an attribution that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'author',
+            value: ['Author123']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.author.length, 1)
+      await tap.equal(pub1Body.author[0].name, 'John Smith')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.author.length, 1)
+      await tap.equal(pub2Body.author[0].name, 'John Smith')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  /*
+  before:
+  1: author: 'John Smith'
+     editor: 'Jane S. Doe'
+     illustrator: 'illustrator1', 'illustrator2'
+     translator: 'translator1', 'translator2', 'translator3'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2'
+
+  3: author: 'generic author', 'Author1'
+     editor: 'generic editor'
+     illustrator: 'illustrator2'
+
+   */
+
+  await tap.test(
+    'Batch Update Publications - remove an attribution that exists for some of the publications',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'illustrator',
+            value: ['illustrator2']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.illustrator.length, 1)
+      await tap.equal(pub1Body.illustrator[0].name, 'illustrator1')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.illustrator.length, 1)
+      await tap.equal(pub2Body.illustrator[0].name, 'illustrator1')
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  /*
+  before:
+  1: author: 'John Smith'
+     editor: 'Jane S. Doe'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2', 'translator3'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2'
+
+  3: author: 'generic author', 'Author1'
+     editor: 'generic editor'
+     illustrator: 'illustrator2'
+
+   */
+
+  await tap.test(
+    'Batch Update Publications - remove an attribution to a pub that exists and one that does not',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub3.shortId, pub2.shortId + 'abc'],
+            operation: 'remove',
+            property: 'editor',
+            value: ['generic editor']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].id, pub3.shortId)
+      await tap.equal(result[0].status, 204)
+      await tap.equal(result[0].value, 'generic editor')
+      await tap.equal(result[1].id, pub2.shortId + 'abc')
+      await tap.equal(result[1].status, 404)
+      await tap.equal(
+        result[1].message,
+        `No Publication found with id ${pub2.shortId}abc`
+      )
+
+      const getPub3 = await request(app)
+        .get(`/publications/${pub3.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub3Body = getPub3.body
+      await tap.equal(pub3Body.editor.length, 0)
+    }
+  )
+
+  /*
+  before:
+  1: author: 'John Smith'
+     editor: 'Jane S. Doe'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2', 'translator3'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+     illustrator: 'illustrator1'
+     translator: 'translator1', 'translator2'
+
+  3: author: 'generic author', 'Author1'
+     editor:
+     illustrator: 'illustrator2'
+
+   */
+
+  await tap.test(
+    'Batch Update Publications - remove two attributions',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'translator',
+            value: ['translator1', 'translator2']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Body = getPub1.body
+      await tap.equal(pub1Body.translator.length, 1)
+      await tap.equal(pub1Body.translator[0].name, 'translator3')
+      await tap.equal(pub1Body.name, 'Publication A')
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Body = getPub2.body
+      await tap.equal(pub2Body.translator.length, 0)
+      await tap.equal(pub2Body.name, 'Publication B')
+    }
+  )
+
+  await tap.test(
+    'Batch Update Publications - try to remove attribution with invalid values',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'translator',
+            value: [123, 456]
+          })
+        )
+      await tap.equal(res.status, 207)
+      const status = res.body
+      await tap.equal(status.length, 4)
+
+      await tap.equal(status[0].id, pub1.shortId)
+      await tap.equal(status[0].value, 123)
+      await tap.equal(status[0].status, 400)
+      await tap.equal(
+        status[0].message,
+        'Values for translator must be strings'
+      )
+
+      await tap.equal(status[1].id, pub2.shortId)
+      await tap.equal(status[1].value, 123)
+      await tap.equal(status[1].status, 400)
+      await tap.equal(
+        status[1].message,
+        'Values for translator must be strings'
+      )
+
+      await tap.equal(status[2].id, pub1.shortId)
+      await tap.equal(status[2].value, 456)
+      await tap.equal(status[2].status, 400)
+      await tap.equal(
+        status[2].message,
+        'Values for translator must be strings'
+      )
+
+      await tap.equal(status[3].id, pub2.shortId)
+      await tap.equal(status[3].value, 456)
+      await tap.equal(status[3].status, 400)
+      await tap.equal(
+        status[3].message,
+        'Values for translator must be strings'
+      )
+    }
+  )
+
+  /*
+  before:
+  1: author: 'John Smith'
+     editor: 'Jane S. Doe'
+     illustrator: 'illustrator1'
+     translator: 'translator3'
+
+  2: author: 'John Smith'
+     contributor: 'Contributor1', 'Contributor2'
+     editor: 'generic editor'
+     illustrator: 'illustrator1'
+
+  3: author: 'generic author', 'Author1'
+     editor:
+     illustrator: 'illustrator2'
+
+   */
+
+  await tap.test(
+    'Batch Update Publications - remove attribution with invalid values and valid values',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub2.shortId],
+            operation: 'remove',
+            property: 'translator',
+            value: [123, 'translator3']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const status = res.body
+      await tap.equal(status.length, 4)
+
+      await tap.equal(status[0].id, pub1.shortId)
+      await tap.equal(status[0].value, 'translator3')
+      await tap.equal(status[0].status, 204)
+
+      await tap.equal(status[1].id, pub2.shortId)
+      await tap.equal(status[1].value, 'translator3')
+      await tap.equal(status[1].status, 204)
+
+      await tap.equal(status[2].id, pub1.shortId)
+      await tap.equal(status[2].value, 123)
+      await tap.equal(status[2].status, 400)
+      await tap.equal(
+        status[2].message,
+        'Values for translator must be strings'
+      )
+
+      await tap.equal(status[3].id, pub2.shortId)
+      await tap.equal(status[3].value, 123)
+      await tap.equal(status[3].status, 400)
+      await tap.equal(
+        status[3].message,
+        'Values for translator must be strings'
+      )
     }
   )
 

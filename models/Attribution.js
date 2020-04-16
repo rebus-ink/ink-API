@@ -214,6 +214,17 @@ class Attribution extends BaseModel {
       publicationId
     )
   }
+  static async deleteAttribution (
+    publicationId /*: Array<string> */,
+    role /*: string */,
+    name /*: string */
+  ) /*: Promise<number> */ {
+    return await Attribution.query(Attribution.knex())
+      .where('normalizedName', name)
+      .andWhere('publicationId', '=', publicationId)
+      .andWhere('role', '=', role)
+      .del()
+  }
 
   static async deleteAttributionOfPub (
     publicationId /*: string */,
