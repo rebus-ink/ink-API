@@ -4,14 +4,16 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createPublication,
+  createTag,
+  addPubToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const pub1 = await createPublication(app, token, {
     type: 'Book',
@@ -39,6 +41,22 @@ const test = async app => {
     name: 'Publication C',
     keywords: []
   })
+
+  const tag1 = await createTag(app, token, { type: 'type1', name: 'tag1' })
+  const tag2 = await createTag(app, token, { type: 'type1', name: 'tag2' })
+  const tag3 = await createTag(app, token, { type: 'type2', name: 'tag3' })
+  const tag4 = await createTag(app, token, { type: 'type1', name: 'tag4' })
+  const tag5 = await createTag(app, token, { type: 'type1', name: 'tag5' })
+
+  // pub1: tag 1, 2, 3
+  await addPubToCollection(app, token, pub1.shortId, tag1.shortId)
+  await addPubToCollection(app, token, pub1.shortId, tag2.shortId)
+  await addPubToCollection(app, token, pub1.shortId, tag3.shortId)
+
+  // pub2: tag 1
+  await addPubToCollection(app, token, pub2.shortId, tag1.shortId)
+
+  // pub3: not tags
 
   // ********************************** REPLACE ********************************
 
@@ -1225,6 +1243,331 @@ const test = async app => {
       await tap.equal(
         status[3].message,
         'Values for translator must be strings'
+      )
+    }
+  )
+
+  /*
+  before:
+  pub1: tag1, tag2, tag3
+  pub2: tag1
+  pub3:
+  */
+
+  // ************************************************ ADD TAGS ****************************************
+
+  await tap.test('Batch Update Publications - add a tag', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub2.shortId, pub3.shortId],
+          operation: 'add',
+          property: 'tags',
+          value: [tag2.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getPub2 = await request(app)
+      .get(`/publications/${pub2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub2Tags = getPub2.body.tags
+    await tap.equal(pub2Tags.length, 2)
+    await tap.ok(_.find(pub2Tags, { name: 'tag1' }))
+    await tap.ok(_.find(pub2Tags, { name: 'tag2' }))
+
+    const getPub3 = await request(app)
+      .get(`/publications/${pub3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub3Body = getPub3.body
+    await tap.equal(pub3Body.tags.length, 1)
+    await tap.equal(pub3Body.tags[0].name, 'tag2')
+  })
+
+  /*
+  before:
+  pub1: tag1, tag2, tag3
+  pub2: tag1, tag2
+  pub3: tag2
+  */
+
+  await tap.test(
+    'Batch Update Publications - add a tag that already exists',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub3.shortId],
+            operation: 'add',
+            property: 'tags',
+            value: [tag3.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Tags = getPub1.body.tags
+      await tap.equal(pub1Tags.length, 3)
+      await tap.ok(_.find(pub1Tags, { name: 'tag1' }))
+      await tap.ok(_.find(pub1Tags, { name: 'tag2' }))
+      await tap.ok(_.find(pub1Tags, { name: 'tag3' }))
+
+      const getPub3 = await request(app)
+        .get(`/publications/${pub3.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub3Tags = getPub3.body.tags
+      await tap.equal(pub3Tags.length, 2)
+      await tap.ok(_.find(pub3Tags, { name: 'tag2' }))
+      await tap.ok(_.find(pub3Tags, { name: 'tag3' }))
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag2, tag3
+pub2: tag1
+pub3: tag2, tag3
+*/
+
+  await tap.test('Batch Update Publications - add nultiple tags', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub3.shortId],
+          operation: 'add',
+          property: 'tags',
+          value: [tag4.shortId, tag5.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getPub1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub1Tags = getPub1.body.tags
+    await tap.equal(pub1Tags.length, 5)
+    await tap.ok(_.find(pub1Tags, { name: 'tag1' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag2' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag3' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag4' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag5' }))
+
+    const getPub3 = await request(app)
+      .get(`/publications/${pub3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub3Tags = getPub3.body.tags
+    await tap.equal(pub3Tags.length, 4)
+    await tap.ok(_.find(pub3Tags, { name: 'tag2' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag3' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag4' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag5' }))
+  })
+
+  /*
+before:
+pub1: tag1, tag2, tag3, tag4, tag5
+pub2: tag1
+pub3: tag2, tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to add a tag that doesn not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub3.shortId],
+            operation: 'add',
+            property: 'tags',
+            value: [tag4.shortId + 'abc']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, pub1.shortId)
+      await tap.equal(result[0].value, tag4.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Tag found with id ${tag4.shortId}abc`
+      )
+
+      await tap.equal(result[1].status, 404)
+      await tap.equal(result[1].id, pub3.shortId)
+      await tap.equal(result[1].value, tag4.shortId + 'abc')
+      await tap.equal(
+        result[1].message,
+        `No Tag found with id ${tag4.shortId}abc`
+      )
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag2, tag3, tag4, tag5
+pub2: tag1
+pub3: tag2, tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to add two tags: one that exists and one that does not',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId, pub3.shortId],
+            operation: 'add',
+            property: 'tags',
+            value: [tag4.shortId + 'abc', tag5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 4)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, pub2.shortId)
+      await tap.equal(result[0].value, tag4.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Tag found with id ${tag4.shortId}abc`
+      )
+
+      await tap.equal(result[1].status, 204)
+      await tap.equal(result[1].id, pub2.shortId)
+      await tap.equal(result[1].value, tag5.shortId)
+
+      await tap.equal(result[2].status, 404)
+      await tap.equal(result[2].id, pub3.shortId)
+      await tap.equal(result[2].value, tag4.shortId + 'abc')
+      await tap.equal(
+        result[2].message,
+        `No Tag found with id ${tag4.shortId}abc`
+      )
+
+      await tap.equal(result[3].status, 204)
+      await tap.equal(result[3].id, pub3.shortId)
+      await tap.equal(result[3].value, tag5.shortId)
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag2, tag3, tag4, tag5
+pub2: tag1, tag5
+pub3: tag2, tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to add a tag to a pub that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId + 'abc'],
+            operation: 'add',
+            property: 'tags',
+            value: [tag5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 1)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, pub2.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Publication found with id ${pub2.shortId}abc`
+      )
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag2, tag3, tag4, tag5
+pub2: tag1, tag5
+pub3: tag2, tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to add a tag to a pub that does not exist and one that does',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId, pub1.shortId + 'abc'],
+            operation: 'add',
+            property: 'tags',
+            value: [tag2.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].status, 204)
+      await tap.equal(result[0].id, pub2.shortId)
+      await tap.equal(result[0].value, tag2.shortId)
+
+      await tap.equal(result[1].status, 404)
+      await tap.equal(result[1].id, pub1.shortId + 'abc')
+      await tap.equal(
+        result[1].message,
+        `No Publication found with id ${pub1.shortId}abc`
       )
     }
   )

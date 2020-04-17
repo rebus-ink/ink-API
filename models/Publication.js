@@ -11,6 +11,7 @@ const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
+const { Publication_Tag } = require('./Publications_Tags')
 
 const metadataProps = [
   'inLanguage',
@@ -835,6 +836,66 @@ class Publication extends BaseModel {
               status: 204,
               value: attribution
             })
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateAddTags (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    let result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('tags')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const tag of body.value) {
+          // if tag already exists
+          if (
+            _.find(publication.tags, {
+              id: urlToId(tag)
+            })
+          ) {
+            result.push({
+              id: pub,
+              status: 204,
+              value: tag
+            })
+          } else {
+            try {
+              await Publication_Tag.addTagToPub(pub, tag)
+              result.push({
+                id: pub,
+                status: 204,
+                value: tag
+              })
+            } catch (err) {
+              if (err.message === 'no tag') {
+                result.push({
+                  id: pub,
+                  status: 404,
+                  value: tag,
+                  message: `No Tag found with id ${tag}`
+                })
+              } else {
+                result.push({
+                  id: pub,
+                  status: 400,
+                  value: tag,
+                  message: err.message
+                })
+              }
+            }
           }
         }
       }

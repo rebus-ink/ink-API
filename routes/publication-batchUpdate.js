@@ -187,7 +187,8 @@ module.exports = function (app) {
         case 'add':
           if (
             batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
-            Publication.attributionTypes.indexOf(req.body.property) === -1
+            Publication.attributionTypes.indexOf(req.body.property) === -1 &&
+            req.body.property !== 'tags'
           ) {
             return next(
               boom.badRequest(`Cannot add property ${req.body.property}`, {
@@ -234,9 +235,29 @@ module.exports = function (app) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(207).end(JSON.stringify(result))
             }
-          } else {
+          } else if (
+            Publication.attributionTypes.indexOf(req.body.property) > -1
+          ) {
             // ATTRIBUTIONS
             const result = await Publication.batchUpdateAddAttribution(
+              req.body,
+              urlToId(reader.id)
+            )
+            if (
+              !_.find(result, { status: 404 }) &&
+              !_.find(result, { status: 400 })
+            ) {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify(result))
+            }
+          } else {
+            // TAGS
+            // check ownership of tags. First check that they are strings?
+
+            const result = await Publication.batchUpdateAddTags(
               req.body,
               urlToId(reader.id)
             )
@@ -257,7 +278,8 @@ module.exports = function (app) {
         case 'remove':
           if (
             batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
-            Publication.attributionTypes.indexOf(req.body.property) === -1
+            Publication.attributionTypes.indexOf(req.body.property) === -1 &&
+            req.body.property !== 'tags'
           ) {
             return next(
               boom.badRequest(`Cannot remove property ${req.body.property}`, {
@@ -307,7 +329,9 @@ module.exports = function (app) {
             } catch (err) {
               console.log(err)
             }
-          } else {
+          } else if (
+            Publication.attributionTypes.indexOf(req.body.property) > -1
+          ) {
             // ATTRIBUTIONS
             // validate values
             let errors = []
@@ -340,6 +364,8 @@ module.exports = function (app) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(207).end(JSON.stringify(result.concat(errors)))
             }
+          } else {
+            // TAGS
           }
 
           break
