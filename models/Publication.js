@@ -738,8 +738,6 @@ class Publication extends BaseModel {
           let normalizedName
           if (_.isString(attribution)) {
             normalizedName = Attribution.normalizeName(attribution)
-          } else if (_.isString(attribution.name)) {
-            normalizedName = Attribution.normalizeName(attribution.name)
           }
 
           // if attribution already exists, do nothing
@@ -802,8 +800,6 @@ class Publication extends BaseModel {
           let normalizedName = ''
           if (_.isString(attribution)) {
             normalizedName = Attribution.normalizeName(attribution)
-          } else if (_.isString(attribution.name)) {
-            normalizedName = Attribution.normalizeName(attribution.name)
           }
           // if attribution already exists, remove it
           if (

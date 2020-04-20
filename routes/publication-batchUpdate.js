@@ -19,11 +19,6 @@ const batchUpdateSimpleProperties = [
 
 const batchUpdateArrayProperties = ['keywords', 'inLanguage']
 
-const batchUpdateProperties = batchUpdateSimpleProperties
-  .concat(batchUpdateArrayProperties)
-  .concat(Publication.attributionTypes)
-  .concat(['tags'])
-
 module.exports = function (app) {
   /**
    * @swagger
@@ -47,14 +42,15 @@ module.exports = function (app) {
    *             $ref: '#/definitions/publicationBatchUpdateRequest'
    *       description: body should only include fields to be updated
    *     responses:
-   *       200:
-   *         description: Successfully updated Publication
+   *       204:
+   *         description: Successfully updated Publications
+   *
+   *       207:
+   *         description: Multiple status. This is returned if at least one of the changes returned an error
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/publicationBatchUpdateResponse'
-   *       207:
-   *         description: Multiple status. This is returned if at least one of the changes returned an error
+   *               $ref: '#definitions/publicationBatchUpdateResponse'
    */
   app.use('/', router)
   router
@@ -233,7 +229,7 @@ module.exports = function (app) {
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify(result))
+              res.status(207).end(JSON.stringify({ status: result }))
             }
           } else if (
             Publication.attributionTypes.indexOf(req.body.property) > -1
@@ -251,7 +247,7 @@ module.exports = function (app) {
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify(result))
+              res.status(207).end(JSON.stringify({ status: result }))
             }
           } else {
             // TAGS
@@ -269,7 +265,7 @@ module.exports = function (app) {
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify(result))
+              res.status(207).end(JSON.stringify({ status: result }))
             }
           }
           break
@@ -324,7 +320,7 @@ module.exports = function (app) {
                 res.status(204).end()
               } else {
                 res.setHeader('Content-Type', 'application/ld+json')
-                res.status(207).end(JSON.stringify(result))
+                res.status(207).end(JSON.stringify({ status: result }))
               }
             } catch (err) {
               console.log(err)
@@ -362,7 +358,9 @@ module.exports = function (app) {
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify(result.concat(errors)))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
             }
           } else {
             // TAGS
@@ -380,89 +378,11 @@ module.exports = function (app) {
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify(result))
+              res.status(207).end(JSON.stringify({ status: result }))
             }
           }
 
           break
       }
-
-      // const pubId = req.params.pubId
-      // Publication.byId(pubId)
-      //   .then(async pub => {
-      //     if (!pub) {
-      //       return next(
-      //         boom.notFound(`No Publication found with id ${pubId}`, {
-      //           requestUrl: req.originalUrl,
-      //           requestBody: req.body
-      //         })
-      //       )
-      //     }
-      //     const reader = await Reader.byAuthId(req.user)
-      //     if (!reader || !checkOwnership(reader.id, pubId)) {
-      //       return next(
-      //         boom.forbidden(`Access to publication ${pubId} disallowed`, {
-      //           requestUrl: req.originalUrl,
-      //           requestBody: req.body
-      //         })
-      //       )
-      //     }
-
-      //     const body = req.body
-      //     if (typeof body !== 'object' || Object.keys(body).length === 0) {
-      //       return next(
-      //         boom.badRequest(
-      //           'Patch Publication Request Error: Body must be a JSON object',
-      //           {
-      //             requestUrl: req.originalUrl,
-      //             requestBody: req.body
-      //           }
-      //         )
-      //       )
-      //     }
-
-      //     // update pub
-      //     let updatedPub
-      //     try {
-      //       updatedPub = await pub.update(body)
-      //     } catch (err) {
-      //       if (err instanceof ValidationError) {
-      //         return next(
-      //           boom.badRequest(
-      //             `Validation Error on Patch Publication: ${err.message}`,
-      //             {
-      //               requestUrl: req.originalUrl,
-      //               requestBody: req.body,
-      //               validation: err.data
-      //             }
-      //           )
-      //         )
-      //       } else {
-      //         return next(
-      //           boom.badRequest(err.message, {
-      //             requestUrl: req.originalUrl,
-      //             requestBody: req.body
-      //           })
-      //         )
-      //       }
-      //     }
-
-      //     if (updatedPub === null) {
-      //       return next(
-      //         boom.notFound(`No Publication found with id ${body.id}`, {
-      //           requestUrl: req.originalUrl,
-      //           requestBody: req.body
-      //         })
-      //       )
-      //     }
-
-      //     await libraryCacheUpdate(reader.id)
-
-      //     res.setHeader('Content-Type', 'application/ld+json')
-      //     res.status(200).end(JSON.stringify(updatedPub.toJSON()))
-      //   })
-      //   .catch(err => {
-      //     next(err)
-      //   })
     })
 }

@@ -506,7 +506,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 2)
       await tap.equal(result[0].status, 404)
       await tap.equal(result[0].id, pub1.shortId + 'abc')
@@ -717,7 +717,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result[0].status, 400)
       await tap.equal(result[0].id, pub1.shortId)
       await tap.equal(
@@ -752,7 +752,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
 
       await tap.equal(result.length, 4)
 
@@ -808,7 +808,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
 
       await tap.equal(result.length, 4)
 
@@ -1044,7 +1044,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 2)
       await tap.equal(result[0].id, pub3.shortId)
       await tap.equal(result[0].status, 204)
@@ -1145,7 +1145,7 @@ const test = async app => {
           })
         )
       await tap.equal(res.status, 207)
-      const status = res.body
+      const status = res.body.status
       await tap.equal(status.length, 4)
 
       await tap.equal(status[0].id, pub1.shortId)
@@ -1218,7 +1218,7 @@ const test = async app => {
         )
 
       await tap.equal(res.status, 207)
-      const status = res.body
+      const status = res.body.status
       await tap.equal(status.length, 4)
 
       await tap.equal(status[0].id, pub1.shortId)
@@ -1423,7 +1423,7 @@ pub3: tag2, tag3, tag4, tag5
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 2)
       await tap.equal(result[0].status, 404)
       await tap.equal(result[0].id, pub1.shortId)
@@ -1468,7 +1468,7 @@ pub3: tag2, tag3, tag4, tag5
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 4)
       await tap.equal(result[0].status, 404)
       await tap.equal(result[0].id, pub2.shortId)
@@ -1521,7 +1521,7 @@ pub3: tag2, tag3, tag4, tag5
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 1)
       await tap.equal(result[0].status, 404)
       await tap.equal(result[0].id, pub2.shortId + 'abc')
@@ -1557,7 +1557,7 @@ pub3: tag2, tag3, tag4, tag5
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 2)
       await tap.equal(result[0].status, 204)
       await tap.equal(result[0].id, pub2.shortId)
@@ -1750,7 +1750,7 @@ pub3: tag4
         )
 
       await tap.equal(res.status, 207)
-      const result = res.body
+      const result = res.body.status
       await tap.equal(result.length, 1)
       await tap.equal(result[0].status, 404)
       await tap.equal(result[0].id, pub2.shortId + 'abc')
