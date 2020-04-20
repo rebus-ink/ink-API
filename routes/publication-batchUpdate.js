@@ -366,6 +366,22 @@ module.exports = function (app) {
             }
           } else {
             // TAGS
+            // check ownership of tags. First check that they are strings?
+
+            const result = await Publication.batchUpdateRemoveTags(
+              req.body,
+              urlToId(reader.id)
+            )
+            if (
+              !_.find(result, { status: 404 }) &&
+              !_.find(result, { status: 400 })
+            ) {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(207).end(JSON.stringify(result))
+            }
           }
 
           break

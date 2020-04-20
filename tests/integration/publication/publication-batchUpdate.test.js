@@ -1572,6 +1572,223 @@ pub3: tag2, tag3, tag4, tag5
     }
   )
 
+  // ********************************************** REMOVE TAGS *******************************
+  /*
+before:
+pub1: tag1, tag2, tag3, tag4, tag5
+pub2: tag1, tag2, tag5
+pub3: tag2, tag3, tag4, tag5
+*/
+
+  await tap.test('Batch Update Publications - remove tags', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          publications: [pub1.shortId, pub3.shortId],
+          operation: 'remove',
+          property: 'tags',
+          value: [tag2.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getPub1 = await request(app)
+      .get(`/publications/${pub1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub1Tags = getPub1.body.tags
+    await tap.equal(pub1Tags.length, 4)
+    await tap.ok(_.find(pub1Tags, { name: 'tag1' }))
+    await tap.notOk(_.find(pub1Tags, { name: 'tag2' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag3' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag4' }))
+    await tap.ok(_.find(pub1Tags, { name: 'tag5' }))
+
+    const getPub3 = await request(app)
+      .get(`/publications/${pub3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const pub3Tags = getPub3.body.tags
+    await tap.equal(pub3Tags.length, 3)
+    await tap.notOk(_.find(pub3Tags, { name: 'tag2' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag3' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag4' }))
+    await tap.ok(_.find(pub3Tags, { name: 'tag5' }))
+  })
+
+  /*
+before:
+pub1: tag1, tag3, tag4, tag5
+pub2: tag1, tag2, tag5
+pub3: tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - remove tag that was not assigned to one of the pubs',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId, pub3.shortId],
+            operation: 'remove',
+            property: 'tags',
+            value: [tag1.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub2 = await request(app)
+        .get(`/publications/${pub2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub2Tags = getPub2.body.tags
+      await tap.equal(pub2Tags.length, 2)
+      await tap.ok(_.find(pub2Tags, { name: 'tag5' }))
+      await tap.ok(_.find(pub2Tags, { name: 'tag2' }))
+
+      const getPub3 = await request(app)
+        .get(`/publications/${pub3.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub3Tags = getPub3.body.tags
+      await tap.equal(pub3Tags.length, 3)
+      await tap.ok(_.find(pub3Tags, { name: 'tag3' }))
+      await tap.ok(_.find(pub3Tags, { name: 'tag4' }))
+      await tap.ok(_.find(pub3Tags, { name: 'tag5' }))
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag3, tag4, tag5
+pub2: tag2, tag5
+pub3: tag3, tag4, tag5
+*/
+
+  await tap.test(
+    'Batch Update Publications - remove multiple tags',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub1.shortId, pub3.shortId],
+            operation: 'remove',
+            property: 'tags',
+            value: [tag3.shortId, tag5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 204)
+
+      const getPub1 = await request(app)
+        .get(`/publications/${pub1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub1Tags = getPub1.body.tags
+      await tap.equal(pub1Tags.length, 2)
+      await tap.ok(_.find(pub1Tags, { name: 'tag1' }))
+      await tap.ok(_.find(pub1Tags, { name: 'tag4' }))
+
+      const getPub3 = await request(app)
+        .get(`/publications/${pub3.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const pub3Tags = getPub3.body.tags
+      await tap.equal(pub3Tags.length, 1)
+      await tap.ok(_.find(pub3Tags, { name: 'tag4' }))
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag4
+pub2: tag2, tag5
+pub3: tag4
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to remove a tag from a pub that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId + 'abc'],
+            operation: 'remove',
+            property: 'tags',
+            value: [tag5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body
+      await tap.equal(result.length, 1)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, pub2.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Publication found with id ${pub2.shortId}abc`
+      )
+    }
+  )
+
+  /*
+before:
+pub1: tag1, tag4
+pub2: tag2, tag5
+pub3: tag4
+*/
+
+  await tap.test(
+    'Batch Update Publications - try to remove a tag that does not exist from pubs',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            publications: [pub2.shortId, pub3.shortId],
+            operation: 'remove',
+            property: 'tags',
+            value: [tag5.shortId + 'abc']
+          })
+        )
+
+      await tap.equal(res.status, 204)
+    }
+  )
+
   // *********************************************** GENERAL ERRORS ***********************************
 
   await tap.test('Try to batch update with empty body', async () => {

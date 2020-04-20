@@ -903,6 +903,57 @@ class Publication extends BaseModel {
     return result
   }
 
+  static async batchUpdateRemoveTags (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    let result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('tags')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const tag of body.value) {
+          // if tag doesn't exist for this pub, skip
+          if (
+            !_.find(publication.tags, {
+              id: urlToId(tag)
+            })
+          ) {
+            result.push({
+              id: pub,
+              status: 204,
+              value: tag
+            })
+          } else {
+            try {
+              await Publication_Tag.removeTagFromPubNoError(pub, tag)
+              result.push({
+                id: pub,
+                status: 204,
+                value: tag
+              })
+            } catch (err) {
+              result.push({
+                id: pub,
+                status: 400,
+                value: tag,
+                message: err.message
+              })
+            }
+          }
+        }
+      }
+    }
+    return result
+  }
+
   static async update (
     publication /*: any */,
     body /*: any */
