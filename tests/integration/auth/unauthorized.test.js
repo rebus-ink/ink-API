@@ -98,6 +98,17 @@ const test = async app => {
     await tap.equal(res10.statusCode, 401)
   })
 
+  await tap.test(
+    'Batch update Publication without Authentication',
+    async () => {
+      const res10 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res10.statusCode, 401)
+    }
+  )
+
   // ------------------------------------------- TAG ---------------------------------------
 
   await tap.test('Get Tags without Authentication', async () => {

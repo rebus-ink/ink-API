@@ -44,7 +44,6 @@ module.exports = function (app) {
    *     responses:
    *       204:
    *         description: Successfully updated Publications
-   *
    *       207:
    *         description: Multiple status. This is returned if at least one of the changes returned an error
    *         content:
@@ -56,7 +55,7 @@ module.exports = function (app) {
   router
     .route('/publications/batchUpdate')
     .patch(jwtAuth, async function (req, res, next) {
-      let responses = []
+      let errors = []
 
       if (!req.body || _.isEmpty(req.body)) {
         return next(
@@ -91,19 +90,37 @@ module.exports = function (app) {
       }
 
       const reader = await Reader.byAuthId(req.user)
-      req.body.publications.forEach(async publicationId => {
+      req.body.publications.forEach(publicationId => {
         if (!checkOwnership(reader.id, publicationId)) {
-          responses.push({
-            publicationId,
-            statusCode: 403,
-            error: {
-              message: `Access to publication ${publicationId} disallowed`,
-              requestUrl: req.originalUrl,
-              requestBody: req.body
-            }
+          errors.push({
+            id: publicationId,
+            status: 403,
+            message: `Access to publication ${publicationId} disallowed`
           })
+          req.body.publications = req.body.publications.filter(
+            item => item !== publicationId
+          )
         }
       })
+
+      if (req.body.property === 'tags') {
+        if (_.isString(req.body.value)) {
+          req.body.value = [req.body.value]
+        }
+        req.body.value.forEach(tag => {
+          if (!checkOwnership(reader.id, urlToId(tag))) {
+            req.body.publications.forEach(publicationId => {
+              errors.push({
+                id: publicationId,
+                status: 403,
+                message: `Access to tag ${tag} disallowed`,
+                value: tag
+              })
+            })
+            req.body.value = req.body.value.filter(item => item !== tag)
+          }
+        })
+      }
 
       switch (req.body.operation) {
         // ************************************** REPLACE *********************************
@@ -121,7 +138,7 @@ module.exports = function (app) {
             const result = await Publication.batchUpdate(req.body)
 
             // if some publicaitons were note found...
-            if (result < req.body.publications.length) {
+            if (result < req.body.publications.length || errors.length > 0) {
               const numberOfErrors = req.body.publications.length - result
               const status = []
               let index = 0
@@ -149,7 +166,9 @@ module.exports = function (app) {
                 index++
               }
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify({ status }))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: status.concat(errors) }))
             } else {
               // if all went well...
               res.setHeader('Content-Type', 'application/ld+json')
@@ -224,12 +243,14 @@ module.exports = function (app) {
             const result = await Publication.batchUpdateAddArrayProperty(
               req.body
             )
-            if (!_.find(result, { status: 404 })) {
+            if (!_.find(result, { status: 404 }) && errors.length === 0) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify({ status: result }))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
             }
           } else if (
             Publication.attributionTypes.indexOf(req.body.property) > -1
@@ -241,13 +262,16 @@ module.exports = function (app) {
             )
             if (
               !_.find(result, { status: 404 }) &&
-              !_.find(result, { status: 400 })
+              !_.find(result, { status: 400 }) &&
+              errors.length === 0
             ) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify({ status: result }))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
             }
           } else {
             // TAGS
@@ -259,13 +283,16 @@ module.exports = function (app) {
             )
             if (
               !_.find(result, { status: 404 }) &&
-              !_.find(result, { status: 400 })
+              !_.find(result, { status: 400 }) &&
+              errors.length === 0
             ) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify({ status: result }))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
             }
           }
           break
@@ -315,12 +342,14 @@ module.exports = function (app) {
               const result = await Publication.batchUpdateRemoveArrayProperty(
                 req.body
               )
-              if (!_.find(result, { status: 404 })) {
+              if (!_.find(result, { status: 404 }) && errors.length === 0) {
                 res.setHeader('Content-Type', 'application/ld+json')
                 res.status(204).end()
               } else {
                 res.setHeader('Content-Type', 'application/ld+json')
-                res.status(207).end(JSON.stringify({ status: result }))
+                res
+                  .status(207)
+                  .end(JSON.stringify({ status: result.concat(errors) }))
               }
             } catch (err) {
               console.log(err)
@@ -330,7 +359,6 @@ module.exports = function (app) {
           ) {
             // ATTRIBUTIONS
             // validate values
-            let errors = []
             if (!_.every(req.body.value, _.isString)) {
               validValues = []
               req.body.value.forEach(value => {
@@ -372,13 +400,16 @@ module.exports = function (app) {
             )
             if (
               !_.find(result, { status: 404 }) &&
-              !_.find(result, { status: 400 })
+              !_.find(result, { status: 400 }) &&
+              errors.length === 0
             ) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               res.setHeader('Content-Type', 'application/ld+json')
-              res.status(207).end(JSON.stringify({ status: result }))
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
             }
           }
 
