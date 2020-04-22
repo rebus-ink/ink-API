@@ -434,13 +434,15 @@ class Publication extends BaseModel {
         )
       }
     }
-
     // store metadata
-    const metadata = {}
+    let metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]
     })
-    publication.metadata = _.omitBy(metadata, _.isUndefined)
+    metadata = _.omitBy(metadata, _.isUndefined)
+    if (!_.isEmpty(metadata)) {
+      publication.metadata = metadata
+    }
 
     publication = _.pick(publication, [
       'id',
@@ -961,14 +963,16 @@ class Publication extends BaseModel {
     }
 
     const modifications = Publication._formatIncomingPub(null, body)
-    if (modifications.metadata) {
+    if (
+      modifications.metadata &&
+      Object.keys(modifications.metadata).length > 0
+    ) {
       modifications.metadata = _.omitBy(modifications.metadata, _.isUndefined)
       modifications.metadata = Object.assign(
         publication.metadata,
         modifications.metadata
       )
     }
-
     let updatedPub
     try {
       updatedPub = await Publication.query().patchAndFetchById(
