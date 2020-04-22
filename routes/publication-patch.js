@@ -87,7 +87,7 @@ module.exports = function (app) {
         // update pub
         let updatedPub
         try {
-          updatedPub = await pub.update(body)
+          updatedPub = await Publication.update(pub, body)
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(

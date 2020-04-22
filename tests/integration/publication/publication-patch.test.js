@@ -10,8 +10,7 @@ const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const now = new Date().toISOString()
 
@@ -73,7 +72,7 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(readerId, publicationObject)
+  const resCreatePub = await createPublication(app, token, publicationObject)
   const publicationUrl = resCreatePub.id
   const publicationId = urlToId(publicationUrl)
 
@@ -150,6 +149,181 @@ const test = async app => {
     await tap.equal(body.publisher[0].name, 'Sample Publisher2')
     await tap.equal(body.translator[0].name, 'Sample Translator2')
   })
+
+  await tap.test('Update a single property', async () => {
+    const res = await request(app)
+      .patch(`/publications/${publicationId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          abstract: 'new new!'
+        })
+      )
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.shortId, urlToId(body.id))
+    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.abstract, 'new new!')
+    // await tap.equal(body.datePublished, timestamp)
+    await tap.equal(body.json.property, 'New value for json property')
+    await tap.equal(body.numberOfPages, 444)
+    await tap.equal(body.encodingFormat, 'new')
+    await tap.equal(body.url, 'http://www.something2.com')
+    await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
+    await tap.equal(body.bookEdition, 'fourth')
+    await tap.equal(body.isbn, '12345')
+    await tap.equal(body.copyrightYear, 1978)
+    await tap.equal(body.genre, 'elf romance')
+    await tap.equal(body.license, 'http://www.mylicense2.com')
+    await tap.equal(body.inLanguage[0], 'en')
+    await tap.equal(body.inLanguage[1], 'fr')
+    await tap.equal(body.keywords[0], 'newkeyword1') // turned to lowercase
+    await tap.equal(body.keywords[1], 'newkeyword2')
+    await tap.ok(
+      body.author[0].name === 'New Org inc.' ||
+        body.author[0].name === 'New Sample Author'
+    )
+    await tap.ok(
+      body.author[1].name === 'New Org inc.' ||
+        body.author[1].name === 'New Sample Author'
+    )
+    await tap.equal(body.editor[0].name, 'New Sample Editor')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+    await tap.equal(body.translator[0].name, 'Sample Translator2')
+  })
+
+  await tap.test('Update a single attribution', async () => {
+    const res = await request(app)
+      .patch(`/publications/${publicationId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          author: 'new new author'
+        })
+      )
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.shortId, urlToId(body.id))
+    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.abstract, 'new new!')
+    // await tap.equal(body.datePublished, timestamp)
+    await tap.equal(body.json.property, 'New value for json property')
+    await tap.equal(body.numberOfPages, 444)
+    await tap.equal(body.encodingFormat, 'new')
+    await tap.equal(body.url, 'http://www.something2.com')
+    await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
+    await tap.equal(body.bookEdition, 'fourth')
+    await tap.equal(body.isbn, '12345')
+    await tap.equal(body.copyrightYear, 1978)
+    await tap.equal(body.genre, 'elf romance')
+    await tap.equal(body.license, 'http://www.mylicense2.com')
+    await tap.equal(body.inLanguage[0], 'en')
+    await tap.equal(body.inLanguage[1], 'fr')
+    await tap.equal(body.keywords[0], 'newkeyword1') // turned to lowercase
+    await tap.equal(body.keywords[1], 'newkeyword2')
+    await tap.ok(body.author[0].name === 'new new author')
+    await tap.equal(body.author.length, 1)
+    await tap.equal(body.editor[0].name, 'New Sample Editor')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+    await tap.equal(body.translator[0].name, 'Sample Translator2')
+  })
+
+  await tap.test('Update a single metadata property', async () => {
+    // const timestamp = new Date(2018, 01, 30).toISOString()
+    const res = await request(app)
+      .patch(`/publications/${publicationId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          isbn: '111'
+        })
+      )
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.shortId, urlToId(body.id))
+    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.abstract, 'new new!')
+    // await tap.equal(body.datePublished, timestamp)
+    await tap.equal(body.json.property, 'New value for json property')
+    await tap.equal(body.numberOfPages, 444)
+    await tap.equal(body.encodingFormat, 'new')
+    await tap.equal(body.url, 'http://www.something2.com')
+    await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
+    await tap.equal(body.bookEdition, 'fourth')
+    await tap.equal(body.isbn, '111')
+    await tap.equal(body.copyrightYear, 1978)
+    await tap.equal(body.genre, 'elf romance')
+    await tap.equal(body.license, 'http://www.mylicense2.com')
+    await tap.equal(body.inLanguage[0], 'en')
+    await tap.equal(body.inLanguage[1], 'fr')
+    await tap.equal(body.keywords[0], 'newkeyword1') // turned to lowercase
+    await tap.equal(body.keywords[1], 'newkeyword2')
+    await tap.ok(body.author[0].name === 'new new author')
+    await tap.equal(body.author.length, 1)
+    await tap.equal(body.editor[0].name, 'New Sample Editor')
+    await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+    await tap.equal(body.creator[0].name, 'Sample Creator')
+    await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+    await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+    await tap.equal(body.translator[0].name, 'Sample Translator2')
+  })
+
+  await tap.test(
+    'Update a single metadata property by setting it to null',
+    async () => {
+      // const timestamp = new Date(2018, 01, 30).toISOString()
+      const res = await request(app)
+        .patch(`/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            genre: null
+          })
+        )
+      await tap.equal(res.status, 200)
+      const body = res.body
+      await tap.equal(body.shortId, urlToId(body.id))
+      await tap.equal(body.name, 'New name for pub A')
+      await tap.equal(body.abstract, 'new new!')
+      // await tap.equal(body.datePublished, timestamp)
+      await tap.equal(body.json.property, 'New value for json property')
+      await tap.equal(body.numberOfPages, 444)
+      await tap.equal(body.encodingFormat, 'new')
+      await tap.equal(body.url, 'http://www.something2.com')
+      await tap.equal(body.dateModified, new Date(2012, 3, 22).toISOString())
+      await tap.equal(body.bookEdition, 'fourth')
+      await tap.equal(body.isbn, '111')
+      await tap.equal(body.copyrightYear, 1978)
+      await tap.notOk(body.genre)
+      await tap.equal(body.license, 'http://www.mylicense2.com')
+      await tap.equal(body.inLanguage[0], 'en')
+      await tap.equal(body.inLanguage[1], 'fr')
+      await tap.equal(body.keywords[0], 'newkeyword1') // turned to lowercase
+      await tap.equal(body.keywords[1], 'newkeyword2')
+      await tap.ok(body.author[0].name === 'new new author')
+      await tap.equal(body.author.length, 1)
+      await tap.equal(body.editor[0].name, 'New Sample Editor')
+      await tap.equal(body.contributor[0].name, 'Sample Contributor2')
+      await tap.equal(body.creator[0].name, 'Sample Creator')
+      await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
+      await tap.equal(body.publisher[0].name, 'Sample Publisher2')
+      await tap.equal(body.translator[0].name, 'Sample Translator2')
+    }
+  )
 
   await tap.test(
     'Update a publication by setting a value to null',

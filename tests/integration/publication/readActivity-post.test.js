@@ -21,7 +21,7 @@ const test = async app => {
   const reader1 = await Reader.createReader(readerId, person)
 
   // Create Publication
-  const publication = await createPublication(urlToId(readerId))
+  const publication = await createPublication(app, token, urlToId(readerId))
   const publicationId = urlToId(publication.id)
 
   await tap.test('Create Read activity with only a selector', async () => {
@@ -66,7 +66,7 @@ const test = async app => {
       )
 
     // Get the latests ReadActivity
-    const latestAct = await ReadActivity.getLatestReadActivity(publicationId)
+    await ReadActivity.getLatestReadActivity(publicationId)
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
     await tap.equal(body.selector.type, 'XPathSelector')

@@ -14,7 +14,7 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationId = urlToId(publication.id)
 
   const invalidTagId = `${readerId}-123` // including readerId to avoid 403 error

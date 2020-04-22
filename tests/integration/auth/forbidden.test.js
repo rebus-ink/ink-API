@@ -34,14 +34,14 @@ const test = async app => {
   const readerId2 = urlToId(readerCompleteUrl2)
 
   // create publication and tag for reader 1
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationId = urlToId(publication.id)
 
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
   // create publication and tag for reader 2
-  const publication2 = await createPublication(readerId2)
+  const publication2 = await createPublication(app, token2)
   publicationId2 = urlToId(publication2.id)
 
   const tag2 = await createTag(app, token2, readerUrl2)
@@ -150,6 +150,230 @@ const test = async app => {
         error.details.requestUrl,
         `/publications/${publicationId}`
       )
+    }
+  )
+
+  // ------------------------ PUBLICATION BATCH UPDATE -------------------------------------
+  await tap.test(
+    'Try to batch update a publication belonging to another reader',
+    async () => {
+      // replace
+      const res1 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'replace',
+            publications: [publicationId],
+            property: 'type',
+            value: 'Article'
+          })
+        )
+
+      await tap.equal(res1.statusCode, 207)
+      const result1 = res1.body.status
+      await tap.equal(result1.length, 1)
+      await tap.equal(result1[0].status, 403)
+      await tap.equal(
+        result1[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // add metadata
+      const res2 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'add',
+            publications: [publicationId],
+            property: 'keywords',
+            value: 'something'
+          })
+        )
+
+      await tap.equal(res2.statusCode, 207)
+      const result2 = res2.body.status
+      await tap.equal(result2.length, 1)
+      await tap.equal(result2[0].status, 403)
+      await tap.equal(
+        result2[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // remove metadata
+      const res3 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'remove',
+            publications: [publicationId],
+            property: 'keywords',
+            value: 'something'
+          })
+        )
+
+      await tap.equal(res3.statusCode, 207)
+      const result3 = res3.body.status
+      await tap.equal(result3.length, 1)
+      await tap.equal(result3[0].status, 403)
+      await tap.equal(
+        result3[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // add attribution
+      const res4 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'add',
+            publications: [publicationId],
+            property: 'author',
+            value: 'something'
+          })
+        )
+
+      await tap.equal(res4.statusCode, 207)
+      const result4 = res4.body.status
+      await tap.equal(result4.length, 1)
+      await tap.equal(result4[0].status, 403)
+      await tap.equal(
+        result4[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // remove attribution
+      const res5 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'remove',
+            publications: [publicationId],
+            property: 'author',
+            value: 'something'
+          })
+        )
+
+      await tap.equal(res5.statusCode, 207)
+      const result5 = res5.body.status
+      await tap.equal(result5.length, 1)
+      await tap.equal(result5[0].status, 403)
+      await tap.equal(
+        result5[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // add tags
+      const res6 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'add',
+            publications: [publicationId],
+            property: 'tags',
+            value: ['something']
+          })
+        )
+
+      await tap.equal(res6.statusCode, 207)
+      const result6 = res6.body.status
+      await tap.equal(result6.length, 1)
+      await tap.equal(result6[0].status, 403)
+      await tap.equal(
+        result6[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+
+      // remove tags
+      const res7 = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'remove',
+            publications: [publicationId],
+            property: 'tags',
+            value: 'something'
+          })
+        )
+
+      await tap.equal(res7.statusCode, 207)
+      const result7 = res7.body.status
+      await tap.equal(result7.length, 1)
+      await tap.equal(result7[0].status, 403)
+      await tap.equal(
+        result7[0].message,
+        `Access to publication ${publicationId} disallowed`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to batch update a publication by adding a tag that belongs to another user',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'add',
+            publications: [publicationId2],
+            property: 'tags',
+            value: [tagId]
+          })
+        )
+
+      await tap.equal(res.statusCode, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 1)
+      await tap.equal(result[0].status, 403)
+      await tap.equal(result[0].message, `Access to tag ${tagId} disallowed`)
+    }
+  )
+
+  await tap.test(
+    'Try to batch update a publication by removing a tag that belongs to another user',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            operation: 'remove',
+            publications: [publicationId2],
+            property: 'tags',
+            value: [tagId]
+          })
+        )
+
+      await tap.equal(res.statusCode, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 1)
+      await tap.equal(result[0].status, 403)
+      await tap.equal(result[0].message, `Access to tag ${tagId} disallowed`)
     }
   )
 

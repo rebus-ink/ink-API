@@ -14,8 +14,7 @@ const _ = require('lodash')
 
 const test = async () => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   // get reader workspace tags:
   const tagsres = await request(app)
@@ -27,7 +26,7 @@ const test = async () => {
   const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
 
   const createPublicationSimplified = async object => {
-    return await createPublication(readerId, object)
+    return await createPublication(app, token, object)
   }
 
   await createPublicationSimplified({

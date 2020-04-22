@@ -11,6 +11,7 @@ const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
+const { Publication_Tag } = require('./Publications_Tags')
 
 const metadataProps = [
   'inLanguage',
@@ -24,16 +25,6 @@ const metadataProps = [
   'genre',
   'license',
   'inDirection'
-]
-const attributionTypes = [
-  'author',
-  'editor',
-  'contributor',
-  'creator',
-  'illustrator',
-  'publisher',
-  'translator',
-  'copyrightHolder'
 ]
 
 const linkProperties = [
@@ -88,6 +79,17 @@ const statusMap = {
   test: 99
 }
 
+const attributionTypes = [
+  'author',
+  'editor',
+  'contributor',
+  'creator',
+  'illustrator',
+  'publisher',
+  'translator',
+  'copyrightHolder'
+]
+
 /*::
 type PublicationType = {
   id: string,
@@ -129,6 +131,11 @@ class Publication extends BaseModel {
   get path () /*: string */ {
     return 'publication'
   }
+
+  static get attributionTypes () /*: Array<string> */ {
+    return attributionTypes
+  }
+
   static get jsonSchema () /*: any */ {
     return {
       type: 'object',
@@ -427,13 +434,15 @@ class Publication extends BaseModel {
         )
       }
     }
-
     // store metadata
-    const metadata = {}
+    let metadata = {}
     metadataProps.forEach(property => {
       metadata[property] = publication[property]
     })
-    publication.metadata = metadata
+    metadata = _.omitBy(metadata, _.isUndefined)
+    if (!_.isEmpty(metadata)) {
+      publication.metadata = metadata
+    }
 
     publication = _.pick(publication, [
       'id',
@@ -551,31 +560,16 @@ class Publication extends BaseModel {
     if (pub.readingOrder) pub.readingOrder = pub.readingOrder.data
     if (pub.links) pub.links = pub.links.data
     if (pub.resources) pub.resources = pub.resources.data
-
     return pub
   }
 
-  static async delete (id /*: string */) {
-    // Mark documents associated with pub as deleted
-    const { Document } = require('./Document')
-    await Document.deleteDocumentsByPubId(id)
-
-    // Delete Publication_Tag associated with pub
-    const { Publication_Tag } = require('./Publications_Tags')
-    await Publication_Tag.deletePubTagsOfPub(id)
-
-    // remove documents from elasticsearch index
-    if (elasticsearchQueue) {
-      await elasticsearchQueue.add({ type: 'delete', publicationId: id })
-    }
-
-    const date = new Date().toISOString()
-    return await Publication.query().patchAndFetchById(id, {
-      deleted: date
-    })
+  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
+    const pub = await Publication.query().findById(id)
+    if (!pub || pub.deleted) {
+      return false
+    } else return true
   }
 
-  // TODO: remove this method once the old delete activity is removed
   static async delete (id /*: string */) /*: Promise<number|null> */ {
     let publication = await Publication.query().findById(id)
 
@@ -588,7 +582,6 @@ class Publication extends BaseModel {
     await Document.deleteDocumentsByPubId(id)
 
     // Delete Publication_Tag associated with pub
-    const { Publication_Tag } = require('./Publications_Tags')
     await Publication_Tag.deletePubTagsOfPub(id)
 
     // remove documents from elasticsearch index
@@ -607,16 +600,379 @@ class Publication extends BaseModel {
       .where('publicationId', '=', id)
   }
 
-  async update (body /*: any */) /*: Promise<PublicationType|null> */ {
-    const id = urlToId(this.id)
-    const publication = this
+  static async batchUpdate (body /*: any */) /*: Promise<any> */ {
+    let modification = {}
+    modification[body.property] = body.value
+    try {
+      Publication._validateIncomingPub(modification)
+    } catch (err) {
+      throw err
+    }
+    let modificationFormatted = this._formatIncomingPub(null, modification)
+    modificationFormatted = _.omit(modificationFormatted, 'metadata')
+    return await Publication.query()
+      .patch(modificationFormatted)
+      .whereIn('id', body.publications)
+  }
+
+  static async batchUpdateAddArrayProperty (
+    body /*: any */
+  ) /*: Promise<any> */ {
+    const result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query().findById(pub)
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        // add item to existing list
+        if (
+          publication &&
+          publication.metadata[body.property] &&
+          publication.metadata[body.property].length &&
+          publication.metadata[body.property].indexOf(body.value[0]) === -1
+        ) {
+          const newMetadata = publication.metadata
+          newMetadata[body.property] = publication.metadata[
+            body.property
+          ].concat(body.value)
+          await Publication.query().patchAndFetchById(pub, {
+            metadata: newMetadata
+          })
+          result.push({
+            id: pub,
+            status: 204
+          })
+          // add item to empty list or undefined prop
+        } else if (
+          !publication.metadata[body.property] ||
+          publication.metadata[body.property].length === 0
+        ) {
+          const newMetadata = publication.metadata
+          newMetadata[body.property] = body.value
+          await Publication.query().patchAndFetchById(pub, {
+            metadata: newMetadata
+          })
+          result.push({
+            id: pub,
+            status: 204
+          })
+          // if already exists in the list, do not do anything
+        } else {
+          result.push({
+            id: pub,
+            status: 204
+          })
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateRemoveArrayProperty (
+    body /*: any */
+  ) /*: Promise<any> */ {
+    const result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query().findById(pub)
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        // remove existing item from list
+        if (
+          publication &&
+          publication.metadata[body.property] &&
+          publication.metadata[body.property].indexOf(body.value[0]) > -1
+        ) {
+          const newMetadata = publication.metadata
+          newMetadata[body.property] = newMetadata[body.property].filter(
+            item => {
+              return body.value.indexOf(item) === -1
+            }
+          )
+          await Publication.query().patchAndFetchById(pub, {
+            metadata: newMetadata
+          })
+          result.push({
+            id: pub,
+            status: 204
+          })
+          // r
+        } else {
+          // if not in the list, do nothing
+          result.push({
+            id: pub,
+            status: 204
+          })
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateAddAttribution (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    const result = []
+
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('attributions')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const attribution of body.value) {
+          // normalize name
+          let normalizedName
+          if (_.isString(attribution)) {
+            normalizedName = Attribution.normalizeName(attribution)
+          }
+
+          // if attribution already exists, do nothing
+          if (
+            _.find(publication.attributions, {
+              role: body.property,
+              normalizedName
+            })
+          ) {
+            result.push({
+              id: pub,
+              status: 204,
+              value: attribution
+            })
+          } else {
+            try {
+              await Attribution.createSingleAttribution(
+                body.property,
+                attribution,
+                pub,
+                urlToId(publication.readerId)
+              )
+              result.push({
+                id: pub,
+                status: 204,
+                value: attribution
+              })
+            } catch (err) {
+              result.push({
+                id: pub,
+                status: 400,
+                message: err.message,
+                value: attribution
+              })
+            }
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateRemoveAttribution (
+    body /*: any */
+  ) /*: Promise<any> */ {
+    const result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('attributions')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const attribution of body.value) {
+          // normalize name
+          let normalizedName = ''
+          if (_.isString(attribution)) {
+            normalizedName = Attribution.normalizeName(attribution)
+          }
+          // if attribution already exists, remove it
+          if (
+            _.find(publication.attributions, {
+              role: body.property,
+              normalizedName
+            })
+          ) {
+            try {
+              await Attribution.deleteAttribution(
+                pub,
+                body.property,
+                normalizedName
+              )
+              result.push({
+                id: pub,
+                status: 204,
+                value: attribution
+              })
+            } catch (err) {
+              result.push({
+                id: pub,
+                status: 400,
+                value: attribution
+              })
+            }
+          } else {
+            result.push({
+              id: pub,
+              status: 204,
+              value: attribution
+            })
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateAddTags (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    let result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('tags')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const tag of body.value) {
+          // if tag already exists
+          if (
+            _.find(publication.tags, {
+              id: urlToId(tag)
+            })
+          ) {
+            result.push({
+              id: pub,
+              status: 204,
+              value: tag
+            })
+          } else {
+            try {
+              await Publication_Tag.addTagToPub(pub, tag)
+              result.push({
+                id: pub,
+                status: 204,
+                value: tag
+              })
+            } catch (err) {
+              if (err.message === 'no tag') {
+                result.push({
+                  id: pub,
+                  status: 404,
+                  value: tag,
+                  message: `No Tag found with id ${tag}`
+                })
+              } else {
+                result.push({
+                  id: pub,
+                  status: 400,
+                  value: tag,
+                  message: err.message
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateRemoveTags (
+    body /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    let result = []
+    for (const pub of body.publications) {
+      const publication = await Publication.query()
+        .findById(pub)
+        .withGraphFetched('tags')
+      if (!publication) {
+        result.push({
+          id: pub,
+          status: 404,
+          message: `No Publication found with id ${pub}`
+        })
+      } else {
+        for (const tag of body.value) {
+          // if tag doesn't exist for this pub, skip
+          if (
+            !_.find(publication.tags, {
+              id: urlToId(tag)
+            })
+          ) {
+            result.push({
+              id: pub,
+              status: 204,
+              value: tag
+            })
+          } else {
+            try {
+              await Publication_Tag.removeTagFromPubNoError(pub, tag)
+              result.push({
+                id: pub,
+                status: 204,
+                value: tag
+              })
+            } catch (err) {
+              result.push({
+                id: pub,
+                status: 400,
+                value: tag,
+                message: err.message
+              })
+            }
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async update (
+    publication /*: any */,
+    body /*: any */
+  ) /*: Promise<PublicationType|null> */ {
+    const id = urlToId(publication.id)
     try {
       Publication._validateIncomingPub(body)
     } catch (err) {
       throw err
     }
-    const modifications = Publication._formatIncomingPub(null, body)
 
+    const modifications = Publication._formatIncomingPub(null, body)
+    if (
+      modifications.metadata &&
+      Object.keys(modifications.metadata).length > 0
+    ) {
+      modifications.metadata = _.omitBy(modifications.metadata, _.isUndefined)
+      modifications.metadata = Object.assign(
+        publication.metadata,
+        modifications.metadata
+      )
+    }
     let updatedPub
     try {
       updatedPub = await Publication.query().patchAndFetchById(

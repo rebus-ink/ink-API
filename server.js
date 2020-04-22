@@ -32,6 +32,7 @@ const publicationDeleteTagRoute = require('./routes/publication-delete-tag') // 
 const publicationGetRoute = require('./routes/publication-get') // GET /publications/:id
 const publicationDocumentRoute = require('./routes/publication-document') // GET /publication-:id/:path
 const readActivityPostRoute = require('./routes/readActivity-post') // POST /publications/:id/readActivity
+const publicationBatchUpdate = require('./routes/publication-batchUpdate') // PATCH /publications/batchUpdate
 
 // Search
 const searchRoute = require('./routes/search') // not working!
@@ -228,6 +229,7 @@ getTagsRoute(app)
 // new routes
 readActivityPostRoute(app)
 publicationPostRoute(app)
+publicationBatchUpdate(app)
 publicationPatchRoute(app)
 publicationDeleteRoute(app)
 publicationPutTagRoute(app)

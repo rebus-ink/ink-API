@@ -7,15 +7,13 @@ const {
   createPublication
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
-const { urlToId } = require('../../../utils/utils')
 
 const test = async () => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const createPublicationSimplified = async object => {
-    return await createPublication(readerId, object)
+    return await createPublication(app, token, object)
   }
 
   await createPublicationSimplified({ name: 'Publication 1' })

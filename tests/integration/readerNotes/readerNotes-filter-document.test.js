@@ -9,20 +9,19 @@ const {
   createDocument
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
-const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
 
   // create two publications:
-  const publication = await createPublication(urlToId(readerId), {
+  const publication = await createPublication(app, token, {
     name: 'Publication A'
   })
   const publicationUrl = publication.id
   const publicationId1 = urlToId(publicationUrl)
 
-  const publication2 = await createPublication(urlToId(readerId), {
+  const publication2 = await createPublication(app, token, {
     name: 'Publication B'
   })
   const publicationUrl2 = publication2.id
@@ -41,8 +40,8 @@ const test = async app => {
     url: 'http://something/124'
   })
 
-  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
-  const documentUrl2 = `${publicationUrl2}/${createdDocument2.documentPath}`
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
+  const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`
 
   // create a whole bunch of notes:
   const createNoteSimplified = async object => {

@@ -1,12 +1,10 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
 const knexCleaner = require('knex-cleaner')
-const _ = require('lodash')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
 const crypto = require('crypto')
-const { Publication } = require('../../models/Publication')
 
 const getToken = () => {
   const options = {
@@ -48,7 +46,7 @@ const destroyDB = async app => {
   }
 }
 
-const createPublication = async (readerId, object = {}) => {
+const createPublication = async (app, token, object = {}) => {
   const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
     {
@@ -107,7 +105,15 @@ const createPublication = async (readerId, object = {}) => {
     },
     object
   )
-  return await Publication.createPublication({ id: readerId }, pubObject)
+
+  const response = await request(app)
+    .post('/publications')
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+    .send(JSON.stringify(pubObject))
+
+  return response.body
 }
 
 const createNote = async (app, token, readerId, object = {}) => {

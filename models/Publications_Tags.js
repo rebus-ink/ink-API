@@ -66,6 +66,18 @@ class Publication_Tag extends BaseModel {
     }
   }
 
+  static async removeTagFromPubNoError (
+    publicationId /*: string */,
+    tagId /*: string */
+  ) /*: Promise<PublicationTagType|Error> */ {
+    return await Publication_Tag.query()
+      .delete()
+      .where({
+        publicationId: urlToId(publicationId),
+        tagId
+      })
+  }
+
   static async deletePubTagsOfPub (
     publicationId /*: string */
   ) /*: Promise<number|Error> */ {

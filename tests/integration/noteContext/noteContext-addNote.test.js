@@ -16,16 +16,16 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(readerId)
+  const publication = await createPublication(app, token)
   const publicationId = urlToId(publication.id)
   const publicationUrl = publication.id
 
-  const publication2 = await createPublication(readerId)
-  const publicationId2 = urlToId(publication2.id)
+  // pub2
+  await createPublication(app, token)
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 
-  const documentUrl = `${publicationUrl}/${createdDocument.documentPath}`
+  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const context = await createNoteContext(app, token, {
     type: 'test',
