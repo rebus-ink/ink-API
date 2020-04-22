@@ -26,11 +26,11 @@
  *     id:
  *       type: string
  *       description: publicationId
- *    message:
- *      type: string
- *      description: error message, in case of 400 or 404 status
- *    value:
- *      type: string
- *      description: the value of the update
+ *     message:
+ *       type: string
+ *       description: error message, in case of 400 or 404 status
+ *     value:
+ *       type: string
+ *       description: the value of the update
  *
  */
