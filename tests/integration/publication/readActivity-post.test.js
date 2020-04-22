@@ -66,7 +66,7 @@ const test = async app => {
       )
 
     // Get the latests ReadActivity
-    const latestAct = await ReadActivity.getLatestReadActivity(publicationId)
+    await ReadActivity.getLatestReadActivity(publicationId)
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
     await tap.equal(body.selector.type, 'XPathSelector')

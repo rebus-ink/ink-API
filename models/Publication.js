@@ -580,7 +580,6 @@ class Publication extends BaseModel {
     await Document.deleteDocumentsByPubId(id)
 
     // Delete Publication_Tag associated with pub
-    const { Publication_Tag } = require('./Publications_Tags')
     await Publication_Tag.deletePubTagsOfPub(id)
 
     // remove documents from elasticsearch index

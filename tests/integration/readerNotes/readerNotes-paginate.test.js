@@ -14,7 +14,6 @@ const { urlToId } = require('../../../utils/utils')
 const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
-  const readerUrl = `/readers/${urlToId(readerId)}`
 
   const publication = await createPublication(app, token, {
     name: 'Publication A'

@@ -6,12 +6,9 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument,
-  createTag,
-  addNoteToCollection
+  createDocument
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
-const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -82,8 +79,6 @@ const test = async app => {
     publicationId: publicationId2,
     documentUrl: documentUrl2
   })
-
-  let noteId1, noteId2, noteId3
 
   await createNoteSimplified({
     publicationId: publicationId2,

@@ -414,6 +414,19 @@ module.exports = function (app) {
           }
 
           break
+
+        default:
+          return next(
+            boom.badRequest(
+              `Batch Update Publication Request Error: ${
+                req.body.operation
+              } is not a valid operation. Must be 'replace', 'add' or 'remove' `,
+              {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              }
+            )
+          )
       }
     })
 }

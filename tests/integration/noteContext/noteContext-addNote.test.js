@@ -20,8 +20,8 @@ const test = async app => {
   const publicationId = urlToId(publication.id)
   const publicationUrl = publication.id
 
-  const publication2 = await createPublication(app, token)
-  const publicationId2 = urlToId(publication2.id)
+  // pub2
+  await createPublication(app, token)
 
   const createdDocument = await createDocument(readerId, publicationUrl)
 

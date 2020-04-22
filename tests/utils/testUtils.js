@@ -1,12 +1,10 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
 const knexCleaner = require('knex-cleaner')
-const _ = require('lodash')
 const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
 const crypto = require('crypto')
-const { Publication } = require('../../models/Publication')
 
 const getToken = () => {
   const options = {

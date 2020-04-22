@@ -8,7 +8,6 @@ const {
   createTag,
   addPubToCollection
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
 
 const test = async app => {
@@ -1829,6 +1828,60 @@ pub3: tag4
         error.message,
         'Batch Update Publication Request Error: Body missing properties: value,operation,publications '
       )
+      await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+      await tap.type(error.details.requestBody, 'object')
+    }
+  )
+
+  await tap.test('Try to batch update with invalid operation', async () => {
+    const res = await request(app)
+      .patch(`/publications/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          property: 'keywords',
+          operation: 'something',
+          value: '123',
+          publications: [pub1.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Batch Update Publication Request Error: something is not a valid operation. Must be 'replace', 'add' or 'remove' `
+    )
+    await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
+    await tap.type(error.details.requestBody, 'object')
+  })
+
+  await tap.test(
+    'Try to batch update a property that cannot be updated in batch',
+    async () => {
+      const res = await request(app)
+        .patch(`/publications/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            property: 'isbn',
+            operation: 'replace',
+            value: '123',
+            publications: [pub1.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(error.message, 'Cannot replace property isbn')
       await tap.equal(error.details.requestUrl, `/publications/batchUpdate`)
       await tap.type(error.details.requestBody, 'object')
     }

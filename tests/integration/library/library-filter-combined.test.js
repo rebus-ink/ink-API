@@ -14,8 +14,7 @@ const _ = require('lodash')
 
 const test = async () => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   // get reader workspace tags:
   const tagsres = await request(app)

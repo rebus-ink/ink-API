@@ -10,8 +10,7 @@ const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const now = new Date().toISOString()
 

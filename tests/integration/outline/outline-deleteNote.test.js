@@ -8,7 +8,6 @@ const {
   createNote,
   addNoteToOutline
 } = require('../../utils/testUtils')
-const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
