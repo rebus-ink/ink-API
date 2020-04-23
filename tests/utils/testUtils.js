@@ -46,6 +46,24 @@ const destroyDB = async app => {
   }
 }
 
+const createReader = async (app, token, object = {}) => {
+  const readerObject = Object.assign(
+    {
+      name: 'test name'
+    },
+    object
+  )
+
+  const response = await request(app)
+    .post('/readers')
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+    .send(JSON.stringify(readerObject))
+
+  return response.body
+}
+
 const createPublication = async (app, token, object = {}) => {
   const publicationDate = new Date(2002, 12, 25).toISOString()
   const pubObject = Object.assign(
@@ -283,5 +301,6 @@ module.exports = {
   createNoteContext,
   addNoteToContext,
   updateNote,
-  addNoteToOutline
+  addNoteToOutline,
+  createReader
 }

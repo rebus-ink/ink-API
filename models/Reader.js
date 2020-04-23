@@ -175,17 +175,17 @@ class Reader extends BaseModel {
         authId: { type: 'string' },
         type: { const: 'Person' },
         profile: {
-          type: 'object',
+          type: ['object', 'null'],
           additionalProperties: true
         },
         preferences: {
-          type: 'object',
+          type: ['object', 'null'],
           additionalProperties: true
         },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' },
         json: {
-          type: 'object',
+          type: ['object', 'null'],
           additionalProperties: true
         }
       },
@@ -193,6 +193,20 @@ class Reader extends BaseModel {
       additionalProperties: true
     }
   }
+
+  static async update (
+    id /*: string */,
+    object /*: any */
+  ) /*: Promise<ReaderType|null> */ {
+    const modifications = _.pick(object, [
+      'name',
+      'preferences',
+      'profile',
+      'json'
+    ])
+    return await Reader.query().updateAndFetchById(urlToId(id), modifications)
+  }
+
   static get relationMappings () /*: any */ {
     const { Document } = require('./Document')
     return {

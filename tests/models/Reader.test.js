@@ -113,32 +113,58 @@ const test = async app => {
     await tap.equal(refObject2.profile, undefined)
   })
 
-  // await tap.test('get library', async () => {
-  //   const readerWithLibrary = await Reader.getLibrary(
-  //     urlToId(createdReader.id),
-  //     10,
-  //     0,
-  //     {}
-  //   )
-  //   await tap.ok(readerWithLibrary)
-  //   await tap.type(readerWithLibrary.id, 'string')
-  //   await tap.type(readerWithLibrary.authId, 'string')
-  //   await tap.ok(Array.isArray(readerWithLibrary.tags))
-  //   await tap.ok(Array.isArray(readerWithLibrary.publications))
-  // })
+  let updatedTimestamp
+  await tap.test('update Reader name', async () => {
+    const updatedReader = await Reader.update(
+      createdReader.id,
+      Object.assign(createdReader, { name: 'Joe' })
+    )
+    await tap.equal(updatedReader.name, 'Joe')
+    await tap.notOk(updatedReader.preferences)
+    await tap.notOk(updatedReader.profile)
+    await tap.notOk(updatedReader.json)
+    await tap.notEqual(updatedReader.published, updatedReader.updated)
+    updatedTimestamp = updatedReader.updated
+  })
 
-  // await tap.test('get notes', async () => {
-  //   const readerWithNotes = await Reader.getNotes(
-  //     urlToId(createdReader.id),
-  //     10,
-  //     0,
-  //     {}
-  //   )
-  //   await tap.ok(readerWithNotes)
-  //   await tap.type(readerWithNotes.id, 'string')
-  //   await tap.type(readerWithNotes.authId, 'string')
-  //   await tap.ok(Array.isArray(readerWithNotes.replies))
-  // })
+  await tap.test('update Reader profile', async () => {
+    const updatedReader = await Reader.update(
+      createdReader.id,
+      Object.assign(createdReader, { profile: { favoriteColor: 'black' } })
+    )
+    await tap.equal(updatedReader.name, 'Joe')
+    await tap.equal(updatedReader.profile.favoriteColor, 'black')
+    await tap.notOk(updatedReader.preferences)
+    await tap.notOk(updatedReader.json)
+    await tap.notEqual(updatedReader.published, updatedReader.updated)
+    await tap.notEqual(updatedReader.updated, updatedTimestamp)
+  })
+
+  await tap.test('update Reader profile to null', async () => {
+    const updatedReader = await Reader.update(
+      createdReader.id,
+      Object.assign(createdReader, { profile: null })
+    )
+    await tap.equal(updatedReader.name, 'Joe')
+    await tap.notOk(updatedReader.profile)
+    await tap.notOk(updatedReader.preferences)
+    await tap.notOk(updatedReader.json)
+    await tap.notEqual(updatedReader.published, updatedReader.updated)
+    await tap.notEqual(updatedReader.updated, updatedTimestamp)
+  })
+
+  await tap.test('update Reader with validation error', async () => {
+    let error
+    try {
+      await Reader.update(
+        createdReader.authId,
+        Object.assign(createdReader, { profile: 123 })
+      )
+    } catch (err) {
+      error = err
+    }
+    await tap.ok(error)
+  })
 
   await destroyDB(app)
 }
