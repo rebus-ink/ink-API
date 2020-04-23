@@ -985,6 +985,25 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to update reader object belonging to another reader',
+    async () => {
+      const res = await request(app)
+        .put(`/readers/${readerId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ name: 'new name' }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to reader ${readerId} disallowed`)
+      await tap.equal(error.details.requestUrl, `/readers/${readerId}`)
+    }
+  )
+
   // ------------------------------------------- TAG -------------------------------
 
   await tap.test('Try to delete a tag belonging to another user', async () => {

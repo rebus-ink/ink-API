@@ -64,6 +64,15 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
+  await tap.test('Update Reader without authentication', async () => {
+    const res = await request(app)
+      .put(`/readers/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 401)
+  })
+
   // ------------------------------------ PUBLICATION --------------------------------------
 
   await tap.test('Get publication without Authentication', async () => {

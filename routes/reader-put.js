@@ -5,15 +5,23 @@ const { Reader } = require('../models/Reader')
 const debug = require('debug')('hobb:routes:readers')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
+const { urlToId } = require('../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /readers:
+   * /readers/{id}:
    *   put:
    *     tags:
    *       - readers
    *     description: Update reader
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: the id of the reader
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -32,16 +40,39 @@ module.exports = function (app) {
    *         description: Validation Error
    *       401:
    *         description: No Authentication
+   *       403:
+   *         description: access to Reader forbidden (mismatch between reader id and authentication token)
+   *       404:
+   *         description: Reader not found
    */
   app.use('/', router)
-  router.post(
-    '/readers',
+  router.put(
+    '/readers/:id',
     passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
       const reader = await Reader.byAuthId(req.user)
+      // check ownership
+      if (urlToId(reader.id) !== req.params.id) {
+        const exists = await Reader.checkIfExistsById(req.params.id)
+        if (!exists) {
+          return next(
+            boom.notFound(`No Reader found with id ${req.params.id}`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
+        }
+
+        return next(
+          boom.forbidden(`Access to reader ${req.params.id} disallowed`, {
+            requestUrl: req.originalUrl,
+            requestBody: req.body
+          })
+        )
+      }
       let updatedReader
       try {
-        updatedReader = await Reader.createReader(urlToId(reader.id), req.body)
+        updatedReader = await Reader.update(req.params.id, req.body)
       } catch (err) {
         if (err instanceof ValidationError) {
           return next(

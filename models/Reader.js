@@ -69,6 +69,11 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
+  static async checkIfExistsById (id /*: string */) /*: Promise<boolean> */ {
+    const readers = await Reader.query(Reader.knex()).where('id', '=', id)
+    return readers.length > 0
+  }
+
   static async createReader (
     authId /*: string */,
     person /*: any */
