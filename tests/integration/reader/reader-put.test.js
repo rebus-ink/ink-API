@@ -26,6 +26,7 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(JSON.stringify(Object.assign(reader, { name: 'Joe Smith Jr.' })))
+
     await tap.equal(res.status, 200)
     await tap.ok(res.body)
     await tap.equal(res.body.shortId, urlToId(res.body.id))
