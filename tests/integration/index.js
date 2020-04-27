@@ -31,6 +31,7 @@ const publicationBatchUpdateTests = require('./publication/publication-batchUpda
 
 const readerCreateTests = require('./reader/reader-post.test')
 const readerGetTests = require('./reader/reader-get.test')
+const readerPutTests = require('./reader/reader-put.test')
 
 const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
@@ -111,17 +112,18 @@ const allTests = async () => {
   }
 
   if (!test || test === 'publication') {
-    // await publicationGetTests(app)
-    // await publicationDeleteTests(app)
-    // await publicationPostTests(app)
-    // await publicationPatchTests(app)
-    // await readActivityPostTests(app)
+    await publicationGetTests(app)
+    await publicationDeleteTests(app)
+    await publicationPostTests(app)
+    await publicationPatchTests(app)
+    await readActivityPostTests(app)
     await publicationBatchUpdateTests(app)
   }
 
   if (!test || test === 'reader') {
     await readerCreateTests(app)
     await readerGetTests(app)
+    await readerPutTests(app)
   }
 
   if (!test || test === 'note') {

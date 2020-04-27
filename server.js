@@ -18,6 +18,7 @@ const errorHandling = require('./routes/middleware/error-handling')
 const whoamiRoute = require('./routes/whoami') // GET /whoami
 const readersRoute = require('./routes/reader-post') // POST /readers
 const readerGetRoute = require('./routes/reader-get') // GET /readers/:id
+const readerPutRoute = require('./routes/reader-put') // PUT /readers/:id
 
 // Uploads
 const fileUploadRoute = require('./routes/file-upload') // POST /reader-:id/file-upload
@@ -263,6 +264,7 @@ outlinePutRoute(app)
 outlineAddNoteRoute(app)
 outlineDeleteNoteRoute(app)
 outlinePatchNoteRoute(app)
+readerPutRoute(app)
 
 app.use(errorHandling)
 
