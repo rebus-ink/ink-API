@@ -235,6 +235,18 @@ class Attribution extends BaseModel {
       .andWhere('publicationId', '=', publicationId)
       .del()
   }
+
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+    const parent = super.$beforeUpdate(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = undefined
+
+      Object.keys(doc).forEach(
+        key => (doc[key] === undefined ? delete doc[key] : '')
+      )
+    })
+  }
 }
 
 module.exports = { Attribution }

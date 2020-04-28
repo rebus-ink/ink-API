@@ -62,6 +62,19 @@ const test = async app => {
       `Get Reader Error: No Reader found with id ${reader.shortId}`
     )
     await tap.equal(error.details.requestUrl, `/readers/${reader.shortId}`)
+
+    const res1 = await request(app)
+      .get(`/whoami`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res1.status, 404)
+    const error1 = JSON.parse(res1.text)
+    await tap.equal(error1.statusCode, 404)
+    await tap.equal(error1.error, 'Not Found')
+    await tap.equal(error1.message, `No reader found with this token`)
+    await tap.equal(error1.details.requestUrl, `/whoami`)
   })
 
   await tap.test(
@@ -79,7 +92,7 @@ const test = async app => {
       await tap.equal(errorPub.error, 'Not Found')
       await tap.equal(
         errorPub.message,
-        `Get Reader Error: No Publication found with id ${pub.shortId}`
+        `No Publication found with id ${pub.shortId}`
       )
       await tap.equal(
         errorPub.details.requestUrl,
@@ -98,7 +111,7 @@ const test = async app => {
       await tap.equal(errorNote.error, 'Not Found')
       await tap.equal(
         errorNote.message,
-        `Get Reader Error: No Note found with id ${note1.shortId}`
+        `Get Note Error: No Note found with id ${note1.shortId}`
       )
       await tap.equal(errorNote.details.requestUrl, `/notes/${note1.shortId}`)
 
@@ -114,7 +127,7 @@ const test = async app => {
       await tap.equal(errorContext.error, 'Not Found')
       await tap.equal(
         errorContext.message,
-        `Get Reader Error: No NoteContext found with id ${context.shortId}`
+        `Get NoteContext Error: No NoteContext found with id ${context.shortId}`
       )
       await tap.equal(
         errorContext.details.requestUrl,
@@ -131,11 +144,34 @@ const test = async app => {
       const errorTags = JSON.parse(resTags.text)
       await tap.equal(errorTags.statusCode, 404)
       await tap.equal(errorTags.error, 'Not Found')
-      await tap.equal(
-        errorTags.message,
-        `Get Reader Error: No Note found with id ${note1.shortId}`
-      )
+      await tap.equal(errorTags.message, `No reader found with this token`)
       await tap.equal(errorTags.details.requestUrl, `/tags`)
+
+      const resLibrary = await request(app)
+        .get(`/library`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(resLibrary.status, 404)
+      const errorLibrary = JSON.parse(resLibrary.text)
+      await tap.equal(errorLibrary.statusCode, 404)
+      await tap.equal(errorLibrary.error, 'Not Found')
+      await tap.equal(errorLibrary.message, `No reader found with this token`)
+      await tap.equal(errorLibrary.details.requestUrl, `/library`)
+
+      const resNotes = await request(app)
+        .get(`/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(resNotes.status, 404)
+      const errorNotes = JSON.parse(resNotes.text)
+      await tap.equal(errorNotes.statusCode, 404)
+      await tap.equal(errorNotes.error, 'Not Found')
+      await tap.equal(errorNotes.message, `No reader found with this token`)
+      await tap.equal(errorNotes.details.requestUrl, `/notes`)
     }
   )
 
@@ -152,7 +188,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(
       error.message,
-      `Get Reader Error: No Reader found with id ${reader.shortId}abc`
+      `No Reader found with id ${reader.shortId}abc`
     )
     await tap.equal(error.details.requestUrl, `/readers/${reader.shortId}abc`)
   })
@@ -168,10 +204,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(
-      error.message,
-      `Get Reader Error: No Reader found with id ${reader.shortId}`
-    )
+    await tap.equal(error.message, `No Reader found with id ${reader.shortId}`)
     await tap.equal(error.details.requestUrl, `/readers/${reader.shortId}`)
   })
 

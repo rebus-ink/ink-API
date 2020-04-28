@@ -39,7 +39,7 @@ module.exports = function (app) {
     function (req, res, next) {
       Reader.byAuthId(req.user)
         .then(async reader => {
-          if (!reader) {
+          if (!reader || reader.deleted) {
             return next(
               boom.notFound(`No reader found with this token`, {
                 requestUrl: req.originalUrl

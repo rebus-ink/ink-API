@@ -62,7 +62,15 @@ module.exports = function (app) {
           )
         }
         const reader = await Reader.byAuthId(req.user)
-        if (!reader || !checkOwnership(reader.id, pubId)) {
+        if (!reader || reader.deleted) {
+          return next(
+            boom.notFound('No reader found with this token', {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
+        }
+        if (!checkOwnership(reader.id, pubId)) {
           return next(
             boom.forbidden(`Access to publication ${pubId} disallowed`, {
               requestUrl: req.originalUrl,

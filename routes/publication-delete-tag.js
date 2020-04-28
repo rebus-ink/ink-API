@@ -47,9 +47,9 @@ module.exports = function (app) {
       const tagId = req.params.tagId
       Reader.byAuthId(req.user)
         .then(reader => {
-          if (!reader) {
+          if (!reader || reader.deleted) {
             return next(
-              boom.notFound(`No reader with this token`, {
+              boom.notFound(`No reader found with this token`, {
                 requestUrl: req.originalUrl
               })
             )

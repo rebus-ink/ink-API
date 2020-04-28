@@ -51,9 +51,9 @@ module.exports = function (app) {
       const pubId = req.params.pubId
       Reader.byAuthId(req.user)
         .then(async reader => {
-          if (!reader) {
+          if (!reader || reader.deleted) {
             return next(
-              boom.unauthorized(`No user found for this token`, {
+              boom.notFound(`No reader found with this token`, {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
