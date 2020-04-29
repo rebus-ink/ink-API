@@ -70,20 +70,6 @@ const test = async app => {
   await createPublication(app, token)
 
   await tap.test('Delete Publication', async () => {
-    // Create a Document for that publication
-    const documentObject = {
-      mediaType: 'txt',
-      url: 'http://google-bucket/somewhere/file1234.txt',
-      documentPath: '/inside/the/book.txt',
-      json: { property1: 'value1' }
-    }
-
-    const document = await createDocument(
-      readerCompleteUrl,
-      publicationUrl,
-      documentObject
-    )
-
     // Create a tag for testing purposes
     const createdTag = await Tag.createTag(readerId, {
       type: 'stack',
@@ -101,7 +87,6 @@ const test = async app => {
     await tap.equal(before.body.items.length, 2)
     await tap.equal(before.body.items[1].tags.length, 1)
     await tap.equal(before.body.items[1].tags[0].name, 'mystack')
-    await tap.ok(!document.deleted)
 
     const res = await request(app)
       .delete(`/publications/${publicationId}`)
@@ -139,10 +124,6 @@ const test = async app => {
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 1)
     await tap.equal(body.items[0].tags.length, 0)
-
-    // Make sure documents associated with the publication are deleted
-    const deletedDoc = await Document.byId(document.id)
-    await tap.ok(deletedDoc.deleted)
   })
 
   await tap.test(
