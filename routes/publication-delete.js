@@ -41,7 +41,15 @@ module.exports = function (app) {
       const pubId = req.params.pubId
       Reader.byAuthId(req.user)
         .then(async reader => {
-          if (!reader || !checkOwnership(reader.id, pubId)) {
+          if (!reader || reader.deleted) {
+            return next(
+              boom.notFound('No reader found with this token', {
+                requestUrl: req.originalUrl
+              })
+            )
+          }
+
+          if (!checkOwnership(reader.id, pubId)) {
             const pub = await Publication.byId(pubId)
             if (!pub) {
               return next(

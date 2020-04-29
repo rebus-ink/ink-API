@@ -8,6 +8,10 @@ const { Job } = require('./Job')
 const { Tag } = require('./Tag')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
+const { Document } = require('./Document')
+const { NoteContext } = require('./NoteContext')
+const { NoteBody } = require('./NoteBody')
+const { NoteRelation } = require('./NoteRelation')
 
 const short = require('short-uuid')
 const translator = short()
@@ -54,7 +58,7 @@ class Reader extends BaseModel {
   ) /*: Promise<ReaderType> */ {
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb.withGraphFetched(eager)
-
+    if (readers.length === 0 || readers[0].deleted) return null
     return readers[0]
   }
 
@@ -69,9 +73,13 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
+  /**
+   *
+   * Important: will return true if the Reader has been soft-deleted
+   */
   static async checkIfExistsById (id /*: string */) /*: Promise<boolean> */ {
     const readers = await Reader.query(Reader.knex()).where('id', '=', id)
-    return readers.length > 0
+    return readers.length > 0 && !readers[0].deleted
   }
 
   static async createReader (
@@ -189,6 +197,7 @@ class Reader extends BaseModel {
         },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' },
+        deleted: { type: 'string', format: 'date-time' },
         json: {
           type: ['object', 'null'],
           additionalProperties: true
@@ -212,8 +221,36 @@ class Reader extends BaseModel {
     return await Reader.query().updateAndFetchById(urlToId(id), modifications)
   }
 
+  static async softDelete (id /*: string */) /*: Promise<number> */ {
+    id = urlToId(id)
+    const now = new Date().toISOString()
+    await Publication.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    // await Document.query().patch({deleted: now}).where('readerId', '=', id)
+    await NoteContext.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    await Note.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    await Tag.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    await Attribution.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    await NoteBody.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+    await NoteRelation.query()
+      .patch({ deleted: now })
+      .where('readerId', '=', id)
+
+    return await Reader.query().patchAndFetchById(id, { deleted: now })
+  }
+
   static get relationMappings () /*: any */ {
-    const { Document } = require('./Document')
     return {
       publications: {
         relation: Model.HasManyRelation,

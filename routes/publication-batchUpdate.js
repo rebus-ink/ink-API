@@ -90,6 +90,15 @@ module.exports = function (app) {
       }
 
       const reader = await Reader.byAuthId(req.user)
+      if (!reader || reader.deleted) {
+        return next(
+          boom.notFound('No reader found with this token', {
+            requestUrl: req.originalUrl,
+            requestBody: req.body
+          })
+        )
+      }
+
       req.body.publications.forEach(publicationId => {
         if (!checkOwnership(reader.id, publicationId)) {
           errors.push({

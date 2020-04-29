@@ -39,7 +39,14 @@ module.exports = function (app) {
 
     Reader.byAuthId(req.user)
       .then(async reader => {
-        if (!reader || !checkOwnership(reader.id, noteId)) {
+        if (!reader || reader.deleted) {
+          return next(
+            boom.notFound('No reader found with this token', {
+              requestUrl: req.originalUrl
+            })
+          )
+        }
+        if (!checkOwnership(reader.id, noteId)) {
           return next(
             boom.forbidden(`Access to Note ${noteId} disallowed`, {
               requestUrl: req.originalUrl

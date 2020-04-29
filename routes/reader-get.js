@@ -45,7 +45,7 @@ module.exports = app => {
     function (req, res, next) {
       Reader.byId(req.params.id)
         .then(reader => {
-          if (!reader) {
+          if (!reader || reader.deleted) {
             return next(
               boom.notFound(
                 `Get Reader Error: No Reader found with id ${req.params.id}`,

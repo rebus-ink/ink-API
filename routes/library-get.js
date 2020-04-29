@@ -161,9 +161,9 @@ module.exports = app => {
           )
         })
         .then(reader => {
-          if (!reader) {
+          if (!reader || reader.deleted) {
             return next(
-              boom.notFound(`No Reader found with id ${req.user}`, {
+              boom.notFound(`No reader found with this token`, {
                 requestUrl: req.originalUrl
               })
             )

@@ -975,10 +975,14 @@ class Publication extends BaseModel {
     }
     let updatedPub
     try {
-      updatedPub = await Publication.query().patchAndFetchById(
-        id,
-        modifications
-      )
+      if (_.isEmpty(modifications)) {
+        updatedPub = await Publication.query().findById(id)
+      } else {
+        updatedPub = await Publication.query().patchAndFetchById(
+          id,
+          modifications
+        )
+      }
     } catch (err) {
       throw err
     }
