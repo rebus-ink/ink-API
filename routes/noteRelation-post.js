@@ -46,7 +46,7 @@ module.exports = function (app) {
       .then(async reader => {
         if (!reader || reader.deleted) {
           return next(
-            boom.notFound(`No user found for this token`, {
+            boom.notFound(`No reader found with this token`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })

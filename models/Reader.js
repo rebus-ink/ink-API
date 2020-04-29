@@ -70,9 +70,13 @@ class Reader extends BaseModel {
       '=',
       authId
     )
-    return readers.length > 0 && !readers[0].deleted
+    return readers.length > 0
   }
 
+  /**
+   *
+   * Important: will return true if the Reader has been soft-deleted
+   */
   static async checkIfExistsById (id /*: string */) /*: Promise<boolean> */ {
     const readers = await Reader.query(Reader.knex()).where('id', '=', id)
     return readers.length > 0 && !readers[0].deleted

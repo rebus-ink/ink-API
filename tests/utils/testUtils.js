@@ -247,6 +247,22 @@ const addNoteToContext = async (app, token, contextId, object) => {
   return response.body
 }
 
+const createOutline = async (app, token, object) => {
+  const contextObject = Object.assign(
+    {
+      type: 'outline'
+    },
+    object
+  )
+  const res = await request(app)
+    .post('/outlines')
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .send(contextObject)
+
+  return res.body
+}
+
 const addNoteToOutline = async (app, token, contextId, object) => {
   const noteObject = Object.assign(
     {
@@ -302,5 +318,6 @@ module.exports = {
   addNoteToContext,
   updateNote,
   addNoteToOutline,
-  createReader
+  createReader,
+  createOutline
 }
