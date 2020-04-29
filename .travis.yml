@@ -22,10 +22,8 @@ jobs:
     script: npm run test-integration
   - script: npm run test-models
     name: model integration tests
-  - stage: Google Tests
-    if: type != pull_request
-    name: google integration tests
-    script: npm run test-google
+  - script: npm run test-unit
+    name: unit tests
   - stage: Doc
     script: npm run doc
   - stage: Deploy

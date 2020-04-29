@@ -225,55 +225,5 @@ const test = async () => {
     await tap.ok(error)
     await tap.equal(error.message, 'circular linked list')
   })
-
-  const badList4 = [
-    {
-      id: 'https://reader-api.test/notes/1',
-      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
-      target: { property: 'something' },
-      published: '2020-02-28T13:55:40.334Z',
-      updated: '2020-02-28T13:55:40.334Z',
-      body: [{ content: 'note content 1', motivation: 'test' }],
-      type: 'Note',
-      shortId: '1'
-    },
-    {
-      id: 'https://reader-api.test/notes/2',
-      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
-      target: { property: 'something' },
-      published: '2020-02-28T13:55:40.334Z',
-      updated: '2020-02-28T13:55:40.334Z',
-      body: [{ content: 'note content 2', motivation: 'test' }],
-      type: 'Note',
-      shortId: '2',
-      parentId: '3'
-    },
-    {
-      id: 'https://reader-api.test/notes/3',
-      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
-      target: { property: 'something' },
-      published: '2020-02-28T13:55:40.334Z',
-      updated: '2020-02-28T13:55:40.334Z',
-      body: [{ content: 'note content 2', motivation: 'test' }],
-      type: 'Note',
-      shortId: '3',
-      parentId: '2'
-    }
-  ]
-
-  await tap.test('invalid tree should fail', async () => {
-    let error
-    try {
-      notesListToTree(badList4)
-    } catch (err) {
-      error = err
-    }
-    await tap.ok(error)
-    await tap.ok(
-      error.message.startsWith(
-        'The items array contains orphans that point to the following parentIds'
-      )
-    )
-  })
 }
 test()
