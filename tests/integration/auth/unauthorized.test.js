@@ -413,6 +413,16 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
+  // ------------------------------------- NOTEBOOK ------------------------
+
+  await tap.test('POST notebook without authentication', async () => {
+    const res = await request(app)
+      .post('/notebooks')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {
