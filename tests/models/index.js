@@ -9,6 +9,9 @@ const jobTests = require('./Job.test')
 const noteBodyTests = require('./NoteBody.test')
 const noteContextTests = require('./NoteContext.test')
 const noteRelationTests = require('./NoteRelation.test')
+const notebookTests = require('./Notebook.test')
+const notebookTagTests = require('./Notebook_Tag.test')
+const notebookPubTests = require('./Notebook_Pub.test')
 
 const app = require('../../server').app
 
@@ -39,6 +42,9 @@ const allTests = async () => {
   await jobTests(app)
   // await noteContextTests(app)
   await noteRelationTests(app)
+  await notebookTests(app)
+  await notebookTagTests(app)
+  await notebookPubTests(app)
 
   await app.knex.migrate.rollback()
   await app.terminate()

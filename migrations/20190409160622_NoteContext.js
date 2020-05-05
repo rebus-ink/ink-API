@@ -6,6 +6,11 @@ exports.up = function (knex, Promise) {
     table.string('type').notNullable().index()
     table.jsonb('json')
     table
+      .string('notebookId')
+      .references('id')
+      .inTable('Notebook')
+      .index()
+    table
       .string('readerId')
       .references('id')
       .inTable('Reader')

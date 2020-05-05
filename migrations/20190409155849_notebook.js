@@ -1,20 +1,16 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('Tag', function (table) {
+  return knex.schema.createTable('Notebook', function (table) {
     table.string('id').primary()
-    table.string('type').index() // do we allow null? or have a default?
+    table.text('description')
     table.string('name').notNullable()
-    table.jsonb('json')
+    table.integer('status')
+    table.jsonb('settings')
     table
       .string('readerId')
       .references('id')
       .inTable('Reader')
       .notNullable()
       .onDelete('CASCADE')
-      .index()
-    table
-      .string('notebookId')
-      .references('id')
-      .inTable('Notebook')
       .index()
     table
       .timestamp('published')
@@ -26,10 +22,9 @@ exports.up = function (knex, Promise) {
       .notNullable()
     table
       .timestamp('deleted')
-    table.unique(['readerId', 'name', 'type'])
   })
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('Tag')
+  return knex.schema.dropTable('Notebook')
 }
