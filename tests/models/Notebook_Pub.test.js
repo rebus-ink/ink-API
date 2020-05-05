@@ -1,14 +1,10 @@
 const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
-const { Tag } = require('../../models/Tag')
-const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Publication } = require('../../models/Publication')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
-const { ValidationError } = require('objection')
 const { Notebook } = require('../../models/Notebook')
-const { Notebook_Tag } = require('../../models/Notebook_Tag')
 const { Notebook_Pub } = require('../../models/Notebook_Pub')
 
 const test = async app => {
