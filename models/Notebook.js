@@ -6,6 +6,11 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 
+const statusMap = {
+  active: 1,
+  test: 99
+}
+
 class Notebook extends BaseModel {
   static get tableName () /*: string */ {
     return 'Notebook'
@@ -92,8 +97,21 @@ class Notebook extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, ['status', 'name', 'description', 'settings'])
+    const props = _.pick(object, ['name', 'description', 'settings'])
     props.readerId = readerId
+
+    // status
+    if (object.status && !statusMap[object.status]) {
+      throw new Error(
+        `Notebook validation error: ${object.status} is not a valid status`
+      )
+    }
+    if (object.status) {
+      props.status = statusMap[object.status]
+    } else {
+      props.status = 1
+    }
+
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
     return await Notebook.query(Notebook.knex()).insertAndFetch(props)
@@ -126,7 +144,12 @@ class Notebook extends BaseModel {
     json = super.$formatJson(json)
     json.shortId = urlToId(json.id)
     json = _.omitBy(json, _.isNil)
-
+    if (json.status) {
+      const statusString = _.findKey(statusMap, v => {
+        return v === json.status
+      })
+      json.status = statusString
+    }
     return json
   }
 }
