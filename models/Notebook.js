@@ -8,6 +8,7 @@ const crypto = require('crypto')
 
 const statusMap = {
   active: 1,
+  archived: 2,
   test: 99
 }
 
@@ -89,31 +90,52 @@ class Notebook extends BaseModel {
           },
           to: 'Publication.id'
         }
+      },
+      notes: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Note,
+        join: {
+          from: 'Notebook.id',
+          through: {
+            from: 'notebook_note.notebookId',
+            to: 'notebook_note.noteId'
+          },
+          to: 'Note.id'
+        }
       }
     }
+  }
+
+  static _validateNotebook (notebook /*: any */) /*: any */ {
+    if (notebook.status && !statusMap[notebook.status]) {
+      throw new Error(
+        `Notebook validation error: ${notebook.status} is not a valid status`
+      )
+    }
+
+    // validate settings object??
+  }
+
+  static _formatNotebook (notebook /*: any */, readerId /*: string */) /*: any */ {
+    notebook = _.pick(notebook, ['name', 'description', 'status', 'settings'])
+    if (readerId) {
+      notebook.readerId = readerId
+    }
+    if (notebook.status) {
+      notebook.status = statusMap[notebook.status]
+    } else {
+      notebook.status = 1
+    }
+    return notebook
   }
 
   static async createNotebook (
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, ['name', 'description', 'settings'])
-    props.readerId = readerId
-
-    // status
-    if (object.status && !statusMap[object.status]) {
-      throw new Error(
-        `Notebook validation error: ${object.status} is not a valid status`
-      )
-    }
-    if (object.status) {
-      props.status = statusMap[object.status]
-    } else {
-      props.status = 1
-    }
-
+    this._validateNotebook(object)
+    const props = this._formatNotebook(object, readerId)
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-
     return await Notebook.query(Notebook.knex()).insertAndFetch(props)
   }
 

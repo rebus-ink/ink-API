@@ -22,7 +22,6 @@ const test = async app => {
           settings: { property: 'value' }
         })
       )
-
     await tap.equal(res.status, 201)
     const body = res.body
     await tap.ok(body.id)
@@ -105,6 +104,32 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/notebooks`)
     await tap.type(error.details.requestBody, 'object')
     await tap.equal(error.details.requestBody.name, 123)
+  })
+
+  await tap.test('Try to create Notebook with an invalid status', async () => {
+    const res = await request(app)
+      .post('/notebooks')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'outline1',
+          status: 'invalidstatus'
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      'Notebook validation error: invalidstatus is not a valid status'
+    )
+    await tap.equal(error.details.requestUrl, `/notebooks`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'outline1')
   })
 
   await destroyDB(app)
