@@ -116,7 +116,10 @@ class Notebook extends BaseModel {
     // validate settings object??
   }
 
-  static _formatNotebook (notebook /*: any */, readerId /*: string */) /*: any */ {
+  static _formatNotebook (
+    notebook /*: any */,
+    readerId /*: string|null */
+  ) /*: any */ {
     notebook = _.pick(notebook, ['name', 'description', 'status', 'settings'])
     if (readerId) {
       notebook.readerId = readerId
@@ -148,13 +151,8 @@ class Notebook extends BaseModel {
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
-    const props = _.pick(object, [
-      'readerId',
-      'status',
-      'name',
-      'description',
-      'settings'
-    ])
+    const props = this._formatNotebook(object, null)
+    props.readerId = object.readerId
 
     return await Notebook.query(Notebook.knex()).updateAndFetchById(
       object.id,
