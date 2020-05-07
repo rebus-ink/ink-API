@@ -77,6 +77,7 @@ const outlineDeleteNoteTests = require('./outline/outline-deleteNote.test')
 const outlinePatchNoteTests = require('./outline/outline-patchNote.test')
 
 const notebookPostTests = require('./notebook/notebook-post.test')
+const notebookGetTests = require('./notebook/notebook-get.test')
 
 const app = require('../../server').app
 
@@ -239,6 +240,7 @@ const allTests = async () => {
   if (!test || test === 'notebook') {
     try {
       await notebookPostTests(app)
+      await notebookGetTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
     }

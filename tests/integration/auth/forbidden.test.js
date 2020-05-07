@@ -9,7 +9,8 @@ const {
   createNote,
   createTag,
   createNoteRelation,
-  createNoteContext
+  createNoteContext,
+  createNotebook
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
 const { urlToId } = require('../../../utils/utils')
@@ -79,6 +80,8 @@ const test = async app => {
   // outlines
   const outline1 = await createNoteContext(app, token, { type: 'outline' })
   const outline2 = await createNoteContext(app, token2, { type: 'outline' })
+
+  const notebook1 = await createNotebook(app, token)
 
   // ------------------------ PUBLICATION -------------------------------------
   await tap.test(
@@ -963,6 +966,32 @@ const test = async app => {
         `Access to Outline ${outline1.shortId} disallowed`
       )
       await tap.equal(error.details.requestUrl, `/outlines/${outline1.shortId}`)
+    }
+  )
+
+  // --------------------------------------- NOTEBOOK -------------------------
+
+  await tap.test(
+    'Try to get a Notebook belonging to another user',
+    async () => {
+      const res = await request(app)
+        .get(`/notebooks/${notebook1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}`
+      )
     }
   )
 
