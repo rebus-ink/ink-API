@@ -995,6 +995,31 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to update a notebook belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/notebooks/${notebook1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ type: 'test2' }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}`
+      )
+    }
+  )
+
   // ---------------------------------------- READER --------------------------
 
   await tap.test(
