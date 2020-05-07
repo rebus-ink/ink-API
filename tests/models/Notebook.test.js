@@ -101,6 +101,13 @@ const test = async app => {
     await tap.ok(error instanceof ValidationError)
   })
 
+  await tap.test('Get notebooks for a reader', async () => {
+    let notebooks = await Notebook.byReader(urlToId(createdReader.id))
+
+    await tap.equal(notebooks.length, 2)
+    await tap.ok(notebooks[0].tags)
+  })
+
   await destroyDB(app)
 }
 

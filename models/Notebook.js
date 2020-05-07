@@ -150,6 +150,12 @@ class Notebook extends BaseModel {
       )
   }
 
+  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
+    return await Notebook.query()
+      .where('readerId', '=', id)
+      .withGraphFetched('tags')
+  }
+
   static async update (object /*: any */) /*: Promise<any> */ {
     const props = this._formatNotebook(object, null)
     props.readerId = object.readerId
