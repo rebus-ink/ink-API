@@ -26,7 +26,7 @@ module.exports = function (app) {
    *             schema:
    *               type: array
    *               items:
-   *                 $ref: '#/definitions/notebook'
+   *                 $ref: '#/definitions/notebook-ref'
    *       401:
    *         description: No Authenticationd
    *       404:
