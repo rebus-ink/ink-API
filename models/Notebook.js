@@ -154,6 +154,7 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .where('readerId', '=', id)
       .withGraphFetched('tags')
+      .whereNull('deleted')
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
