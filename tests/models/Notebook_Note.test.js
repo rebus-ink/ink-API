@@ -23,7 +23,7 @@ const test = async app => {
 
   let simpleNotebook = {
     name: 'notebook1',
-    status: 99
+    status: 'active'
   }
 
   const notebook = await Notebook.createNotebook(

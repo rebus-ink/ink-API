@@ -6,6 +6,12 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 
+const statusMap = {
+  active: 1,
+  archived: 2,
+  test: 99
+}
+
 class Notebook extends BaseModel {
   static get tableName () /*: string */ {
     return 'Notebook'
@@ -84,18 +90,55 @@ class Notebook extends BaseModel {
           },
           to: 'Publication.id'
         }
+      },
+      notes: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Note,
+        join: {
+          from: 'Notebook.id',
+          through: {
+            from: 'notebook_note.notebookId',
+            to: 'notebook_note.noteId'
+          },
+          to: 'Note.id'
+        }
       }
     }
+  }
+
+  static _validateNotebook (notebook /*: any */) /*: any */ {
+    if (notebook.status && !statusMap[notebook.status]) {
+      throw new Error(
+        `Notebook validation error: ${notebook.status} is not a valid status`
+      )
+    }
+
+    // validate settings object??
+  }
+
+  static _formatNotebook (
+    notebook /*: any */,
+    readerId /*: string|null */
+  ) /*: any */ {
+    notebook = _.pick(notebook, ['name', 'description', 'status', 'settings'])
+    if (readerId) {
+      notebook.readerId = readerId
+    }
+    if (notebook.status) {
+      notebook.status = statusMap[notebook.status]
+    } else {
+      notebook.status = 1
+    }
+    return notebook
   }
 
   static async createNotebook (
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, ['status', 'name', 'description', 'settings'])
-    props.readerId = readerId
+    this._validateNotebook(object)
+    const props = this._formatNotebook(object, readerId)
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-
     return await Notebook.query(Notebook.knex()).insertAndFetch(props)
   }
 
@@ -108,13 +151,8 @@ class Notebook extends BaseModel {
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
-    const props = _.pick(object, [
-      'readerId',
-      'status',
-      'name',
-      'description',
-      'settings'
-    ])
+    const props = this._formatNotebook(object, null)
+    props.readerId = object.readerId
 
     return await Notebook.query(Notebook.knex()).updateAndFetchById(
       object.id,
@@ -126,7 +164,12 @@ class Notebook extends BaseModel {
     json = super.$formatJson(json)
     json.shortId = urlToId(json.id)
     json = _.omitBy(json, _.isNil)
-
+    if (json.status) {
+      const statusString = _.findKey(statusMap, v => {
+        return v === json.status
+      })
+      json.status = statusString
+    }
     return json
   }
 }

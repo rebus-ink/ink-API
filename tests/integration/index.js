@@ -76,6 +76,8 @@ const outlineAddNoteTests = require('./outline/outline-addNote.test')
 const outlineDeleteNoteTests = require('./outline/outline-deleteNote.test')
 const outlinePatchNoteTests = require('./outline/outline-patchNote.test')
 
+const notebookPostTests = require('./notebook/notebook-post.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -231,6 +233,14 @@ const allTests = async () => {
       await outlinePatchNoteTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
+    }
+  }
+
+  if (!test || test === 'notebook') {
+    try {
+      await notebookPostTests(app)
+    } catch (err) {
+      console.log('notebook integration test error: ', err)
     }
   }
 

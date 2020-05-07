@@ -20,7 +20,7 @@ const test = async app => {
     try {
       let notebook = await Notebook.createNotebook(
         {
-          status: 99,
+          status: 'active',
           name: 'notebook1',
           description: 'a description goes here',
           settings: { property: 'value' }
@@ -40,7 +40,7 @@ const test = async app => {
     try {
       await Notebook.createNotebook(
         {
-          status: 99,
+          status: 'archived',
           name: 'something'
         },
         readerId
@@ -58,7 +58,7 @@ const test = async app => {
     await tap.ok(notebook.id)
     await tap.equal(notebook.name, 'notebook1')
     await tap.equal(notebook.description, 'a description goes here')
-    await tap.equal(notebook.status, 99)
+    await tap.equal(notebook.status, 1)
   })
 
   await tap.test('Try to get notebook that does note exist', async () => {
@@ -73,7 +73,7 @@ const test = async app => {
       await Notebook.update(
         Object.assign(notebook1, {
           id: notebookId,
-          status: 99,
+          status: 'active',
           description: 'new',
           name: 'new name'
         })
@@ -89,7 +89,7 @@ const test = async app => {
     try {
       await Notebook.createNotebook(
         {
-          status: 99,
+          status: 'active',
           description: 'a description goes here'
         },
         readerId
