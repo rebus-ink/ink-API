@@ -303,6 +303,22 @@ const addNoteToCollection = async (app, token, noteId, tagId) => {
     .type('application/ld+json')
 }
 
+const createNotebook = async (app, token, object) => {
+  const notebookObject = Object.assign(
+    {
+      name: 'test'
+    },
+    object
+  )
+  const res = await request(app)
+    .post('/notebooks')
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .send(notebookObject)
+
+  return res.body
+}
+
 module.exports = {
   getToken,
   createUser,
@@ -319,5 +335,6 @@ module.exports = {
   updateNote,
   addNoteToOutline,
   createReader,
-  createOutline
+  createOutline,
+  createNotebook
 }

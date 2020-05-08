@@ -86,7 +86,7 @@ class Notebook extends BaseModel {
           from: 'Notebook.id',
           through: {
             from: 'notebook_pub.notebookId',
-            to: 'notebook_pub.pubId'
+            to: 'notebook_pub.publicationId'
           },
           to: 'Publication.id'
         }
@@ -146,8 +146,15 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notebookTags, noteContexts]' // add
+        '[reader, notebookTags, noteContexts, tags, publications, notes]'
       )
+  }
+
+  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
+    return await Notebook.query()
+      .where('readerId', '=', id)
+      .withGraphFetched('tags')
+      .whereNull('deleted')
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
