@@ -108,6 +108,11 @@ const test = async app => {
     await tap.ok(notebooks[0].tags)
   })
 
+  await tap.test('Delete a notebook', async () => {
+    const result = await Notebook.delete(notebookId)
+    await tap.equal(result, 1)
+  })
+
   await destroyDB(app)
 }
 

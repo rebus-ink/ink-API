@@ -1003,7 +1003,31 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
-        .send(JSON.stringify({ type: 'test2' }))
+        .send(JSON.stringify({ name: 'test2' }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to delete a notebook belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
 
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)

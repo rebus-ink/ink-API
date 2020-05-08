@@ -447,6 +447,14 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
+  await tap.test('DELETE notebook without authentication', async () => {
+    const res = await request(app)
+      .delete('/notebooks/abc')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {
