@@ -15,7 +15,7 @@ const errorHandling = require('./routes/_middleware/error-handling')
 // Routes
 
 // Reader
-const whoamiRoute = require('./routes/whoami') // GET /whoami
+const whoamiRoute = require('./routes/readers/whoami') // GET /whoami
 const readersRoute = require('./routes/readers/reader-post') // POST /readers
 const readerGetRoute = require('./routes/readers/reader-get') // GET /readers/:id
 const readerPutRoute = require('./routes/readers/reader-put') // PUT /readers/:id
