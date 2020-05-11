@@ -82,7 +82,10 @@ const notebooksGetTests = require('./notebook/notebooks-get.test')
 const notebookPutTests = require('./notebook/notebook-put.test')
 const notebookDeleteTests = require('./notebook/notebook-delete.test')
 const notebookPubPutTests = require('./notebook/notebook-pub-put.test')
+<<<<<<< HEAD
 const notebookPubDeleteTests = require('./notebook/notebook-pub-delete.test')
+=======
+>>>>>>> put pub to notebook
 
 const app = require('../../server').app
 
