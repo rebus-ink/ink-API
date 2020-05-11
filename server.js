@@ -85,6 +85,8 @@ const outlinePatchNoteRoute = require('./routes/outline-patchNote') // PATCH /ou
 const notebookPostRoute = require('./routes/notebook-post') // POST /notebooks
 const notebookGetRoute = require('./routes/notebook-get') // GET /notebooks/:id
 const notebooksGetRoute = require('./routes/notebooks.get') // GET /notebooks
+const notebookPutRoute = require('./routes/notebook-put') // PUT /notebooks/:id
+const notebookDeleteRoute = require('./routes/notebook-delete') // DELETE /notebooks/:id
 
 const setupKnex = async skip_migrate => {
   let config
@@ -275,6 +277,8 @@ readerDeleteRoute(app)
 notebookPostRoute(app)
 notebookGetRoute(app)
 notebooksGetRoute(app)
+notebookPutRoute(app)
+notebookDeleteRoute(app)
 
 app.use(errorHandling)
 

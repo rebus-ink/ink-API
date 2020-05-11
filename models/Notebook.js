@@ -161,10 +161,18 @@ class Notebook extends BaseModel {
     const props = this._formatNotebook(object, null)
     props.readerId = object.readerId
 
-    return await Notebook.query(Notebook.knex()).updateAndFetchById(
-      object.id,
-      props
-    )
+    return await Notebook.query(Notebook.knex())
+      .updateAndFetchById(object.id, props)
+      .whereNull('deleted')
+  }
+
+  static async delete (id /*: string */) /*: Promise<any> */ {
+    id = urlToId(id)
+    const date = new Date().toISOString()
+    return await Notebook.query()
+      .patch({ deleted: date })
+      .whereNull('deleted')
+      .andWhere('id', '=', id)
   }
 
   $formatJson (json /*: any */) /*: any */ {
