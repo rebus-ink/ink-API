@@ -10,83 +10,83 @@ const { Strategy, ExtractJwt } = require('passport-jwt')
 const elasticsearchQueue = require('./processFiles/searchQueue')
 const epubQueue = require('./processFiles/index')
 const cache = require('./utils/cache')
-const errorHandling = require('./routes/middleware/error-handling')
+const errorHandling = require('./routes/_middleware/error-handling')
 
 // Routes
 
 // Reader
 const whoamiRoute = require('./routes/whoami') // GET /whoami
-const readersRoute = require('./routes/reader-post') // POST /readers
-const readerGetRoute = require('./routes/reader-get') // GET /readers/:id
-const readerPutRoute = require('./routes/reader-put') // PUT /readers/:id
-const readerDeleteRoute = require('./routes/reader-delete') // DELETE /readers/:id
+const readersRoute = require('./routes/readers/reader-post') // POST /readers
+const readerGetRoute = require('./routes/readers/reader-get') // GET /readers/:id
+const readerPutRoute = require('./routes/readers/reader-put') // PUT /readers/:id
+const readerDeleteRoute = require('./routes/readers/reader-delete') // DELETE /readers/:id
 
 // Uploads
-const fileUploadRoute = require('./routes/file-upload') // POST /reader-:id/file-upload
-const fileUploadPubRoute = require('./routes/file-upload-pub') // POST /reader-:id/file-upload-pub
+const fileUploadRoute = require('./routes/files/file-upload') // POST /reader-:id/file-upload
+const fileUploadPubRoute = require('./routes/files/file-upload-pub') // POST /reader-:id/file-upload-pub
 
 // Publications
-const publicationPostRoute = require('./routes/publication-post') // POST /publications
-const publicationPatchRoute = require('./routes/publication-patch') // PATCH /publications/:id
-const publicationDeleteRoute = require('./routes/publication-delete') // DELETE /publications/:id
-const publicationPutTagRoute = require('./routes/publication-put-tag') // PUT /publications/:pubId/tags/:tagId
-const publicationDeleteTagRoute = require('./routes/publication-delete-tag') // DELETE /publications/:pubId/tags/:tagId
-const publicationGetRoute = require('./routes/publication-get') // GET /publications/:id
-const publicationDocumentRoute = require('./routes/publication-document') // GET /publication-:id/:path
-const readActivityPostRoute = require('./routes/readActivity-post') // POST /publications/:id/readActivity
-const publicationBatchUpdate = require('./routes/publication-batchUpdate') // PATCH /publications/batchUpdate
+const publicationPostRoute = require('./routes/publications/publication-post') // POST /publications
+const publicationPatchRoute = require('./routes/publications/publication-patch') // PATCH /publications/:id
+const publicationDeleteRoute = require('./routes/publications/publication-delete') // DELETE /publications/:id
+const publicationPutTagRoute = require('./routes/publications/publication-put-tag') // PUT /publications/:pubId/tags/:tagId
+const publicationDeleteTagRoute = require('./routes/publications/publication-delete-tag') // DELETE /publications/:pubId/tags/:tagId
+const publicationGetRoute = require('./routes/publications/publication-get') // GET /publications/:id
+const publicationDocumentRoute = require('./routes/publications/publication-document') // GET /publication-:id/:path
+const readActivityPostRoute = require('./routes/publications/readActivity-post') // POST /publications/:id/readActivity
+const publicationBatchUpdate = require('./routes/publications/publication-batchUpdate') // PATCH /publications/batchUpdate
 
 // Search
 const searchRoute = require('./routes/search') // not working!
 
 // Tags
-const getTagsRoute = require('./routes/tags-get') // GET /tags
-const tagPostRoute = require('./routes/tag-post') // POST /tags
-const tagPutRoute = require('./routes/tag-put') // PUT /tags/:id
-const tagDeleteRoute = require('./routes/tag-delete') // DELETE /tags/:id
+const getTagsRoute = require('./routes/tags/tags-get') // GET /tags
+const tagPostRoute = require('./routes/tags/tag-post') // POST /tags
+const tagPutRoute = require('./routes/tags/tag-put') // PUT /tags/:id
+const tagDeleteRoute = require('./routes/tags/tag-delete') // DELETE /tags/:id
 
 // Library
-const readerLibraryRoute = require('./routes/library-get') // GET /library
+const readerLibraryRoute = require('./routes/publications/library-get') // GET /library
 
 // Jobs
-const getJobRoute = require('./routes/job-get') // GET /jobs/:id
+const getJobRoute = require('./routes/files/job-get') // GET /jobs/:id
 
 // Notes
-const readerNotesRoute = require('./routes/readerNotes-get') // GET /notes
-const getNoteRoute = require('./routes/note-get') // GET /notes/:id
-const notePutTagRoute = require('./routes/note-put-tag') // PUT /notes/:noteId/tags/:tagId
-const noteDeleteTagRoute = require('./routes/note-delete-tag') // DELETE /notes/:noteId/tags/:tagId
-const notePostRoute = require('./routes/note-post') // POST /notes
-const noteDeleteRoute = require('./routes/note-delete') // DELETE /notes/:id
-const notePutRoute = require('./routes/note-put') // PUT /notes/:id
+const readerNotesRoute = require('./routes/notes/readerNotes-get') // GET /notes
+const getNoteRoute = require('./routes/notes/note-get') // GET /notes/:id
+const notePutTagRoute = require('./routes/notes/note-put-tag') // PUT /notes/:noteId/tags/:tagId
+const noteDeleteTagRoute = require('./routes/notes/note-delete-tag') // DELETE /notes/:noteId/tags/:tagId
+const notePostRoute = require('./routes/notes/note-post') // POST /notes
+const noteDeleteRoute = require('./routes/notes/note-delete') // DELETE /notes/:id
+const notePutRoute = require('./routes/notes/note-put') // PUT /notes/:id
 
 // NoteRelations
-const noteRelationPostRoute = require('./routes/noteRelation-post') // POST /noteRelations
-const noteRelationPutRoute = require('./routes/noteRelation-put') // PUT /noteRelations/:id
-const noteRelationDeleteRoute = require('./routes/noteRelation-delete') // DELETE /noteRelations/:id
+const noteRelationPostRoute = require('./routes/noteRelations/noteRelation-post') // POST /noteRelations
+const noteRelationPutRoute = require('./routes/noteRelations/noteRelation-put') // PUT /noteRelations/:id
+const noteRelationDeleteRoute = require('./routes/noteRelations/noteRelation-delete') // DELETE /noteRelations/:id
 
 // NoteContexts
-const noteContextPostRoute = require('./routes/noteContext-post') // POST /noteContexts
-const noteContextPutRoute = require('./routes/noteContext-put') // PUT /noteContexts/:id
-const noteContextDeleteRoute = require('./routes/noteContext-delete') // DELETE /noteContexts/:id
-const noteContextAddNoteRoute = require('./routes/noteContext-addNote') // POST /noteContexts/:id/notes
-const noteContextGetRoute = require('./routes/noteContext-get') // GET /noteContexts/:id
+const noteContextPostRoute = require('./routes/noteContexts/noteContext-post') // POST /noteContexts
+const noteContextPutRoute = require('./routes/noteContexts/noteContext-put') // PUT /noteContexts/:id
+const noteContextDeleteRoute = require('./routes/noteContexts/noteContext-delete') // DELETE /noteContexts/:id
+const noteContextAddNoteRoute = require('./routes/noteContexts/noteContext-addNote') // POST /noteContexts/:id/notes
+const noteContextGetRoute = require('./routes/noteContexts/noteContext-get') // GET /noteContexts/:id
 
 // outlines
-const outlineGetRoute = require('./routes/outline-get') // GET /outlines/:id
-const outlinePostRoute = require('./routes/outline-post') // POST /outlines
-const outlineDeleteRoute = require('./routes/outline-delete') // DELETE /outlines/:id
-const outlinePutRoute = require('./routes/outline-put') // PUT /outlines:id
-const outlineAddNoteRoute = require('./routes/outline-addNote') // POST /outlines/:id/notes
-const outlineDeleteNoteRoute = require('./routes/outline-deleteNote') // DELETE /outlines/:id/notes/:noteId
-const outlinePatchNoteRoute = require('./routes/outline-patchNote') // PATCH /outlines/:id/notes/:noteId
+const outlineGetRoute = require('./routes/outlines/outline-get') // GET /outlines/:id
+const outlinePostRoute = require('./routes/outlines/outline-post') // POST /outlines
+const outlineDeleteRoute = require('./routes/outlines/outline-delete') // DELETE /outlines/:id
+const outlinePutRoute = require('./routes/outlines/outline-put') // PUT /outlines:id
+const outlineAddNoteRoute = require('./routes/outlines/outline-addNote') // POST /outlines/:id/notes
+const outlineDeleteNoteRoute = require('./routes/outlines/outline-deleteNote') // DELETE /outlines/:id/notes/:noteId
+const outlinePatchNoteRoute = require('./routes/outlines/outline-patchNote') // PATCH /outlines/:id/notes/:noteId
 
 // notebooks
-const notebookPostRoute = require('./routes/notebook-post') // POST /notebooks
-const notebookGetRoute = require('./routes/notebook-get') // GET /notebooks/:id
-const notebooksGetRoute = require('./routes/notebooks.get') // GET /notebooks
-const notebookPutRoute = require('./routes/notebook-put') // PUT /notebooks/:id
-const notebookDeleteRoute = require('./routes/notebook-delete') // DELETE /notebooks/:id
+const notebookPostRoute = require('./routes/notebooks/notebook-post') // POST /notebooks
+const notebookGetRoute = require('./routes/notebooks/notebook-get') // GET /notebooks/:id
+const notebooksGetRoute = require('./routes/notebooks/notebooks.get') // GET /notebooks
+const notebookPutRoute = require('./routes/notebooks/notebook-put') // PUT /notebooks/:id
+const notebookDeleteRoute = require('./routes/notebooks/notebook-delete') // DELETE /notebooks/:id
 
 const setupKnex = async skip_migrate => {
   let config
