@@ -62,7 +62,7 @@ class Notebook_Note extends BaseModel {
 
     if (result === 0) {
       throw new Error(
-        `Remove Note from Notebook Error: No Relation found between Note ${noteId} and Notebook ${notebookId}`
+        `Remove Note from Notebook Error: No Relation found between Notebook ${notebookId} and Note ${noteId}`
       )
     } else {
       return result

@@ -467,7 +467,7 @@ const test = async app => {
   )
 
   await tap.test(
-    'DELETE publication to notebook without authentication',
+    'DELETE publication from notebook without authentication',
     async () => {
       const res = await request(app)
         .delete('/notebooks/abc/publications/abc')
@@ -495,6 +495,17 @@ const test = async app => {
       .type('application/ld+json')
     await tap.equal(res.statusCode, 401)
   })
+
+  await tap.test(
+    'DELETE note from notebook without authentication',
+    async () => {
+      const res = await request(app)
+        .delete('/notebooks/abc/notes/abc')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
 
   // ------------------------------------- UPLOAD ---------------------------
 
