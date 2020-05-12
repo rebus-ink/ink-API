@@ -1193,6 +1193,51 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to assign a note belonging to another user to a notebook',
+    async () => {
+      const res = await request(app)
+        .put(`/notebooks/${notebook2.shortId}/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Note ${noteId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook2.shortId}/notes/${noteId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to assign a note to a notebook belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/notebooks/${notebook1.shortId}/notes/${noteId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}/notes/${noteId2}`
+      )
+    }
+  )
+
   // ---------------------------------------- READER --------------------------
 
   await tap.test(
