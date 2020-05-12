@@ -108,7 +108,7 @@ const test = async app => {
       await tap.ok(error)
       await tap.equal(
         error.message,
-        `Remove Publication from Notebook Error: No Relation found between Publication ${pubId} and Notebook ${notebookId}`
+        `Remove Publication from Notebook Error: No Relation found between Notebook ${notebookId} and Publication ${pubId}`
       )
     }
   )

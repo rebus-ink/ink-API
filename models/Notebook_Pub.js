@@ -64,7 +64,7 @@ class Notebook_Pub extends BaseModel {
 
     if (result === 0) {
       throw new Error(
-        `Remove Publication from Notebook Error: No Relation found between Publication ${publicationId} and Notebook ${notebookId}`
+        `Remove Publication from Notebook Error: No Relation found between Notebook ${notebookId} and Publication ${publicationId}`
       )
     } else {
       return result

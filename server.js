@@ -87,6 +87,8 @@ const notebookGetRoute = require('./routes/notebooks/notebook-get') // GET /note
 const notebooksGetRoute = require('./routes/notebooks/notebooks.get') // GET /notebooks
 const notebookPutRoute = require('./routes/notebooks/notebook-put') // PUT /notebooks/:id
 const notebookDeleteRoute = require('./routes/notebooks/notebook-delete') // DELETE /notebooks/:id
+const notebookPutPubRoute = require('./routes/notebooks/notebook-put-pub') // PUT /notebooks/:id/publications/:pubId
+const notebookDeletePubRoute = require('./routes/notebooks/notebook-delete-pub') // DELETE /notebooks/:id/publications/:pubId
 
 const setupKnex = async skip_migrate => {
   let config
@@ -279,6 +281,8 @@ notebookGetRoute(app)
 notebooksGetRoute(app)
 notebookPutRoute(app)
 notebookDeleteRoute(app)
+notebookPutPubRoute(app)
+notebookDeletePubRoute(app)
 
 app.use(errorHandling)
 

@@ -4,7 +4,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNotebook
+  createNotebook,
+  addPubToNotebook,
+  createPublication
 } = require('../../utils/testUtils')
 
 const test = async app => {
@@ -39,6 +41,33 @@ const test = async app => {
     await tap.equal(body.tags.length, 0)
     await tap.equal(body.notebookTags.length, 0)
     await tap.equal(body.publications.length, 0)
+    await tap.equal(body.noteContexts.length, 0)
+  })
+
+  const pub = await createPublication(app, token)
+
+  await addPubToNotebook(app, token, pub.shortId, notebook.shortId)
+
+  await tap.test('Get notebook with publication', async () => {
+    const res = await request(app)
+      .get(`/notebooks/${notebook.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.id)
+    await tap.equal(body.name, 'notebook1')
+    await tap.equal(body.description, 'test')
+    await tap.equal(body.status, 'archived')
+    await tap.equal(body.settings.property, 'value')
+    // notes, tags, notebookTags, pubs, noteContexts
+    await tap.equal(body.notes.length, 0)
+    await tap.equal(body.tags.length, 0)
+    await tap.equal(body.notebookTags.length, 0)
+    await tap.equal(body.publications.length, 1)
+    await tap.equal(body.publications[0].shortId, pub.shortId)
     await tap.equal(body.noteContexts.length, 0)
   })
 
