@@ -1093,6 +1093,56 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'Try to remove a publication belonging to another user from a notebook',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook2.shortId}/publications/${publicationId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Publication ${publicationId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook2.shortId}/publications/${publicationId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to remove a publication to a notebook belongint from another user',
+    async () => {
+      const res = await request(app)
+        .delete(
+          `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
+        )
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
+      )
+    }
+  )
+
   // ---------------------------------------- READER --------------------------
 
   await tap.test(
