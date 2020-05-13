@@ -507,6 +507,17 @@ const test = async app => {
     }
   )
 
+  await tap.test(
+    'POST new note to notebook without authentication',
+    async () => {
+      const res = await request(app)
+        .post('/notebooks/abc/notes')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {

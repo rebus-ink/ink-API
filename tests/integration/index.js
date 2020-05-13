@@ -85,6 +85,7 @@ const notebookPubPutTests = require('./notebook/notebook-pub-put.test')
 const notebookPubDeleteTests = require('./notebook/notebook-pub-delete.test')
 const notebookNotePutTests = require('./notebook/notebook-note-put.test')
 const notebookNoteDeleteTests = require('./notebook/notebook-note-delete.test')
+const notebookNotePostTests = require('./notebook/notebook-note-post.test')
 
 const app = require('../../server').app
 
@@ -255,6 +256,7 @@ const allTests = async () => {
       await notebookPubDeleteTests(app)
       await notebookNotePutTests(app)
       await notebookNoteDeleteTests(app)
+      await notebookNotePostTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
     }
