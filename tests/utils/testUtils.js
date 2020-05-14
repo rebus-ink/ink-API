@@ -305,6 +305,17 @@ const addPubToNotebook = async (app, token, pubId, notebookId) => {
   return res
 }
 
+const addNoteToNotebook = async (app, token, noteId, notebookId) => {
+  noteId = urlToId(noteId)
+  notebookId = urlToId(notebookId)
+  const res = await request(app)
+    .put(`/notebooks/${notebookId}/notes/${noteId}`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+  return res
+}
+
 const addNoteToCollection = async (app, token, noteId, tagId) => {
   tagId = urlToId(tagId)
   return await request(app)
@@ -348,5 +359,6 @@ module.exports = {
   createReader,
   createOutline,
   createNotebook,
-  addPubToNotebook
+  addPubToNotebook,
+  addNoteToNotebook
 }

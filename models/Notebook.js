@@ -146,8 +146,14 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notebookTags, noteContexts, tags, publications, notes]'
+        '[reader, notes(notDeleted).[body], notebookTags(notDeleted), noteContexts(notDeleted), tags(notDeleted), publications(notDeleted)]'
       )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
+      .whereNull('deleted')
   }
 
   static async byReader (id /*: string */) /*: Promise<Array<any>> */ {

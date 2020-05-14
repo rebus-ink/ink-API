@@ -7,6 +7,7 @@ const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const urlparse = require('url').parse
 const { NoteBody } = require('./NoteBody')
+const { Notebook_Note } = require('./Notebook_Note')
 
 /*::
 type NoteType = {
@@ -202,6 +203,38 @@ class Note extends BaseModel {
     // }
     return props
   }
+
+  static async createNoteInNotebook (
+    reader /*: any */,
+    notebookId /*: string */,
+    note /*: any */
+  ) {
+    const createdNote = await this.createNote(reader, note)
+    if (createdNote) {
+      try {
+        // $FlowFixMe
+        await Notebook_Note.addNoteToNotebook(
+          notebookId,
+          urlToId(createdNote.id)
+        )
+      } catch (err) {
+        this.hardDelete(createdNote.id)
+        throw err
+      }
+    }
+
+    return createdNote
+  }
+
+  static async hardDelete (noteId /*: ?string */) {
+    noteId = urlToId(noteId)
+    await Note.query()
+      .delete()
+      .where({
+        id: noteId
+      })
+  }
+
   static async createNote (
     reader /*: any */,
     note /*: any */
