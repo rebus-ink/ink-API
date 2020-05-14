@@ -76,7 +76,7 @@ const test = async app => {
   unsorted: 8, 9
    */
 
-  const note10 = await createNote(app, token, readerId)
+  const note10 = await createNote(app, token)
 
   await tap.test('Update the content of a note', async () => {
     const res = await request(app)

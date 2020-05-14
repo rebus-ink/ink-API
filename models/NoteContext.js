@@ -23,6 +23,7 @@ class NoteContext extends BaseModel {
         type: { type: 'string' },
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
+        notebookId: { type: ['string', 'null'] },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' }
       },
@@ -57,7 +58,13 @@ class NoteContext extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    const props = _.pick(object, ['type', 'name', 'description', 'json'])
+    const props = _.pick(object, [
+      'type',
+      'name',
+      'description',
+      'json',
+      'notebookId'
+    ])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
@@ -103,7 +110,8 @@ class NoteContext extends BaseModel {
       'type',
       'name',
       'description',
-      'json'
+      'json',
+      'notebookId'
     ])
 
     return await NoteContext.query(NoteContext.knex()).updateAndFetchById(

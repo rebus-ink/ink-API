@@ -134,8 +134,7 @@ const createPublication = async (app, token, object = {}) => {
   return response.body
 }
 
-const createNote = async (app, token, readerId, object = {}) => {
-  readerId = urlToId(readerId)
+const createNote = async (app, token, object = {}) => {
   const noteObject = Object.assign(
     {
       target: { property: 'something' },

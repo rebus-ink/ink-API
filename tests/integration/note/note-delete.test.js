@@ -23,7 +23,7 @@ const test = async app => {
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     target: { property: 'value' },
     publicationId,
     documentUrl,
@@ -159,7 +159,7 @@ const test = async app => {
   // // DELETE NOTES FOR PUB
   // await tap.test('Delete all Notes for a Publication', async () => {
   //   // create two notes for our publication:
-  //   const createNoteRes = await createNote(app, token, readerId, {
+  //   const createNoteRes = await createNote(app, token, {
   //     content: 'This is the content of note B.',
   //     'oa:hasSelector': { propety: 'value' },
   //     context: publicationUrl,
@@ -174,7 +174,7 @@ const test = async app => {
   //   )
   //   newNoteUrl = noteActivityObject1.object.id
   //   newNoteId = urlToId(noteActivityObject1.object.id)
-  //   await createNote(app, token, readerId, {
+  //   await createNote(app, token, {
   //     content: 'This is the content of note C.',
   //     'oa:hasSelector': { propety: 'value' },
   //     context: publicationUrl,

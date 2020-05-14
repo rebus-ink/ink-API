@@ -49,13 +49,13 @@ const test = async app => {
   const tagId2 = urlToId(tag2.id)
 
   // create Note for reader 1
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     body: { motivation: 'test' }
   })
   const noteId = urlToId(note.id)
 
   // create Note for reader 2
-  const note2 = await createNote(app, token2, readerId2, {
+  const note2 = await createNote(app, token2, {
     body: { motivation: 'test' }
   })
   const noteId2 = urlToId(note2.id)

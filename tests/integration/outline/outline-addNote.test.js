@@ -34,7 +34,7 @@ const test = async app => {
   })
   const outlineId = outline.shortId
 
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     body: { content: 'to be copied', motivation: 'test' }
   })
   const noteId = urlToId(note.id)

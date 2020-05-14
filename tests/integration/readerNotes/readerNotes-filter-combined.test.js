@@ -56,7 +56,7 @@ const test = async app => {
       },
       object
     )
-    return await createNote(app, token, urlToId(readerId), noteObj)
+    return await createNote(app, token, noteObj)
   }
 
   const note0 = await createNoteSimplified() // collection

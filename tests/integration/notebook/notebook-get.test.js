@@ -10,7 +10,8 @@ const {
   addNoteToNotebook,
   addTagToNotebook,
   createTag,
-  createNote
+  createNote,
+  createNoteContext
 } = require('../../utils/testUtils')
 
 const test = async app => {
@@ -51,7 +52,7 @@ const test = async app => {
   const pub = await createPublication(app, token)
   await addPubToNotebook(app, token, pub.shortId, notebook.shortId)
 
-  const note = await createNote(app, token, reader.shortId, {
+  const note = await createNote(app, token, {
     body: { content: 'test!!', motivation: 'test' }
   })
   await addNoteToNotebook(app, token, note.shortId, notebook.shortId)
@@ -61,6 +62,10 @@ const test = async app => {
 
   const notebookTag = await createTag(app, token, {
     name: 'testing!',
+    notebookId: notebook.shortId
+  })
+
+  const notebookNoteContext = await createNoteContext(app, token, {
     notebookId: notebook.shortId
   })
 
@@ -88,7 +93,8 @@ const test = async app => {
     await tap.equal(body.notebookTags[0].id, notebookTag.id)
     await tap.equal(body.publications.length, 1)
     await tap.equal(body.publications[0].shortId, pub.shortId)
-    await tap.equal(body.noteContexts.length, 0)
+    await tap.equal(body.noteContexts.length, 1)
+    await tap.equal(body.noteContexts[0].shortId, notebookNoteContext.shortId)
   })
 
   await tap.test('Try to get a Notebook that does not exist', async () => {
