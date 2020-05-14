@@ -87,7 +87,6 @@ module.exports = function (app) {
         }
 
         await libraryCacheUpdate(reader.id)
-
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdTag.toJSON()))
       })

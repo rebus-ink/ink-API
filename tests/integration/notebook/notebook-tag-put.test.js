@@ -13,7 +13,7 @@ const test = async app => {
   await createUser(app, token)
 
   const tag = await createTag(app, token)
-  const tagId = tag.shortId
+  const tagId = tag.id
 
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
@@ -38,7 +38,7 @@ const test = async app => {
     const body = tagres.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 1)
-    await tap.equal(body.tags[0].shortId, tagId)
+    await tap.equal(body.tags[0].id, tagId)
   })
 
   await tap.test('Try to assign Tag to an invalid Notebook', async () => {

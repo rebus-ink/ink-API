@@ -59,6 +59,11 @@ const test = async app => {
   const tag = await createTag(app, token)
   await addTagToNotebook(app, token, tag.id, notebook.shortId)
 
+  const notebookTag = await createTag(app, token, {
+    name: 'testing!',
+    notebookId: notebook.shortId
+  })
+
   await tap.test('Get notebook with publication', async () => {
     const res = await request(app)
       .get(`/notebooks/${notebook.shortId}`)
@@ -79,13 +84,12 @@ const test = async app => {
     await tap.equal(body.notes[0].body[0].content, 'test!!')
     await tap.equal(body.tags.length, 1)
     await tap.equal(body.tags[0].id, tag.id)
-    await tap.equal(body.notebookTags.length, 0)
+    await tap.equal(body.notebookTags.length, 1)
+    await tap.equal(body.notebookTags[0].id, notebookTag.id)
     await tap.equal(body.publications.length, 1)
     await tap.equal(body.publications[0].shortId, pub.shortId)
     await tap.equal(body.noteContexts.length, 0)
   })
-
-  // TODO: add tests for notebook with notes, tags, notebookTags, noteContexts and publications
 
   await tap.test('Try to get a Notebook that does not exist', async () => {
     const res = await request(app)

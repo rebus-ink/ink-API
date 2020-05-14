@@ -4,6 +4,7 @@ const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
 const { Publication_Tag } = require('../../models/Publications_Tags')
 const { Publication } = require('../../models/Publication')
+const { Notebook } = require('../../models/Notebook')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
 const { ValidationError } = require('objection')
@@ -49,6 +50,11 @@ const test = async app => {
 
   const publication = await Publication.byId(urlToId(response.id))
 
+  const notebook = await Notebook.createNotebook(
+    { name: 'test' },
+    createdReader.id
+  )
+
   await tap.test('Create Stack', async () => {
     let responseCreate = await Tag.createTag(createdReader.id, tagObject)
 
@@ -56,6 +62,26 @@ const test = async app => {
     await tap.ok(responseCreate instanceof Tag)
     await tap.equal(responseCreate.readerId, createdReader.id)
     await tap.equal(responseCreate.name, 'mystack')
+    await tap.type(responseCreate.id, 'string')
+    await tap.type(responseCreate.json, 'object')
+    await tap.equal(responseCreate.json.property, 1)
+    await tap.ok(responseCreate.published)
+    tagId = responseCreate.id
+  })
+
+  await tap.test('Create Tag with notebookid', async () => {
+    let responseCreate = await Tag.createTag(createdReader.id, {
+      name: 'mystack2',
+      type: 'test',
+      notebookId: notebook.id,
+      json: { property: 1 }
+    })
+
+    await tap.ok(responseCreate)
+    await tap.ok(responseCreate instanceof Tag)
+    await tap.ok(responseCreate.notebookId)
+    await tap.equal(responseCreate.readerId, createdReader.id)
+    await tap.equal(responseCreate.name, 'mystack2')
     await tap.type(responseCreate.id, 'string')
     await tap.type(responseCreate.json, 'object')
     await tap.equal(responseCreate.json.property, 1)
@@ -98,7 +124,7 @@ const test = async app => {
     })
     let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
 
-    await tap.equal(responseGet.length, 21) // 4 default modes, 13 flags and 4 tags we created
+    await tap.equal(responseGet.length, 22) // 4 default modes, 13 flags and 2 tags we created
     await tap.ok(responseGet[0] instanceof Tag)
     await tap.ok(responseGet[1] instanceof Tag)
     await tap.ok(responseGet[2] instanceof Tag)
