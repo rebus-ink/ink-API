@@ -60,7 +60,7 @@ class Notebook_Tag extends BaseModel {
 
     if (result === 0) {
       throw new Error(
-        `Remove Tag from Notebook Error: No Relation found between Tag ${tagId} and Notebook ${notebookId}`
+        `Remove Tag from Notebook Error: No Relation found between Notebook ${notebookId} and Tag ${tagId}`
       )
     } else {
       return result
