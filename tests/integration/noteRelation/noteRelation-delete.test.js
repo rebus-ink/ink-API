@@ -14,11 +14,11 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const note1 = await createNote(app, token, readerId, {
+  const note1 = await createNote(app, token, {
     body: { motivation: 'test', content: 'note 1' }
   })
   const noteId1 = urlToId(note1.id)
-  const note2 = await createNote(app, token, readerId, {
+  const note2 = await createNote(app, token, {
     body: { motivation: 'test', content: 'note 2' }
   })
   const noteId2 = urlToId(note2.id)

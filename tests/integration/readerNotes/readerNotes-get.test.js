@@ -38,7 +38,7 @@ const test = async app => {
       { documentUrl, publicationId, body: { motivation: 'test' } },
       object
     )
-    return await createNote(app, token, urlToId(readerId), noteObj)
+    return await createNote(app, token, noteObj)
   }
 
   await tap.test('Get empty list of notes', async () => {
@@ -97,7 +97,7 @@ const test = async app => {
   await tap.test(
     'Should also include notes without a publicationId',
     async () => {
-      await createNote(app, token, urlToId(readerId), {
+      await createNote(app, token, {
         body: { motivation: 'test' }
       })
 

@@ -6,6 +6,9 @@ const { Note_Tag } = require('./Note_Tag')
 const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
 const crypto = require('crypto')
+const { Reader } = require('./Reader')
+const { Notebook } = require('./Notebook')
+const { Model } = require('objection')
 
 /*::
 type TagType = {
@@ -35,6 +38,7 @@ class Tag extends BaseModel {
         name: { type: 'string' },
         json: { type: 'object' },
         readerId: { type: 'string' },
+        notebookId: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
@@ -46,14 +50,13 @@ class Tag extends BaseModel {
 
   static async createTag (
     readerId /*: string */,
-    tag /*: {type: string, name: string, type: string, json?: {}, readerId?: string} */
+    tag /*: {type: string, name: string, type: string, json?: {}, readerId?: string, notebookId?:string} */
   ) /*: Promise<any> */ {
-    tag.readerId = readerId
+    tag.readerId = urlToId(readerId)
 
-    const props = _.pick(tag, ['name', 'json', 'readerId'])
+    const props = _.pick(tag, ['name', 'json', 'readerId', 'notebookId'])
     props.type = tag.type
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-
     try {
       return await Tag.query().insert(props)
     } catch (err) {
@@ -70,7 +73,7 @@ class Tag extends BaseModel {
   ) /*: Promise<any> */ {
     const tagArray = tags.map(tag => {
       tag.readerId = readerId
-      tag = _.pick(tag, ['name', 'json', 'readerId', 'type'])
+      tag = _.pick(tag, ['name', 'json', 'readerId', 'type', 'notebookId'])
       tag.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
       return tag
     })
@@ -116,7 +119,8 @@ class Tag extends BaseModel {
       'json',
       'readerId',
       'id',
-      'type'
+      'type',
+      'notebookId'
     ])
     try {
       return await Tag.query().updateAndFetchById(

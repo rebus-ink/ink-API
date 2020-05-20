@@ -105,9 +105,9 @@ const test = async app => {
       await tap.ok(error)
       await tap.equal(
         error.message,
-        `Remove Tag from Notebook Error: No Relation found between Tag ${
-          tag.id
-        } and Notebook ${urlToId(notebook.id)}`
+        `Remove Tag from Notebook Error: No Relation found between Notebook ${urlToId(
+          notebook.id
+        )} and Tag ${tag.id}`
       )
     }
   )

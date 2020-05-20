@@ -26,7 +26,7 @@ const test = async app => {
   const publication = await createPublication(app, token)
 
   // create Note for reader 1
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     publicationId: publication.id
   })
   const noteId = urlToId(note.id)

@@ -44,7 +44,7 @@ const test = async app => {
   const documentUrl = `${publication.id}${document.documentPath}`
 
   // create Note for reader 1
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     documentUrl,
     publicationId: publication.id,
     body: { motivation: 'test' }

@@ -31,8 +31,8 @@ const test = async app => {
 
   // add stuff for reader
   const pub = await createPublication(app, token)
-  const note1 = await createNote(app, token, reader.shortId)
-  const note2 = await createNote(app, token, reader.shortId)
+  const note1 = await createNote(app, token)
+  const note2 = await createNote(app, token)
   const context = await createNoteContext(app, token, {
     type: 'test',
     name: 'my context'

@@ -28,7 +28,7 @@ const test = async app => {
       { documentUrl, publicationId, body: { motivation: 'test' } },
       object
     )
-    return await createNote(app, token, urlToId(readerId), noteObj)
+    return await createNote(app, token, noteObj)
   }
 
   await createNoteSimplified({ body: { motivation: 'test', content: 'first' } })

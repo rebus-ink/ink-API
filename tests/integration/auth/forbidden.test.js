@@ -49,13 +49,13 @@ const test = async app => {
   const tagId2 = urlToId(tag2.id)
 
   // create Note for reader 1
-  const note = await createNote(app, token, readerId, {
+  const note = await createNote(app, token, {
     body: { motivation: 'test' }
   })
   const noteId = urlToId(note.id)
 
   // create Note for reader 2
-  const note2 = await createNote(app, token2, readerId2, {
+  const note2 = await createNote(app, token2, {
     body: { motivation: 'test' }
   })
   const noteId2 = urlToId(note2.id)
@@ -1304,6 +1304,96 @@ const test = async app => {
       await tap.equal(
         error.details.requestUrl,
         `/notebooks/${notebook1.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to assign a tag belonging to another user to a notebook',
+    async () => {
+      const res = await request(app)
+        .put(`/notebooks/${notebook2.shortId}/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook2.shortId}/tags/${tagId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to assign a tag to a notebook belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/notebooks/${notebook1.shortId}/tags/${tagId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}/tags/${tagId2}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag belonging to another user from a notebook',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook2.shortId}/tags/${tagId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook2.shortId}/tags/${tagId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to remove a tag from a notebook belonging from another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook1.shortId}/tags/${tagId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}/tags/${tagId2}`
       )
     }
   )

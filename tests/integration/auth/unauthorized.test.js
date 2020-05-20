@@ -518,6 +518,25 @@ const test = async app => {
     }
   )
 
+  await tap.test('PUT tag to notebook without authentication', async () => {
+    const res = await request(app)
+      .put('/notebooks/abc/tags/abc')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
+  await tap.test(
+    'DELETE tag from notebook without authentication',
+    async () => {
+      const res = await request(app)
+        .delete('/notebooks/abc/tags/abc')
+        .set('Host', 'reader-api.test')
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 401)
+    }
+  )
+
   // ------------------------------------- UPLOAD ---------------------------
 
   await tap.test('Upload without authentication', async () => {

@@ -25,7 +25,7 @@ const test = async app => {
 
   const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
-  const note = await createNote(app, token, urlToId(readerId), {
+  const note = await createNote(app, token, {
     body: { motivation: 'test', content: 'content goes here' },
     target: { property1: 'target information' },
     documentUrl,
@@ -33,8 +33,8 @@ const test = async app => {
   })
   const noteId = urlToId(note.id)
 
-  const note2 = await createNote(app, token, urlToId(readerId))
-  const note3 = await createNote(app, token, urlToId(readerId))
+  const note2 = await createNote(app, token)
+  const note3 = await createNote(app, token)
 
   await tap.test('Get Note', async () => {
     const res = await request(app)

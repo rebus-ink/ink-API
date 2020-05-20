@@ -30,7 +30,7 @@ const test = async app => {
       },
       object
     )
-    return await createNote(app, token, urlToId(readerId), noteObj)
+    return await createNote(app, token, noteObj)
   }
 
   const note1 = await createNoteSimplified() // 1

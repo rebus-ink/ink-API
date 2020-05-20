@@ -4,50 +4,50 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNote,
+  createTag,
   createNotebook,
-  addNoteToNotebook
+  addTagToNotebook
 } = require('../../utils/testUtils')
 
 const test = async app => {
   const token = getToken()
   await createUser(app, token)
 
-  const note = await createNote(app, token)
-  const noteId = note.shortId
+  const tag = await createTag(app, token)
+  const tagId = tag.id
 
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
 
-  await addNoteToNotebook(app, token, noteId, notebookId)
+  await addTagToNotebook(app, token, tagId, notebookId)
 
-  await tap.test('Remove note from Notebook', async () => {
+  await tap.test('Remove tag from Notebook', async () => {
     const res = await request(app)
-      .delete(`/notebooks/${notebookId}/notes/${noteId}`)
+      .delete(`/notebooks/${notebookId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
-    // make sure the note is no longer attached to the notebook
-    const noteres = await request(app)
+    // make sure the tag is no longer attached to the notebook
+    const tagres = await request(app)
       .get(`/notebooks/${notebookId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(noteres.status, 200)
-    const body = noteres.body
-    await tap.ok(Array.isArray(body.notes))
-    await tap.equal(body.notes.length, 0)
+    await tap.equal(tagres.status, 200)
+    const body = tagres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 0)
   })
 
   await tap.test(
-    'Try to remove note from notebook with invalid notebook',
+    'Try to remove tag from notebook with invalid notebook',
     async () => {
       const res = await request(app)
-        .delete(`/notebooks/${notebookId}abc/notes/${noteId}`)
+        .delete(`/notebooks/${notebookId}abc/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -56,20 +56,20 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Remove Note from Notebook Error: No Relation found between Notebook ${notebookId}abc and Note ${noteId}`
+        `Remove Tag from Notebook Error: No Relation found between Notebook ${notebookId}abc and Tag ${tagId}`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}abc/notes/${noteId}`
+        `/notebooks/${notebookId}abc/tags/${tagId}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove note from notebook with invalid note',
+    'Try to remove tag from notebook with invalid tag',
     async () => {
       const res = await request(app)
-        .delete(`/notebooks/${notebookId}/notes/${noteId}abc`)
+        .delete(`/notebooks/${notebookId}/tags/${tagId}abc`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -78,11 +78,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Remove Note from Notebook Error: No Relation found between Notebook ${notebookId} and Note ${noteId}abc`
+        `Remove Tag from Notebook Error: No Relation found between Notebook ${notebookId} and Tag ${tagId}abc`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}/notes/${noteId}abc`
+        `/notebooks/${notebookId}/tags/${tagId}abc`
       )
     }
   )

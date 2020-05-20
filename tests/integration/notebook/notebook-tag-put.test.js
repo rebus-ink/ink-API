@@ -4,47 +4,46 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNotebook,
-  createNote
+  createTag,
+  createNotebook
 } = require('../../utils/testUtils')
 
 const test = async app => {
   const token = getToken()
-  const reader = await createUser(app, token)
+  await createUser(app, token)
 
-  const note = await createNote(app, token)
-  const noteId = note.shortId
+  const tag = await createTag(app, token)
+  const tagId = tag.id
 
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
 
-  await tap.test('Assign Note to Notebook', async () => {
+  await tap.test('Assign Tag to Notebook', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}/notes/${noteId}`)
+      .put(`/notebooks/${notebookId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
-    // make sure the note is really attached to the notebook
-    const pubres = await request(app)
+    // make sure the tag is really attached to the notebook
+    const tagres = await request(app)
       .get(`/notebooks/${notebookId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
-    await tap.ok(Array.isArray(body.notes))
-    await tap.equal(body.notes.length, 1)
-    await tap.equal(body.notes[0].shortId, noteId)
-    await tap.ok(body.notes[0].body)
+    await tap.equal(tagres.status, 200)
+    const body = tagres.body
+    await tap.ok(Array.isArray(body.tags))
+    await tap.equal(body.tags.length, 1)
+    await tap.equal(body.tags[0].id, tagId)
   })
 
-  await tap.test('Try to assign Note to an invalid Notebook', async () => {
+  await tap.test('Try to assign Tag to an invalid Notebook', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}abc/notes/${noteId}`)
+      .put(`/notebooks/${notebookId}abc/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -53,17 +52,17 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Add Note to Notebook Error: No Notebook found with id ${notebookId}abc`
+      `Add Tag to Notebook Error: No Notebook found with id ${notebookId}abc`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/notebooks/${notebookId}abc/notes/${noteId}`
+      `/notebooks/${notebookId}abc/tags/${tagId}`
     )
   })
 
-  await tap.test('Try to assign an invalid Note to a Notebook', async () => {
+  await tap.test('Try to assign an invalid Tag to a Notebook', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}/notes/${noteId}abc`)
+      .put(`/notebooks/${notebookId}/tags/${tagId}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -72,17 +71,17 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Add Note to Notebook Error: No Note found with id ${noteId}abc`
+      `Add Tag to Notebook Error: No Tag found with id ${tagId}abc`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/notebooks/${notebookId}/notes/${noteId}abc`
+      `/notebooks/${notebookId}/tags/${tagId}abc`
     )
   })
 
-  await tap.test('Try to assign Note to Notebook twice', async () => {
+  await tap.test('Try to assign Tag to Notebook twice', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}/notes/${noteId}`)
+      .put(`/notebooks/${notebookId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -91,11 +90,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Add Note to Notebook Error: Relationship already exists between Notebook ${notebookId} and Note ${noteId}`
+      `Add Tag to Notebook Error: Relationship already exists between Notebook ${notebookId} and Tag ${tagId}`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/notebooks/${notebookId}/notes/${noteId}`
+      `/notebooks/${notebookId}/tags/${tagId}`
     )
   })
 

@@ -8,7 +8,10 @@ const {
   addPubToNotebook,
   createPublication,
   addNoteToNotebook,
-  createNote
+  addTagToNotebook,
+  createTag,
+  createNote,
+  createNoteContext
 } = require('../../utils/testUtils')
 
 const test = async app => {
@@ -47,13 +50,24 @@ const test = async app => {
   })
 
   const pub = await createPublication(app, token)
-
   await addPubToNotebook(app, token, pub.shortId, notebook.shortId)
 
-  const note = await createNote(app, token, reader.shortId, {
+  const note = await createNote(app, token, {
     body: { content: 'test!!', motivation: 'test' }
   })
   await addNoteToNotebook(app, token, note.shortId, notebook.shortId)
+
+  const tag = await createTag(app, token)
+  await addTagToNotebook(app, token, tag.id, notebook.shortId)
+
+  const notebookTag = await createTag(app, token, {
+    name: 'testing!',
+    notebookId: notebook.shortId
+  })
+
+  const notebookNoteContext = await createNoteContext(app, token, {
+    notebookId: notebook.shortId
+  })
 
   await tap.test('Get notebook with publication', async () => {
     const res = await request(app)
@@ -73,14 +87,15 @@ const test = async app => {
     await tap.equal(body.notes.length, 1)
     await tap.equal(body.notes[0].shortId, note.shortId)
     await tap.equal(body.notes[0].body[0].content, 'test!!')
-    await tap.equal(body.tags.length, 0)
-    await tap.equal(body.notebookTags.length, 0)
+    await tap.equal(body.tags.length, 1)
+    await tap.equal(body.tags[0].id, tag.id)
+    await tap.equal(body.notebookTags.length, 1)
+    await tap.equal(body.notebookTags[0].id, notebookTag.id)
     await tap.equal(body.publications.length, 1)
     await tap.equal(body.publications[0].shortId, pub.shortId)
-    await tap.equal(body.noteContexts.length, 0)
+    await tap.equal(body.noteContexts.length, 1)
+    await tap.equal(body.noteContexts[0].shortId, notebookNoteContext.shortId)
   })
-
-  // TODO: add tests for notebook with notes, tags, notebookTags, noteContexts and publications
 
   await tap.test('Try to get a Notebook that does not exist', async () => {
     const res = await request(app)

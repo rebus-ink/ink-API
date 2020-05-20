@@ -215,6 +215,7 @@ class Note extends BaseModel {
         // $FlowFixMe
         await Notebook_Note.addNoteToNotebook(
           notebookId,
+          // $FlowFixMe
           urlToId(createdNote.id)
         )
       } catch (err) {
