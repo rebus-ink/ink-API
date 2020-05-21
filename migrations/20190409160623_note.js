@@ -32,19 +32,19 @@ exports.up = function (knex, Promise) {
       .string('contextId')
       .references('id')
       .inTable('NoteContext')
-      .index()
+      .index() // should CASCADE
     table.string('previous')
       .references('id')
       .inTable('Note')
-      .onDelete('CASCADE')
+      .onDelete('CASCADE') // should NOT cascade
     table.string('next')
       .references('id')
       .inTable('Note')
-      .onDelete('CASCADE')
+      .onDelete('CASCADE') // should NOT cascade
     table.string('parentId')
       .references('id')
       .inTable('Note')
-      .onDelete('CASCADE')
+      .onDelete('CASCADE') // should NOT cascade
     table
       .timestamp('published')
       .defaultTo(knex.fn.now())
