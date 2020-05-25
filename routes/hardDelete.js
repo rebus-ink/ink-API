@@ -7,6 +7,9 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../utils/utils')
 const { libraryCacheUpdate } = require('../utils/cache')
 const { Note } = require('../models/Note')
+const { Notebook } = require('../models/Notebook')
+const { NoteContext } = require('../models/NoteContext')
+const { Tag } = require('../models/Tag')
 
 const timestamp = new Date(Date.now() - 86400 * 1000).toISOString()
 
@@ -17,6 +20,16 @@ module.exports = function (app) {
       .delete()
       .where('deleted', '<', timestamp)
     await Note.query()
+      .delete()
+      .where('deleted', '<', timestamp)
+    await Notebook.query()
+      .delete()
+      .where('deleted', '<', timestamp)
+    await NoteContext.query()
+      .delete()
+      .where('deleted', '<', timestamp)
+
+    await Tag.query()
       .delete()
       .where('deleted', '<', timestamp)
 

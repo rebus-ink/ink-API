@@ -153,15 +153,15 @@ const test = async () => {
     await tap.equal(res.status, 204)
 
     const notes = await Note.query()
-    await tap.equal(notes.length, 3) // should be 2 - deleting noteContext should delete its notes
+    await tap.equal(notes.length, 2)
     await tap.notOk(_.find(notes, { id: note1.id }))
     await tap.notOk(_.find(notes, { id: note2.id }))
     await tap.ok(_.find(notes, { id: note3.id }))
     await tap.ok(_.find(notes, { id: note4.id }))
-    // await tap.notOk(_.find(notes, {id: note5.id}))
+    await tap.notOk(_.find(notes, { id: note5.id }))
 
     const noteBodies = await NoteBody.query()
-    await tap.equal(noteBodies.length, 3) // should be 2 - once again, problem with noteContext
+    await tap.equal(noteBodies.length, 2)
     await tap.ok(_.find(noteBodies, { noteId: note3.id }))
     await tap.ok(_.find(noteBodies, { noteId: note4.id }))
 
