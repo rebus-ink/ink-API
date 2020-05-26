@@ -1,15 +1,11 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
 const { Note } = require('../../../models/Note')
-const { NoteBody } = require('../../../models/NoteBody')
-const { NoteContext } = require('../../../models/NoteContext')
 const { Tag } = require('../../../models/Tag')
 const { Note_Tag } = require('../../../models/Note_Tag')
-const { NoteRelation } = require('../../../models/NoteRelation')
 const { Publication } = require('../../../models/Publication')
 const { Publication_Tag } = require('../../../models/Publications_Tags')
 const { Notebook } = require('../../../models/Notebook')

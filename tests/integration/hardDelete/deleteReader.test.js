@@ -1,6 +1,6 @@
 const request = require('supertest')
 const tap = require('tap')
-const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
+const { destroyDB } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
 const { Note } = require('../../../models/Note')
