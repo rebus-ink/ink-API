@@ -134,6 +134,13 @@ const test = async () => {
     notebookId: urlToId(notebook3.id)
   })
 
+  const context3 = await NoteContext.query().insertAndFetch({
+    type: 'test',
+    readerId,
+    notebookId: urlToId(notebook3.id),
+    deleted: timestamp25
+  })
+
   await tap.test('Before hard delete', async () => {
     const notebooks = await Notebook.query()
     await tap.equal(notebooks.length, 4)
@@ -159,7 +166,7 @@ const test = async () => {
     await tap.equal(notebook_pubs.length, 2)
 
     const contexts = await NoteContext.query()
-    await tap.equal(contexts.length, 2)
+    await tap.equal(contexts.length, 3)
   })
 
   await tap.test('Hard Delete', async () => {

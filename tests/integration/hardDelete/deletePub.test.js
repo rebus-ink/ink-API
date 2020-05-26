@@ -65,12 +65,13 @@ const test = async () => {
   })
 
   // create attributions
+  // deleted directly
   await Attribution.query().insertAndFetch({
     role: 'author',
     name: 'author1',
     normalizedName: 'johnsmith',
     readerId: readerId,
-    publicationId: pub1.id,
+    publicationId: pub3.id,
     deleted: timestamp25
   })
 

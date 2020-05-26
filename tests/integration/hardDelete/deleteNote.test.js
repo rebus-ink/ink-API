@@ -95,6 +95,14 @@ const test = async () => {
     readerId
   })
 
+  // notebody that is deleted directly
+  await NoteBody.query().insert({
+    noteId: urlToId(note4.id),
+    motivation: 'test',
+    readerId,
+    deleted: timestamp25
+  })
+
   // create tag
   const tag = await Tag.query().insertAndFetch({
     type: 'test',
@@ -127,12 +135,21 @@ const test = async () => {
     readerId
   })
 
+  // noterelation that is deleted directly
+  const relation3 = await NoteRelation.query().insertAndFetch({
+    from: urlToId(note4.id),
+    to: urlToId(note3.id),
+    type: 'test',
+    readerId,
+    deleted: timestamp25
+  })
+
   await tap.test('Before hard delete', async () => {
     const notes = await Note.query()
     await tap.equal(notes.length, 5)
 
     const noteBodies = await NoteBody.query()
-    await tap.equal(noteBodies.length, 6)
+    await tap.equal(noteBodies.length, 7)
 
     const tags = await Tag.query()
     await tap.ok(_.find(tags, { id: tag.id }))
@@ -141,7 +158,7 @@ const test = async () => {
     await tap.equal(note_tags.length, 2)
 
     const relations = await NoteRelation.query()
-    await tap.equal(relations.length, 2)
+    await tap.equal(relations.length, 3)
   })
 
   await tap.test('Hard Delete', async () => {
