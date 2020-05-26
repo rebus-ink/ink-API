@@ -93,6 +93,7 @@ const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
 const hardDeleteNotebookTests = require('./hardDelete/deleteNotebook.test')
 const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
+const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
 
 const app = require('../../server').app
 
@@ -277,6 +278,7 @@ const allTests = async () => {
       await hardDeleteNoteTests(app)
       await hardDeleteNotebookTests(app)
       await hardDeleteTagTests(app)
+      await hardDeleteReaderTests(app)
     } catch (err) {
       console.log('hard delete integration test error: ', err)
     }
