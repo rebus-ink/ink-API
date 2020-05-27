@@ -15,6 +15,7 @@ exports.up = function (knex, Promise) {
       .string('notebookId')
       .references('id')
       .inTable('Notebook')
+      .onDelete('CASCADE')
       .index()
     table
       .timestamp('published')

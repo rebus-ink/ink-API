@@ -89,6 +89,12 @@ const notebookNotePostTests = require('./notebook/notebook-note-post.test')
 const notebookTagPutTests = require('./notebook/notebook-tag-put.test')
 const notebookTagDeleteTests = require('./notebook/notebook-tag-delete.test')
 
+const hardDeletePubTests = require('./hardDelete/deletePub.test')
+const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
+const hardDeleteNotebookTests = require('./hardDelete/deleteNotebook.test')
+const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
+const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -263,6 +269,18 @@ const allTests = async () => {
       await notebookTagDeleteTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
+    }
+  }
+
+  if (!test || test === 'delete') {
+    try {
+      await hardDeletePubTests(app)
+      await hardDeleteNoteTests(app)
+      await hardDeleteNotebookTests(app)
+      await hardDeleteTagTests(app)
+      await hardDeleteReaderTests(app)
+    } catch (err) {
+      console.log('hard delete integration test error: ', err)
     }
   }
 
