@@ -48,6 +48,7 @@ const test = async app => {
       content: 'this is the content of the note!',
       language: 'en'
     },
+    document: 'doc123',
     target: { property: 'value' }
   }
 
@@ -87,6 +88,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.document, 'doc123')
     await tap.ok(response.body)
     await tap.equal(response.body[0].motivation, 'test')
     await tap.equal(response.body[0].content, noteWithOneBody.body.content)
@@ -160,11 +162,13 @@ const test = async app => {
 
   await tap.test('Update Note with publication', async () => {
     const newNote = Object.assign(noteWithPublication, {
+      document: 'doc111',
       body: { content: 'something else', motivation: 'highlighting' }
     })
     let response = await Note.update(newNote)
     await tap.ok(response)
     await tap.ok(response instanceof Note)
+    await tap.equal(response.document, 'doc111')
   })
 
   await tap.test('Try to update a note that does not exist', async () => {

@@ -324,6 +324,7 @@ class Note extends BaseModel {
       'stylesheet',
       'target',
       'previous',
+      'document',
       'next',
       'parentId',
       /* 'publicationId', */ 'json'

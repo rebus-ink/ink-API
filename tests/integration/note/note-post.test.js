@@ -96,7 +96,8 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
-          publicationId
+          publicationId,
+          document: 'doc123'
         })
       )
     await tap.equal(res.status, 201)
@@ -108,6 +109,7 @@ const test = async app => {
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(body.document, 'doc123')
   })
 
   await tap.test(

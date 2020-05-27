@@ -23,7 +23,8 @@ const test = async app => {
   const note = await createNote(app, token, {
     body: { motivation: 'test', content: 'content goes here' },
     target: { property1: 'target information' },
-    publicationId
+    publicationId,
+    document: 'doc123'
   })
   const noteId = urlToId(note.id)
 
@@ -46,6 +47,7 @@ const test = async app => {
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
     await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(body.document, 'doc123')
     await tap.ok(body.published)
     await tap.ok(body.updated)
   })
