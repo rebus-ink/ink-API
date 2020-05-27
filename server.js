@@ -7,8 +7,8 @@ const passport = require('passport')
 const helmet = require('helmet')
 // const csrf = require('csurf')
 const { Strategy, ExtractJwt } = require('passport-jwt')
-const elasticsearchQueue = require('./processFiles/searchQueue')
-const epubQueue = require('./processFiles/index')
+// const elasticsearchQueue = require('./processFiles/searchQueue')
+// const epubQueue = require('./processFiles/index')
 const cache = require('./utils/cache')
 const errorHandling = require('./routes/_middleware/error-handling')
 
@@ -21,10 +21,6 @@ const readerGetRoute = require('./routes/readers/reader-get') // GET /readers/:i
 const readerPutRoute = require('./routes/readers/reader-put') // PUT /readers/:id
 const readerDeleteRoute = require('./routes/readers/reader-delete') // DELETE /readers/:id
 
-// Uploads
-const fileUploadRoute = require('./routes/files/file-upload') // POST /reader-:id/file-upload
-const fileUploadPubRoute = require('./routes/files/file-upload-pub') // POST /reader-:id/file-upload-pub
-
 // Publications
 const publicationPostRoute = require('./routes/publications/publication-post') // POST /publications
 const publicationPatchRoute = require('./routes/publications/publication-patch') // PATCH /publications/:id
@@ -32,7 +28,6 @@ const publicationDeleteRoute = require('./routes/publications/publication-delete
 const publicationPutTagRoute = require('./routes/publications/publication-put-tag') // PUT /publications/:pubId/tags/:tagId
 const publicationDeleteTagRoute = require('./routes/publications/publication-delete-tag') // DELETE /publications/:pubId/tags/:tagId
 const publicationGetRoute = require('./routes/publications/publication-get') // GET /publications/:id
-const publicationDocumentRoute = require('./routes/publications/publication-document') // GET /publication-:id/:path
 const readActivityPostRoute = require('./routes/publications/readActivity-post') // POST /publications/:id/readActivity
 const publicationBatchUpdate = require('./routes/publications/publication-batchUpdate') // PATCH /publications/batchUpdate
 
@@ -47,9 +42,6 @@ const tagDeleteRoute = require('./routes/tags/tag-delete') // DELETE /tags/:id
 
 // Library
 const readerLibraryRoute = require('./routes/publications/library-get') // GET /library
-
-// Jobs
-const getJobRoute = require('./routes/files/job-get') // GET /jobs/:id
 
 // Notes
 const readerNotesRoute = require('./routes/notes/readerNotes-get') // GET /notes
@@ -218,18 +210,18 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-  if (elasticsearchQueue) {
-    await elasticsearchQueue.clean(0)
-    await elasticsearchQueue.clean(0, 'failed')
-    await elasticsearchQueue.empty()
-    elasticsearchQueue.close()
-  }
-  if (epubQueue) {
-    await epubQueue.clean(0)
-    await epubQueue.clean(0, 'failed')
-    await epubQueue.empty()
-    epubQueue.close()
-  }
+  // if (elasticsearchQueue) {
+  //   await elasticsearchQueue.clean(0)
+  //   await elasticsearchQueue.clean(0, 'failed')
+  //   await elasticsearchQueue.empty()
+  //   elasticsearchQueue.close()
+  // }
+  // if (epubQueue) {
+  //   await epubQueue.clean(0)
+  //   await epubQueue.clean(0, 'failed')
+  //   await epubQueue.empty()
+  //   epubQueue.close()
+  // }
   if (cache) {
     cache.quitCache()
   }
@@ -238,10 +230,6 @@ app.terminate = async () => {
 
 whoamiRoute(app)
 readersRoute(app)
-fileUploadRoute(app)
-publicationDocumentRoute(app)
-searchRoute(app)
-fileUploadPubRoute(app)
 getTagsRoute(app)
 
 // new routes
@@ -259,7 +247,6 @@ tagDeleteRoute(app)
 readerGetRoute(app)
 readerLibraryRoute(app)
 readerNotesRoute(app)
-getJobRoute(app)
 getNoteRoute(app)
 notePutTagRoute(app)
 noteDeleteTagRoute(app)

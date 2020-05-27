@@ -146,18 +146,6 @@ module.exports = function (app) {
                   }
                 )
               )
-            } else if (err.message === 'no document') {
-              return next(
-                boom.notFound(
-                  `Update Note in Outline Error: No Document found with documentUrl: ${
-                    body.documentUrl
-                  }`,
-                  {
-                    requestUrl: req.originalUrl,
-                    requestBody: req.body
-                  }
-                )
-              )
             } else if (err.message === 'no publication') {
               return next(
                 boom.notFound(

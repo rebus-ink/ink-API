@@ -18,7 +18,7 @@ type NoteType = {
   target? : Object,
   body?: Object,
   json?: Object,
-  documentUrl?: string,
+  document?: string,
   publicationId?: string,
   contextId?: string,
   original?: string,
@@ -46,8 +46,7 @@ class Note extends BaseModel {
         stylesheet: { type: ['object', 'null'] },
         target: { type: ['object', 'null'] },
         publicationId: { type: ['string', 'null'] },
-        documentId: { type: ['string', 'null'] },
-        documentUrl: { type: ['string', 'null'] },
+        document: { type: ['string', 'null'] },
         body: { type: 'object' },
         json: { type: ['object', 'null'] },
         contextId: { type: ['string', 'null'] },
@@ -66,7 +65,6 @@ class Note extends BaseModel {
 
   static get relationMappings () /*: any */ {
     const { Publication } = require('./Publication.js')
-    const { Document } = require('./Document.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
     const { NoteRelation } = require('./NoteRelation')
@@ -78,14 +76,6 @@ class Note extends BaseModel {
         join: {
           from: 'Note.readerId',
           to: 'Reader.id'
-        }
-      },
-      inReplyTo: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Document,
-        join: {
-          from: 'Note.documentId',
-          to: 'Document.id'
         }
       },
       publication: {
@@ -146,7 +136,6 @@ class Note extends BaseModel {
   static async _formatIncomingNote (
     note /*: NoteType */
   ) /*: Promise<NoteType> */ {
-    const { Document } = require('./Document')
     const props = _.pick(note, [
       'canonical',
       'stylesheet',
@@ -154,7 +143,7 @@ class Note extends BaseModel {
       'publicationId',
       'json',
       'readerId',
-      'documentUrl',
+      'document',
       'contextId',
       'previous',
       'next',
@@ -162,45 +151,6 @@ class Note extends BaseModel {
     ])
     if (note.id) props.id = urlToId(note.id)
 
-    if (note.documentUrl) {
-      // first, make sure we also have a publicationId
-      if (!note.publicationId) {
-        throw new Error(
-          'Note Validation Error: Notes with a documentUrl must also have a publicationId'
-        )
-      }
-
-      // $FlowFixMe
-      const path = urlparse(note.documentUrl).path // '/publications/{pubid}/path/to/file'
-      // $FlowFixMe
-      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
-      // $FlowFixMe
-      const docPath = path.substring(startIndex + 1) // 'path/to/file'
-      // $FlowFixMe
-      const publicationId = path.substring(14, startIndex) // {pubid}
-      const document = await Document.byPath(publicationId, docPath)
-
-      if (document) {
-        if (
-          note.publicationId &&
-          note.documentUrl &&
-          urlToId(document.publicationId) !== urlToId(note.publicationId)
-        ) {
-          throw new Error(
-            `Note Validation Error: document with url ${
-              note.documentUrl
-            } does not belong to publication ${note.publicationId}`
-          )
-        }
-
-        props.documentId = urlToId(document.id)
-      } else {
-        throw new Error('no document')
-      }
-    }
-    // else if (note.documentUrl === null) {
-    //   note.documentId = null
-    // }
     return props
   }
 
@@ -376,7 +326,7 @@ class Note extends BaseModel {
       'previous',
       'next',
       'parentId',
-      /* 'publicationId', 'documentUrl', */ 'json'
+      /* 'publicationId', */ 'json'
     ]
     propsCanBeDeleted.forEach(prop => {
       if (note[prop] === undefined) {
@@ -437,7 +387,6 @@ class Note extends BaseModel {
     json = super.$formatJson(json)
     json.type = 'Note'
     json.shortId = urlToId(json.id)
-    if (json.documentId) json.documentId = undefined
 
     json = _.omitBy(json, _.isNil)
 

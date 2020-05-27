@@ -15,10 +15,7 @@ exports.up = function (knex, Promise) {
     table.jsonb('json')
     table.string('documentUrl')
     table
-      .string('documentId')
-      .references('id')
-      .inTable('Document')
-      .onDelete('SET NULL')
+      .string('document')
       .index()
     table
       .string('publicationId')

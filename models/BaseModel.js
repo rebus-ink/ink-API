@@ -90,7 +90,6 @@ class BaseModel extends Model {
       doc.published = time
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
-      doc.documentId = urlToId(doc.documentId)
       doc.tagId = urlToId(doc.tagId)
 
       Object.keys(doc).forEach(
@@ -107,7 +106,6 @@ class BaseModel extends Model {
       doc.updated = new Date().toISOString()
       doc.readerId = urlToId(doc.readerId)
       doc.publicationId = urlToId(doc.publicationId)
-      doc.documentId = urlToId(doc.documentId)
 
       Object.keys(doc).forEach(
         key => (doc[key] === undefined ? delete doc[key] : '')

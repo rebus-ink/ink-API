@@ -5,8 +5,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createNote,
-  createDocument
+  createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -19,14 +18,9 @@ const test = async app => {
   const publicationUrl = publication.id
   const publicationId = urlToId(publication.id)
 
-  const createdDocument = await createDocument(readerUrl, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-
   const note = await createNote(app, token, {
     target: { property: 'value' },
     publicationId,
-    documentUrl,
     body: { content: 'text goes here', motivation: 'test' }
   })
 
@@ -163,7 +157,6 @@ const test = async app => {
   //     content: 'This is the content of note B.',
   //     'oa:hasSelector': { propety: 'value' },
   //     context: publicationUrl,
-  //     inReplyTo: documentUrl,
   //     noteType: 'test'
   //   })
   //   const createNoteActivityUrl1 = createNoteRes.get('Location')
@@ -178,7 +171,6 @@ const test = async app => {
   //     content: 'This is the content of note C.',
   //     'oa:hasSelector': { propety: 'value' },
   //     context: publicationUrl,
-  //     inReplyTo: documentUrl,
   //     noteType: 'test'
   //   })
 

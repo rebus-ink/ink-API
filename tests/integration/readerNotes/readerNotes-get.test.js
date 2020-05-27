@@ -6,7 +6,6 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument,
   createNoteContext,
   addNoteToContext,
   addNoteToCollection,
@@ -25,17 +24,9 @@ const test = async app => {
   const publicationUrl = publication.id
   const publicationId = urlToId(publication.id)
 
-  const createdDocument = await createDocument(readerId, publicationUrl, {
-    documentPath: 'path/1',
-    mediaType: 'text/html',
-    url: 'http://something/123'
-  })
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { documentUrl, publicationId, body: { motivation: 'test' } },
+      { publicationId, body: { motivation: 'test' } },
       object
     )
     return await createNote(app, token, noteObj)
@@ -83,7 +74,6 @@ const test = async app => {
     await tap.ok(firstItem.body[0].content)
     await tap.equal(firstItem.body[0].motivation, 'test')
     await tap.ok(firstItem.publicationId)
-    await tap.ok(firstItem.documentUrl)
     // notes should include publication information
     await tap.ok(firstItem.publication)
     await tap.type(firstItem.publication.name, 'string')

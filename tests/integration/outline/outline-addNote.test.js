@@ -5,7 +5,6 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createDocument,
   createNoteContext,
   createNote
 } = require('../../utils/testUtils')
@@ -19,14 +18,8 @@ const test = async app => {
 
   const publication = await createPublication(app, token)
   const publicationId = urlToId(publication.id)
-  const publicationUrl = publication.id
 
   const publication2 = await createPublication(app, token)
-  const publicationId2 = urlToId(publication2.id)
-
-  const createdDocument = await createDocument(readerId, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const outline = await createNoteContext(app, token, {
     name: 'my outline',
@@ -107,7 +100,7 @@ const test = async app => {
     await tap.equal(body.body[1].motivation, 'test')
   })
 
-  await tap.test('Create Note with documentUrl and publicationId', async () => {
+  await tap.test('Create Note with a publicationId', async () => {
     const res = await request(app)
       .post(`/outlines/${outlineId}/notes`)
       .set('Host', 'reader-api.test')
@@ -119,8 +112,7 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
-          publicationId,
-          documentUrl
+          publicationId
         })
       )
     await tap.equal(res.status, 201)
@@ -132,7 +124,6 @@ const test = async app => {
     await tap.ok(body.body)
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
-    await tap.equal(body.documentUrl, documentUrl)
     await tap.equal(urlToId(body.publicationId), publicationId)
   })
 

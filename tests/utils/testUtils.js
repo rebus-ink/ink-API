@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 const request = require('supertest')
 const knexCleaner = require('knex-cleaner')
-const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 require('dotenv').config()
 const crypto = require('crypto')
@@ -183,23 +182,6 @@ const createTag = async (app, token, object = {}) => {
   return res.body
 }
 
-const createDocument = async (readerId, publicationId, object = {}) => {
-  const documentObject = Object.assign(
-    {
-      documentPath: 'path/1',
-      mediaType: 'text/html',
-      url: 'http://something/123'
-    },
-    object
-  )
-
-  return await Document.createDocument(
-    { id: urlToId(readerId) },
-    urlToId(publicationId),
-    documentObject
-  )
-}
-
 const createNoteRelation = async (app, token, object) => {
   const res = await request(app)
     .post('/noteRelations')
@@ -358,7 +340,6 @@ module.exports = {
   createPublication,
   createNote,
   createTag,
-  createDocument,
   addPubToCollection,
   addNoteToCollection,
   createNoteRelation,

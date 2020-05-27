@@ -125,7 +125,6 @@ class ReaderNotes {
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
     offset = !offset ? 0 : offset
-    const { Document } = require('./Document')
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
     let doc, workspace, flag
     if (filters.workspace) {
@@ -137,14 +136,7 @@ class ReaderNotes {
       flag = filters.flag.toLowerCase()
     }
     if (filters.document) {
-      const path = urlparse(filters.document).path // '/publications/{pubid}/path/to/file'
-      const startIndex = path.split('/', 3).join('/').length // index of / before path/to/file
-      const docPath = path.substring(startIndex + 1) // 'path/to/file'
-      const publicationId = path.substring(14, startIndex) // {pubid}
-      doc = await Document.byPath(publicationId, docPath)
-      // $FlowFixMe
-      if (!doc) doc = { id: 'does not exist' } // to make sure it returns an empty array instead of failing
-
+      // ???????????????????
       // no pagination for filter by document
       offset = 0
       limit = 100000
@@ -179,7 +171,7 @@ class ReaderNotes {
           builder.where('publicationId', '=', urlToId(filters.publication))
         }
         if (filters.document) {
-          builder.where('documentId', '=', urlToId(doc.id))
+          builder.where('document', '=', urlToId(doc.id))
         }
 
         if (filters.publishedStart) {

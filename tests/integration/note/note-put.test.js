@@ -5,8 +5,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createNote,
-  createDocument
+  createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -17,17 +16,11 @@ const test = async app => {
 
   const publication = await createPublication(app, token)
 
-  const publicationUrl = publication.id
   const publicationId = urlToId(publication.id)
-
-  const createdDocument = await createDocument(readerId, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const note = await createNote(app, token, {
     body: { content: 'test content', motivation: 'test' },
     publicationId,
-    documentUrl,
     json: { property: 'value' },
     canonical: '123'
   })
@@ -55,7 +48,6 @@ const test = async app => {
     await tap.notEqual(body.published, body.updated)
     // check that old properties are still there
     await tap.type(body.publicationId, 'string')
-    await tap.type(body.documentUrl, 'string')
     await tap.equal(body.json.property, 'value')
   })
 
@@ -97,7 +89,7 @@ const test = async app => {
   await tap.test('Remove the other properties of a Note', async () => {
     const newNote = Object.assign(note, {
       canonical: undefined,
-      stylesheet: undefined /* publicationId: undefined, documentUrl: undefined */
+      stylesheet: undefined /* publicationId: undefined */
     })
 
     const res = await request(app)
@@ -114,7 +106,6 @@ const test = async app => {
     await tap.notOk(body.canonical)
     await tap.notOk(body.stylesheet)
     // await tap.notOk(body.publicationId)
-    // await tap.notOk(body.documentUrl)
   })
 
   await tap.test(

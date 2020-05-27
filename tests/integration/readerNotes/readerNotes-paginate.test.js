@@ -5,8 +5,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createNote,
-  createDocument
+  createNote
 } = require('../../utils/testUtils')
 
 const { urlToId } = require('../../../utils/utils')
@@ -21,13 +20,9 @@ const test = async app => {
   const publicationUrl = publication.id
   const publicationId = urlToId(publicationUrl)
 
-  const createdDocument = await createDocument(readerId, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { documentUrl, publicationId, body: { motivation: 'test' } },
+      { publicationId, body: { motivation: 'test' } },
       object
     )
     return await createNote(app, token, noteObj)

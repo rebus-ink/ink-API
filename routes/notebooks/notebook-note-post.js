@@ -44,7 +44,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Notebook, Publication or Document not found
+   *         description: Notebook or Publication not found
    */
   app.use('/', router)
   router
@@ -96,18 +96,6 @@ module.exports = function (app) {
                     requestUrl: req.originalUrl,
                     requestBody: req.body,
                     validation: err.data
-                  }
-                )
-              )
-            } else if (err.message === 'no document') {
-              return next(
-                boom.notFound(
-                  `Create Note Error: No Document found with documentUrl: ${
-                    body.documentUrl
-                  }`,
-                  {
-                    requestUrl: req.originalUrl,
-                    requestBody: req.body
                   }
                 )
               )

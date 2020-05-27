@@ -32,9 +32,8 @@
  *       publicationId:
  *         type: string
  *         format: url
- *       documentUrl:
+ *       document:
  *         type: string
- *         format: url
  *       body:
  *         type: array
  *         items:

@@ -6,7 +6,6 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument,
   createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
@@ -25,24 +24,8 @@ const test = async app => {
 
   const publication = await createPublication(app, token)
 
-  // Create a Document for that publication
-  const documentObject = {
-    mediaType: 'txt',
-    url: 'http://google-bucket/somewhere/file1234.txt',
-    documentPath: 'inside/the/book.txt',
-    json: { property1: 'value1' }
-  }
-  const document = await createDocument(
-    reader1.id,
-    publication.id,
-    documentObject
-  )
-
-  const documentUrl = `${publication.id}${document.documentPath}`
-
   // create Note for reader 1
   const note = await createNote(app, token, {
-    documentUrl,
     publicationId: publication.id,
     body: { motivation: 'test' }
   })
