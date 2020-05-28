@@ -1,8 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Note } = require('../../models/Note')
-const debug = require('debug')('hobb:routes:document')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { Notebook } = require('../../models/Notebook')

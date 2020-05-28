@@ -1646,28 +1646,6 @@ const test = async app => {
     }
   )
 
-  // -------------------------------------- UPLOADS -------------------------------
-
-  await tap.test(
-    'Try to upload files to a folder belonging to another reader',
-    async () => {
-      const res = await request(app)
-        .post(`/reader-${readerId}/file-upload`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .attach('files', 'tests/test-files/test-file3.txt')
-        .type('application/ld+json')
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      // await tap.equal(error.details.type, 'Reader')
-      // await tap.type(error.details.id, 'string')
-      // await tap.equal(error.details.activity, 'Upload File')
-    }
-  )
-
   // ----------------------------------- READACTIVITY ---------------------------
 
   await tap.test(

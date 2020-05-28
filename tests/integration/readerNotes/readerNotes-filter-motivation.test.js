@@ -5,8 +5,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createNote,
-  createDocument
+  createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -27,27 +26,9 @@ const test = async app => {
   const publicationUrl2 = publication2.id
   const publicationId2 = urlToId(publicationUrl2)
 
-  // creating a document
-  const createdDocument = await createDocument(readerId, publicationUrl, {
-    documentPath: 'path/1',
-    mediaType: 'text/html',
-    url: 'http://something/123'
-  })
-
-  // creating a second document
-  const createdDocument2 = await createDocument(readerId, publicationUrl2, {
-    documentPath: 'path/2',
-    mediaType: 'text/html',
-    url: 'http://something/124'
-  })
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-  const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`
-
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
       {
-        documentUrl,
         publicationId: publicationId1,
         body: { motivation: 'test' }
       },
@@ -72,67 +53,52 @@ const test = async app => {
 
   // create more notes for another pub
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
 
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   }) // 10
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
 
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'highlighting' }
   })
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'highlighting' }
   })
 

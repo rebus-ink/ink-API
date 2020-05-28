@@ -6,7 +6,6 @@ const {
   destroyDB,
   createPublication,
   createNote,
-  createDocument,
   createTag,
   addNoteToCollection
 } = require('../../utils/testUtils')
@@ -30,27 +29,9 @@ const test = async app => {
   const publicationUrl2 = publication2.id
   const publicationId2 = urlToId(publicationUrl2)
 
-  // creating a document
-  const createdDocument = await createDocument(readerId, publicationUrl, {
-    documentPath: 'path/1',
-    mediaType: 'text/html',
-    url: 'http://something/123'
-  })
-
-  // creating a second document
-  const createdDocument2 = await createDocument(readerId, publicationUrl2, {
-    documentPath: 'path/2',
-    mediaType: 'text/html',
-    url: 'http://something/124'
-  })
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
-  const documentUrl2 = `${publicationUrl2}${createdDocument2.documentPath}`
-
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
       {
-        documentUrl,
         publicationId: publicationId1,
         body: { motivation: 'test' }
       },
@@ -77,66 +58,53 @@ const test = async app => {
   const note1 = await createNoteSimplified({
     // collection
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'highlighting' }
   })
   const note2 = await createNoteSimplified({
     // collection
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
 
   const note3 = await createNoteSimplified({
     // collection & workspace & flag
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'highlighting', content: 'this contains abc' }
   })
   const note4 = await createNoteSimplified({
     // workspace
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
   const note5 = await createNoteSimplified({
     // workspace
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2
   })
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2
-  })
-  await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
-  })
-  await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'test', content: 'a!bc' }
   })
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'test', content: 'this contains abc' }
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   }) // 10
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'test', content: 'ABCDE' }
   })
   await createNoteSimplified({
     publicationId: publicationId2,
-    documentUrl: documentUrl2,
     body: { motivation: 'highlighting', content: 'something' }
   })
   await createNoteSimplified({
-    publicationId: publicationId2,
-    documentUrl: documentUrl2
+    publicationId: publicationId2
   })
 
   const tagCreated = await createTag(app, token, {
@@ -191,19 +159,6 @@ const test = async app => {
     await tap.ok(res2.body)
     await tap.equal(res2.body.totalItems, 1)
     await tap.equal(res2.body.items.length, 1)
-  })
-
-  await tap.test('Search Notes and filter by Document', async () => {
-    const res3 = await request(app)
-      .get(`/notes?search=abc&document=${documentUrl2}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    await tap.equal(res3.status, 200)
-    await tap.ok(res3.body)
-    await tap.ok(res3.body.totalItems, 3)
-    await tap.equal(res3.body.items.length, 3)
   })
 
   await tap.test('Filter Notes by motivation and collection', async () => {

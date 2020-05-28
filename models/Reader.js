@@ -4,11 +4,9 @@ const _ = require('lodash')
 const { Publication } = require('./Publication')
 const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
-const { Job } = require('./Job')
 const { Tag } = require('./Tag')
 const { Attribution } = require('./Attribution')
 const { urlToId } = require('../utils/utils')
-const { Document } = require('./Document')
 const { NoteContext } = require('./NoteContext')
 const { NoteBody } = require('./NoteBody')
 const { NoteRelation } = require('./NoteRelation')
@@ -31,17 +29,6 @@ type ReaderType = {
 };
 */
 
-/**
- * @property {User} user - Returns the user (with auth info) associated with this reader.
- * @property {Document[]} documents - Returns the documents owned buy this Reader.
- * @property {Publication[]} publications - Returns the publications owned buy this Reader.
- * @property {Note[]} replies - Returns the notes owned by this Reader.
- * @property {Activity[]} outbox - Returns the activities by this Reader.
- * @property {Attribution[]} attributions - Returns the creators/contributors in this Reader's library. How do we surface this in the Activity Streams JSON?
- * @property {Tag[]} tags - Returns the tags in this Reader's library.
- *
- * The core user object for Rebus Reader. Models references to all of the objects belonging to the reader. Each reader should only be able to see the publications, documents and notes they have uploaded.
- */
 class Reader extends BaseModel {
   static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
     const readers = await Reader.query(Reader.knex()).where(
@@ -227,7 +214,6 @@ class Reader extends BaseModel {
     await Publication.query()
       .patch({ deleted: now })
       .where('readerId', '=', id)
-    // await Document.query().patch({deleted: now}).where('readerId', '=', id)
     await NoteContext.query()
       .patch({ deleted: now })
       .where('readerId', '=', id)
@@ -268,28 +254,12 @@ class Reader extends BaseModel {
           to: 'readActivity.readerId'
         }
       },
-      jobs: {
-        relation: Model.HasManyRelation,
-        modelClass: Job,
-        join: {
-          from: 'Reader.id',
-          to: 'job.readerId'
-        }
-      },
       replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
         join: {
           from: 'Reader.id',
           to: 'Note.readerId'
-        }
-      },
-      documents: {
-        relation: Model.HasManyRelation,
-        modelClass: Document,
-        join: {
-          from: 'Reader.id',
-          to: 'Document.readerId'
         }
       },
       attributions: {

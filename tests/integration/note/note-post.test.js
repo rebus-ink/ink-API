@@ -4,8 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
-  createDocument
+  createPublication
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -20,10 +19,6 @@ const test = async app => {
 
   const publication2 = await createPublication(app, token)
   const publicationId2 = urlToId(publication2.id)
-
-  const createdDocument = await createDocument(readerId, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   await tap.test('Create Note with single body', async () => {
     const res = await request(app)
@@ -89,7 +84,7 @@ const test = async app => {
     await tap.equal(body.body[1].motivation, 'test')
   })
 
-  await tap.test('Create Note with documentUrl and publicationId', async () => {
+  await tap.test('Create Note with publicationId', async () => {
     const res = await request(app)
       .post('/notes')
       .set('Host', 'reader-api.test')
@@ -102,7 +97,7 @@ const test = async app => {
             motivation: 'test'
           },
           publicationId,
-          documentUrl
+          document: 'doc123'
         })
       )
     await tap.equal(res.status, 201)
@@ -113,38 +108,9 @@ const test = async app => {
     await tap.ok(body.body)
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
-    await tap.equal(body.documentUrl, documentUrl)
     await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(body.document, 'doc123')
   })
-
-  await tap.test(
-    'Create Note with publicationId but no documentUrl',
-    async () => {
-      const res = await request(app)
-        .post('/notes')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            body: {
-              content: 'this is the content of the note',
-              motivation: 'test'
-            },
-            publicationId
-          })
-        )
-      await tap.equal(res.status, 201)
-      const body = res.body
-      await tap.ok(body.id)
-      await tap.equal(urlToId(body.readerId), readerId)
-      await tap.ok(body.published)
-      await tap.ok(body.body)
-      await tap.ok(body.body[0].content)
-      await tap.equal(body.body[0].motivation, 'test')
-      await tap.equal(urlToId(body.publicationId), publicationId)
-    }
-  )
 
   await tap.test(
     'Note with publicationId should be attached to publication',
@@ -156,7 +122,7 @@ const test = async app => {
         .type('application/ld+json')
 
       await tap.ok(res.body)
-      await tap.equal(res.body.replies.length, 2)
+      await tap.equal(res.body.replies.length, 1)
     }
   )
 
@@ -168,7 +134,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 4)
+      await tap.equal(res.body.totalItems, 3)
     }
   )
 
@@ -238,7 +204,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 4)
+    await tap.equal(res.body.totalItems, 3)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -306,33 +272,6 @@ const test = async app => {
 
   // // ---------------------------------------- OTHER ERRORS -----------------------------------
 
-  await tap.test('Try to create Note with invalid document url', async () => {
-    const res = await request(app)
-      .post('/notes')
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(
-        JSON.stringify({
-          body: { motivation: 'test' },
-          target: { property: 'something' },
-          publicationId,
-          documentUrl: documentUrl + 'abc'
-        })
-      )
-    await tap.equal(res.status, 404)
-    const error = JSON.parse(res.text)
-    await tap.equal(error.statusCode, 404)
-    await tap.equal(error.error, 'Not Found')
-    await tap.equal(
-      error.message,
-      `Create Note Error: No Document found with documentUrl: ${documentUrl}abc`
-    )
-    await tap.equal(error.details.requestUrl, `/notes`)
-    await tap.type(error.details.requestBody, 'object')
-    await tap.equal(error.details.requestBody.body.motivation, 'test')
-  })
-
   await tap.test('Try to create Note with invalid Publication id', async () => {
     const res = await request(app)
       .post('/notes')
@@ -360,65 +299,6 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to create Note with a documentUrl but no publicationId',
-    async () => {
-      const res = await request(app)
-        .post('/notes')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            target: { property: 'something' },
-            body: { motivation: 'test' },
-            documentUrl: documentUrl
-          })
-        )
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        'Note Validation Error: Notes with a documentUrl must also have a publicationId'
-      )
-      await tap.equal(error.details.requestUrl, `/notes`)
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.body.motivation, 'test')
-    }
-  )
-
-  await tap.test(
-    'Try to create Note with a documentUrl but a publicationId for another publication',
-    async () => {
-      const res = await request(app)
-        .post('/notes')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            target: { property: 'something' },
-            body: { motivation: 'test' },
-            documentUrl: documentUrl,
-            publicationId: publicationId2
-          })
-        )
-      // should return a document not found error
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(
-        error.message,
-        `Note Validation Error: document with url ${documentUrl} does not belong to publication ${publicationId2}`
-      )
-      await tap.equal(error.details.requestUrl, `/notes`)
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.body.motivation, 'test')
-    }
-  )
-
-  await tap.test(
     'None of the error scenario should have created a note',
     async () => {
       const res = await request(app)
@@ -426,7 +306,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 4)
+      await tap.equal(res.body.totalItems, 3)
     }
   )
 

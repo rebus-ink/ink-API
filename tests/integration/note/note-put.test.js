@@ -5,8 +5,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createNote,
-  createDocument
+  createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -17,17 +16,12 @@ const test = async app => {
 
   const publication = await createPublication(app, token)
 
-  const publicationUrl = publication.id
   const publicationId = urlToId(publication.id)
-
-  const createdDocument = await createDocument(readerId, publicationUrl)
-
-  const documentUrl = `${publicationUrl}${createdDocument.documentPath}`
 
   const note = await createNote(app, token, {
     body: { content: 'test content', motivation: 'test' },
     publicationId,
-    documentUrl,
+    document: 'doc123',
     json: { property: 'value' },
     canonical: '123'
   })
@@ -55,7 +49,6 @@ const test = async app => {
     await tap.notEqual(body.published, body.updated)
     // check that old properties are still there
     await tap.type(body.publicationId, 'string')
-    await tap.type(body.documentUrl, 'string')
     await tap.equal(body.json.property, 'value')
   })
 
@@ -75,6 +68,25 @@ const test = async app => {
     await tap.type(body.id, 'string')
     await tap.type(body.target.property1, 'string')
     await tap.equal(body.target.property1, 'something')
+  })
+
+  await tap.test('Update the document of a Note', async () => {
+    const newNote = Object.assign(note, { document: 'doc456' })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.type(body.target.property1, 'string')
+    await tap.equal(body.target.property1, 'something')
+    await tap.equal(body.document, 'doc456')
   })
 
   await tap.test('Remove the target of a Note', async () => {
@@ -97,7 +109,8 @@ const test = async app => {
   await tap.test('Remove the other properties of a Note', async () => {
     const newNote = Object.assign(note, {
       canonical: undefined,
-      stylesheet: undefined /* publicationId: undefined, documentUrl: undefined */
+      document: undefined,
+      stylesheet: undefined /* publicationId: undefined */
     })
 
     const res = await request(app)
@@ -113,8 +126,8 @@ const test = async app => {
     await tap.type(body.id, 'string')
     await tap.notOk(body.canonical)
     await tap.notOk(body.stylesheet)
+    await tap.notOk(body.document)
     // await tap.notOk(body.publicationId)
-    // await tap.notOk(body.documentUrl)
   })
 
   await tap.test(

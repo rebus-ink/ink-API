@@ -7,7 +7,6 @@ const { Attribution } = require('./Attribution')
 const { ReadActivity } = require('./ReadActivity')
 const { Note } = require('./Note')
 const { urlToId } = require('../utils/utils')
-const elasticsearchQueue = require('../processFiles/searchQueue')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
@@ -114,16 +113,6 @@ type PublicationType = {
 };
 */
 
-/**
- * @property {Reader} reader - Returns the reader that owns this publication.
- * @property {Document[]} attachment - Returns the documents attached to this publication.
- * @property {Note[]} replies - Returns the notes associated with this publication.
- * @property {Activity[]} outbox - Returns the activities on this publication. **Question** how should a publication reference its activities?
- * @property {Attribution[]} attributedTo - returns the `Attribution` objects (can be many) attributed with contributing to or creating this document.
- * @property {Tag[]} tag - Returns the publication's `Tag` objects (i.e. links, hashtags, stacks and categories).
- *
- * This class represents an individual publication and holds references to the documents it contains, its creators/contributors, the notes on both the documents and publication itself, the reader who owns it, and the tags used to group it (and its contents) with other publications.
- */
 class Publication extends BaseModel {
   static get tableName () /*: string */ {
     return 'Publication'
@@ -176,7 +165,6 @@ class Publication extends BaseModel {
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
-    const { Document } = require('./Document.js')
     const { Tag } = require('./Tag.js')
     return {
       reader: {
@@ -201,14 +189,6 @@ class Publication extends BaseModel {
         join: {
           from: 'Publication.id',
           to: 'Note.publicationId'
-        }
-      },
-      attachment: {
-        relation: Model.HasManyRelation,
-        modelClass: Document,
-        join: {
-          from: 'Publication.id',
-          to: 'Document.publicationId'
         }
       },
       tags: {
@@ -577,17 +557,13 @@ class Publication extends BaseModel {
       return null
     }
 
-    // Mark documents associated with pub as deleted
-    const { Document } = require('./Document')
-    await Document.deleteDocumentsByPubId(id)
-
     // Delete Publication_Tag associated with pub
     await Publication_Tag.deletePubTagsOfPub(id)
 
     // remove documents from elasticsearch index
-    if (elasticsearchQueue) {
-      await elasticsearchQueue.add({ type: 'delete', publicationId: id })
-    }
+    // if (elasticsearchQueue) {
+    //   await elasticsearchQueue.add({ type: 'delete', publicationId: id })
+    // }
 
     const date = new Date().toISOString()
     return await Publication.query().patchAndFetchById(id, { deleted: date })

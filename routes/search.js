@@ -12,7 +12,7 @@ const { Publication_Tag } = require('../models/Publications_Tags')
  *     properties:
  *       id:
  *         type: string
- *       documentId:
+ *       document:
  *         type: string
  *       documentUrl:
  *         type: string

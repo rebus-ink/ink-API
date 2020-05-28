@@ -6,7 +6,6 @@ const { Publication_Tag } = require('../../models/Publications_Tags')
 const { urlToId } = require('../../utils/utils')
 const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
-const { Document } = require('../../models/Document')
 const { Note } = require('../../models/Note')
 const crypto = require('crypto')
 const _ = require('lodash')
@@ -652,20 +651,6 @@ const test = async app => {
   )
 
   await tap.test('Delete publication', async () => {
-    // Add a document to the publication
-    const documentObject = {
-      mediaType: 'txt',
-      url: 'http://google-bucket/somewhere/file1234.txt',
-      documentPath: '/inside/the/book.txt',
-      json: { property1: 'value1' }
-    }
-
-    let document = await Document.createDocument(
-      createdReader,
-      publicationId,
-      documentObject
-    )
-
     // Add Tag to the publication
     const tagAdded = await Tag.createTag(urlToId(createdReader.id), {
       type: 'stack',
@@ -682,11 +667,7 @@ const test = async app => {
 
     const res = await Publication.delete(publicationId)
 
-    // Fetch the document that has just been deleted
-    const docDeleted = await Document.byId(urlToId(document.id))
-
     await tap.ok(res.deleted)
-    await tap.ok(docDeleted.deleted)
     await tap.ok(!res.tags)
   })
 

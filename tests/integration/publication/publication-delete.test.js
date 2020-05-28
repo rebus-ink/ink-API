@@ -6,11 +6,9 @@ const {
   createUser,
   destroyDB,
   createPublication,
-  createDocument,
   addPubToCollection
 } = require('../../utils/testUtils')
 
-const { Document } = require('../../../models/Document')
 const { Tag } = require('../../../models/Tag')
 
 const test = async app => {

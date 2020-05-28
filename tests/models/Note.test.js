@@ -3,7 +3,6 @@ const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const { Publication } = require('../../models/Publication')
-const { Document } = require('../../models/Document')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 const _ = require('lodash')
@@ -39,18 +38,6 @@ const test = async app => {
     simplePublication
   )
 
-  // creating a document - this will not be exposed to the readers. It will be done as part of the upload
-  const createdDocument = await Document.createDocument(
-    createdReader,
-    urlToId(publication.id),
-    {
-      documentPath: 'path/1',
-      mediaType: 'text/html',
-      url: 'http://something/123'
-    }
-  )
-  const documentUrl = `${publication.id}/${createdDocument.documentPath}`
-
   const simpleNote = {
     body: { motivation: 'test' }
   }
@@ -61,6 +48,7 @@ const test = async app => {
       content: 'this is the content of the note!',
       language: 'en'
     },
+    document: 'doc123',
     target: { property: 'value' }
   }
 
@@ -77,16 +65,15 @@ const test = async app => {
     ]
   }
 
-  const noteWithDocument = {
+  const noteWithPub = {
     publicationId: publication.id,
-    documentUrl,
     body: {
       motivation: 'test',
       content: 'something'
     }
   }
 
-  let note, note2, noteWithDoc
+  let note, note2, noteWithPublication
 
   await tap.test('Create Simple Note', async () => {
     let response = await Note.createNote(createdReader, simpleNote)
@@ -101,6 +88,7 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Note)
     await tap.equal(response.readerId, createdReader.id)
+    await tap.equal(response.document, 'doc123')
     await tap.ok(response.body)
     await tap.equal(response.body[0].motivation, 'test')
     await tap.equal(response.body[0].content, noteWithOneBody.body.content)
@@ -120,12 +108,11 @@ const test = async app => {
     note2 = response
   })
 
-  await tap.test('Create Note with document', async () => {
-    let response = await Note.createNote(createdReader, noteWithDocument)
+  await tap.test('Create Note with publication', async () => {
+    let response = await Note.createNote(createdReader, noteWithPub)
     await tap.ok(response)
     await tap.ok(response instanceof Note)
-    await tap.equal(response.documentUrl, noteWithDocument.documentUrl)
-    noteWithDoc = response
+    noteWithPublication = response
   })
 
   await tap.test('Update a Note with a new body', async () => {
@@ -173,14 +160,15 @@ const test = async app => {
     await tap.equal(response.body.length, 2)
   })
 
-  await tap.test('Update Note with document', async () => {
-    const newNote = Object.assign(noteWithDoc, {
+  await tap.test('Update Note with publication', async () => {
+    const newNote = Object.assign(noteWithPublication, {
+      document: 'doc111',
       body: { content: 'something else', motivation: 'highlighting' }
     })
     let response = await Note.update(newNote)
     await tap.ok(response)
     await tap.ok(response instanceof Note)
-    await tap.equal(response.documentUrl, noteWithDocument.documentUrl)
+    await tap.equal(response.document, 'doc111')
   })
 
   await tap.test('Try to update a note that does not exist', async () => {

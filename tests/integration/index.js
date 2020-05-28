@@ -38,7 +38,6 @@ const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
 const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
 const readerNotesFilterPubTests = require('./readerNotes/readerNotes-filter-publication.test')
-const readerNotesFilterDocTests = require('./readerNotes/readerNotes-filter-document.test')
 const readerNotesFilterMotivationTests = require('./readerNotes/readerNotes-filter-motivation.test')
 const readerNotesFilterSearchTests = require('./readerNotes/readerNotes-filter-search.test')
 const readerNotesFilterCollectionTests = require('./readerNotes/readerNotes-filter-collection.test')
@@ -55,8 +54,6 @@ const tagPutTests = require('./tag/tag-put.test')
 const tagDeleteTests = require('./tag/tag-delete.test')
 const tagNotePutTests = require('./tag/tag-note-put.test')
 const tagNoteDeleteTests = require('./tag/tag-note-delete.test')
-
-const jobGetTests = require('./job/job-get.test')
 
 const noteRelationPostTests = require('./noteRelation/noteRelation-post.test')
 const noteRelationPutTests = require('./noteRelation/noteRelation-put.test')
@@ -196,7 +193,6 @@ const allTests = async () => {
       await readerNotesOrderByTests(app)
       // filter
       await readerNotesFilterPubTests(app)
-      await readerNotesFilterDocTests(app)
       await readerNotesFilterMotivationTests(app)
       await readerNotesFilterSearchTests(app)
       await readerNotesFilterCollectionTests(app)
@@ -206,14 +202,6 @@ const allTests = async () => {
       await readerNotesFilterFlagTests(app)
     } catch (err) {
       console.log('readerNotes integration tests error: ', err)
-    }
-  }
-
-  if (!test || test === 'jobs') {
-    try {
-      await jobGetTests(app)
-    } catch (err) {
-      console.log('job integration tests error: ', err)
     }
   }
 

@@ -199,16 +199,6 @@ const test = async app => {
     await tap.equal(res18.statusCode, 401)
   })
 
-  // ------------------------------------------ JOBS ------------------------------
-
-  await tap.test('Get Job without Authentication', async () => {
-    const res19 = await request(app)
-      .get(`/jobs/123`)
-      .set('Host', 'reader-api.test')
-      .type('application/ld+json')
-    await tap.equal(res19.statusCode, 401)
-  })
-
   // -------------------------------------------- TAG-NOTE -------------------------------
 
   await tap.test('Add Tag to Note without authentication', async () => {
@@ -536,17 +526,6 @@ const test = async app => {
       await tap.equal(res.statusCode, 401)
     }
   )
-
-  // ------------------------------------- UPLOAD ---------------------------
-
-  await tap.test('Upload without authentication', async () => {
-    const res7 = await request(app)
-      .post(`/reader-${readerId}/file-upload`)
-      .set('Host', 'reader-api.test')
-      .attach('files', 'tests/test-files/test-file3.txt')
-      .type('application/ld+json')
-    await tap.equal(res7.statusCode, 401)
-  })
 
   await destroyDB(app)
 }

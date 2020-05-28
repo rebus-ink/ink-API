@@ -49,7 +49,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Publication (from note.publicationId) or Document (from note.documentUrl) not found. Or Context not found
+   *         description: Publication (from note.publicationId) not found. Or Context not found
    */
   app.use('/', router)
   router
@@ -152,18 +152,6 @@ module.exports = function (app) {
                     requestUrl: req.originalUrl,
                     requestBody: req.body,
                     validation: err.data
-                  }
-                )
-              )
-            } else if (err.message === 'no document') {
-              return next(
-                boom.notFound(
-                  `Add Note to Context Error: No Document found with documentUrl: ${
-                    body.documentUrl
-                  }`,
-                  {
-                    requestUrl: req.originalUrl,
-                    requestBody: req.body
                   }
                 )
               )
