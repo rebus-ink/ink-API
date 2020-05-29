@@ -64,11 +64,10 @@ module.exports = app => {
    *           type: string
    *         description: the name of the tag of type stack to filter by
    *       - in: query
-   *         name: workspace
+   *         name: tag
    *         schema:
    *           type: string
-   *         description: the workspace to filter by
-   *         enum: ['Personal', 'Public Scholarships', 'Teaching', 'Research']
+   *         description: the id of the tag to filter by (any type of tag)
    *       - in: query
    *         name: type
    *         schema:
@@ -139,7 +138,7 @@ module.exports = app => {
         type: req.query.type,
         keyword: req.query.keyword,
         search: req.query.search,
-        workspace: req.query.workspace
+        tag: req.query.tag
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything

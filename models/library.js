@@ -4,7 +4,7 @@ const { Reader } = require('./Reader')
 
 class Library {
   static async getLibraryCount (readerId, filter) {
-    let author, attribution, type, workspace
+    let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
@@ -13,11 +13,6 @@ class Library {
       type =
         filter.type.charAt(0).toUpperCase() +
         filter.type.substring(1).toLowerCase()
-    }
-    if (filter.workspace) {
-      workspace =
-        filter.workspace.charAt(0).toUpperCase() +
-        filter.workspace.substring(1).toLowerCase()
     }
 
     let builder = Publication.query(Publication.knex())
@@ -80,23 +75,21 @@ class Library {
         .where('Tag_collection.name', '=', filter.collection)
         .andWhere('Tag_collection.type', '=', 'stack')
     }
-    if (filter.workspace) {
+    if (filter.tag) {
       builder.leftJoin(
-        'publication_tag as publication_tag_workspace',
-        'publication_tag_workspace.publicationId',
+        'publication_tag as publication_tag_tag',
+        'publication_tag_tag.publicationId',
         '=',
         'Publication.id'
       )
       builder.leftJoin(
-        'Tag as Tag_workspace',
-        'publication_tag_workspace.tagId',
+        'Tag as Tag_tag',
+        'publication_tag_tag.tagId',
         '=',
-        'Tag_workspace.id'
+        'Tag_tag.id'
       )
-      builder.whereNull('Tag_workspace.deleted')
-      builder
-        .where('Tag_workspace.name', '=', workspace)
-        .andWhere('Tag_workspace.type', '=', 'workspace')
+      builder.whereNull('Tag_tag.deleted')
+      builder.where('Tag_tag.id', '=', filter.tag)
     }
     if (filter.search) {
       const search = filter.search.toLowerCase()
@@ -121,7 +114,7 @@ class Library {
     filter /*: any */
   ) {
     offset = !offset ? 0 : offset
-    let author, attribution, type, workspace
+    let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
       attribution = Attribution.normalizeName(filter.attribution)
@@ -130,11 +123,6 @@ class Library {
       type =
         filter.type.charAt(0).toUpperCase() +
         filter.type.substring(1).toLowerCase()
-    }
-    if (filter.workspace) {
-      workspace =
-        filter.workspace.charAt(0).toUpperCase() +
-        filter.workspace.substring(1).toLowerCase()
     }
 
     const readers = await Reader.query(Reader.knex())
@@ -218,23 +206,21 @@ class Library {
             .where('Tag_collection.name', '=', filter.collection)
             .andWhere('Tag_collection.type', '=', 'stack')
         }
-        if (filter.workspace) {
+        if (filter.tag) {
           builder.leftJoin(
-            'publication_tag as publication_tag_workspace',
-            'publication_tag_workspace.publicationId',
+            'publication_tag as publication_tag_tag',
+            'publication_tag_tag.publicationId',
             '=',
             'Publication.id'
           )
           builder.leftJoin(
-            'Tag as Tag_workspace',
-            'publication_tag_workspace.tagId',
+            'Tag as Tag_tag',
+            'publication_tag_tag.tagId',
             '=',
-            'Tag_workspace.id'
+            'Tag_tag.id'
           )
-          builder.whereNull('Tag_workspace.deleted')
-          builder
-            .where('Tag_workspace.name', '=', workspace)
-            .andWhere('Tag_workspace.type', '=', 'workspace')
+          builder.whereNull('Tag_tag.deleted')
+          builder.where('Tag_tag.id', '=', filter.tag)
         }
         if (filter.search) {
           const search = filter.search.toLowerCase()

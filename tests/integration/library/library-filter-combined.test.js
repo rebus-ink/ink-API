@@ -16,15 +16,6 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  // get reader workspace tags:
-  const tagsres = await request(app)
-    .get(`/tags`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type('application/ld+json')
-
-  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
-
   const createPublicationSimplified = async object => {
     return await createPublication(app, token, object)
   }
@@ -42,8 +33,9 @@ const test = async () => {
   // publication 3
   await createPublicationSimplified({ name: 'Publication 3' })
 
-  // create a stack
+  // create a stack / tag
   const stack = await createTag(app, token)
+  const tag1 = await createTag(app, token, { name: 'tag1' })
 
   // assign mystack to publication B
   await addPubToCollection(app, token, publication.id, stack.id)
@@ -230,11 +222,11 @@ const test = async () => {
   })
 
   // add pubs to collection
-  await addPubToCollection(app, token, urlToId(pub01.id), researchTagId)
-  await addPubToCollection(app, token, urlToId(pub02.id), researchTagId)
-  await addPubToCollection(app, token, urlToId(pub03.id), researchTagId)
-  await addPubToCollection(app, token, pubId1, researchTagId)
-  await addPubToCollection(app, token, pubId2, researchTagId)
+  await addPubToCollection(app, token, urlToId(pub01.id), tag1.id)
+  await addPubToCollection(app, token, urlToId(pub02.id), tag1.id)
+  await addPubToCollection(app, token, urlToId(pub03.id), tag1.id)
+  await addPubToCollection(app, token, pubId1, tag1.id)
+  await addPubToCollection(app, token, pubId2, tag1.id)
 
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
@@ -513,9 +505,9 @@ const test = async () => {
     await tap.ok(_.find(body.items, { name: 'new book 2 - the sequel' }))
   })
 
-  await tap.test('filter by workspace and title', async () => {
+  await tap.test('filter by tag and title', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&title=sequel`)
+      .get(`/library?tag=${tag1.id}&title=sequel`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -528,9 +520,9 @@ const test = async () => {
     await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
   })
 
-  await tap.test('filter by workspace and language', async () => {
+  await tap.test('filter by tag and language', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&language=km`)
+      .get(`/library?tag=${tag1.id}&language=km`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -542,9 +534,9 @@ const test = async () => {
     await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
-  await tap.test('filter by workspace and author', async () => {
+  await tap.test('filter by tag and author', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&author=Jane%20Smith`)
+      .get(`/library?tag=${tag1.id}&author=Jane%20Smith`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -557,9 +549,9 @@ const test = async () => {
     await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
-  await tap.test('filter by workspace and keyword', async () => {
+  await tap.test('filter by tag and keyword', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&keyword=word`)
+      .get(`/library?tag=${tag1.id}&keyword=word`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -572,9 +564,9 @@ const test = async () => {
     await tap.ok(_.find(body.items, { name: 'new book 4 - the sequel' }))
   })
 
-  await tap.test('filter by workspace and stack', async () => {
+  await tap.test('filter by tag and stack', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&stack=mystack`)
+      .get(`/library?tag=${tag1.id}&stack=mystack`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
