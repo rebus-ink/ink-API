@@ -1,153 +1,154 @@
-// const request = require('supertest')
-// const tap = require('tap')
-// const {
-//   getToken,
-//   createUser,
-//   destroyDB,
-//   createPublication,
-//   createNote
-// } = require('../../utils/testUtils')
-// const { urlToId } = require('../../../utils/utils')
+const request = require('supertest')
+const tap = require('tap')
+const {
+  getToken,
+  createUser,
+  destroyDB,
+  createPublication,
+  createNote
+} = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
-// const test = async app => {
-//   const token = getToken()
-//   const readerId = await createUser(app, token)
+const test = async app => {
+  const token = getToken()
+  const readerId = await createUser(app, token)
 
-//   // create two publications:
-//   const publication = await createPublication(app, token, {
-//     name: 'Publication A'
-//   })
-//   const publicationUrl = publication.id
-//   const publicationId1 = urlToId(publicationUrl)
+  // create two publications:
+  const publication = await createPublication(app, token, {
+    name: 'Publication A'
+  })
+  const publicationUrl = publication.id
+  const publicationId1 = urlToId(publicationUrl)
 
-//   const publication2 = await createPublication(app, token, {
-//     name: 'Publication B'
-//   })
-//   const publicationUrl2 = publication2.id
-//   const publicationId2 = urlToId(publicationUrl2)
+  const publication2 = await createPublication(app, token, {
+    name: 'Publication B'
+  })
+  const publicationUrl2 = publication2.id
+  const publicationId2 = urlToId(publicationUrl2)
 
-//   // create a whole bunch of notes:
-//   const createNoteSimplified = async object => {
-//     const noteObj = Object.assign(
-//       {
-//         publicationId: publicationId1,
-//         body: { motivation: 'test' }
-//       },
-//       object
-//     )
-//     return await createNote(app, token, noteObj)
-//   }
+  // create a whole bunch of notes:
+  const createNoteSimplified = async object => {
+    const noteObj = Object.assign(
+      {
+        publicationId: publicationId1,
+        document: 'doc1',
+        body: { motivation: 'test' }
+      },
+      object
+    )
+    return await createNote(app, token, noteObj)
+  }
 
-//   await createNoteSimplified() // 1
-//   await createNoteSimplified() // 2
-//   await createNoteSimplified() // 3
-//   await createNoteSimplified() // 4
-//   await createNoteSimplified() // 5
-//   await createNoteSimplified() // 6
-//   await createNoteSimplified() // 7
-//   await createNoteSimplified() // 8
-//   await createNoteSimplified() // 9
-//   await createNoteSimplified() // 10
-//   await createNoteSimplified() // 11
-//   await createNoteSimplified() // 12
-//   await createNoteSimplified() // 13
+  await createNoteSimplified() // 1
+  await createNoteSimplified() // 2
+  await createNoteSimplified() // 3
+  await createNoteSimplified() // 4
+  await createNoteSimplified() // 5
+  await createNoteSimplified() // 6
+  await createNoteSimplified() // 7
+  await createNoteSimplified() // 8
+  await createNoteSimplified() // 9
+  await createNoteSimplified() // 10
+  await createNoteSimplified() // 11
+  await createNoteSimplified() // 12
+  await createNoteSimplified() // 13
 
-//   // create more notes for another pub
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
+  // create more notes for another pub
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
 
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   }) // 10
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
-//   await createNoteSimplified({
-//     publicationId: publicationId2,
-//     documentUrl: documentUrl2
-//   })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  }) // 10
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
+  await createNoteSimplified({
+    publicationId: publicationId2,
+    document: 'doc2'
+  })
 
-//   await tap.test('Filter Notes by documentUrl', async () => {
-//     const res = await request(app)
-//       .get(`/notes?document=${documentUrl2}`)
-//       .set('Host', 'reader-api.test')
-//       .set('Authorization', `Bearer ${token}`)
-//       .type('application/ld+json')
-//     await tap.equal(res.status, 200)
-//     await tap.ok(res.body)
-//     await tap.equal(res.body.totalItems, 13)
-//     await tap.equal(res.body.items.length, 13) // no pagination with documentUrl filter
-//   })
+  await tap.test('Filter Notes by documentUrl', async () => {
+    const res = await request(app)
+      .get(`/notes?document=doc2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 13)
+    await tap.equal(res.body.items.length, 13) // no pagination with documentUrl filter
+  })
 
-//   await tap.test(
-//     'Filter Notes by documentUrl should not work with pagination',
-//     async () => {
-//       const res2 = await request(app)
-//         .get(`/notes?document=${documentUrl2}&page=2`)
-//         .set('Host', 'reader-api.test')
-//         .set('Authorization', `Bearer ${token}`)
-//         .type('application/ld+json')
+  await tap.test(
+    'Filter Notes by documentUrl should not work with pagination',
+    async () => {
+      const res2 = await request(app)
+        .get(`/notes?document=doc2&page=2`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
 
-//       await tap.equal(res2.status, 200)
-//       await tap.ok(res2.body)
-//       await tap.equal(res2.body.totalItems, 13)
-//       await tap.equal(res2.body.items.length, 13)
-//     }
-//   )
+      await tap.equal(res2.status, 200)
+      await tap.ok(res2.body)
+      await tap.equal(res2.body.totalItems, 13)
+      await tap.equal(res2.body.items.length, 13)
+    }
+  )
 
-//   await tap.test('Filter Notes by a nonexistant documentUrl', async () => {
-//     const res = await request(app)
-//       .get(`/notes?document=${documentUrl2}abc`)
-//       .set('Host', 'reader-api.test')
-//       .set('Authorization', `Bearer ${token}`)
-//       .type('application/ld+json')
+  await tap.test('Filter Notes by a nonexistant document', async () => {
+    const res = await request(app)
+      .get(`/notes?document=doc3`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-//     await tap.equal(res.status, 200)
-//     await tap.ok(res.body)
-//     await tap.equal(res.body.items.length, 0)
-//   })
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.items.length, 0)
+  })
 
-//   await destroyDB(app)
-// }
+  await destroyDB(app)
+}
 
-// module.exports = test
+module.exports = test

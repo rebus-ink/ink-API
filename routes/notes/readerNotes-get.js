@@ -33,7 +33,7 @@ module.exports = app => {
    *         name: document
    *         schema:
    *           type: string
-   *         description: the url of the document the note is associated with. When this filter is used, will not paginate. Will return all results.
+   *         description: the document the note is associated with. When this filter is used, will not paginate. Will return all results.
    *       - in: query
    *         name: publication
    *         schema:
@@ -55,11 +55,10 @@ module.exports = app => {
    *           type: string
    *         description: stack to which notes belong (tag with type 'stack')
    *       - in: query
-   *         name: workspace
+   *         name: tag
    *         schema:
    *           type: string
-   *         description: workspace to which notes belong (tag with type 'workspace')
-   *         enum: ['Research', 'Personal', 'Teaching', 'Public Scholarships']
+   *         description: tagId - for a tag of any type
    *       - in: query
    *         name: flag
    *         schema:
@@ -123,7 +122,7 @@ module.exports = app => {
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
         collection: req.query.stack,
-        workspace: req.query.workspace,
+        tag: req.query.tag,
         flag: req.query.flag,
         publishedStart: req.query.publishedStart,
         publishedEnd: req.query.publishedEnd
