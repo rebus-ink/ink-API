@@ -6,12 +6,7 @@ const urlparse = require('url').parse
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {
     // note: not applied with filters.document
-    let workspace, flag
-    if (filters.workspace) {
-      workspace =
-        filters.workspace.charAt(0).toUpperCase() +
-        filters.workspace.substring(1).toLowerCase()
-    }
+    let flag
     if (filters.flag) {
       flag = filters.flag.toLowerCase()
     }
@@ -80,23 +75,17 @@ class ReaderNotes {
         .andWhere('Tag_collection.type', '=', 'stack')
     }
 
-    if (filters.workspace) {
+    if (filters.tag) {
       resultQuery = resultQuery
         .leftJoin(
-          'note_tag AS note_tag_workspace',
-          'note_tag_workspace.noteId',
+          'note_tag AS note_tag_tag',
+          'note_tag_tag.noteId',
           '=',
           'Note.id'
         )
-        .leftJoin(
-          'Tag AS Tag_workspace',
-          'note_tag_workspace.tagId',
-          '=',
-          'Tag_workspace.id'
-        )
-        .whereNull('Tag_workspace.deleted')
-        .where('Tag_workspace.name', '=', workspace)
-        .andWhere('Tag_workspace.type', '=', 'workspace')
+        .leftJoin('Tag AS Tag_tag', 'note_tag_tag.tagId', '=', 'Tag_tag.id')
+        .whereNull('Tag_tag.deleted')
+        .where('Tag_tag.id', '=', filters.tag)
     }
 
     if (filters.flag) {
@@ -126,17 +115,12 @@ class ReaderNotes {
   ) /*: Promise<Array<any>> */ {
     offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
-    let doc, workspace, flag
-    if (filters.workspace) {
-      workspace =
-        filters.workspace.charAt(0).toUpperCase() +
-        filters.workspace.substring(1).toLowerCase()
-    }
+    let flag
+
     if (filters.flag) {
       flag = filters.flag.toLowerCase()
     }
     if (filters.document) {
-      // ???????????????????
       // no pagination for filter by document
       offset = 0
       limit = 100000
@@ -171,7 +155,7 @@ class ReaderNotes {
           builder.where('publicationId', '=', urlToId(filters.publication))
         }
         if (filters.document) {
-          builder.where('document', '=', urlToId(doc.id))
+          builder.where('document', '=', filters.document)
         }
 
         if (filters.publishedStart) {
@@ -213,23 +197,21 @@ class ReaderNotes {
             .where('Tag_collection.name', '=', filters.collection)
             .andWhere('Tag_collection.type', '=', 'stack')
         }
-        if (filters.workspace) {
+        if (filters.tag) {
           builder.leftJoin(
-            'note_tag AS note_tag_workspace',
-            'note_tag_workspace.noteId',
+            'note_tag AS note_tag_tag',
+            'note_tag_tag.noteId',
             '=',
             'Note.id'
           )
           builder.leftJoin(
-            'Tag AS Tag_workspace',
-            'note_tag_workspace.tagId',
+            'Tag AS Tag_tag',
+            'note_tag_tag.tagId',
             '=',
-            'Tag_workspace.id'
+            'Tag_tag.id'
           )
-          builder.whereNull('Tag_workspace.deleted')
-          builder
-            .where('Tag_workspace.name', '=', workspace)
-            .andWhere('Tag_workspace.type', '=', 'workspace')
+          builder.whereNull('Tag_tag.deleted')
+          builder.where('Tag_tag.id', '=', filters.tag)
         }
 
         if (filters.flag) {

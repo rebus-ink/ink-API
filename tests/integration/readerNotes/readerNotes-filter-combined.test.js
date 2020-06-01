@@ -14,7 +14,7 @@ const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   const publication = await createPublication(app, token, {
     name: 'Publication A'
@@ -58,24 +58,25 @@ const test = async app => {
   const note1 = await createNoteSimplified({
     // collection
     publicationId: publicationId2,
-    body: { motivation: 'highlighting' }
+    body: { motivation: 'highlighting' },
+    document: 'doc1'
   })
   const note2 = await createNoteSimplified({
     // collection
-    publicationId: publicationId2
+    publicationId: publicationId2,
+    document: 'doc1'
   })
 
   const note3 = await createNoteSimplified({
-    // collection & workspace & flag
+    // collection & flag
     publicationId: publicationId2,
+    document: 'doc1',
     body: { motivation: 'highlighting', content: 'this contains abc' }
   })
   const note4 = await createNoteSimplified({
-    // workspace
     publicationId: publicationId2
   })
   const note5 = await createNoteSimplified({
-    // workspace
     publicationId: publicationId2
   })
   await createNoteSimplified({
@@ -90,6 +91,7 @@ const test = async app => {
   })
   await createNoteSimplified({
     publicationId: publicationId2,
+    document: 'doc2',
     body: { motivation: 'test', content: 'this contains abc' }
   })
   await createNoteSimplified({
@@ -97,10 +99,12 @@ const test = async app => {
   }) // 10
   await createNoteSimplified({
     publicationId: publicationId2,
+    document: 'doc1',
     body: { motivation: 'test', content: 'ABCDE' }
   })
   await createNoteSimplified({
     publicationId: publicationId2,
+    document: 'doc1',
     body: { motivation: 'highlighting', content: 'something' }
   })
   await createNoteSimplified({
@@ -117,20 +121,19 @@ const test = async app => {
   await addNoteToCollection(app, token, urlToId(note2.id), tagId)
   await addNoteToCollection(app, token, urlToId(note3.id), tagId)
 
-  // get reader workspace tags:
+  const tag2 = await createTag(app, token)
   const tagsres = await request(app)
     .get(`/tags`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
 
-  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
   const questionTagId = _.find(tagsres.body, { name: 'question' }).id
 
   // assign notes to workspace
-  await addNoteToCollection(app, token, urlToId(note3.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note4.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note5.id), researchTagId)
+  await addNoteToCollection(app, token, urlToId(note3.id), tag2.id)
+  await addNoteToCollection(app, token, urlToId(note4.id), tag2.id)
+  await addNoteToCollection(app, token, urlToId(note5.id), tag2.id)
 
   // assign notes to flag
   await addNoteToCollection(app, token, urlToId(note3.id), questionTagId)
@@ -174,9 +177,9 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 2)
   })
 
-  await tap.test('Filter Notes by motivation and worksapce', async () => {
+  await tap.test('Filter Notes by motivation and tagId', async () => {
     const res2 = await request(app)
-      .get(`/notes?motivation=highlighting&workspace=research`)
+      .get(`/notes?motivation=highlighting&tag=${tag2.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -187,9 +190,9 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 1)
   })
 
-  await tap.test('Filter Notes by collection and workspace', async () => {
+  await tap.test('Filter Notes by collection and tagId', async () => {
     const res2 = await request(app)
-      .get(`/notes?stack=testCollection&workspace=Research`)
+      .get(`/notes?stack=testCollection&tag=${tag2.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -200,9 +203,9 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 1)
   })
 
-  await tap.test('Filter Notes by collection, tag and workspace', async () => {
+  await tap.test('Filter Notes by collection, flag and tag', async () => {
     const res2 = await request(app)
-      .get(`/notes?stack=testCollection&workspace=Research&tag=question`)
+      .get(`/notes?stack=testCollection&tag=${tag2.id}&flag=question`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -211,6 +214,32 @@ const test = async app => {
     await tap.ok(res2.body)
     await tap.ok(res2.body.totalItems, 1)
     await tap.equal(res2.body.items.length, 1)
+  })
+
+  await tap.test('Filter Notes by document and motivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?document=doc1&motivation=highlighting`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 3)
+    await tap.equal(res2.body.items.length, 3)
+  })
+
+  await tap.test('Filter Notes by document and search', async () => {
+    const res2 = await request(app)
+      .get(`/notes?document=doc1&search=abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
   })
 
   await destroyDB(app)

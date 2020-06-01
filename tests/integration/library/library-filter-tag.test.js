@@ -7,6 +7,7 @@ const {
   createUser,
   destroyDB,
   createPublication,
+  createTag,
   addPubToCollection
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
@@ -20,16 +21,8 @@ const test = async () => {
     return await createPublication(app, token, object)
   }
 
-  // get reader workspace tags:
-  const tagsres = await request(app)
-    .get(`/tags`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type('application/ld+json')
-
-  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
-  const personalTagId = _.find(tagsres.body, { name: 'Personal' }).id
-
+  const tag1 = await createTag(app, token)
+  const tag2 = await createTag(app, token, { name: 'test2' })
   // create a bunch of publications
   const pub1 = await createPublicationSimplified({
     name: 'pub1'
@@ -100,31 +93,30 @@ const test = async () => {
   })
 
   // assign pubs to tags
-  // pub 1-11: research
-  await addPubToCollection(app, token, pubId1, researchTagId)
-  await addPubToCollection(app, token, pubId2, researchTagId)
-  await addPubToCollection(app, token, pubId3, researchTagId)
-  await addPubToCollection(app, token, pubId4, researchTagId)
-  await addPubToCollection(app, token, pubId5, researchTagId)
-  await addPubToCollection(app, token, pubId6, researchTagId)
-  await addPubToCollection(app, token, pubId7, researchTagId)
-  await addPubToCollection(app, token, pubId8, researchTagId)
-  await addPubToCollection(app, token, pubId9, researchTagId)
-  await addPubToCollection(app, token, pubId10, researchTagId)
-  await addPubToCollection(app, token, pubId11, researchTagId)
+  // pub 1-11: tag1
+  await addPubToCollection(app, token, pubId1, tag1.id)
+  await addPubToCollection(app, token, pubId2, tag1.id)
+  await addPubToCollection(app, token, pubId3, tag1.id)
+  await addPubToCollection(app, token, pubId4, tag1.id)
+  await addPubToCollection(app, token, pubId5, tag1.id)
+  await addPubToCollection(app, token, pubId6, tag1.id)
+  await addPubToCollection(app, token, pubId7, tag1.id)
+  await addPubToCollection(app, token, pubId8, tag1.id)
+  await addPubToCollection(app, token, pubId9, tag1.id)
+  await addPubToCollection(app, token, pubId10, tag1.id)
+  await addPubToCollection(app, token, pubId11, tag1.id)
 
-  // pub 10-12: personal
-  await addPubToCollection(app, token, pubId10, personalTagId)
-  await addPubToCollection(app, token, pubId11, personalTagId)
-  await addPubToCollection(app, token, pubId12, personalTagId)
+  // pub 10-12: tag2
+  await addPubToCollection(app, token, pubId10, tag2.id)
+  await addPubToCollection(app, token, pubId11, tag2.id)
+  await addPubToCollection(app, token, pubId12, tag2.id)
 
-  await tap.test('Filter Library by workspace', async () => {
+  await tap.test('Filter Library by tag', async () => {
     const res = await request(app)
-      .get(`/library?workspace=personal`)
+      .get(`/library?tag=${tag2.id}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-
     await tap.equal(res.statusCode, 200)
     const body = res.body
     await tap.type(body, 'object')
@@ -135,7 +127,7 @@ const test = async () => {
 
   await tap.test('should work with pagination', async () => {
     const res = await request(app)
-      .get(`/library?workspace=research&limit=10`)
+      .get(`/library?tag=${tag1.id}&limit=10`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -148,9 +140,9 @@ const test = async () => {
     await tap.equal(body.items.length, 10)
   })
 
-  await tap.test('Filter Library with a non-existing workspace', async () => {
+  await tap.test('Filter Library with a non-existing tag', async () => {
     const res = await request(app)
-      .get(`/library?workspace=notaworkspace`)
+      .get(`/library?tag=${tag1.id}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

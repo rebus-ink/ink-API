@@ -5,7 +5,8 @@ const {
   createUser,
   destroyDB,
   createNote,
-  addNoteToCollection
+  addNoteToCollection,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
@@ -14,14 +15,8 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
 
-  // get reader workspace tags:
-  const tagsres = await request(app)
-    .get(`/tags`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type('application/ld+json')
-
-  const researchTagId = _.find(tagsres.body, { name: 'Research' }).id
+  const tag1 = await createTag(app, token)
+  const tagId1 = tag1.id
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
@@ -50,14 +45,14 @@ const test = async app => {
   await createNoteSimplified()
   await createNoteSimplified()
 
-  // add 13 notes to research workspace
-  await addNoteToCollection(app, token, urlToId(note1.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note2.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note3.id), researchTagId)
+  // add 13 notes to tag1
+  await addNoteToCollection(app, token, urlToId(note1.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note2.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note3.id), tagId1)
 
-  await tap.test('Get Notes by Workspace', async () => {
+  await tap.test('Get Notes by TagId', async () => {
     const res = await request(app)
-      .get(`/notes?workspace=ReseArch`) // not case sensitive
+      .get(`/notes?tag=${tagId1}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -68,20 +63,20 @@ const test = async app => {
     await tap.equal(res.body.items.length, 3)
   })
 
-  await addNoteToCollection(app, token, urlToId(note4.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note5.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note6.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note7.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note8.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note9.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note10.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note11.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note12.id), researchTagId)
-  await addNoteToCollection(app, token, urlToId(note13.id), researchTagId)
+  await addNoteToCollection(app, token, urlToId(note4.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note5.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note6.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note7.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note8.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note9.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note10.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note11.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note12.id), tagId1)
+  await addNoteToCollection(app, token, urlToId(note13.id), tagId1)
 
-  await tap.test('Get Notes by Workspace with pagination', async () => {
+  await tap.test('Get Notes by TagId with pagination', async () => {
     const res = await request(app)
-      .get(`/notes?workspace=research&limit=12&page=2`)
+      .get(`/notes?tag=${tagId1}&limit=12&page=2`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
