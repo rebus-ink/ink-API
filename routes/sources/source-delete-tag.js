@@ -5,20 +5,20 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../../utils/cache')
-const { Publication_Tag } = require('../../models/Publications_Tags')
+const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/{pubId}/tags/{tagId}:
+   * /sources/{sourceId}/tags/{tagId}:
    *   delete:
    *     tags:
-   *       - tag-publication
-   *     description: Remove assignment of Tag to a Publication
+   *       - tag-source
+   *     description: Remove assignment of Tag to a Source
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -31,19 +31,19 @@ module.exports = function (app) {
    *       - Bearer: []
    *     responses:
    *       204:
-   *         description: Successfully removed Tag from Publication
+   *         description: Successfully removed Tag from Source
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to tag or publication disallowed'
+   *         description: 'Access to tag or source disallowed'
    *       404:
-   *         description: publication, tag or pub-tag relation not found
+   *         description: source, tag or source-tag relation not found
    */
   app.use('/', router)
   router
-    .route('/publications/:pubId/tags/:tagId')
+    .route('/sources/:sourceId/tags/:tagId')
     .delete(jwtAuth, function (req, res, next) {
-      const pubId = req.params.pubId
+      const sourceId = req.params.sourceId
       const tagId = req.params.tagId
       Reader.byAuthId(req.user)
         .then(reader => {
@@ -54,9 +54,9 @@ module.exports = function (app) {
               })
             )
           } else {
-            if (!checkOwnership(reader.id, pubId)) {
+            if (!checkOwnership(reader.id, sourceId)) {
               return next(
-                boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+                boom.forbidden(`Access to Source ${sourceId} disallowed`, {
                   requestUrl: req.originalUrl
                 })
               )
@@ -69,7 +69,7 @@ module.exports = function (app) {
               )
             }
 
-            Publication_Tag.removeTagFromPub(pubId, tagId)
+            Source_Tag.removeTagFromSource(sourceId, tagId)
               .then(async result => {
                 await libraryCacheUpdate(reader.id)
                 res.status(204).end()

@@ -10,7 +10,7 @@ const { urlToId } = require('../utils/utils')
 const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
-const { Publication_Tag } = require('./Publications_Tags')
+const { Source_Tag } = require('./Source_Tag')
 
 const metadataProps = [
   'inLanguage',
@@ -38,7 +38,7 @@ const linkProperties = [
 ]
 
 const types = [
-  'Publication',
+  'Source',
   'Article',
   'Blog',
   'Book',
@@ -90,7 +90,7 @@ const attributionTypes = [
 ]
 
 /*::
-type PublicationType = {
+type SourceType = {
   id: string,
   abstract?: string,
   name: string,
@@ -113,12 +113,12 @@ type PublicationType = {
 };
 */
 
-class Publication extends BaseModel {
+class Source extends BaseModel {
   static get tableName () /*: string */ {
-    return 'Publication'
+    return 'Source'
   }
   get path () /*: string */ {
-    return 'publication'
+    return 'source'
   }
 
   static get attributionTypes () /*: Array<string> */ {
@@ -171,7 +171,7 @@ class Publication extends BaseModel {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
         join: {
-          from: 'Publication.readerId',
+          from: 'Source.readerId',
           to: 'Reader.id'
         }
       },
@@ -179,26 +179,26 @@ class Publication extends BaseModel {
         relation: Model.HasManyRelation,
         modelClass: Attribution,
         join: {
-          from: 'Publication.id',
-          to: 'Attribution.publicationId'
+          from: 'Source.id',
+          to: 'Attribution.sourceId'
         }
       },
       replies: {
         relation: Model.HasManyRelation,
         modelClass: Note,
         join: {
-          from: 'Publication.id',
-          to: 'Note.publicationId'
+          from: 'Source.id',
+          to: 'Note.sourceId'
         }
       },
       tags: {
         relation: Model.ManyToManyRelation,
         modelClass: Tag,
         join: {
-          from: 'Publication.id',
+          from: 'Source.id',
           through: {
-            from: 'publication_tag.publicationId',
-            to: 'publication_tag.tagId'
+            from: 'source_tag.sourceId',
+            to: 'source_tag.tagId'
           },
           to: 'Tag.id'
         }
@@ -207,8 +207,8 @@ class Publication extends BaseModel {
         relation: Model.HasManyRelation,
         modelClass: ReadActivity,
         join: {
-          from: 'Publication.id',
-          to: 'readActivity.publicationId'
+          from: 'Source.id',
+          to: 'readActivity.sourceId'
         }
       }
     }
@@ -225,14 +225,14 @@ class Publication extends BaseModel {
   }
 
   // TODO: should not be static (wait until old deprecated code is removed)
-  static _validateIncomingPub (publication /*: any */) /*: any */ {
+  static _validateIncomingSource (source /*: any */) /*: any */ {
     // check languages
-    if (_.isString(publication.inLanguage)) {
-      publication.inLanguage = [publication.inLanguage]
+    if (_.isString(source.inLanguage)) {
+      source.inLanguage = [source.inLanguage]
     }
     let invalid = []
-    if (publication.inLanguage) {
-      publication.inLanguage.forEach(lg => {
+    if (source.inLanguage) {
+      source.inLanguage.forEach(lg => {
         if (languagesList.indexOf(lg) === -1) {
           invalid.push(lg)
         }
@@ -241,98 +241,88 @@ class Publication extends BaseModel {
     if (invalid.length > 0) {
       if (invalid.length === 1) {
         throw new Error(
-          `Publication validation error: ${
-            invalid[0]
-          } is not a valid language code`
+          `Source validation error: ${invalid[0]} is not a valid language code`
         )
       } else {
         throw new Error(
-          `Publication validation error: ${invalid.toString()} are not valid language codes`
+          `Source validation error: ${invalid.toString()} are not valid language codes`
         )
       }
     }
 
     // check type -- does not check if type is here. That is checked by objection.js
-    if (publication.type && types.indexOf(publication.type) === -1) {
+    if (source.type && types.indexOf(source.type) === -1) {
       throw new Error(
-        `Publication validation error: ${publication.type} is not a valid type.`
+        `Source validation error: ${source.type} is not a valid type.`
       )
     }
 
     // check dateModified - should be a timestamp
-    if (
-      publication.dateModified &&
-      !(new Date(publication.dateModified).getTime() > 0)
-    ) {
+    if (source.dateModified && !(new Date(source.dateModified).getTime() > 0)) {
       throw new Error(
-        `Publication validation error: dateModified must be a timestamp. ${
-          publication.dateModified
+        `Source validation error: dateModified must be a timestamp. ${
+          source.dateModified
         } is not a valid timestamp`
       )
     }
 
     // check bookEdition - should be a string
-    if (publication.bookEdition && !_.isString(publication.bookEdition)) {
-      throw new Error(
-        'Publication validation error: bookEdition should be a string'
-      )
+    if (source.bookEdition && !_.isString(source.bookEdition)) {
+      throw new Error('Source validation error: bookEdition should be a string')
     }
 
     // check bookFormat
-    if (
-      publication.bookFormat &&
-      bookFormats.indexOf(publication.bookFormat) === -1
-    ) {
+    if (source.bookFormat && bookFormats.indexOf(source.bookFormat) === -1) {
       throw new Error(
-        `Publication validation error: ${
-          publication.bookFormat
+        `Source validation error: ${
+          source.bookFormat
         } is not a valid bookFormat`
       )
     }
 
     // check isbn - should be string.
-    if (publication.isbn && !_.isString(publication.isbn)) {
-      throw new Error('Publication validation error: isbn should be a string')
+    if (source.isbn && !_.isString(source.isbn)) {
+      throw new Error('Source validation error: isbn should be a string')
     }
 
     // check genre - should be a string
-    if (publication.genre && !_.isString(publication.genre)) {
-      throw new Error('Publication validation error: genre should be a string')
+    if (source.genre && !_.isString(source.genre)) {
+      throw new Error('Source validation error: genre should be a string')
     }
 
     // check url - should be a string
-    if (publication.url && !_.isString(publication.url)) {
-      throw new Error('Publication validation error: url should be a string')
+    if (source.url && !_.isString(source.url)) {
+      throw new Error('Source validation error: url should be a string')
     }
 
     // check keywords - should be a string or an array of strings
-    if (publication.keywords) {
-      if (_.isArray(publication.keywords)) {
-        publication.keywords.forEach(word => {
+    if (source.keywords) {
+      if (_.isArray(source.keywords)) {
+        source.keywords.forEach(word => {
           if (!_.isString(word)) {
             throw new Error(
-              'Publication validation error: keywords should be strings'
+              'Source validation error: keywords should be strings'
             )
           }
         })
-      } else if (!_.isString(publication.keywords)) {
+      } else if (!_.isString(source.keywords)) {
         throw new Error(
-          'Publication validation error: keywords should be a string or an array of strings'
+          'Source validation error: keywords should be a string or an array of strings'
         )
       }
     }
 
     // check link objects
-    if (publication.links) {
-      if (!_.isArray(publication.links)) {
+    if (source.links) {
+      if (!_.isArray(source.links)) {
         throw new Error(
-          `Publication validation error: links must be an array of links`
+          `Source validation error: links must be an array of links`
         )
       } else {
-        publication.links.forEach(link => {
+        source.links.forEach(link => {
           if (!this._isValidLink(link)) {
             throw new Error(
-              `Publication validation error: links items must be either a string or an object with a url property`
+              `Source validation error: links items must be either a string or an object with a url property`
             )
           }
         })
@@ -340,16 +330,16 @@ class Publication extends BaseModel {
     }
 
     // check resources objects
-    if (publication.resources) {
-      if (!_.isArray(publication.resources)) {
+    if (source.resources) {
+      if (!_.isArray(source.resources)) {
         throw new Error(
-          `Publication validation error: resources must be an array of links`
+          `Source validation error: resources must be an array of links`
         )
       } else {
-        publication.resources.forEach(link => {
+        source.resources.forEach(link => {
           if (!this._isValidLink(link)) {
             throw new Error(
-              `Publication validation error: resources items must be either a string or an object with a url property`
+              `Source validation error: resources items must be either a string or an object with a url property`
             )
           }
         })
@@ -357,16 +347,16 @@ class Publication extends BaseModel {
     }
 
     // check readingOrder objects
-    if (publication.readingOrder) {
-      if (!_.isArray(publication.readingOrder)) {
+    if (source.readingOrder) {
+      if (!_.isArray(source.readingOrder)) {
         throw new Error(
-          `Publication validation error: readingOrder must be an array of links`
+          `Source validation error: readingOrder must be an array of links`
         )
       } else {
-        publication.readingOrder.forEach(link => {
+        source.readingOrder.forEach(link => {
           if (!this._isValidLink(link)) {
             throw new Error(
-              `Publication validation error: readingOrder items must be either a string or an object with a url property`
+              `Source validation error: readingOrder items must be either a string or an object with a url property`
             )
           }
         })
@@ -374,57 +364,53 @@ class Publication extends BaseModel {
     }
 
     if (
-      publication.inDirection &&
-      publication.inDirection !== 'ltr' &&
-      publication.inDirection !== 'rtl'
+      source.inDirection &&
+      source.inDirection !== 'ltr' &&
+      source.inDirection !== 'rtl'
     ) {
       throw new Error(
-        'Publication validation error: inDirection should be either "ltr" or "rtl"'
+        'Source validation error: inDirection should be either "ltr" or "rtl"'
       )
     }
 
-    if (publication.status && !statusMap[publication.status]) {
+    if (source.status && !statusMap[source.status]) {
       throw new Error(
-        `Publication validation error: ${
-          publication.status
-        } is not a valid status`
+        `Source validation error: ${source.status} is not a valid status`
       )
     }
   }
 
   // TODO: should not be static (wait until old deprecated code is removed)
-  static _formatIncomingPub (
+  static _formatIncomingSource (
     reader /*: any */,
-    publication /*: any */
+    source /*: any */
   ) /*: any */ {
     // IMPORTANT: formating for the metadata property should be done here, before it is stored in a metadata object
 
     // language
-    if (_.isString(publication.inLanguage)) {
-      publication.inLanguage = [publication.inLanguage]
+    if (_.isString(source.inLanguage)) {
+      source.inLanguage = [source.inLanguage]
     }
 
     // keywords
-    if (publication.keywords) {
-      if (_.isString(publication.keywords)) {
-        publication.keywords = [publication.keywords.toLowerCase()]
+    if (source.keywords) {
+      if (_.isString(source.keywords)) {
+        source.keywords = [source.keywords.toLowerCase()]
       } else {
-        publication.keywords = publication.keywords.map(keyword =>
-          keyword.toLowerCase()
-        )
+        source.keywords = source.keywords.map(keyword => keyword.toLowerCase())
       }
     }
     // store metadata
     let metadata = {}
     metadataProps.forEach(property => {
-      metadata[property] = publication[property]
+      metadata[property] = source[property]
     })
     metadata = _.omitBy(metadata, _.isUndefined)
     if (!_.isEmpty(metadata)) {
-      publication.metadata = metadata
+      source.metadata = metadata
     }
 
-    publication = _.pick(publication, [
+    source = _.pick(source, [
       'id',
       'name',
       'type',
@@ -443,84 +429,86 @@ class Publication extends BaseModel {
     ])
 
     if (reader) {
-      publication.readerId = urlToId(reader.id)
+      source.readerId = urlToId(reader.id)
     }
 
-    if (publication.readingOrder) {
-      publication.readingOrder.forEach((link, i) => {
+    if (source.readingOrder) {
+      source.readingOrder.forEach((link, i) => {
         if (_.isString(link)) {
-          publication.readingOrder[i] = { url: link }
+          source.readingOrder[i] = { url: link }
         } else {
-          publication.readingOrder[i] = _.pick(link, linkProperties)
+          source.readingOrder[i] = _.pick(link, linkProperties)
         }
       })
-      publication.readingOrder = { data: publication.readingOrder }
+      source.readingOrder = { data: source.readingOrder }
     }
-    if (publication.links) {
-      publication.links.forEach((link, i) => {
+    if (source.links) {
+      source.links.forEach((link, i) => {
         if (_.isString(link)) {
-          publication.links[i] = { url: link }
+          source.links[i] = { url: link }
         } else {
-          publication.links[i] = _.pick(link, linkProperties)
+          source.links[i] = _.pick(link, linkProperties)
         }
       })
-      publication.links = { data: publication.links }
+      source.links = { data: source.links }
     }
-    if (publication.resources && _.isArray(publication.resources)) {
-      publication.resources.forEach((link, i) => {
+    if (source.resources && _.isArray(source.resources)) {
+      source.resources.forEach((link, i) => {
         if (_.isString(link)) {
-          publication.resources[i] = { url: link }
+          source.resources[i] = { url: link }
         } else {
-          publication.resources[i] = _.pick(link, linkProperties)
+          source.resources[i] = _.pick(link, linkProperties)
         }
       })
-      publication.resources = { data: publication.resources }
+      source.resources = { data: source.resources }
     }
 
-    if (publication.status) {
-      publication.status = statusMap[publication.status]
+    if (source.status) {
+      source.status = statusMap[source.status]
     }
 
-    return publication
+    return source
   }
 
-  static async createPublication (
+  static async createSource (
     reader /*: any */,
-    publication /*: any */
-  ) /*: Promise<PublicationType|Error> */ {
+    source /*: any */
+  ) /*: Promise<SourceType|Error> */ {
     try {
-      this._validateIncomingPub(publication)
+      this._validateIncomingSource(source)
     } catch (err) {
       throw err
     }
-    const pub = this._formatIncomingPub(reader, publication)
-    let createdPublication
-    pub.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
+    const formattedSource = this._formatIncomingSource(reader, source)
+    let createdSource
+    formattedSource.id = `${urlToId(reader.id)}-${crypto
+      .randomBytes(5)
+      .toString('hex')}`
     try {
-      createdPublication = await Publication.query(
-        Publication.knex()
-      ).insertAndFetch(pub)
+      createdSource = await Source.query(Source.knex()).insertAndFetch(
+        formattedSource
+      )
     } catch (err) {
       throw err
     }
 
     // create attributions
-    const attributions = await Attribution.createAttributionsForPublication(
-      publication,
-      pub.id,
+    const attributions = await Attribution.createAttributionsForSource(
+      source,
+      formattedSource.id,
       urlToId(reader.id)
     )
-    createdPublication = Object.assign(createdPublication, attributions)
+    createdSource = Object.assign(createdSource, attributions)
 
     // exceptionally, doing this instead of in the routes because of the complexity of
     // the whole file upload thing.
     await libraryCacheUpdate(reader.id)
 
-    return createdPublication
+    return createdSource
   }
 
-  static async byId (id /*: string */) /*: Promise<PublicationType|null> */ {
-    const pub = await Publication.query()
+  static async byId (id /*: string */) /*: Promise<SourceType|null> */ {
+    const source = await Source.query()
       .findById(id)
       .withGraphFetched(
         '[reader, replies(notDeleted), tags(notDeleted), attributions]'
@@ -531,115 +519,115 @@ class Publication extends BaseModel {
         }
       })
 
-    if (!pub || pub.deleted) return null
+    if (!source || source.deleted) return null
 
     const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
     if (latestReadActivity && latestReadActivity.selector) {
-      pub.position = latestReadActivity.selector
+      source.position = latestReadActivity.selector
     }
-    if (pub.readingOrder) pub.readingOrder = pub.readingOrder.data
-    if (pub.links) pub.links = pub.links.data
-    if (pub.resources) pub.resources = pub.resources.data
-    return pub
+    if (source.readingOrder) source.readingOrder = source.readingOrder.data
+    if (source.links) source.links = source.links.data
+    if (source.resources) source.resources = source.resources.data
+    return source
   }
 
   static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
-    const pub = await Publication.query().findById(id)
-    if (!pub || pub.deleted) {
+    const source = await Source.query().findById(id)
+    if (!source || source.deleted) {
       return false
     } else return true
   }
 
   static async delete (id /*: string */) /*: Promise<number|null> */ {
-    let publication = await Publication.query().findById(id)
+    let source = await Source.query().findById(id)
 
-    if (!publication || publication.deleted) {
+    if (!source || source.deleted) {
       return null
     }
 
-    // Delete Publication_Tag associated with pub
-    await Publication_Tag.deletePubTagsOfPub(id)
+    // Delete Source_Tag associated with source
+    await Source_Tag.deleteSourceTagsOfSource(id)
 
     // remove documents from elasticsearch index
     // if (elasticsearchQueue) {
-    //   await elasticsearchQueue.add({ type: 'delete', publicationId: id })
+    //   await elasticsearchQueue.add({ type: 'delete', sourceId: id })
     // }
 
     const date = new Date().toISOString()
-    return await Publication.query().patchAndFetchById(id, { deleted: date })
+    return await Source.query().patchAndFetchById(id, { deleted: date })
   }
 
   static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
     const time = new Date().toISOString()
     return await Note.query()
       .patch({ deleted: time })
-      .where('publicationId', '=', id)
+      .where('sourceId', '=', id)
   }
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {
     let modification = {}
     modification[body.property] = body.value
     try {
-      Publication._validateIncomingPub(modification)
+      Source._validateIncomingSource(modification)
     } catch (err) {
       throw err
     }
-    let modificationFormatted = this._formatIncomingPub(null, modification)
+    let modificationFormatted = this._formatIncomingSource(null, modification)
     modificationFormatted = _.omit(modificationFormatted, 'metadata')
-    return await Publication.query()
+    return await Source.query()
       .patch(modificationFormatted)
-      .whereIn('id', body.publications)
+      .whereIn('id', body.sources)
   }
 
   static async batchUpdateAddArrayProperty (
     body /*: any */
   ) /*: Promise<any> */ {
     const result = []
-    for (const pub of body.publications) {
-      const publication = await Publication.query().findById(pub)
-      if (!publication) {
+    for (const sourceId of body.sources) {
+      const source = await Source.query().findById(sourceId)
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         // add item to existing list
         if (
-          publication &&
-          publication.metadata[body.property] &&
-          publication.metadata[body.property].length &&
-          publication.metadata[body.property].indexOf(body.value[0]) === -1
+          source &&
+          source.metadata[body.property] &&
+          source.metadata[body.property].length &&
+          source.metadata[body.property].indexOf(body.value[0]) === -1
         ) {
-          const newMetadata = publication.metadata
-          newMetadata[body.property] = publication.metadata[
-            body.property
-          ].concat(body.value)
-          await Publication.query().patchAndFetchById(pub, {
+          const newMetadata = source.metadata
+          newMetadata[body.property] = source.metadata[body.property].concat(
+            body.value
+          )
+          await Source.query().patchAndFetchById(source, {
             metadata: newMetadata
           })
           result.push({
-            id: pub,
+            id: source,
             status: 204
           })
           // add item to empty list or undefined prop
         } else if (
-          !publication.metadata[body.property] ||
-          publication.metadata[body.property].length === 0
+          !source.metadata[body.property] ||
+          source.metadata[body.property].length === 0
         ) {
-          const newMetadata = publication.metadata
+          const newMetadata = source.metadata
           newMetadata[body.property] = body.value
-          await Publication.query().patchAndFetchById(pub, {
+          await Source.query().patchAndFetchById(source, {
             metadata: newMetadata
           })
           result.push({
-            id: pub,
+            id: source,
             status: 204
           })
           // if already exists in the list, do not do anything
         } else {
           result.push({
-            id: pub,
+            id: source,
             status: 204
           })
         }
@@ -652,39 +640,39 @@ class Publication extends BaseModel {
     body /*: any */
   ) /*: Promise<any> */ {
     const result = []
-    for (const pub of body.publications) {
-      const publication = await Publication.query().findById(pub)
-      if (!publication) {
+    for (const sourceId of body.sources) {
+      const source = await Source.query().findById(sourceId)
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         // remove existing item from list
         if (
-          publication &&
-          publication.metadata[body.property] &&
-          publication.metadata[body.property].indexOf(body.value[0]) > -1
+          source &&
+          source.metadata[body.property] &&
+          source.metadata[body.property].indexOf(body.value[0]) > -1
         ) {
-          const newMetadata = publication.metadata
+          const newMetadata = source.metadata
           newMetadata[body.property] = newMetadata[body.property].filter(
             item => {
               return body.value.indexOf(item) === -1
             }
           )
-          await Publication.query().patchAndFetchById(pub, {
+          await Source.query().patchAndFetchById(source, {
             metadata: newMetadata
           })
           result.push({
-            id: pub,
+            id: source,
             status: 204
           })
           // r
         } else {
           // if not in the list, do nothing
           result.push({
-            id: pub,
+            id: source,
             status: 204
           })
         }
@@ -699,15 +687,15 @@ class Publication extends BaseModel {
   ) /*: Promise<any> */ {
     const result = []
 
-    for (const pub of body.publications) {
-      const publication = await Publication.query()
-        .findById(pub)
+    for (const sourceId of body.sources) {
+      const source = await Source.query()
+        .findById(sourceId)
         .withGraphFetched('attributions')
-      if (!publication) {
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         for (const attribution of body.value) {
@@ -719,13 +707,13 @@ class Publication extends BaseModel {
 
           // if attribution already exists, do nothing
           if (
-            _.find(publication.attributions, {
+            _.find(source.attributions, {
               role: body.property,
               normalizedName
             })
           ) {
             result.push({
-              id: pub,
+              id: source,
               status: 204,
               value: attribution
             })
@@ -734,17 +722,17 @@ class Publication extends BaseModel {
               await Attribution.createSingleAttribution(
                 body.property,
                 attribution,
-                pub,
-                urlToId(publication.readerId)
+                source,
+                urlToId(source.readerId)
               )
               result.push({
-                id: pub,
+                id: source,
                 status: 204,
                 value: attribution
               })
             } catch (err) {
               result.push({
-                id: pub,
+                id: source,
                 status: 400,
                 message: err.message,
                 value: attribution
@@ -761,15 +749,15 @@ class Publication extends BaseModel {
     body /*: any */
   ) /*: Promise<any> */ {
     const result = []
-    for (const pub of body.publications) {
-      const publication = await Publication.query()
-        .findById(pub)
+    for (const sourceId of body.sources) {
+      const source = await Source.query()
+        .findById(sourceId)
         .withGraphFetched('attributions')
-      if (!publication) {
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         for (const attribution of body.value) {
@@ -780,32 +768,32 @@ class Publication extends BaseModel {
           }
           // if attribution already exists, remove it
           if (
-            _.find(publication.attributions, {
+            _.find(source.attributions, {
               role: body.property,
               normalizedName
             })
           ) {
             try {
               await Attribution.deleteAttribution(
-                pub,
+                source,
                 body.property,
                 normalizedName
               )
               result.push({
-                id: pub,
+                id: source,
                 status: 204,
                 value: attribution
               })
             } catch (err) {
               result.push({
-                id: pub,
+                id: source,
                 status: 400,
                 value: attribution
               })
             }
           } else {
             result.push({
-              id: pub,
+              id: source,
               status: 204,
               value: attribution
             })
@@ -821,48 +809,48 @@ class Publication extends BaseModel {
     readerId /*: string */
   ) /*: Promise<any> */ {
     let result = []
-    for (const pub of body.publications) {
-      const publication = await Publication.query()
-        .findById(pub)
+    for (const sourceId of body.sources) {
+      const source = await Source.query()
+        .findById(sourceId)
         .withGraphFetched('tags')
-      if (!publication) {
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         for (const tag of body.value) {
           // if tag already exists
           if (
-            _.find(publication.tags, {
+            _.find(source.tags, {
               id: urlToId(tag)
             })
           ) {
             result.push({
-              id: pub,
+              id: source,
               status: 204,
               value: tag
             })
           } else {
             try {
-              await Publication_Tag.addTagToPub(pub, tag)
+              await Source_Tag.addTagToSource(source, tag)
               result.push({
-                id: pub,
+                id: source,
                 status: 204,
                 value: tag
               })
             } catch (err) {
               if (err.message === 'no tag') {
                 result.push({
-                  id: pub,
+                  id: source,
                   status: 404,
                   value: tag,
                   message: `No Tag found with id ${tag}`
                 })
               } else {
                 result.push({
-                  id: pub,
+                  id: source,
                   status: 400,
                   value: tag,
                   message: err.message
@@ -881,40 +869,40 @@ class Publication extends BaseModel {
     readerId /*: string */
   ) /*: Promise<any> */ {
     let result = []
-    for (const pub of body.publications) {
-      const publication = await Publication.query()
-        .findById(pub)
+    for (const sourceId of body.sources) {
+      const source = await Source.query()
+        .findById(sourceId)
         .withGraphFetched('tags')
-      if (!publication) {
+      if (!source) {
         result.push({
-          id: pub,
+          id: source,
           status: 404,
-          message: `No Publication found with id ${pub}`
+          message: `No Source found with id ${source}`
         })
       } else {
         for (const tag of body.value) {
-          // if tag doesn't exist for this pub, skip
+          // if tag doesn't exist for this source, skip
           if (
-            !_.find(publication.tags, {
+            !_.find(source.tags, {
               id: urlToId(tag)
             })
           ) {
             result.push({
-              id: pub,
+              id: source,
               status: 204,
               value: tag
             })
           } else {
             try {
-              await Publication_Tag.removeTagFromPubNoError(pub, tag)
+              await Source_Tag.removeTagFromSourceNoError(source, tag)
               result.push({
-                id: pub,
+                id: source,
                 status: 204,
                 value: tag
               })
             } catch (err) {
               result.push({
-                id: pub,
+                id: source,
                 status: 400,
                 value: tag,
                 message: err.message
@@ -928,33 +916,33 @@ class Publication extends BaseModel {
   }
 
   static async update (
-    publication /*: any */,
+    source /*: any */,
     body /*: any */
-  ) /*: Promise<PublicationType|null> */ {
-    const id = urlToId(publication.id)
+  ) /*: Promise<SourceType|null> */ {
+    const id = urlToId(source.id)
     try {
-      Publication._validateIncomingPub(body)
+      Source._validateIncomingSource(body)
     } catch (err) {
       throw err
     }
 
-    const modifications = Publication._formatIncomingPub(null, body)
+    const modifications = Source._formatIncomingSource(null, body)
     if (
       modifications.metadata &&
       Object.keys(modifications.metadata).length > 0
     ) {
       modifications.metadata = _.omitBy(modifications.metadata, _.isUndefined)
       modifications.metadata = Object.assign(
-        publication.metadata,
+        source.metadata,
         modifications.metadata
       )
     }
-    let updatedPub
+    let updatedSource
     try {
       if (_.isEmpty(modifications)) {
-        updatedPub = await Publication.query().findById(id)
+        updatedSource = await Source.query().findById(id)
       } else {
-        updatedPub = await Publication.query().patchAndFetchById(
+        updatedSource = await Source.query().patchAndFetchById(
           id,
           modifications
         )
@@ -962,14 +950,14 @@ class Publication extends BaseModel {
     } catch (err) {
       throw err
     }
-    // attach attributions to the udpatedPub object
-    if (publication.attributions) {
+    // attach attributions to the udpatedSource object
+    if (source.attributions) {
       attributionTypes.forEach(type => {
-        updatedPub[type] = publication.attributions.filter(
+        updatedSource[type] = source.attributions.filter(
           attribution => attribution.role === type
         )
       })
-      publication.attributions = undefined
+      source.attributions = undefined
     }
 
     // delete attributions that were replacced
@@ -981,22 +969,22 @@ class Publication extends BaseModel {
           )
         }
         // Delete the previous attributions for this role
-        await Attribution.deleteAttributionOfPub(id, role)
+        await Attribution.deleteAttributionOfSource(id, role)
       } else if (body[role] === null) {
-        await Attribution.deleteAttributionOfPub(id, role)
-        updatedPub[role] = null
+        await Attribution.deleteAttributionOfSource(id, role)
+        updatedSource[role] = null
       }
     }
 
     // Update Attributions if necessary
-    const attributions = await Attribution.createAttributionsForPublication(
+    const attributions = await Attribution.createAttributionsForSource(
       body,
       id,
-      urlToId(updatedPub.readerId)
+      urlToId(updatedSource.readerId)
     )
-    updatedPub = Object.assign(updatedPub, attributions)
+    updatedSource = Object.assign(updatedSource, attributions)
 
-    return updatedPub
+    return updatedSource
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
@@ -1049,4 +1037,4 @@ class Publication extends BaseModel {
   }
 }
 
-module.exports = { Publication }
+module.exports = { Source }

@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
@@ -14,11 +14,11 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
 
-  const publication = await createPublication(app, token)
-  const publicationId = urlToId(publication.id)
+  const source = await createSource(app, token)
+  const sourceId = urlToId(source.id)
 
   const invalidTagId = `${readerId}-123` // including readerId to avoid 403 error
-  const invalidPubId = `${readerId}-456`
+  const invalidSourceId = `${readerId}-456`
 
   // create Tag
   const tag = await createTag(app, token, {
@@ -28,55 +28,52 @@ const test = async app => {
   })
   const tagId = urlToId(tag.id)
 
-  await tap.test('Assign Publication to Tag', async () => {
+  await tap.test('Assign Source to Tag', async () => {
     const res = await request(app)
-      .put(`/publications/${publicationId}/tags/${tagId}`)
+      .put(`/sources/${sourceId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
-    // make sure the tag is really attached to the publication
-    const pubres = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+    // make sure the tag is really attached to the source
+    const sourceres = await request(app)
+      .get(`/sources/${urlToId(source.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
+    await tap.equal(sourceres.status, 200)
+    const body = sourceres.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 1)
   })
 
-  await tap.test(
-    'Try to assign Publication to Tag with invalid Tag',
-    async () => {
-      const res = await request(app)
-        .put(`/publications/${publicationId}/tags/${invalidTagId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
+  await tap.test('Try to assign Source to Tag with invalid Tag', async () => {
+    const res = await request(app)
+      .put(`/sources/${sourceId}/tags/${invalidTagId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-      await tap.equal(res.status, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(
-        error.message,
-        `Add Tag to Publication Error: No Tag found with id ${invalidTagId}`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}/tags/${invalidTagId}`
-      )
-    }
-  )
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(
+      error.message,
+      `Add Tag to Source Error: No Tag found with id ${invalidTagId}`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/sources/${sourceId}/tags/${invalidTagId}`
+    )
+  })
 
   await tap.test(
-    'Try to assign Publication to Tag with invalid Publication',
+    'Try to assign Source to Tag with invalid Source',
     async () => {
       const res = await request(app)
-        .put(`/publications/${invalidPubId}/tags/${tagId}`)
+        .put(`/sources/${invalidSourceId}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -86,24 +83,24 @@ const test = async app => {
       await tap.equal(error.statusCode, 404)
       await tap.equal(
         error.message,
-        `Add Tag to Publication Error: No Publication found with id ${invalidPubId}`
+        `Add Tag to Source Error: No Source found with id ${invalidSourceId}`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${invalidPubId}/tags/${tagId}`
+        `/sources/${invalidSourceId}/tags/${tagId}`
       )
     }
   )
 
-  await tap.test('Try to assign Publication to Tag twice', async () => {
+  await tap.test('Try to assign Source to Tag twice', async () => {
     await request(app)
-      .put(`/publications/${publicationId}/tags/${tagId}`)
+      .put(`/sources/${sourceId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     const res = await request(app)
-      .put(`/publications/${publicationId}/tags/${tagId}`)
+      .put(`/sources/${sourceId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -112,11 +109,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Add Tag to Publication Error: Relationship already exists between Publication ${publicationId} and Tag ${tagId}`
+      `Add Tag to Source Error: Relationship already exists between Source ${sourceId} and Tag ${tagId}`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/publications/${publicationId}/tags/${tagId}`
+      `/sources/${sourceId}/tags/${tagId}`
     )
   })
 

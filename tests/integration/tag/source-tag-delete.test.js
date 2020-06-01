@@ -4,9 +4,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createTag,
-  addPubToCollection
+  addSourceToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -15,11 +15,11 @@ const test = async app => {
   const readerCompleteUrl = await createUser(app, token)
   const readerId = urlToId(readerCompleteUrl)
 
-  const publication = await createPublication(app, token)
-  const publicationId = urlToId(publication.id)
+  const source = await createSource(app, token)
+  const sourceId = urlToId(source.id)
 
   const invalidTagId = `${readerId}-123` // including readerId to avoid 403 error
-  const invalidPubId = `${readerId}-456`
+  const invalidSourceId = `${readerId}-456`
 
   // create Tag
   const tag = await createTag(app, token, {
@@ -29,23 +29,23 @@ const test = async app => {
   })
   const tagId = urlToId(tag.id)
 
-  await addPubToCollection(app, token, publicationId, tagId)
+  await addSourceToCollection(app, token, sourceId, tagId)
 
-  await tap.test('Remove Tag from Publication', async () => {
+  await tap.test('Remove Tag from Source', async () => {
     // before:
-    const pubresbefore = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+    const sourceresbefore = await request(app)
+      .get(`/sources/${urlToId(source.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubresbefore.status, 200)
-    const bodybefore = pubresbefore.body
+    await tap.equal(sourceresbefore.status, 200)
+    const bodybefore = sourceresbefore.body
     await tap.ok(Array.isArray(bodybefore.tags))
     await tap.equal(bodybefore.tags.length, 1)
 
     const res = await request(app)
-      .delete(`/publications/${publicationId}/tags/${tagId}`)
+      .delete(`/sources/${sourceId}/tags/${tagId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -53,23 +53,23 @@ const test = async app => {
     await tap.equal(res.status, 204)
 
     // after:
-    const pubres = await request(app)
-      .get(`/publications/${publicationId}`)
+    const sourceres = await request(app)
+      .get(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
+    await tap.equal(sourceres.status, 200)
+    const body = sourceres.body
     await tap.ok(Array.isArray(body.tags))
     await tap.equal(body.tags.length, 0)
   })
 
   await tap.test(
-    'Try to remove a Tag from a Publication with invalid Tag',
+    'Try to remove a Tag from a Source with invalid Tag',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${publicationId}/tags/${invalidTagId}`)
+        .delete(`/sources/${sourceId}/tags/${invalidTagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -79,20 +79,20 @@ const test = async app => {
       await tap.equal(error.statusCode, 404)
       await tap.equal(
         error.message,
-        `Remove Tag from Publication Error: No Relation found between Tag ${invalidTagId} and Publication ${publicationId}`
+        `Remove Tag from Source Error: No Relation found between Tag ${invalidTagId} and Source ${sourceId}`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}/tags/${invalidTagId}`
+        `/sources/${sourceId}/tags/${invalidTagId}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove a Tag from a Publication with invalid Publication',
+    'Try to remove a Tag from a Source with invalid Source',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${invalidPubId}/tags/${tagId}`)
+        .delete(`/sources/${invalidSourceId}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -102,11 +102,11 @@ const test = async app => {
       await tap.equal(error.statusCode, 404)
       await tap.equal(
         error.message,
-        `Remove Tag from Publication Error: No Relation found between Tag ${tagId} and Publication ${invalidPubId}`
+        `Remove Tag from Source Error: No Relation found between Tag ${tagId} and Source ${invalidSourceId}`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${invalidPubId}/tags/${tagId}`
+        `/sources/${invalidSourceId}/tags/${tagId}`
       )
     }
   )

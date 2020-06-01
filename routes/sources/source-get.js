@@ -1,22 +1,22 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Publication } = require('../../models/Publication')
-const debug = require('debug')('hobb:routes:publication')
+const { Source } = require('../../models/Source')
+const debug = require('debug')('hobb:routes:source')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/{pubId}:
+   * /sources/{sourceId}:
    *   get:
    *     tags:
-   *       - publications
-   *     description: Get a single publication by id
+   *       - sources
+   *     description: Get a single source by id
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -26,48 +26,48 @@ module.exports = function (app) {
    *       - application/json
    *     responses:
    *       200:
-   *         description: The publication object with a list of replies (noteIds) a list of assigned tags
+   *         description: The source object with a list of replies (noteIds) a list of assigned tags
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/publication'
+   *               $ref: '#/definitions/source'
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to publication {pubId} disallowed'
+   *         description: 'Access to source {sourceId} disallowed'
    *       404:
-   *         description: 'No Publication with ID {pubId}'
+   *         description: 'No Source with ID {sourceId}'
    */
   app.use('/', router)
   router.get(
-    '/publications/:pubId',
+    '/sources/:sourceId',
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const pubId = req.params.pubId
-      Publication.byId(pubId)
-        .then(publication => {
-          if (!publication || publication.deleted) {
+      const sourceId = req.params.sourceId
+      Source.byId(sourceId)
+        .then(source => {
+          if (!source || source.deleted) {
             return next(
-              boom.notFound(`No Publication found with id ${pubId}`, {
+              boom.notFound(`No Source found with id ${sourceId}`, {
                 requestUrl: req.originalUrl
               })
             )
-          } else if (!utils.checkReader(req, publication.reader)) {
+          } else if (!utils.checkReader(req, source.reader)) {
             return next(
-              boom.forbidden(`Access to publication ${pubId} disallowed`, {
-                type: 'Publication',
+              boom.forbidden(`Access to source ${sourceId} disallowed`, {
+                type: 'Source',
                 requestUrl: req.originalUrl
               })
             )
           } else {
-            debug(publication)
+            debug(source)
             res.setHeader('Content-Type', 'application/ld+json')
-            const publicationJson = publication.toJSON()
+            const sourceJson = source.toJSON()
             res.end(
               JSON.stringify(
-                Object.assign(publicationJson, {
-                  replies: publication.replies
-                    ? publication.replies
+                Object.assign(sourceJson, {
+                  replies: source.replies
+                    ? source.replies
                       .filter(note => !note.deleted)
                       .map(note => note.asRef())
                     : []

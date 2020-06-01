@@ -5,8 +5,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
-  addPubToCollection
+  createSource,
+  addSourceToCollection
 } = require('../../utils/testUtils')
 
 const { Tag } = require('../../../models/Tag')
@@ -18,9 +18,9 @@ const test = async app => {
 
   const now = new Date().toISOString()
 
-  const publicationObject = {
+  const sourceObject = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
     abstract: 'this is a description!!',
@@ -60,21 +60,21 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(app, token, publicationObject)
-  const publicationUrl = resCreatePub.id
-  const publicationId = urlToId(resCreatePub.id)
+  const resCreateSource = await createSource(app, token, sourceObject)
+  const sourceUrl = resCreateSource.id
+  const sourceId = urlToId(resCreateSource.id)
 
-  // second publication
-  await createPublication(app, token)
+  // second source
+  await createSource(app, token)
 
-  await tap.test('Delete Publication', async () => {
+  await tap.test('Delete Source', async () => {
     // Create a tag for testing purposes
     const createdTag = await Tag.createTag(readerId, {
       type: 'stack',
       name: 'mystack'
     })
 
-    await addPubToCollection(app, token, publicationId, createdTag.id)
+    await addSourceToCollection(app, token, sourceId, createdTag.id)
 
     // before
     const before = await request(app)
@@ -87,15 +87,15 @@ const test = async app => {
     await tap.equal(before.body.items[1].tags[0].name, 'mystack')
 
     const res = await request(app)
-      .delete(`/publications/${publicationId}`)
+      .delete(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
     await tap.equal(res.statusCode, 204)
 
-    // getting deleted publication should return 404 error
+    // getting deleted source should return 404 error
     const getres = await request(app)
-      .get(`/publications/${urlToId(publicationUrl)}`)
+      .get(`/sources/${urlToId(sourceUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -106,11 +106,11 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(
       error.message,
-      `No Publication found with id ${urlToId(publicationId)}`
+      `No Source found with id ${urlToId(sourceId)}`
     )
-    await tap.equal(error.details.requestUrl, `/publications/${publicationId}`)
+    await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
 
-    // publication should no longer be in the reader library
+    // source should no longer be in the reader library
     const libraryres = await request(app)
       .get(`/library`)
       .set('Host', 'reader-api.test')
@@ -125,10 +125,10 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to delete a Publication that was already deleted',
+    'Try to delete a Source that was already deleted',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${publicationId}`)
+        .delete(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -137,59 +137,41 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
       await tap.equal(error.error, 'Not Found')
-      await tap.equal(
-        error.message,
-        `No Publication found with id ${publicationId}`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.message, `No Source found with id ${sourceId}`)
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
     }
   )
 
-  await tap.test(
-    'Try to update Publication that was already deleted',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(JSON.stringify({ name: 'new name!!' }))
+  await tap.test('Try to update Source that was already deleted', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify({ name: 'new name!!' }))
 
-      await tap.equal(res.statusCode, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.error, 'Not Found')
-      await tap.equal(
-        error.message,
-        `No Publication found with id ${publicationId}`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
-    }
-  )
+    await tap.equal(res.statusCode, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.message, `No Source found with id ${sourceId}`)
+    await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
+  })
 
-  await tap.test(
-    'Try to delete a Publication that does not exist',
-    async () => {
-      const res1 = await request(app)
-        .delete(`/publications/1234`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
+  await tap.test('Try to delete a Source that does not exist', async () => {
+    const res1 = await request(app)
+      .delete(`/sources/1234`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-      await tap.equal(res1.statusCode, 404)
-      const error1 = JSON.parse(res1.text)
-      await tap.equal(error1.statusCode, 404)
-      await tap.equal(error1.error, 'Not Found')
-      await tap.equal(error1.message, `No Publication found with id 1234`)
-      await tap.equal(error1.details.requestUrl, `/publications/1234`)
-    }
-  )
+    await tap.equal(res1.statusCode, 404)
+    const error1 = JSON.parse(res1.text)
+    await tap.equal(error1.statusCode, 404)
+    await tap.equal(error1.error, 'Not Found')
+    await tap.equal(error1.message, `No Source found with id 1234`)
+    await tap.equal(error1.details.requestUrl, `/sources/1234`)
+  })
 
   await destroyDB(app)
 }

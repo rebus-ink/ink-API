@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,69 +12,69 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication 1',
+  await createSourceSimplified({
+    name: 'Source 1',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 2',
+  await createSourceSimplified({
+    name: 'Source 2',
     type: 'Book'
   })
-  await createPublicationSimplified({
-    name: 'Publication 3',
+  await createSourceSimplified({
+    name: 'Source 3',
     type: 'Book'
   })
 
-  await createPublicationSimplified({
-    name: 'Publication 4',
+  await createSourceSimplified({
+    name: 'Source 4',
     type: 'Book'
   })
-  await createPublicationSimplified({
-    name: 'Publication 5',
+  await createSourceSimplified({
+    name: 'Source 5',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 6',
+  await createSourceSimplified({
+    name: 'Source 6',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 7',
+  await createSourceSimplified({
+    name: 'Source 7',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 8',
+  await createSourceSimplified({
+    name: 'Source 8',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 9',
+  await createSourceSimplified({
+    name: 'Source 9',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 10',
+  await createSourceSimplified({
+    name: 'Source 10',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 11',
+  await createSourceSimplified({
+    name: 'Source 11',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 12',
+  await createSourceSimplified({
+    name: 'Source 12',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 13',
+  await createSourceSimplified({
+    name: 'Source 13',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 14',
+  await createSourceSimplified({
+    name: 'Source 14',
     type: 'Article'
   })
-  await createPublicationSimplified({
-    name: 'Publication 15',
+  await createSourceSimplified({
+    name: 'Source 15',
     type: 'Article'
   })
 
@@ -97,7 +97,7 @@ const test = async () => {
     await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
-    await tap.equal(body.items[0].name, 'Publication 4')
+    await tap.equal(body.items[0].name, 'Source 4')
   })
 
   await tap.test('Filter Library by type is not case sensitive', async () => {
@@ -119,7 +119,7 @@ const test = async () => {
     await tap.equal(body.items[0].type, 'Book')
     await tap.type(body.items[0].id, 'string')
     await tap.type(body.items[0].name, 'string')
-    await tap.equal(body.items[0].name, 'Publication 4')
+    await tap.equal(body.items[0].name, 'Source 4')
   })
 
   await tap.test('Filter by type with pagination', async () => {

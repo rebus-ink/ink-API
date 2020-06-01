@@ -1,11 +1,11 @@
 const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
-const { Notebook_Pub } = require('../../models/Notebook_Pub')
+const { Notebook_Source } = require('../../models/Notebook_Source')
 
 const test = async app => {
   const random = crypto.randomBytes(13).toString('hex')
@@ -15,16 +15,13 @@ const test = async app => {
   }
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
-  const publicationObject = {
-    name: 'pub1',
+  const sourceObject = {
+    name: 'source1',
     type: 'Book'
   }
 
-  const pub = await Publication.createPublication(
-    createdReader,
-    publicationObject
-  )
-  const pubId = urlToId(pub.id)
+  const source = await Source.createSource(createdReader, sourceObject)
+  const sourceId = urlToId(source.id)
 
   let simpleNotebook = {
     name: 'notebook1',
@@ -37,31 +34,31 @@ const test = async app => {
   )
   const notebookId = urlToId(notebook.id)
 
-  await tap.test('Add Pub to Notebook', async () => {
+  await tap.test('Add Source to Notebook', async () => {
     let error
     try {
-      await Notebook_Pub.addPubToNotebook(notebookId, pubId)
+      await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
     } catch (err) {
       error = err
     }
     await tap.notOk(error)
   })
 
-  await tap.test('Try to Add invalid pub to Notebook', async () => {
+  await tap.test('Try to Add invalid source to Notebook', async () => {
     let error
     try {
-      await Notebook_Pub.addPubToNotebook(notebookId, pubId + 'abc')
+      await Notebook_Source.addSourceToNotebook(notebookId, sourceId + 'abc')
     } catch (err) {
       error = err
     }
     await tap.ok(error)
-    await tap.equal(error.message, 'no publication')
+    await tap.equal(error.message, 'no source')
   })
 
-  await tap.test('Try to add a Pub to an invalid Notebook', async () => {
+  await tap.test('Try to add a Source to an invalid Notebook', async () => {
     let error
     try {
-      await Notebook_Pub.addPubToNotebook(notebookId + 'abc', pubId)
+      await Notebook_Source.addSourceToNotebook(notebookId + 'abc', sourceId)
     } catch (err) {
       error = err
     }
@@ -70,26 +67,26 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to a Pub to a Notebook when the relation already exists',
+    'Try to a Source to a Notebook when the relation already exists',
     async () => {
       let error
       try {
-        await Notebook_Pub.addPubToNotebook(notebookId, pubId)
+        await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
       } catch (err) {
         error = err
       }
       await tap.ok(error)
       await tap.equal(
         error.message,
-        `Add Publication to Notebook Error: Relationship already exists between Notebook ${notebookId} and Publication ${pubId}`
+        `Add Source to Notebook Error: Relationship already exists between Notebook ${notebookId} and Source ${sourceId}`
       )
     }
   )
 
-  await tap.test('Remove Pub from Notebook', async () => {
+  await tap.test('Remove Source from Notebook', async () => {
     let error
     try {
-      await Notebook_Pub.removePubFromNotebook(notebookId, pubId)
+      await Notebook_Source.removeSourceFromNotebook(notebookId, sourceId)
     } catch (err) {
       error = err
     }
@@ -97,18 +94,18 @@ const test = async app => {
   })
 
   await tap.test(
-    'Try to Remove Pub from Notebook when relation does not exist',
+    'Try to Remove Source from Notebook when relation does not exist',
     async () => {
       let error
       try {
-        await Notebook_Pub.removePubFromNotebook(notebookId, pubId)
+        await Notebook_Source.removeSourceFromNotebook(notebookId, sourceId)
       } catch (err) {
         error = err
       }
       await tap.ok(error)
       await tap.equal(
         error.message,
-        `Remove Publication from Notebook Error: No Relation found between Notebook ${notebookId} and Publication ${pubId}`
+        `Remove Source from Notebook Error: No Relation found between Notebook ${notebookId} and Source ${sourceId}`
       )
     }
   )

@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -14,9 +14,9 @@ const test = async app => {
 
   const now = new Date().toISOString()
 
-  const publicationObject = {
+  const sourceObject = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
     contributor: ['Sample Contributor'],
@@ -72,14 +72,14 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(app, token, publicationObject)
-  const publicationUrl = resCreatePub.id
-  const publicationId = urlToId(publicationUrl)
+  const resCreateSource = await createSource(app, token, sourceObject)
+  const sourceUrl = resCreateSource.id
+  const sourceId = urlToId(sourceUrl)
 
-  await tap.test('Update a Publication', async () => {
+  await tap.test('Update a Source', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
-      .patch(`/publications/${publicationId}`)
+      .patch(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -88,7 +88,7 @@ const test = async app => {
           type: 'Article',
           name: 'New name for pub A',
           // datePublished: timestamp,
-          abstract: 'New description for Publication',
+          abstract: 'New description for Source',
           numberOfPages: 444,
           encodingFormat: 'new',
           json: { property: 'New value for json property' },
@@ -118,7 +118,7 @@ const test = async app => {
     const body = res.body
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.name, 'New name for pub A')
-    await tap.equal(body.abstract, 'New description for Publication')
+    await tap.equal(body.abstract, 'New description for Source')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
     await tap.equal(body.numberOfPages, 444)
@@ -152,7 +152,7 @@ const test = async app => {
 
   await tap.test('Update a single property', async () => {
     const res = await request(app)
-      .patch(`/publications/${publicationId}`)
+      .patch(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -164,7 +164,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.name, 'New name for source A')
     await tap.equal(body.abstract, 'new new!')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
@@ -199,7 +199,7 @@ const test = async app => {
 
   await tap.test('Update a single attribution', async () => {
     const res = await request(app)
-      .patch(`/publications/${publicationId}`)
+      .patch(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -211,7 +211,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.name, 'New name for source A')
     await tap.equal(body.abstract, 'new new!')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
@@ -241,7 +241,7 @@ const test = async app => {
   await tap.test('Update a single metadata property', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
     const res = await request(app)
-      .patch(`/publications/${publicationId}`)
+      .patch(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -253,7 +253,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.name, 'New name for source A')
     await tap.equal(body.abstract, 'new new!')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')
@@ -285,7 +285,7 @@ const test = async app => {
     async () => {
       // const timestamp = new Date(2018, 01, 30).toISOString()
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -297,7 +297,7 @@ const test = async app => {
       await tap.equal(res.status, 200)
       const body = res.body
       await tap.equal(body.shortId, urlToId(body.id))
-      await tap.equal(body.name, 'New name for pub A')
+      await tap.equal(body.name, 'New name for source A')
       await tap.equal(body.abstract, 'new new!')
       // await tap.equal(body.datePublished, timestamp)
       await tap.equal(body.json.property, 'New value for json property')
@@ -325,29 +325,26 @@ const test = async app => {
     }
   )
 
-  await tap.test(
-    'Update a publication by setting a value to null',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            abstract: null
-          })
-        )
-      await tap.equal(res.status, 200)
-      await tap.notOk(res.body.abstract)
-    }
-  )
+  await tap.test('Update a source by setting a value to null', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          abstract: null
+        })
+      )
+    await tap.equal(res.status, 200)
+    await tap.notOk(res.body.abstract)
+  })
 
   await tap.test(
-    'Update a publication by setting a metadata value to null',
+    'Update a source by setting a metadata value to null',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -364,10 +361,10 @@ const test = async app => {
   )
 
   await tap.test(
-    'Update a publication by setting an attribution value to null',
+    'Update a source by setting an attribution value to null',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -381,45 +378,39 @@ const test = async app => {
     }
   )
 
-  await tap.test(
-    'Try to update a Publication to an invalid value',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 1234
-          })
-        )
+  await tap.test('Try to update a Source to an invalid value', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 1234
+        })
+      )
 
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        'Validation Error on Patch Publication: name: should be string'
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 1234)
-      await tap.type(error.details.validation, 'object')
-      await tap.equal(error.details.validation.name[0].keyword, 'type')
-      await tap.equal(error.details.validation.name[0].params.type, 'string')
-    }
-  )
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      'Validation Error on Patch Source: name: should be string'
+    )
+    await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 1234)
+    await tap.type(error.details.validation, 'object')
+    await tap.equal(error.details.validation.name[0].keyword, 'type')
+    await tap.equal(error.details.validation.name[0].params.type, 'string')
+  })
 
   await tap.test(
-    'Try to update a Publication to an invalid metadata value',
+    'Try to update a Source to an invalid metadata value',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -435,22 +426,19 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: genre should be a string'
+        'Source validation error: genre should be a string'
       )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.genre, 123)
     }
   )
 
   await tap.test(
-    'Try to update a Publication to an invalid attribution',
+    'Try to update a Source to an invalid attribution',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -468,20 +456,17 @@ const test = async app => {
         error.message,
         'illustrator attribution validation error: attribution should be either an attribution object or a string'
       )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.illustrator, 123)
     }
   )
 
   await tap.test(
-    'Try to update a Publication to an invalid link object',
+    'Try to update a Source to an invalid link object',
     async () => {
       const res = await request(app)
-        .patch(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -497,55 +482,43 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: links items must be either a string or an object with a url property'
+        'Source validation error: links items must be either a string or an object with a url property'
       )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.links[0], 123)
     }
   )
 
-  await tap.test(
-    'Try to update a Publication that does not exist',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/${publicationId}1`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'New name for pub A',
-            abstract: 'New description for Publication',
-            json: { property: 'New value for json property' },
-            inLanguage: ['en', 'fr'],
-            keywords: ['newKeyWord1', 'newKeyWord2'],
-            author: [
-              { type: 'Person', name: 'New Sample Author' },
-              { type: 'Organization', name: 'New Org inc.' }
-            ],
-            editor: [{ type: 'Person', name: 'New Sample Editor' }]
-          })
-        )
+  await tap.test('Try to update a Source that does not exist', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}1`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'New name for source A',
+          abstract: 'New description for Source',
+          json: { property: 'New value for json property' },
+          inLanguage: ['en', 'fr'],
+          keywords: ['newKeyWord1', 'newKeyWord2'],
+          author: [
+            { type: 'Person', name: 'New Sample Author' },
+            { type: 'Organization', name: 'New Org inc.' }
+          ],
+          editor: [{ type: 'Person', name: 'New Sample Editor' }]
+        })
+      )
 
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 404)
-      await tap.equal(error.error, 'Not Found')
-      await tap.equal(
-        error.message,
-        `No Publication found with id ${publicationId}1`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}1`
-      )
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'New name for pub A')
-    }
-  )
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(error.message, `No Source found with id ${sourceId}1`)
+    await tap.equal(error.details.requestUrl, `/sources/${sourceId}1`)
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'New name for source A')
+  })
 
   await destroyDB(app)
 }

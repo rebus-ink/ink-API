@@ -5,7 +5,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createTag
 } = require('../../utils/testUtils')
@@ -34,9 +34,9 @@ const test = async app => {
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
-  // create publication for reader 2
-  const publication2 = await createPublication(app, token2)
-  publicationId2 = urlToId(publication2.id)
+  // create source for reader 2
+  const source2 = await createSource(app, token2)
+  sourceId2 = urlToId(source2.id)
 
   // --------------------------------------- READER ----------------------------------------
   await tap.test('Get Reader without Authentication', async () => {
@@ -73,50 +73,47 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
-  // ------------------------------------ PUBLICATION --------------------------------------
+  // ------------------------------------ SOURCE --------------------------------------
 
-  await tap.test('Get publication without Authentication', async () => {
+  await tap.test('Get source without Authentication', async () => {
     const res4 = await request(app)
-      .get(`/publications/123`)
+      .get(`/sources/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res4.statusCode, 401)
   })
 
-  await tap.test('Post publication without Authentication', async () => {
+  await tap.test('Post source without Authentication', async () => {
     const res8 = await request(app)
-      .post('/publications')
+      .post('/sources')
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res8.statusCode, 401)
   })
 
-  await tap.test('Delete Publicatoin without Authentication', async () => {
+  await tap.test('Delete Souce without Authentication', async () => {
     const res9 = await request(app)
-      .delete(`/publications/123`)
+      .delete(`/sources/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res9.statusCode, 401)
   })
 
-  await tap.test('Patch Publication without Authentication', async () => {
+  await tap.test('Patch Source without Authentication', async () => {
     const res10 = await request(app)
-      .patch(`/publications/123`)
+      .patch(`/sources/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res10.statusCode, 401)
   })
 
-  await tap.test(
-    'Batch update Publication without Authentication',
-    async () => {
-      const res10 = await request(app)
-        .patch(`/publications/batchUpdate`)
-        .set('Host', 'reader-api.test')
-        .type('application/ld+json')
-      await tap.equal(res10.statusCode, 401)
-    }
-  )
+  await tap.test('Batch update Source without Authentication', async () => {
+    const res10 = await request(app)
+      .patch(`/sources/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res10.statusCode, 401)
+  })
 
   // ------------------------------------------- TAG ---------------------------------------
 
@@ -156,28 +153,25 @@ const test = async app => {
     await tap.equal(res15.statusCode, 401)
   })
 
-  // ---------------------------------------- TAG - PUBLICATION ------------------------
+  // ---------------------------------------- TAG - SOURCE ------------------------
 
-  await tap.test('Add Tag to Publication without Authentication', async () => {
+  await tap.test('Add Tag to Source without Authentication', async () => {
     const res11 = await request(app)
-      .put(`/publications/123/tags/123`)
+      .put(`/sources/123/tags/123`)
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 
     await tap.equal(res11.statusCode, 401)
   })
 
-  await tap.test(
-    'Remove Tag from Publication without Authentication',
-    async () => {
-      const res12 = await request(app)
-        .delete(`/publications/123/tags/123`)
-        .set('Host', 'reader-api.test')
-        .type('application/ld+json')
+  await tap.test('Remove Tag from Source without Authentication', async () => {
+    const res12 = await request(app)
+      .delete(`/sources/123/tags/123`)
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
 
-      await tap.equal(res12.statusCode, 401)
-    }
-  )
+    await tap.equal(res12.statusCode, 401)
+  })
 
   // ----------------------------------------- LIBRARY -------------------------
 
@@ -223,7 +217,7 @@ const test = async app => {
 
   await tap.test('Create ReadActivity without Authentication', async () => {
     const res22 = await request(app)
-      .post('/publications/pub123/readActivity')
+      .post('/sources/source123/readActivity')
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
     await tap.equal(res22.statusCode, 401)
@@ -445,11 +439,19 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
+  await tap.test('PUT source to notebook without authentication', async () => {
+    const res = await request(app)
+      .put('/notebooks/abc/sources/abc')
+      .set('Host', 'reader-api.test')
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 401)
+  })
+
   await tap.test(
-    'PUT publication to notebook without authentication',
+    'DELETE source from notebook without authentication',
     async () => {
       const res = await request(app)
-        .put('/notebooks/abc/publications/abc')
+        .delete('/notebooks/abc/sources/abc')
         .set('Host', 'reader-api.test')
         .type('application/ld+json')
       await tap.equal(res.statusCode, 401)
@@ -457,21 +459,10 @@ const test = async app => {
   )
 
   await tap.test(
-    'DELETE publication from notebook without authentication',
+    'DELETE source to notebook without authentication',
     async () => {
       const res = await request(app)
-        .delete('/notebooks/abc/publications/abc')
-        .set('Host', 'reader-api.test')
-        .type('application/ld+json')
-      await tap.equal(res.statusCode, 401)
-    }
-  )
-
-  await tap.test(
-    'DELETE publication to notebook without authentication',
-    async () => {
-      const res = await request(app)
-        .delete('/notebooks/abc/publications/abc')
+        .delete('/notebooks/abc/sources/abc')
         .set('Host', 'reader-api.test')
         .type('application/ld+json')
       await tap.equal(res.statusCode, 401)

@@ -13,14 +13,11 @@ type AttributionType = {
   normalizedName: string,
   type: string,
   readerId: string,
-  publicationId?: string,
+  sourceId?: string,
   published: Date
 };
 */
 
-/**
- * @property {Publication} publicationId - returns the `Publication` the attributions belong to.
- */
 class Attribution extends BaseModel {
   static get tableName () /*: string */ {
     return 'Attribution'
@@ -39,16 +36,16 @@ class Attribution extends BaseModel {
         type: { type: 'string' },
         readerId: { type: 'string' },
         isContributor: { type: 'boolean' },
-        publicationId: { type: 'string' },
+        sourceId: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
-      required: ['role', 'name', 'normalizedName', 'readerId', 'publicationId']
+      required: ['role', 'name', 'normalizedName', 'readerId', 'sourceId']
     }
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
-    const { Publication } = require('./Publication')
+    const { Source } = require('./Source')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -58,12 +55,12 @@ class Attribution extends BaseModel {
           to: 'Reader.id'
         }
       },
-      publication: {
+      source: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Publication,
+        modelClass: Source,
         join: {
-          from: 'Attribution.publicationId',
-          to: 'Publication.id'
+          from: 'Attribution.sourceId',
+          to: 'Source.id'
         }
       }
     }
@@ -71,7 +68,7 @@ class Attribution extends BaseModel {
 
   static _formatAttribution (
     attribution /*: any */,
-    pubId /*: string */,
+    sourceId /*: string */,
     readerId /*: string */,
     role /*: string */
   ) /*: any */ {
@@ -81,7 +78,7 @@ class Attribution extends BaseModel {
         name: attribution,
         type: 'Person',
         published: undefined,
-        publicationId: pubId,
+        sourceId: sourceId,
         readerId: readerId,
         normalizedName: undefined,
         role: role
@@ -107,7 +104,7 @@ class Attribution extends BaseModel {
       props = _.pick(attribution, ['name', 'type', 'isContributor'])
       props.role = role
       props.readerId = readerId
-      props.publicationId = pubId
+      props.sourceId = sourceId
     }
 
     props.normalizedName = this.normalizeName(props.name)
@@ -118,7 +115,7 @@ class Attribution extends BaseModel {
   static async createSingleAttribution (
     role /*: string */,
     attribution /*: any */,
-    pubId /*: string */,
+    sourceId /*: string */,
     readerId /*: string */
   ) {
     if (!_.isString(attribution) && !_.isObject(attribution)) {
@@ -131,7 +128,7 @@ class Attribution extends BaseModel {
     }
     let formattedAttribution = Attribution._formatAttribution(
       attribution,
-      pubId,
+      sourceId,
       readerId,
       role
     )
@@ -140,9 +137,9 @@ class Attribution extends BaseModel {
     )
   }
 
-  static async createAttributionsForPublication (
-    publication /*: any */,
-    pubId /*: string */,
+  static async createAttributionsForSource (
+    source /*: any */,
+    sourceId /*: string */,
     readerId /*: string */
   ) /*: any */ {
     let attributions = []
@@ -158,20 +155,20 @@ class Attribution extends BaseModel {
       'copyrightHolder'
     ]
     attributionRoles.forEach(role => {
-      if (publication[role]) {
+      if (source[role]) {
         returnedAttributions[role] = []
-        if (!_.isString(publication[role]) && !_.isObject(publication[role])) {
+        if (!_.isString(source[role]) && !_.isObject(source[role])) {
           throw new Error(
             `${role} attribution validation error: attribution should be either an attribution object or a string`
           )
         }
-        if (_.isString(publication[role])) {
-          publication[role] = [{ type: 'Person', name: publication[role] }]
+        if (_.isString(source[role])) {
+          source[role] = [{ type: 'Person', name: source[role] }]
         }
-        publication[role].forEach(attribution => {
+        source[role].forEach(attribution => {
           let formatedAttribution = Attribution._formatAttribution(
             attribution,
-            pubId,
+            sourceId,
             readerId,
             role
           )
@@ -201,38 +198,38 @@ class Attribution extends BaseModel {
     return await Attribution.query().findById(id)
   }
 
-  static async getAttributionByPubId (
-    publicationId /*: string */
+  static async getAttributionBySourceId (
+    sourceId /*: string */
   ) /*: Promise<AttributionType> */ {
-    if (publicationId === null) {
-      throw Error(`Your publicationId cannot be null`)
+    if (sourceId === null) {
+      throw Error(`Your sourceId cannot be null`)
     }
 
     return await Attribution.query(Attribution.knex()).where(
-      'publicationId',
+      'sourceId',
       '=',
-      publicationId
+      sourceId
     )
   }
   static async deleteAttribution (
-    publicationId /*: Array<string> */,
+    sourceId /*: Array<string> */,
     role /*: string */,
     name /*: string */
   ) /*: Promise<number> */ {
     return await Attribution.query(Attribution.knex())
       .where('normalizedName', name)
-      .andWhere('publicationId', '=', publicationId)
+      .andWhere('sourceId', '=', sourceId)
       .andWhere('role', '=', role)
       .del()
   }
 
-  static async deleteAttributionOfPub (
-    publicationId /*: string */,
+  static async deleteAttributionOfSource (
+    sourceId /*: string */,
     role /*: string */
   ) /*: Promise<number> */ {
     return await Attribution.query(Attribution.knex())
       .where('role', '=', role)
-      .andWhere('publicationId', '=', publicationId)
+      .andWhere('sourceId', '=', sourceId)
       .del()
   }
 

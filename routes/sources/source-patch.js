@@ -3,7 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
@@ -13,14 +13,14 @@ const { checkOwnership } = require('../../utils/utils')
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/{pubId}:
+   * /sources/{sourceId}:
    *   patch:
    *     tags:
-   *       - publications
-   *     description: Update fields in a publication
+   *       - sources
+   *     description: Update fields in a source
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -30,32 +30,32 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/publication'
+   *             $ref: '#/definitions/source'
    *       description: body should only include fields to be updated
    *     responses:
    *       200:
-   *         description: Successfully updated Publication
+   *         description: Successfully updated Source
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/publication'
+   *               $ref: '#/definitions/source'
    *       400:
    *         description: Validation error
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to publication {id} disallowed'
+   *         description: 'Access to source {id} disallowed'
    *       404:
-   *         description: Publication not found
+   *         description: Source not found
    */
   app.use('/', router)
-  router.route('/publications/:pubId').patch(jwtAuth, function (req, res, next) {
-    const pubId = req.params.pubId
-    Publication.byId(pubId)
-      .then(async pub => {
-        if (!pub) {
+  router.route('/sources/:sourceId').patch(jwtAuth, function (req, res, next) {
+    const sourceId = req.params.sourceId
+    Source.byId(sourceId)
+      .then(async source => {
+        if (!source) {
           return next(
-            boom.notFound(`No Publication found with id ${pubId}`, {
+            boom.notFound(`No Source found with id ${sourceId}`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
@@ -70,9 +70,9 @@ module.exports = function (app) {
             })
           )
         }
-        if (!checkOwnership(reader.id, pubId)) {
+        if (!checkOwnership(reader.id, sourceId)) {
           return next(
-            boom.forbidden(`Access to publication ${pubId} disallowed`, {
+            boom.forbidden(`Access to source ${sourceId} disallowed`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
@@ -83,7 +83,7 @@ module.exports = function (app) {
         if (typeof body !== 'object' || Object.keys(body).length === 0) {
           return next(
             boom.badRequest(
-              'Patch Publication Request Error: Body must be a JSON object',
+              'Patch Source Request Error: Body must be a JSON object',
               {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
@@ -92,15 +92,15 @@ module.exports = function (app) {
           )
         }
 
-        // update pub
-        let updatedPub
+        // update source
+        let updatedSource
         try {
-          updatedPub = await Publication.update(pub, body)
+          updatedSource = await Source.update(source, body)
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `Validation Error on Patch Publication: ${err.message}`,
+                `Validation Error on Patch Source: ${err.message}`,
                 {
                   requestUrl: req.originalUrl,
                   requestBody: req.body,
@@ -118,9 +118,9 @@ module.exports = function (app) {
           }
         }
 
-        if (updatedPub === null) {
+        if (updatedSource === null) {
           return next(
-            boom.notFound(`No Publication found with id ${body.id}`, {
+            boom.notFound(`No Source found with id ${body.id}`, {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
@@ -130,7 +130,7 @@ module.exports = function (app) {
         await libraryCacheUpdate(reader.id)
 
         res.setHeader('Content-Type', 'application/ld+json')
-        res.status(200).end(JSON.stringify(updatedPub.toJSON()))
+        res.status(200).end(JSON.stringify(updatedSource.toJSON()))
       })
       .catch(err => {
         next(err)

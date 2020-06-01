@@ -4,8 +4,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
-  addPubToCollection,
+  createSource,
+  addSourceToCollection,
   createTag
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
@@ -16,47 +16,47 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication A',
+  await createSourceSimplified({
+    name: 'Source A',
     author: 'John Smith',
     editor: 'Jane Doe'
   })
 
-  const publication = await createPublicationSimplified({
-    name: 'Publication 2'
+  const source = await createSourceSimplified({
+    name: 'Source 2'
   })
 
-  // publication 3
-  await createPublicationSimplified({ name: 'Publication 3' })
+  // source 3
+  await createSourceSimplified({ name: 'Source 3' })
 
   // create a stack / tag
   const stack = await createTag(app, token)
   const tag1 = await createTag(app, token, { name: 'tag1' })
 
-  // assign mystack to publication B
-  await addPubToCollection(app, token, publication.id, stack.id)
+  // assign mystack to source B
+  await addSourceToCollection(app, token, source.id, stack.id)
 
-  await createPublicationSimplified({ name: 'Publication 4 test' })
-  await createPublicationSimplified({ name: 'Publication 5' })
-  await createPublicationSimplified({ name: 'Publication 6' })
-  await createPublicationSimplified({ name: 'Publication 7 test' })
-  await createPublicationSimplified({ name: 'Publication 8' })
-  await createPublicationSimplified({ name: 'Publication 9' })
-  await createPublicationSimplified({
-    name: 'Publication 10',
+  await createSourceSimplified({ name: 'Source 4 test' })
+  await createSourceSimplified({ name: 'Source 5' })
+  await createSourceSimplified({ name: 'Source 6' })
+  await createSourceSimplified({ name: 'Source 7 test' })
+  await createSourceSimplified({ name: 'Source 8' })
+  await createSourceSimplified({ name: 'Source 9' })
+  await createSourceSimplified({
+    name: 'Source 10',
     inLanguage: ['de', 'km']
   })
-  await createPublicationSimplified({
-    name: 'Publication 11',
+  await createSourceSimplified({
+    name: 'Source 11',
     inLanguage: 'km'
   })
-  await createPublicationSimplified({ name: 'Publication 12' })
-  await createPublicationSimplified({
-    name: 'Publication 13',
+  await createSourceSimplified({ name: 'Source 12' })
+  await createSourceSimplified({
+    name: 'Source 13',
     inLanguage: ['km']
   })
 
@@ -68,50 +68,50 @@ const test = async () => {
     .type('application/ld+json')
 
   const library = resLibrary.body.items
-  const pubId1 = library[0].id
-  const pubId2 = library[1].id
-  const pubId3 = library[2].id
-  const pubId4 = library[3].id
-  const pubId5 = library[4].id
-  const pubId6 = library[5].id
+  const sourceId1 = library[0].id
+  const sourceId2 = library[1].id
+  const sourceId3 = library[2].id
+  const sourceId4 = library[3].id
+  const sourceId5 = library[4].id
+  const sourceId6 = library[5].id
   // skipping 7
-  const pubId8 = library[7].id
-  const pubId9 = library[8].id
-  const pubId10 = library[9].id
-  const pubId13 = library[12].id
+  const sourceId8 = library[7].id
+  const sourceId9 = library[8].id
+  const sourceId10 = library[9].id
+  const sourceId13 = library[12].id
 
-  await addPubToCollection(app, token, pubId1, stack.id)
-  await addPubToCollection(app, token, pubId2, stack.id)
-  await addPubToCollection(app, token, pubId3, stack.id)
-  await addPubToCollection(app, token, pubId4, stack.id)
-  await addPubToCollection(app, token, pubId5, stack.id)
-  await addPubToCollection(app, token, pubId6, stack.id)
-  await addPubToCollection(app, token, pubId8, stack.id)
-  await addPubToCollection(app, token, pubId9, stack.id)
-  await addPubToCollection(app, token, pubId10, stack.id)
-  await addPubToCollection(app, token, pubId13, stack.id)
+  await addSourceToCollection(app, token, sourceId1, stack.id)
+  await addSourceToCollection(app, token, sourceId2, stack.id)
+  await addSourceToCollection(app, token, sourceId3, stack.id)
+  await addSourceToCollection(app, token, sourceId4, stack.id)
+  await addSourceToCollection(app, token, sourceId5, stack.id)
+  await addSourceToCollection(app, token, sourceId6, stack.id)
+  await addSourceToCollection(app, token, sourceId8, stack.id)
+  await addSourceToCollection(app, token, sourceId9, stack.id)
+  await addSourceToCollection(app, token, sourceId10, stack.id)
+  await addSourceToCollection(app, token, sourceId13, stack.id)
 
-  await createPublicationSimplified({ name: 'superbook', author: 'anonymous' })
-  await createPublicationSimplified({
+  await createSourceSimplified({ name: 'superbook', author: 'anonymous' })
+  await createSourceSimplified({
     name: 'Super great book!',
     author: 'anonymous'
   })
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 1',
     author: 'John Doe',
     type: 'Article',
     description: 'testing',
     keywords: ['word']
   })
-  const pub01 = await createPublicationSimplified({
+  const source01 = await createSourceSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`,
     type: 'Article',
     abstract: 'testing',
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3',
     author: 'John Smith',
     editor: 'John doe',
@@ -119,114 +119,114 @@ const test = async () => {
   })
 
   // adding for other attribution types
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3b',
     contributor: 'John Doe',
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3c',
     creator: 'John Doe',
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3d',
     illustrator: 'John Doe',
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3e',
-    publisher: 'John Doe'
+    sourcelisher: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3f',
     translator: 'John Doe'
   })
 
-  const pub02 = await createPublicationSimplified({
+  const source02 = await createSourceSimplified({
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en'],
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 5',
     author: 'Jane Smith testing',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 6',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 7',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 8 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en'],
     type: 'Article'
   })
-  const pub03 = await createPublicationSimplified({
+  const source03 = await createSourceSimplified({
     name: 'new book 9 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     type: 'Article',
     inLanguage: ['en', 'km']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 10',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en'],
     keywords: 'word'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 11 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 12',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 13',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 14',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en', 'fr'],
     keywords: ['word']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 15 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['fr']
   })
 
-  // add pubs to collection
-  await addPubToCollection(app, token, urlToId(pub01.id), tag1.id)
-  await addPubToCollection(app, token, urlToId(pub02.id), tag1.id)
-  await addPubToCollection(app, token, urlToId(pub03.id), tag1.id)
-  await addPubToCollection(app, token, pubId1, tag1.id)
-  await addPubToCollection(app, token, pubId2, tag1.id)
+  // add sources to collection
+  await addSourceToCollection(app, token, urlToId(source01.id), tag1.id)
+  await addSourceToCollection(app, token, urlToId(source02.id), tag1.id)
+  await addSourceToCollection(app, token, urlToId(source03.id), tag1.id)
+  await addSourceToCollection(app, token, sourceId1, tag1.id)
+  await addSourceToCollection(app, token, sourceId2, tag1.id)
 
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
@@ -253,9 +253,9 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 3)
     await tap.equal(body.items.length, 3)
-    await tap.ok(_.find(body.items, { name: 'Publication 10' }))
-    await tap.ok(_.find(body.items, { name: 'Publication 11' }))
-    await tap.ok(_.find(body.items, { name: 'Publication 13' }))
+    await tap.ok(_.find(body.items, { name: 'Source 10' }))
+    await tap.ok(_.find(body.items, { name: 'Source 11' }))
+    await tap.ok(_.find(body.items, { name: 'Source 13' }))
   })
 
   await tap.test('filter by author and language', async () => {
@@ -297,7 +297,7 @@ const test = async () => {
     const body = res.body
     await tap.equal(body.totalItems, 1)
     await tap.equal(body.items.length, 1)
-    await tap.ok(_.find(body.items, { name: 'Publication 4 test' }))
+    await tap.ok(_.find(body.items, { name: 'Source 4 test' }))
   })
 
   await tap.test('filter by author and type', async () => {

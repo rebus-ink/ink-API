@@ -6,8 +6,8 @@ const { urlToId } = require('../../../utils/utils')
 const { Note } = require('../../../models/Note')
 const { Tag } = require('../../../models/Tag')
 const { Note_Tag } = require('../../../models/Note_Tag')
-const { Publication } = require('../../../models/Publication')
-const { Publication_Tag } = require('../../../models/Publications_Tags')
+const { Source } = require('../../../models/Source')
+const { Source_Tag } = require('../../../models/Sources_Tags')
 const { Notebook } = require('../../../models/Notebook')
 const { Notebook_Tag } = require('../../../models/Notebook_Tag')
 
@@ -58,16 +58,16 @@ const test = async () => {
     readerId
   })
 
-  // create pubs, assign tags to pubs
+  // create sources, assign tags to sources
 
-  const pub1 = await Publication.query().insertAndFetch({
-    name: 'pub1',
+  const source1 = await Source.query().insertAndFetch({
+    name: 'source1',
     type: 'Article',
     readerId
   })
 
-  await Publication_Tag.query().insert({
-    publicationId: pub1.id,
+  await Source_Tag.query().insert({
+    sourceId: source1.id,
     tagId: tag1.id
   })
 
@@ -101,11 +101,11 @@ const test = async () => {
     await tap.ok(_.find(tags, { id: tag4.id }))
     await tap.ok(_.find(tags, { id: tag5.id }))
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 1)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 1)
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 1)
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 1)
 
     const notes = await Note.query()
     await tap.equal(notes.length, 1)
@@ -135,11 +135,11 @@ const test = async () => {
     await tap.ok(_.find(tags, { id: tag4.id }))
     await tap.ok(_.find(tags, { id: tag5.id }))
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 1)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 1)
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 0)
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 0)
 
     const notes = await Note.query()
     await tap.equal(notes.length, 1)

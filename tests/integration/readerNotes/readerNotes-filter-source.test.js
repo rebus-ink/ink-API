@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
@@ -13,23 +13,23 @@ const test = async app => {
   const token = getToken()
   await createUser(app, token)
 
-  const publication = await createPublication(app, token, {
-    name: 'Publication A'
+  const source = await createSource(app, token, {
+    name: 'Source A'
   })
-  const publicationUrl = publication.id
-  const publicationId1 = urlToId(publicationUrl)
+  const sourceUrl = source.id
+  const sourceId1 = urlToId(sourceUrl)
 
-  // create another publication
-  const publication2 = await createPublication(app, token, {
-    name: 'Publication B'
+  // create another source
+  const source2 = await createSource(app, token, {
+    name: 'Source B'
   })
-  const publicationUrl2 = publication2.id
-  const publicationId2 = urlToId(publicationUrl2)
+  const sourceUrl2 = source2.id
+  const sourceId2 = urlToId(sourceUrl2)
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
       {
-        publicationId: publicationId1,
+        sourceId: sourceId1,
         body: { motivation: 'test' }
       },
       object
@@ -51,17 +51,17 @@ const test = async app => {
   await createNoteSimplified() // 12
   await createNoteSimplified() // 13
 
-  // create more notes for another pub
+  // create more notes for another source
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
 
-  await tap.test('Filter Notes by Publication', async () => {
+  await tap.test('Filter Notes by Source', async () => {
     const res = await request(app)
-      .get(`/notes?publication=${publicationUrl2}`)
+      .get(`/notes?source=${sourceUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -75,42 +75,42 @@ const test = async app => {
   })
 
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   }) // 10
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
   await createNoteSimplified({
-    publicationId: publicationId2
+    sourceId: sourceId2
   })
 
-  await tap.test('Filter Notes by Publication with pagination', async () => {
+  await tap.test('Filter Notes by Source with pagination', async () => {
     const res2 = await request(app)
-      .get(`/notes?publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?source=${urlToId(sourceUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -122,7 +122,7 @@ const test = async app => {
     noteId3 = res2.body.items[5].id
 
     const res3 = await request(app)
-      .get(`/notes?page=2&publication=${urlToId(publicationUrl2)}`)
+      .get(`/notes?page=2&source=${urlToId(sourceUrl2)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -132,7 +132,7 @@ const test = async app => {
     await tap.equal(res3.body.items.length, 3)
 
     const res4 = await request(app)
-      .get(`/notes?limit=11&page=2&publication=${publicationUrl2}`)
+      .get(`/notes?limit=11&page=2&source=${sourceUrl2}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -142,9 +142,9 @@ const test = async app => {
     await tap.equal(res4.body.items.length, 2)
   })
 
-  await tap.test('Filter Notes by nonexistant Publication', async () => {
+  await tap.test('Filter Notes by nonexistant Source', async () => {
     const res = await request(app)
-      .get(`/notes?publication=${publicationUrl2}abc`)
+      .get(`/notes?source=${sourceUrl2}abc`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

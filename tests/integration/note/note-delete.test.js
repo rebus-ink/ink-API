@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
@@ -14,13 +14,13 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(app, token)
-  const publicationUrl = publication.id
-  const publicationId = urlToId(publication.id)
+  const source = await createSource(app, token)
+  const sourceUrl = source.id
+  const sourceId = urlToId(source.id)
 
   const note = await createNote(app, token, {
     target: { property: 'value' },
-    publicationId,
+    sourceId,
     body: { content: 'text goes here', motivation: 'test' }
   })
 
@@ -58,18 +58,18 @@ const test = async app => {
   )
 
   await tap.test(
-    'Deleted Note should no longer be attached to publication',
+    'Deleted Note should no longer be attached to source',
     async () => {
-      // note should no longer be attached to publication
-      const pubres = await request(app)
-        .get(`/publications/${urlToId(publicationUrl)}`)
+      // note should no longer be attached to source
+      const sourceres = await request(app)
+        .get(`/sources/${urlToId(sourceUrl)}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
 
-      await tap.equal(pubres.statusCode, 200)
+      await tap.equal(sourceres.statusCode, 200)
 
-      const body = pubres.body
+      const body = sourceres.body
       await tap.ok(Array.isArray(body.replies))
       await tap.equal(body.replies.length, 0)
     }
@@ -150,13 +150,13 @@ const test = async app => {
     await tap.equal(error.details.requestBody.body.content, 'something')
   })
 
-  // // DELETE NOTES FOR PUB
-  // await tap.test('Delete all Notes for a Publication', async () => {
-  //   // create two notes for our publication:
+  // // DELETE NOTES FOR SOURCE
+  // await tap.test('Delete all Notes for a Source', async () => {
+  //   // create two notes for our source:
   //   const createNoteRes = await createNote(app, token, {
   //     content: 'This is the content of note B.',
   //     'oa:hasSelector': { propety: 'value' },
-  //     context: publicationUrl,
+  //     context: sourceUrl,
   //     noteType: 'test'
   //   })
   //   const createNoteActivityUrl1 = createNoteRes.get('Location')
@@ -170,22 +170,22 @@ const test = async app => {
   //   await createNote(app, token, {
   //     content: 'This is the content of note C.',
   //     'oa:hasSelector': { propety: 'value' },
-  //     context: publicationUrl,
+  //     context: sourceUrl,
   //     noteType: 'test'
   //   })
 
-  //   // before: publication has two replies
-  //   const pubresbefore = await request(app)
-  //     .get(`/publications/${urlToId(publicationUrl)}`)
+  //   // before: source has two replies
+  //   const sourceresbefore = await request(app)
+  //     .get(`/sources/${urlToId(sourceUrl)}`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
   //       'application/ld+json'
   //     )
 
-  //   await tap.equal(pubresbefore.body.replies.length, 2)
+  //   await tap.equal(sourceresbefore.body.replies.length, 2)
 
-  //   // now delete all notes for pub:
+  //   // now delete all notes for source:
   //   const res = await request(app)
   //     .post(`/reader-${readerId}/activity`)
   //     .set('Host', 'reader-api.test')
@@ -201,8 +201,8 @@ const test = async app => {
   //         type: 'Delete',
   //         object: {
   //           type: 'Collection',
-  //           name: 'Publication Notes',
-  //           id: publicationUrl
+  //           name: 'Source Notes',
+  //           id: sourceUrl
   //         }
   //       })
   //     )
@@ -226,20 +226,20 @@ const test = async app => {
   //   await tap.type(error.details.id, 'string')
   //   await tap.equal(error.details.activity, 'Get Note')
 
-  //   // publication should now have no notes
-  //   const pubresafter = await request(app)
-  //     .get(`/publications/${urlToId(publicationUrl)}`)
+  //   // source should now have no notes
+  //   const sourceresafter = await request(app)
+  //     .get(`/sources/${urlToId(sourceUrl)}`)
   //     .set('Host', 'reader-api.test')
   //     .set('Authorization', `Bearer ${token}`)
   //     .type(
   //       'application/ld+json'
   //     )
 
-  //   await tap.equal(pubresafter.body.replies.length, 0)
+  //   await tap.equal(sourceresafter.body.replies.length, 0)
   // })
 
   // await tap.test(
-  //   'Try to delete all Notes for a Publication with undefined publication id',
+  //   'Try to delete all Notes for a Source with undefined source id',
   //   async () => {
   //     const res = await request(app)
   //       .post(`/reader-${readerId}/activity`)
@@ -256,7 +256,7 @@ const test = async app => {
   //           type: 'Delete',
   //           object: {
   //             type: 'Collection',
-  //             name: 'Publication Notes'
+  //             name: 'Source Notes'
   //           }
   //         })
   //       )
@@ -271,7 +271,7 @@ const test = async app => {
   //   }
   // )
 
-  // await tap.test('Delete all notes for an invalid publication id', async () => {
+  // await tap.test('Delete all notes for an invalid source id', async () => {
   //   const res = await request(app)
   //     .post(`/reader-${readerId}/activity`)
   //     .set('Host', 'reader-api.test')
@@ -287,7 +287,7 @@ const test = async app => {
   //         type: 'Delete',
   //         object: {
   //           type: 'Collection',
-  //           name: 'Publication Notes',
+  //           name: 'Source Notes',
   //           id: '123'
   //         }
   //       })

@@ -10,12 +10,12 @@ const { Tag } = require('../../../models/Tag')
 const { Notebook } = require('../../../models/Notebook')
 const { Notebook_Tag } = require('../../../models/Notebook_Tag')
 const { Notebook_Note } = require('../../../models/Notebook_Note')
-const { Notebook_Pub } = require('../../../models/Notebook_Pub')
-const { Publication } = require('../../../models/Publication')
+const { Notebook_Source } = require('../../../models/Notebook_Source')
+const { Source } = require('../../../models/Source')
 const { Attribution } = require('../../../models/Attribution')
 const { ReadActivity } = require('../../../models/ReadActivity')
 const { Note_Tag } = require('../../../models/Note_Tag')
-const { Publication_Tag } = require('../../../models/Publications_Tags')
+const { Source_Tag } = require('../../../models/Source_Tag')
 const { NoteBody } = require('../../../models/NoteBody')
 const { NoteRelation } = require('../../../models/NoteRelation')
 const { Reader } = require('../../../models/Reader')
@@ -48,21 +48,21 @@ const test = async () => {
   })
   const readerId3 = urlToId(reader3.id)
 
-  // Publications
-  const pub1 = await Publication.query().insertAndFetch({
-    name: 'pub1',
+  // Sources
+  const source1 = await Source.query().insertAndFetch({
+    name: 'source1',
     type: 'Book',
     readerId: readerId1
   })
 
-  const pub2 = await Publication.query().insertAndFetch({
-    name: 'pub2',
+  const source2 = await Source.query().insertAndFetch({
+    name: 'source2',
     type: 'Book',
     readerId: readerId2
   })
 
-  const pub3 = await Publication.query().insertAndFetch({
-    name: 'pub3',
+  const source3 = await Source.query().insertAndFetch({
+    name: 'source3',
     type: 'Book',
     readerId: readerId3
   })
@@ -124,7 +124,7 @@ const test = async () => {
 
   const note5 = await Note.query().insertAndFetch({
     readerId: readerId1,
-    publicationId: urlToId(pub1.id)
+    sourceId: urlToId(source1.id)
   })
 
   // Tags
@@ -167,7 +167,7 @@ const test = async () => {
     name: 'author1',
     normalizedName: 'johnsmith',
     readerId: readerId1,
-    publicationId: pub1.id
+    sourceId: source1.id
   })
 
   const attribution2 = await Attribution.query().insertAndFetch({
@@ -175,7 +175,7 @@ const test = async () => {
     name: 'author1',
     normalizedName: 'johnsmith',
     readerId: readerId2,
-    publicationId: pub2.id
+    sourceId: source2.id
   })
 
   const attribution3 = await Attribution.query().insertAndFetch({
@@ -183,7 +183,7 @@ const test = async () => {
     name: 'author1',
     normalizedName: 'johnsmith',
     readerId: readerId3,
-    publicationId: pub3.id
+    sourceId: source3.id
   })
 
   // readActivity
@@ -191,19 +191,19 @@ const test = async () => {
   const readActivity1 = await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId1,
-    publicationId: pub1.id
+    sourceId: source1.id
   })
 
   const readActivity2 = await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId2,
-    publicationId: pub2.id
+    sourceId: source2.id
   })
 
   const readActivity3 = await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId3,
-    publicationId: pub3.id
+    sourceId: source3.id
   })
 
   // Note_Tag
@@ -223,20 +223,20 @@ const test = async () => {
     tagId: tag3.id
   })
 
-  // PUB_TAG
+  // SOURCE_TAG
 
-  await Publication_Tag.query().insert({
-    publicationId: urlToId(pub1.id),
+  await Source_Tag.query().insert({
+    sourceId: urlToId(source1.id),
     tagId: tag1.id
   })
 
-  await Publication_Tag.query().insert({
-    publicationId: urlToId(pub2.id),
+  await Source_Tag.query().insert({
+    sourceId: urlToId(source2.id),
     tagId: tag2.id
   })
 
-  await Publication_Tag.query().insert({
-    publicationId: urlToId(pub3.id),
+  await Source_Tag.query().insert({
+    sourceId: urlToId(source3.id),
     tagId: tag3.id
   })
 
@@ -284,19 +284,19 @@ const test = async () => {
     notebookId: urlToId(notebook3.id)
   })
 
-  // Notebook_Pub
-  await Notebook_Pub.query().insert({
-    publicationId: urlToId(pub1.id),
+  // Notebook_Source
+  await Notebook_Source.query().insert({
+    sourceId: urlToId(source1.id),
     notebookId: urlToId(notebook1.id)
   })
 
-  await Notebook_Pub.query().insert({
-    publicationId: urlToId(pub2.id),
+  await Notebook_Source.query().insert({
+    sourceId: urlToId(source2.id),
     notebookId: urlToId(notebook2.id)
   })
 
-  await Notebook_Pub.query().insert({
-    publicationId: urlToId(pub3.id),
+  await Notebook_Source.query().insert({
+    sourceId: urlToId(source3.id),
     notebookId: urlToId(notebook3.id)
   })
 
@@ -321,8 +321,8 @@ const test = async () => {
     const readers = await Reader.query()
     await tap.equal(readers.length, 3)
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 3)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 3)
 
     const notebooks = await Notebook.query()
     await tap.equal(notebooks.length, 3)
@@ -342,8 +342,8 @@ const test = async () => {
     const readActivities = await ReadActivity.query()
     await tap.equal(readActivities.length, 3)
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 3)
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 3)
 
     const note_tags = await Note_Tag.query()
     await tap.equal(note_tags.length, 3)
@@ -360,8 +360,8 @@ const test = async () => {
     const notebook_notes = await Notebook_Note.query()
     await tap.equal(notebook_notes.length, 3)
 
-    const notebook_pubs = await Notebook_Pub.query()
-    await tap.equal(notebook_pubs.length, 3)
+    const notebook_sources = await Notebook_Source.query()
+    await tap.equal(notebook_sources.length, 3)
   })
 
   await tap.test('Hard Delete', async () => {
@@ -377,11 +377,11 @@ const test = async () => {
     await tap.ok(_.find(readers, { id: reader2.id }))
     await tap.ok(_.find(readers, { id: reader3.id }))
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 2)
-    await tap.notOk(_.find(pubs, { id: pub1.id }))
-    await tap.ok(_.find(pubs, { id: pub2.id }))
-    await tap.ok(_.find(pubs, { id: pub3.id }))
+    const sources = await Source.query()
+    await tap.equal(sources.length, 2)
+    await tap.notOk(_.find(sources, { id: source1.id }))
+    await tap.ok(_.find(sources, { id: source2.id }))
+    await tap.ok(_.find(sources, { id: source3.id }))
 
     const notebooks = await Notebook.query()
     await tap.equal(notebooks.length, 2)
@@ -419,15 +419,15 @@ const test = async () => {
 
     const readActivities = await ReadActivity.query()
     await tap.equal(readActivities.length, 2)
-    await tap.notOk(_.find(readActivities, { publicationId: pub1.id }))
-    await tap.ok(_.find(readActivities, { publicationId: pub2.id }))
-    await tap.ok(_.find(readActivities, { publicationId: pub3.id }))
+    await tap.notOk(_.find(readActivities, { sourceId: source1.id }))
+    await tap.ok(_.find(readActivities, { sourceId: source2.id }))
+    await tap.ok(_.find(readActivities, { sourceId: source3.id }))
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 2)
-    await tap.notOk(_.find(pub_tags, { publicationId: pub1.id }))
-    await tap.ok(_.find(pub_tags, { publicationId: pub2.id }))
-    await tap.ok(_.find(pub_tags, { publicationId: pub3.id }))
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 2)
+    await tap.notOk(_.find(source_tags, { sourceId: source1.id }))
+    await tap.ok(_.find(source_tags, { sourceId: source2.id }))
+    await tap.ok(_.find(source_tags, { sourceId: source3.id }))
 
     const note_tags = await Note_Tag.query()
     await tap.equal(note_tags.length, 2)
@@ -460,13 +460,17 @@ const test = async () => {
     await tap.ok(_.find(notebook_notes, { notebookId: urlToId(notebook2.id) }))
     await tap.ok(_.find(notebook_notes, { notebookId: urlToId(notebook3.id) }))
 
-    const notebook_pubs = await Notebook_Pub.query()
-    await tap.equal(notebook_pubs.length, 2)
+    const notebook_sources = await Notebook_Source.query()
+    await tap.equal(notebook_sources.length, 2)
     await tap.notOk(
-      _.find(notebook_pubs, { notebookId: urlToId(notebook1.id) })
+      _.find(notebook_sources, { notebookId: urlToId(notebook1.id) })
     )
-    await tap.ok(_.find(notebook_pubs, { notebookId: urlToId(notebook2.id) }))
-    await tap.ok(_.find(notebook_pubs, { notebookId: urlToId(notebook3.id) }))
+    await tap.ok(
+      _.find(notebook_sources, { notebookId: urlToId(notebook2.id) })
+    )
+    await tap.ok(
+      _.find(notebook_sources, { notebookId: urlToId(notebook3.id) })
+    )
   })
 
   await destroyDB(app)

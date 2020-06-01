@@ -12,14 +12,14 @@ const { checkOwnership } = require('../../utils/utils')
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/{pubId}/readActivity:
+   * /sources/{sourceId}/readActivity:
    *   post:
    *     tags:
-   *       - publications
-   *     description: Create a ReadActivity for a Publication
+   *       - sources
+   *     description: Create a ReadActivity for a Source
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -42,13 +42,13 @@ module.exports = function (app) {
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to publication {pubId} disallowed'
+   *         description: 'Access to source {sourceId} disallowed'
    */
   app.use('/', router)
   router
-    .route('/publications/:pubId/readActivity')
+    .route('/sources/:sourceId/readActivity')
     .post(jwtAuth, function (req, res, next) {
-      const pubId = req.params.pubId
+      const sourceId = req.params.sourceId
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -60,9 +60,9 @@ module.exports = function (app) {
             )
           }
 
-          if (!checkOwnership(reader.id, pubId)) {
+          if (!checkOwnership(reader.id, sourceId)) {
             return next(
-              boom.forbidden(`Access to publication ${pubId} disallowed`, {
+              boom.forbidden(`Access to source ${sourceId} disallowed`, {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
@@ -86,7 +86,7 @@ module.exports = function (app) {
           try {
             createdReadActivity = await ReadActivity.createReadActivity(
               reader.id,
-              pubId,
+              sourceId,
               body
             )
           } catch (err) {
@@ -102,9 +102,9 @@ module.exports = function (app) {
                 )
               )
             } else {
-              if (err.message === 'no publication') {
+              if (err.message === 'no source') {
                 return next(
-                  boom.notFound(`No Publication found with id ${pubId}`, {
+                  boom.notFound(`No Source found with id ${sourceId}`, {
                     requestUrl: req.originalUrl,
                     requestBody: req.body
                   })

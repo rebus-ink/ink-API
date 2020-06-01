@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNotebook
 } = require('../../utils/testUtils')
 
@@ -12,82 +12,76 @@ const test = async app => {
   const token = getToken()
   await createUser(app, token)
 
-  const publication = await createPublication(app, token)
-  const publicationId = publication.shortId
+  const source = await createSource(app, token)
+  const sourceId = source.shortId
 
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
 
-  await tap.test('Assign Publication to Notebook', async () => {
+  await tap.test('Assign Source to Notebook', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}/publications/${publicationId}`)
+      .put(`/notebooks/${notebookId}/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
-    // make sure the publication is really attached to the notebook
-    const pubres = await request(app)
+    // make sure the source is really attached to the notebook
+    const sourceres = await request(app)
       .get(`/notebooks/${notebookId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
-    await tap.ok(Array.isArray(body.publications))
-    await tap.equal(body.publications.length, 1)
-    await tap.equal(body.publications[0].shortId, publicationId)
+    await tap.equal(sourceres.status, 200)
+    const body = sourceres.body
+    await tap.ok(Array.isArray(body.sources))
+    await tap.equal(body.sources.length, 1)
+    await tap.equal(body.sources[0].shortId, sourceId)
   })
 
-  await tap.test(
-    'Try to assign Publication to an invalid Notebook',
-    async () => {
-      const res = await request(app)
-        .put(`/notebooks/${notebookId}abc/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.status, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(
-        error.message,
-        `Add Publication to Notebook Error: No Notebook found with id ${notebookId}abc`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/notebooks/${notebookId}abc/publications/${publicationId}`
-      )
-    }
-  )
-
-  await tap.test(
-    'Try to assign an invalid Publication to a Notebook',
-    async () => {
-      const res = await request(app)
-        .put(`/notebooks/${notebookId}/publications/${publicationId}abc`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.status, 404)
-      const error = JSON.parse(res.text)
-      await tap.equal(
-        error.message,
-        `Add Publication to Notebook Error: No Publication found with id ${publicationId}abc`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/notebooks/${notebookId}/publications/${publicationId}abc`
-      )
-    }
-  )
-
-  await tap.test('Try to assign Publication to Notebook twice', async () => {
+  await tap.test('Try to assign Source to an invalid Notebook', async () => {
     const res = await request(app)
-      .put(`/notebooks/${notebookId}/publications/${publicationId}`)
+      .put(`/notebooks/${notebookId}abc/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(
+      error.message,
+      `Add Source to Notebook Error: No Notebook found with id ${notebookId}abc`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/notebooks/${notebookId}abc/sources/${sourceId}`
+    )
+  })
+
+  await tap.test('Try to assign an invalid Source to a Notebook', async () => {
+    const res = await request(app)
+      .put(`/notebooks/${notebookId}/sources/${sourceId}abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 404)
+    const error = JSON.parse(res.text)
+    await tap.equal(
+      error.message,
+      `Add Source to Notebook Error: No Source found with id ${sourceId}abc`
+    )
+    await tap.equal(
+      error.details.requestUrl,
+      `/notebooks/${notebookId}/sources/${sourceId}abc`
+    )
+  })
+
+  await tap.test('Try to assign Source to Notebook twice', async () => {
+    const res = await request(app)
+      .put(`/notebooks/${notebookId}/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -96,11 +90,11 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      `Add Publication to Notebook Error: Relationship already exists between Notebook ${notebookId} and Publication ${publicationId}`
+      `Add Source to Notebook Error: Relationship already exists between Notebook ${notebookId} and Source ${sourceId}`
     )
     await tap.equal(
       error.details.requestUrl,
-      `/notebooks/${notebookId}/publications/${publicationId}`
+      `/notebooks/${notebookId}/sources/${sourceId}`
     )
   })
 

@@ -42,7 +42,7 @@ module.exports = function (app) {
    *       401:
    *         description: 'No Authentication'
    *       403:
-   *         description: 'Access to publication {noteId} disallowed'
+   *         description: 'Access to Note {noteId} disallowed'
    *       404:
    *         description: No note found with id {noteId}
    */

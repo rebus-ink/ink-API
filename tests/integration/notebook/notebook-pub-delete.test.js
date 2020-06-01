@@ -4,50 +4,50 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNotebook,
-  addPubToNotebook
+  addSourceToNotebook
 } = require('../../utils/testUtils')
 
 const test = async app => {
   const token = getToken()
   await createUser(app, token)
 
-  const publication = await createPublication(app, token)
-  const publicationId = publication.shortId
+  const source = await createSource(app, token)
+  const sourceId = source.shortId
 
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
 
-  await addPubToNotebook(app, token, publicationId, notebookId)
+  await addSourceToNotebook(app, token, sourceId, notebookId)
 
-  await tap.test('Remove publication from Notebook', async () => {
+  await tap.test('Remove source from Notebook', async () => {
     const res = await request(app)
-      .delete(`/notebooks/${notebookId}/publications/${publicationId}`)
+      .delete(`/notebooks/${notebookId}/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 204)
 
-    // make sure the publication is no longer attached to the notebook
-    const pubres = await request(app)
+    // make sure the source is no longer attached to the notebook
+    const sourceres = await request(app)
       .get(`/notebooks/${notebookId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(pubres.status, 200)
-    const body = pubres.body
-    await tap.ok(Array.isArray(body.publications))
-    await tap.equal(body.publications.length, 0)
+    await tap.equal(sourceres.status, 200)
+    const body = sourceres.body
+    await tap.ok(Array.isArray(body.sources))
+    await tap.equal(body.sources.length, 0)
   })
 
   await tap.test(
-    'Try to remove pub from notebook with invalid notebook',
+    'Try to remove source from notebook with invalid notebook',
     async () => {
       const res = await request(app)
-        .delete(`/notebooks/${notebookId}abc/publications/${publicationId}`)
+        .delete(`/notebooks/${notebookId}abc/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -56,20 +56,20 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Remove Publication from Notebook Error: No Relation found between Notebook ${notebookId}abc and Publication ${publicationId}`
+        `Remove Source from Notebook Error: No Relation found between Notebook ${notebookId}abc and Source ${sourceId}`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}abc/publications/${publicationId}`
+        `/notebooks/${notebookId}abc/sources/${sourceId}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove pub from notebook with invalid pub',
+    'Try to remove source from notebook with invalid source',
     async () => {
       const res = await request(app)
-        .delete(`/notebooks/${notebookId}/publications/${publicationId}abc`)
+        .delete(`/notebooks/${notebookId}/sources/${sourceId}abc`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -78,11 +78,11 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Remove Publication from Notebook Error: No Relation found between Notebook ${notebookId} and Publication ${publicationId}abc`
+        `Remove Source from Notebook Error: No Relation found between Notebook ${notebookId} and Source ${sourceId}abc`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}/publications/${publicationId}abc`
+        `/notebooks/${notebookId}/sources/${sourceId}abc`
       )
     }
   )

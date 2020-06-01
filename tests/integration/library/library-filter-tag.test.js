@@ -6,9 +6,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createTag,
-  addPubToCollection
+  addSourceToCollection
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
@@ -17,99 +17,99 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
   const tag1 = await createTag(app, token)
   const tag2 = await createTag(app, token, { name: 'test2' })
-  // create a bunch of publications
-  const pub1 = await createPublicationSimplified({
-    name: 'pub1'
+  // create a bunch of sources
+  const source1 = await createSourceSimplified({
+    name: 'source1'
   })
-  pubId1 = urlToId(pub1.id)
+  sourceId1 = urlToId(source1.id)
 
-  const pub2 = await createPublicationSimplified({
-    name: 'pub2'
+  const source2 = await createSourceSimplified({
+    name: 'source2'
   })
-  pubId2 = urlToId(pub2.id)
+  sourceId2 = urlToId(source2.id)
 
-  const pub3 = await createPublicationSimplified({
-    name: 'pub3'
+  const source3 = await createSourceSimplified({
+    name: 'source3'
   })
-  pubId3 = urlToId(pub3.id)
+  sourceId3 = urlToId(source3.id)
 
-  const pub4 = await createPublicationSimplified({
-    name: 'pub4'
+  const source4 = await createSourceSimplified({
+    name: 'source4'
   })
-  pubId4 = urlToId(pub4.id)
+  sourceId4 = urlToId(source4.id)
 
-  const pub5 = await createPublicationSimplified({
-    name: 'pub5'
+  const source5 = await createSourceSimplified({
+    name: 'source5'
   })
-  pubId5 = urlToId(pub5.id)
+  sourceId5 = urlToId(source5.id)
 
-  const pub6 = await createPublicationSimplified({
-    name: 'pub6'
+  const source6 = await createSourceSimplified({
+    name: 'source6'
   })
-  pubId6 = urlToId(pub6.id)
+  sourceId6 = urlToId(source6.id)
 
-  const pub7 = await createPublicationSimplified({
-    name: 'pub7'
+  const source7 = await createSourceSimplified({
+    name: 'source7'
   })
-  pubId7 = urlToId(pub7.id)
+  sourceId7 = urlToId(source7.id)
 
-  const pub8 = await createPublicationSimplified({
-    name: 'pub8'
+  const source8 = await createSourceSimplified({
+    name: 'source8'
   })
-  pubId8 = urlToId(pub8.id)
+  sourceId8 = urlToId(source8.id)
 
-  const pub9 = await createPublicationSimplified({
-    name: 'pub9'
+  const source9 = await createSourceSimplified({
+    name: 'source9'
   })
-  pubId9 = urlToId(pub9.id)
+  sourceId9 = urlToId(source9.id)
 
-  const pub10 = await createPublicationSimplified({
-    name: 'pub10'
+  const source10 = await createSourceSimplified({
+    name: 'source10'
   })
-  pubId10 = urlToId(pub10.id)
+  sourceId10 = urlToId(source10.id)
 
-  const pub11 = await createPublicationSimplified({
-    name: 'pub11'
+  const source11 = await createSourceSimplified({
+    name: 'source11'
   })
-  pubId11 = urlToId(pub11.id)
+  sourceId11 = urlToId(source11.id)
 
-  const pub12 = await createPublicationSimplified({
-    name: 'pub12'
+  const source12 = await createSourceSimplified({
+    name: 'source12'
   })
-  pubId12 = urlToId(pub12.id)
+  sourceId12 = urlToId(source12.id)
 
-  await createPublicationSimplified({
-    name: 'pub13'
-  })
-
-  await createPublicationSimplified({
-    name: 'pub13'
+  await createSourceSimplified({
+    name: 'source13'
   })
 
-  // assign pubs to tags
-  // pub 1-11: tag1
-  await addPubToCollection(app, token, pubId1, tag1.id)
-  await addPubToCollection(app, token, pubId2, tag1.id)
-  await addPubToCollection(app, token, pubId3, tag1.id)
-  await addPubToCollection(app, token, pubId4, tag1.id)
-  await addPubToCollection(app, token, pubId5, tag1.id)
-  await addPubToCollection(app, token, pubId6, tag1.id)
-  await addPubToCollection(app, token, pubId7, tag1.id)
-  await addPubToCollection(app, token, pubId8, tag1.id)
-  await addPubToCollection(app, token, pubId9, tag1.id)
-  await addPubToCollection(app, token, pubId10, tag1.id)
-  await addPubToCollection(app, token, pubId11, tag1.id)
+  await createSourceSimplified({
+    name: 'source13'
+  })
 
-  // pub 10-12: tag2
-  await addPubToCollection(app, token, pubId10, tag2.id)
-  await addPubToCollection(app, token, pubId11, tag2.id)
-  await addPubToCollection(app, token, pubId12, tag2.id)
+  // assign sources to tags
+  // source 1-11: tag1
+  await addSourceToCollection(app, token, sourceId1, tag1.id)
+  await addSourceToCollection(app, token, sourceId2, tag1.id)
+  await addSourceToCollection(app, token, sourceId3, tag1.id)
+  await addSourceToCollection(app, token, sourceId4, tag1.id)
+  await addSourceToCollection(app, token, sourceId5, tag1.id)
+  await addSourceToCollection(app, token, sourceId6, tag1.id)
+  await addSourceToCollection(app, token, sourceId7, tag1.id)
+  await addSourceToCollection(app, token, sourceId8, tag1.id)
+  await addSourceToCollection(app, token, sourceId9, tag1.id)
+  await addSourceToCollection(app, token, sourceId10, tag1.id)
+  await addSourceToCollection(app, token, sourceId11, tag1.id)
+
+  // source 10-12: tag2
+  await addSourceToCollection(app, token, sourceId10, tag2.id)
+  await addSourceToCollection(app, token, sourceId11, tag2.id)
+  await addSourceToCollection(app, token, sourceId12, tag2.id)
 
   await tap.test('Filter Library by tag', async () => {
     const res = await request(app)

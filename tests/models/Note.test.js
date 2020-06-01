@@ -2,7 +2,7 @@ const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
 const _ = require('lodash')
@@ -16,9 +16,9 @@ const test = async app => {
 
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
-  const simplePublication = {
-    type: 'Publication',
-    name: 'Publication A',
+  const simpleSource = {
+    type: 'Source',
+    name: 'Source A',
     readingOrder: [
       {
         type: 'Link',
@@ -33,10 +33,7 @@ const test = async app => {
     ]
   }
 
-  const publication = await Publication.createPublication(
-    createdReader,
-    simplePublication
-  )
+  const source = await Source.createSource(createdReader, simpleSource)
 
   const simpleNote = {
     body: { motivation: 'test' }
@@ -65,15 +62,15 @@ const test = async app => {
     ]
   }
 
-  const noteWithPub = {
-    publicationId: publication.id,
+  const noteWithSourceObject = {
+    sourceId: source.id,
     body: {
       motivation: 'test',
       content: 'something'
     }
   }
 
-  let note, note2, noteWithPublication
+  let note, note2, noteWithSource
 
   await tap.test('Create Simple Note', async () => {
     let response = await Note.createNote(createdReader, simpleNote)
@@ -108,11 +105,11 @@ const test = async app => {
     note2 = response
   })
 
-  await tap.test('Create Note with publication', async () => {
-    let response = await Note.createNote(createdReader, noteWithPub)
+  await tap.test('Create Note with source', async () => {
+    let response = await Note.createNote(createdReader, noteWithSourceObject)
     await tap.ok(response)
     await tap.ok(response instanceof Note)
-    noteWithPublication = response
+    noteWithSource = response
   })
 
   await tap.test('Update a Note with a new body', async () => {
@@ -160,8 +157,8 @@ const test = async app => {
     await tap.equal(response.body.length, 2)
   })
 
-  await tap.test('Update Note with publication', async () => {
-    const newNote = Object.assign(noteWithPublication, {
+  await tap.test('Update Note with source', async () => {
+    const newNote = Object.assign(noteWithSource, {
       document: 'doc111',
       body: { content: 'something else', motivation: 'highlighting' }
     })

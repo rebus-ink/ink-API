@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,77 +12,77 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication 1',
+  await createSourceSimplified({
+    name: 'Source 1',
     keywords: ['one', 'two']
   })
-  await createPublicationSimplified({
-    name: 'Publication 2',
+  await createSourceSimplified({
+    name: 'Source 2',
     keywords: ['one', 'two']
   })
-  await createPublicationSimplified({
-    name: 'Publication 3',
+  await createSourceSimplified({
+    name: 'Source 3',
     keywords: ['one', 'two']
   })
-  await createPublicationSimplified({
-    name: 'Publication 4',
+  await createSourceSimplified({
+    name: 'Source 4',
     keywords: ['one']
   })
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 5',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 6',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 7',
     keywords: 'one'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 8 - the sequel',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 9',
     keywords: ['two']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 10',
     keywords: ['two']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 11',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 12',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 13',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 14',
     keywords: ['one']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 15 - the sequel',
     keywords: ['one']
   })
-  await createPublicationSimplified({
-    name: 'Publication 16',
+  await createSourceSimplified({
+    name: 'Source 16',
     keywords: ['one']
   })
-  await createPublicationSimplified({
-    name: 'Publication 17',
+  await createSourceSimplified({
+    name: 'Source 17',
     keywords: ['one']
   })
 

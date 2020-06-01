@@ -3,7 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
@@ -12,25 +12,25 @@ const { libraryCacheUpdate } = require('../../utils/cache')
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications:
+   * /sources:
    *   post:
    *     tags:
-   *       - publications
-   *     description: Create a Publication
+   *       - sources
+   *     description: Create a Source
    *     security:
    *       - Bearer: []
    *     requestBody:
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/publication'
+   *             $ref: '#/definitions/source'
    *     responses:
    *       201:
-   *         description: Successfully created Publication
+   *         description: Successfully created Source
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/publication'
+   *               $ref: '#/definitions/source'
    *       400:
    *         description: Validation error
    *       401:
@@ -39,7 +39,7 @@ module.exports = function (app) {
    *         description: 'Access to reader disallowed'
    */
   app.use('/', router)
-  router.route('/publications').post(jwtAuth, function (req, res, next) {
+  router.route('/sources').post(jwtAuth, function (req, res, next) {
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -55,7 +55,7 @@ module.exports = function (app) {
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest(
-              'Create Publication Error: Request body must be a JSON object',
+              'Create Source Error: Request body must be a JSON object',
               {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
@@ -63,14 +63,14 @@ module.exports = function (app) {
             )
           )
         }
-        let createdPub
+        let createdSource
         try {
-          createdPub = await Publication.createPublication(reader, body)
+          createdSource = await Source.createSource(reader, body)
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(
-                `Validation Error on Create Publication: ${err.message}`,
+                `Validation Error on Create Source: ${err.message}`,
                 {
                   validation: err.data,
                   requestUrl: req.originalUrl,
@@ -90,11 +90,11 @@ module.exports = function (app) {
 
         await libraryCacheUpdate(reader.id)
 
-        const finishedPub = createdPub.toJSON()
+        const finishedSource = createdSource.toJSON()
 
         res.setHeader('Content-Type', 'application/ld+json')
-        res.setHeader('Location', finishedPub.id)
-        res.status(201).end(JSON.stringify(finishedPub))
+        res.setHeader('Location', finishedSource.id)
+        res.status(201).end(JSON.stringify(finishedSource))
       })
       .catch(err => {
         next(err)

@@ -5,16 +5,16 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
-const { Notebook_Pub } = require('../../models/Notebook_Pub')
+const { Notebook_Source } = require('../../models/Notebook_Source')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * notebooks/{notebookId}/publications/{pubId}:
+   * notebooks/{notebookId}/sources/{sourceId}:
    *   put:
    *     tags:
    *       - notebooks
-   *     description: Assign a Publication to a Notebook
+   *     description: Assign a Source to a Notebook
    *     parameters:
    *       - in: path
    *         name: notebookId
@@ -22,7 +22,7 @@ module.exports = function (app) {
    *           type: string
    *         required: true
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -30,21 +30,21 @@ module.exports = function (app) {
    *       - Bearer: []
    *     responses:
    *       204:
-   *         description: Successfully added Publication to Notebook
+   *         description: Successfully added Source to Notebook
    *       400:
-   *         description: Cannot assign the same publication twice
+   *         description: Cannot assign the same source twice
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to notebook or publication disallowed'
+   *         description: 'Access to notebook or source disallowed'
    *       404:
-   *         description:  publication or notebook not found
+   *         description:  source or notebook not found
    */
   app.use('/', router)
   router
-    .route('/notebooks/:notebookId/publications/:pubId')
+    .route('/notebooks/:notebookId/sources/:sourceId')
     .put(jwtAuth, function (req, res, next) {
-      const pubId = req.params.pubId
+      const sourceId = req.params.sourceId
       const notebookId = req.params.notebookId
       Reader.byAuthId(req.user)
         .then(async reader => {
@@ -56,9 +56,9 @@ module.exports = function (app) {
             )
           }
 
-          if (!checkOwnership(reader.id, pubId)) {
+          if (!checkOwnership(reader.id, sourceId)) {
             return next(
-              boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+              boom.forbidden(`Access to Source ${sourceId} disallowed`, {
                 requestUrl: req.originalUrl
               })
             )
@@ -72,13 +72,13 @@ module.exports = function (app) {
           }
 
           try {
-            await Notebook_Pub.addPubToNotebook(notebookId, pubId)
+            await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
             res.status(204).end()
           } catch (err) {
-            if (err.message === 'no publication') {
+            if (err.message === 'no source') {
               return next(
                 boom.notFound(
-                  `Add Publication to Notebook Error: No Publication found with id ${pubId}`,
+                  `Add Source to Notebook Error: No Source found with id ${sourceId}`,
                   {
                     requestUrl: req.originalUrl
                   }
@@ -87,7 +87,7 @@ module.exports = function (app) {
             } else if (err.message === 'no notebook') {
               return next(
                 boom.notFound(
-                  `Add Publication to Notebook Error: No Notebook found with id ${notebookId}`,
+                  `Add Source to Notebook Error: No Notebook found with id ${notebookId}`,
                   {
                     requestUrl: req.originalUrl
                   }

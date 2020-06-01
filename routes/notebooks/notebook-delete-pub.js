@@ -5,19 +5,19 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
-const { Notebook_Pub } = require('../../models/Notebook_Pub')
+const { Notebook_Source } = require('../../models/Notebook_Source')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * notebooks/{notebookId}/publications/{pubId}:
+   * notebooks/{notebookId}/sources/{sourceId}:
    *   delete:
    *     tags:
    *       - notebooks
-   *     description: Remove assignment of Publication to Notebook
+   *     description: Remove assignment of Source to Notebook
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -30,19 +30,19 @@ module.exports = function (app) {
    *       - Bearer: []
    *     responses:
    *       204:
-   *         description: Successfully removed Publication from Notebook
+   *         description: Successfully removed Source from Notebook
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to notebook or publication disallowed'
+   *         description: 'Access to notebook or source disallowed'
    *       404:
-   *         description: publication, notebook or pub-notebook relation not found
+   *         description: source, notebook or source-notebook relation not found
    */
   app.use('/', router)
   router
-    .route('/notebooks/:notebookId/publications/:pubId')
+    .route('/notebooks/:notebookId/sources/:sourceId')
     .delete(jwtAuth, function (req, res, next) {
-      const pubId = req.params.pubId
+      const sourceId = req.params.sourceId
       const notebookId = req.params.notebookId
       Reader.byAuthId(req.user)
         .then(async reader => {
@@ -53,9 +53,9 @@ module.exports = function (app) {
               })
             )
           } else {
-            if (!checkOwnership(reader.id, pubId)) {
+            if (!checkOwnership(reader.id, sourceId)) {
               return next(
-                boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+                boom.forbidden(`Access to Source ${sourceId} disallowed`, {
                   requestUrl: req.originalUrl
                 })
               )
@@ -69,7 +69,10 @@ module.exports = function (app) {
             }
 
             try {
-              await Notebook_Pub.removePubFromNotebook(notebookId, pubId)
+              await Notebook_Source.removeSourceFromNotebook(
+                notebookId,
+                sourceId
+              )
               res.status(204).end()
             } catch (err) {
               return next(

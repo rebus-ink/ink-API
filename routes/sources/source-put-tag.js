@@ -5,20 +5,20 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../../utils/cache')
-const { Publication_Tag } = require('../../models/Publications_Tags')
+const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/{pubId}/tags/{tagId}:
+   * /sources/{sourceId}/tags/{tagId}:
    *   put:
    *     tags:
-   *       - tag-publication
-   *     description: Assign a Tag to a Publication
+   *       - tag-source
+   *     description: Assign a Tag to a Source
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -31,21 +31,21 @@ module.exports = function (app) {
    *       - Bearer: []
    *     responses:
    *       204:
-   *         description: Successfully added Tag to Publication
+   *         description: Successfully added Tag to Source
    *       400:
    *         description: Cannot assign the same tag twice
    *       401:
    *         description: No Authentication
    *       403:
-   *         description: 'Access to tag or publication disallowed'
+   *         description: 'Access to tag or source disallowed'
    *       404:
-   *         description:  publication or tag not found
+   *         description:  source or tag not found
    */
   app.use('/', router)
   router
-    .route('/publications/:pubId/tags/:tagId')
+    .route('/sources/:sourceId/tags/:tagId')
     .put(jwtAuth, function (req, res, next) {
-      const pubId = req.params.pubId
+      const sourceId = req.params.sourceId
       const tagId = req.params.tagId
       Reader.byAuthId(req.user)
         .then(reader => {
@@ -57,9 +57,9 @@ module.exports = function (app) {
             )
           }
 
-          if (!checkOwnership(reader.id, pubId)) {
+          if (!checkOwnership(reader.id, sourceId)) {
             return next(
-              boom.forbidden(`Access to Publication ${pubId} disallowed`, {
+              boom.forbidden(`Access to Source ${sourceId} disallowed`, {
                 requestUrl: req.originalUrl
               })
             )
@@ -72,16 +72,16 @@ module.exports = function (app) {
             )
           }
 
-          Publication_Tag.addTagToPub(pubId, tagId)
+          Source_Tag.addTagToSource(sourceId, tagId)
             .then(async result => {
               await libraryCacheUpdate(reader.id)
               res.status(204).end()
             })
             .catch(err => {
-              if (err.message === 'no publication') {
+              if (err.message === 'no source') {
                 return next(
                   boom.notFound(
-                    `Add Tag to Publication Error: No Publication found with id ${pubId}`,
+                    `Add Tag to Source Error: No Source found with id ${sourceId}`,
                     {
                       requestUrl: req.originalUrl
                     }
@@ -90,7 +90,7 @@ module.exports = function (app) {
               } else if (err.message === 'no tag') {
                 return next(
                   boom.notFound(
-                    `Add Tag to Publication Error: No Tag found with id ${tagId}`,
+                    `Add Tag to Source Error: No Tag found with id ${tagId}`,
                     {
                       requestUrl: req.originalUrl
                     }

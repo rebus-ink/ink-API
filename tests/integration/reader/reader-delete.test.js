@@ -4,7 +4,7 @@ const {
   getToken,
   destroyDB,
   createReader,
-  createPublication,
+  createSource,
   createNote,
   createNoteContext,
   createTag,
@@ -30,7 +30,7 @@ const test = async app => {
   })
 
   // add stuff for reader
-  const pub = await createPublication(app, token)
+  const pub = await createSource(app, token)
   const note1 = await createNote(app, token)
   const note2 = await createNote(app, token)
   const context = await createNoteContext(app, token, {
@@ -88,10 +88,10 @@ const test = async app => {
   })
 
   await tap.test(
-    'Cannot get deleted publication, note, noteContext, tag... belonging to deleted reader',
+    'Cannot get deleted source, note, noteContext, tag... belonging to deleted reader',
     async () => {
       const resPub = await request(app)
-        .get(`/publications/${pub.shortId}`)
+        .get(`/sources/${pub.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -102,12 +102,9 @@ const test = async app => {
       await tap.equal(errorPub.error, 'Not Found')
       await tap.equal(
         errorPub.message,
-        `No Publication found with id ${pub.shortId}`
+        `No Source found with id ${pub.shortId}`
       )
-      await tap.equal(
-        errorPub.details.requestUrl,
-        `/publications/${pub.shortId}`
-      )
+      await tap.equal(errorPub.details.requestUrl, `/sources/${pub.shortId}`)
 
       const resNote = await request(app)
         .get(`/notes/${note1.shortId}`)
@@ -214,11 +211,11 @@ const test = async app => {
   await tap.test(
     'Routes should not work if accessed with the token for a deleted reader',
     async () => {
-      // *************** Publications **************************
+      // *************** Sources **************************
 
-      // POST /publications
+      // POST /sources
       const res1 = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -229,9 +226,9 @@ const test = async app => {
       await tap.equal(error1.message, `No reader found with this token`)
       await tap.ok(error1.details.requestUrl)
 
-      // PATCH /publications/:id
+      // PATCH /sources/:id
       const res2 = await request(app)
-        .patch(`/publications/${pub.shortId}`)
+        .patch(`/sources/${pub.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -239,15 +236,12 @@ const test = async app => {
 
       await tap.equal(res2.status, 404)
       const error2 = JSON.parse(res2.text)
-      await tap.equal(
-        error2.message,
-        `No Publication found with id ${pub.shortId}`
-      )
+      await tap.equal(error2.message, `No Source found with id ${pub.shortId}`)
       await tap.ok(error2.details.requestUrl)
 
-      // DELETE /publications/:id
+      // DELETE /sources/:id
       const res3 = await request(app)
-        .delete(`/publications/${pub.shortId}`)
+        .delete(`/sources/${pub.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -257,9 +251,9 @@ const test = async app => {
       await tap.equal(error3.message, `No reader found with this token`)
       await tap.ok(error3.details.requestUrl)
 
-      // PUT /publications/:pubId/tags/:tagId
+      // PUT /sources/:pubId/tags/:tagId
       const res4 = await request(app)
-        .put(`/publications/${pub.shortId}/tags/${tag.shortId}`)
+        .put(`/sources/${pub.shortId}/tags/${tag.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -269,9 +263,9 @@ const test = async app => {
       await tap.equal(error4.message, `No reader found with this token`)
       await tap.ok(error4.details.requestUrl)
 
-      // DELETE /publications/:pubId/tags/:tagId
+      // DELETE /sources/:pubId/tags/:tagId
       const res5 = await request(app)
-        .delete(`/publications/${pub.shortId}/tags/${tag.shortId}`)
+        .delete(`/sources/${pub.shortId}/tags/${tag.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -281,9 +275,9 @@ const test = async app => {
       await tap.equal(error5.message, `No reader found with this token`)
       await tap.ok(error5.details.requestUrl)
 
-      // POST /publications/:id/readActivity
+      // POST /sources/:id/readActivity
       const res6 = await request(app)
-        .post(`/publications/${pub.shortId}/readActivity`)
+        .post(`/sources/${pub.shortId}/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -301,9 +295,9 @@ const test = async app => {
       await tap.equal(error6.message, `No reader found with this token`)
       await tap.ok(error6.details.requestUrl)
 
-      // PATCH /publications/batchUpdate
+      // PATCH /sources/batchUpdate
       const res7 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -311,7 +305,7 @@ const test = async app => {
           JSON.stringify({
             operation: 'add',
             property: 'keywords',
-            publications: [pub.shortId],
+            sources: [pub.shortId],
             value: 'test'
           })
         )

@@ -1,13 +1,13 @@
 /**
  * @swagger
  * definition:
- *   publicationBatchUpdateRequest:
+ *   sourceBatchUpdateRequest:
  *     properties:
- *       publications:
+ *       sources:
  *         type: array
  *         items:
  *           type: string
- *           description: ids of publications to be updated
+ *           description: ids of sources to be updated
  *       operation:
  *         type: string
  *         enum: ['replace', 'add', 'remove']
@@ -19,13 +19,13 @@
  *         items:
  *           type: string
  *
- *   publicationBatchUpdateResponseItem:
+ *   sourceBatchUpdateResponseItem:
  *     status:
  *       type: integer
  *       enum: [204, 400, 404]
  *     id:
  *       type: string
- *       description: publicationId
+ *       description: sourceId
  *     message:
  *       type: string
  *       description: error message, in case of 400 or 404 status

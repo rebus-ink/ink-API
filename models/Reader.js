@@ -1,7 +1,7 @@
 const { BaseModel } = require('./BaseModel.js')
 const { Model } = require('objection')
 const _ = require('lodash')
-const { Publication } = require('./Publication')
+const { Source } = require('./Source')
 const { Note } = require('./Note')
 const { ReadActivity } = require('./ReadActivity')
 const { Tag } = require('./Tag')
@@ -211,7 +211,7 @@ class Reader extends BaseModel {
   static async softDelete (id /*: string */) /*: Promise<number> */ {
     id = urlToId(id)
     const now = new Date().toISOString()
-    await Publication.query()
+    await Source.query()
       .patch({ deleted: now })
       .where('readerId', '=', id)
     await NoteContext.query()
@@ -238,12 +238,12 @@ class Reader extends BaseModel {
 
   static get relationMappings () /*: any */ {
     return {
-      publications: {
+      sources: {
         relation: Model.HasManyRelation,
-        modelClass: Publication,
+        modelClass: Source,
         join: {
           from: 'Reader.id',
-          to: 'Publication.readerId'
+          to: 'Source.readerId'
         }
       },
       readActivities: {

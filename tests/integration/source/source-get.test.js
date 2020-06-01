@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const _ = require('lodash')
 const { urlToId } = require('../../../utils/utils')
@@ -16,9 +16,9 @@ const test = async app => {
 
   const now = new Date().toISOString()
 
-  const publicationObject = {
+  const sourceObject = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     author: ['John Smith'],
     editor: 'Jané S. Doe',
     contributor: ['Sample Contributor'],
@@ -73,13 +73,13 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  const resCreatePub = await createPublication(app, token, publicationObject)
-  const publicationUrl = resCreatePub.id
-  const publicationId = urlToId(publicationUrl)
+  const resCreateSource = await createSource(app, token, sourceObject)
+  const sourceUrl = resCreateSource.id
+  const sourceId = urlToId(sourceUrl)
 
-  await tap.test('Get Publication', async () => {
+  await tap.test('Get Source', async () => {
     const res = await request(app)
-      .get(`/publications/${publicationId}`)
+      .get(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -89,11 +89,11 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.ok(body.id.endsWith('/'))
-    await tap.ok(body.id.startsWith('https://reader-api.test/publications/'))
+    await tap.ok(body.id.startsWith('https://reader-api.test/sources/'))
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.ok(urlToId(body.id).startsWith(urlToId(body.readerId))) // check that id contains readerId
     await tap.equal(body.type, 'Book')
-    await tap.equal(body.name, 'Publication A')
+    await tap.equal(body.name, 'Source A')
     await tap.ok(_.isArray(body.author))
     await tap.equal(body.author[0].name, 'John Smith')
     await tap.equal(body.editor[0].name, 'Jané S. Doe')
@@ -129,7 +129,7 @@ const test = async app => {
     await tap.notOk(body.position)
   })
 
-  await tap.test('Get Publication with a position', async () => {
+  await tap.test('Get Source with a position', async () => {
     // create some read activity
     await request(app)
       .post(`/reader-${readerId}/activity`)
@@ -139,7 +139,7 @@ const test = async app => {
       .send(
         JSON.stringify({
           type: 'Read',
-          context: publicationUrl,
+          context: sourceUrl,
           selector: {
             type: 'XPathSelector',
             value: '/html/body/p[2]/table/tr[2]/td[3]/span',
@@ -149,7 +149,7 @@ const test = async app => {
       )
 
     await request(app)
-      .post(`/publications/${publicationId}/readActivity`)
+      .post(`/sources/${sourceId}/readActivity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -163,9 +163,9 @@ const test = async app => {
         })
       )
 
-    // get publication with position:
+    // get source with position:
     const res = await request(app)
-      .get(`/publications/${publicationId}`)
+      .get(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -175,14 +175,14 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.equal(body.type, 'Book')
-    await tap.equal(body.name, 'Publication A')
+    await tap.equal(body.name, 'Source A')
     await tap.type(body.position, 'object')
     await tap.equal(body.position.property, 'last')
   })
 
-  await tap.test('Try to get Publication that does not exist', async () => {
+  await tap.test('Try to get Source that does not exist', async () => {
     const res = await request(app)
-      .get(`/publications/123`)
+      .get(`/sources/123`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -191,8 +191,8 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(error.statusCode, 404)
     await tap.equal(error.error, 'Not Found')
-    await tap.equal(error.message, `No Publication found with id 123`)
-    await tap.equal(error.details.requestUrl, '/publications/123')
+    await tap.equal(error.message, `No Source found with id 123`)
+    await tap.equal(error.details.requestUrl, '/sources/123')
   })
 
   await destroyDB(app)

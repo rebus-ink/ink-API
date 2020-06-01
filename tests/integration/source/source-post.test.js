@@ -9,9 +9,9 @@ const test = async app => {
 
   const now = new Date().toISOString()
 
-  const publicationObject = {
+  const sourceObject = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     author: ['John Smith'],
     contributor: ['Sample Contributor'],
     creator: [{ name: 'Sample Creator' }],
@@ -70,15 +70,15 @@ const test = async app => {
     json: { property: 'value' }
   }
 
-  await tap.test('Create a Simple Publication', async () => {
+  await tap.test('Create a Simple Source', async () => {
     const res = await request(app)
-      .post(`/publications`)
+      .post(`/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          name: 'Publication Simple',
+          name: 'Source Simple',
           type: 'Book'
         })
       )
@@ -86,21 +86,21 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const body = res.body
-    await tap.equal(body.name, 'Publication Simple')
+    await tap.equal(body.name, 'Source Simple')
     await tap.equal(body.type, 'Book')
   })
 
-  await tap.test('Create a Publication', async () => {
+  await tap.test('Create a Source', async () => {
     const res = await request(app)
-      .post(`/publications`)
+      .post(`/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-      .send(JSON.stringify(publicationObject))
+      .send(JSON.stringify(sourceObject))
 
     await tap.equal(res.status, 201)
     const body = res.body
-    await tap.equal(body.name, 'Publication A')
+    await tap.equal(body.name, 'Source A')
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.type, 'Book')
     await tap.equal(body.abstract, 'this is a description!!')
@@ -138,14 +138,14 @@ const test = async app => {
 
   await tap.test('invalid properties should be ignored', async () => {
     const res = await request(app)
-      .post(`/publications`)
+      .post(`/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
         JSON.stringify({
           type: 'Book',
-          name: 'Publication B',
+          name: 'Source B',
           invalidProp: 'blah blah'
         })
       )
@@ -153,11 +153,11 @@ const test = async app => {
     await tap.equal(res.status, 201)
 
     const body = res.body
-    await tap.equal(body.name, 'Publication B')
+    await tap.equal(body.name, 'Source B')
     await tap.notOk(body.invalidProp)
   })
 
-  await tap.test('created publications should be in the library', async () => {
+  await tap.test('created sources should be in the library', async () => {
     const res = await request(app)
       .get(`/library`)
       .set('Host', 'reader-api.test')
@@ -171,53 +171,50 @@ const test = async app => {
     await tap.equal(body.totalItems, 3)
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 3)
-    await tap.equal(body.items[0].name, 'Publication B')
-    await tap.equal(body.items[1].name, 'Publication A')
-    await tap.equal(body.items[2].name, 'Publication Simple')
+    await tap.equal(body.items[0].name, 'Source B')
+    await tap.equal(body.items[1].name, 'Source A')
+    await tap.equal(body.items[2].name, 'Source Simple')
   })
 
-  await tap.test(
-    'Create a Publication with link objects as strings',
-    async () => {
-      const res = await request(app)
-        .post(`/publications`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication Links',
-            type: 'Book',
-            links: ['http://www.something.com'],
-            resources: [
-              { url: 'http://www.somethingelse' },
-              'http://www.something.com'
-            ],
-            readingOrder: ['http://www.something.com']
-          })
-        )
+  await tap.test('Create a Source with link objects as strings', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Links',
+          type: 'Book',
+          links: ['http://www.something.com'],
+          resources: [
+            { url: 'http://www.somethingelse' },
+            'http://www.something.com'
+          ],
+          readingOrder: ['http://www.something.com']
+        })
+      )
 
-      await tap.equal(res.status, 201)
+    await tap.equal(res.status, 201)
 
-      const body = res.body
-      // link strings put into a Link object with only a url property
-      await tap.equal(body.links[0].url, 'http://www.something.com')
-      await tap.equal(body.resources[1].url, 'http://www.something.com')
-      await tap.equal(body.readingOrder[0].url, 'http://www.something.com')
-    }
-  )
+    const body = res.body
+    // link strings put into a Link object with only a url property
+    await tap.equal(body.links[0].url, 'http://www.something.com')
+    await tap.equal(body.resources[1].url, 'http://www.something.com')
+    await tap.equal(body.readingOrder[0].url, 'http://www.something.com')
+  })
 
   await tap.test(
     'Link objects should only save recognized properties',
     async () => {
       const res = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication Links',
+            name: 'Source Links',
             type: 'Book',
             links: [
               {
@@ -300,16 +297,16 @@ const test = async app => {
   )
 
   await tap.test(
-    'Create a Publication with keywords as a single string',
+    'Create a Source with keywords as a single string',
     async () => {
       const res = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication Keyword',
+            name: 'Source Keyword',
             type: 'Book',
             keywords: 'just one keyword'
           })
@@ -323,9 +320,9 @@ const test = async app => {
     }
   )
 
-  await tap.test('trying to create a Publication without a name', async () => {
+  await tap.test('trying to create a Source without a name', async () => {
     const res = await request(app)
-      .post(`/publications`)
+      .post(`/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -342,7 +339,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Create Publication: name: is a required property'
+      'Validation Error on Create Source: name: is a required property'
     )
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.name[0].keyword, 'required')
@@ -350,20 +347,20 @@ const test = async app => {
       error.details.validation.name[0].params.missingProperty,
       'name'
     )
-    await tap.equal(error.details.requestUrl, '/publications')
+    await tap.equal(error.details.requestUrl, '/sources')
     await tap.type(error.details.requestBody, 'object')
     await tap.equal(error.details.requestBody.type, 'Book')
   })
 
-  await tap.test('trying to create a Publication without a type', async () => {
+  await tap.test('trying to create a Source without a type', async () => {
     const res = await request(app)
-      .post(`/publications`)
+      .post(`/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          name: 'Publication C',
+          name: 'Source C',
           numberOfPages: 199
         })
       )
@@ -381,60 +378,54 @@ const test = async app => {
     )
     await tap.equal(
       error.message,
-      'Validation Error on Create Publication: type: is a required property'
+      'Validation Error on Create Source: type: is a required property'
     )
-    await tap.equal(error.details.requestUrl, '/publications')
+    await tap.equal(error.details.requestUrl, '/sources')
     await tap.type(error.details.requestBody, 'object')
-    await tap.equal(error.details.requestBody.name, 'Publication C')
+    await tap.equal(error.details.requestBody.name, 'Source C')
+  })
+
+  await tap.test('Try to create a Source with an invalid json', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 'Book',
+          json: 'a string'
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.type(error.details.validation, 'object')
+    await tap.equal(error.details.validation.json[0].keyword, 'type')
+    await tap.equal(error.details.validation.json[0].params.type, 'object,null')
+    await tap.equal(
+      error.message,
+      'Validation Error on Create Source: json: should be object,null'
+    )
+    await tap.equal(error.details.requestUrl, '/sources')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Source C')
   })
 
   await tap.test(
-    'Try to create a Publication with an invalid json',
+    'Try to create a Source with an invalid language code',
     async () => {
       const res = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
-            type: 'Book',
-            json: 'a string'
-          })
-        )
-
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.type(error.details.validation, 'object')
-      await tap.equal(error.details.validation.json[0].keyword, 'type')
-      await tap.equal(
-        error.details.validation.json[0].params.type,
-        'object,null'
-      )
-      await tap.equal(
-        error.message,
-        'Validation Error on Create Publication: json: should be object,null'
-      )
-      await tap.equal(error.details.requestUrl, '/publications')
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
-    }
-  )
-
-  await tap.test(
-    'Try to create a Publication with an invalid language code',
-    async () => {
-      const res = await request(app)
-        .post(`/publications`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             inLanguage: ['not a valid code', 'another invalid thing']
           })
@@ -446,25 +437,25 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: not a valid code,another invalid thing are not valid language codes'
+        'Source validation error: not a valid code,another invalid thing are not valid language codes'
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid link object',
+    'Try to create a Source with an invalid link object',
     async () => {
       const res = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             links: [{ property: 'value' }]
           })
@@ -476,20 +467,20 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: links items must be either a string or an object with a url property'
+        'Source validation error: links items must be either a string or an object with a url property'
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
 
       const res2 = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             resources: 123
           })
@@ -501,20 +492,20 @@ const test = async app => {
       await tap.equal(error2.error, 'Bad Request')
       await tap.equal(
         error2.message,
-        `Publication validation error: resources must be an array of links`
+        `Source validation error: resources must be an array of links`
       )
-      await tap.equal(error2.details.requestUrl, '/publications')
+      await tap.equal(error2.details.requestUrl, '/sources')
       await tap.type(error2.details.requestBody, 'object')
-      await tap.equal(error2.details.requestBody.name, 'Publication C')
+      await tap.equal(error2.details.requestBody.name, 'Source C')
 
       const res3 = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             readingOrder: [123, 456]
           })
@@ -526,78 +517,75 @@ const test = async app => {
       await tap.equal(error3.error, 'Bad Request')
       await tap.equal(
         error3.message,
-        `Publication validation error: readingOrder items must be either a string or an object with a url property`
+        `Source validation error: readingOrder items must be either a string or an object with a url property`
       )
-      await tap.equal(error3.details.requestUrl, '/publications')
+      await tap.equal(error3.details.requestUrl, '/sources')
       await tap.type(error3.details.requestBody, 'object')
-      await tap.equal(error3.details.requestBody.name, 'Publication C')
+      await tap.equal(error3.details.requestBody.name, 'Source C')
     }
   )
 
-  await tap.test(
-    'Try to create a Publication with an invalid type',
-    async () => {
-      const res = await request(app)
-        .post(`/publications`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
-            type: 'not valid'
-          })
-        )
-
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        `Publication validation error: not valid is not a valid type.`
+  await tap.test('Try to create a Source with an invalid type', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 'not valid'
+        })
       )
-      await tap.equal(error.details.requestUrl, '/publications')
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
 
-      const res2 = await request(app)
-        .post('/publications')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
-            type: 123
-          })
-        )
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Source validation error: not valid is not a valid type.`
+    )
+    await tap.equal(error.details.requestUrl, '/sources')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Source C')
 
-      await tap.equal(res2.status, 400)
-      const error2 = JSON.parse(res2.text)
-      await tap.equal(error2.statusCode, 400)
-      await tap.equal(error2.error, 'Bad Request')
-      await tap.equal(
-        error2.message,
-        `Publication validation error: 123 is not a valid type.`
+    const res2 = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 123
+        })
       )
-      await tap.equal(error2.details.requestUrl, '/publications')
-      await tap.type(error2.details.requestBody, 'object')
-      await tap.equal(error2.details.requestBody.name, 'Publication C')
-    }
-  )
+
+    await tap.equal(res2.status, 400)
+    const error2 = JSON.parse(res2.text)
+    await tap.equal(error2.statusCode, 400)
+    await tap.equal(error2.error, 'Bad Request')
+    await tap.equal(
+      error2.message,
+      `Source validation error: 123 is not a valid type.`
+    )
+    await tap.equal(error2.details.requestUrl, '/sources')
+    await tap.type(error2.details.requestBody, 'object')
+    await tap.equal(error2.details.requestBody.name, 'Source C')
+  })
 
   await tap.test(
-    'Try to create a Publication with an invalid dateModified',
+    'Try to create a Source with an invalid dateModified',
     async () => {
       const res = await request(app)
-        .post(`/publications`)
+        .post(`/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             dateModified: 'not a date'
           })
@@ -609,25 +597,25 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        `Publication validation error: dateModified must be a timestamp. not a date is not a valid timestamp`
+        `Source validation error: dateModified must be a timestamp. not a date is not a valid timestamp`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid bookEdition',
+    'Try to create a Source with an invalid bookEdition',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             bookEdition: { property: 'value' }
           })
@@ -639,25 +627,25 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: bookEdition should be a string'
+        'Source validation error: bookEdition should be a string'
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid book format',
+    'Try to create a Source with an invalid book format',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             bookFormat: 'invalid format'
           })
@@ -669,20 +657,20 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        `Publication validation error: invalid format is not a valid bookFormat`
+        `Source validation error: invalid format is not a valid bookFormat`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
 
       const res2 = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             bookFormat: 123
           })
@@ -694,55 +682,52 @@ const test = async app => {
       await tap.equal(error2.error, 'Bad Request')
       await tap.equal(
         error2.message,
-        `Publication validation error: 123 is not a valid bookFormat`
+        `Source validation error: 123 is not a valid bookFormat`
       )
-      await tap.equal(error2.details.requestUrl, '/publications')
+      await tap.equal(error2.details.requestUrl, '/sources')
       await tap.type(error2.details.requestBody, 'object')
-      await tap.equal(error2.details.requestBody.name, 'Publication C')
+      await tap.equal(error2.details.requestBody.name, 'Source C')
     }
   )
 
-  await tap.test(
-    'Try to create a Publication with an invalid isbn',
-    async () => {
-      const res = await request(app)
-        .post('/publications')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
-            type: 'Book',
-            isbn: 1.23
-          })
-        )
-
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        `Publication validation error: isbn should be a string`
+  await tap.test('Try to create a Source with an invalid isbn', async () => {
+    const res = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 'Book',
+          isbn: 1.23
+        })
       )
-      await tap.equal(error.details.requestUrl, '/publications')
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
-    }
-  )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Source validation error: isbn should be a string`
+    )
+    await tap.equal(error.details.requestUrl, '/sources')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Source C')
+  })
 
   await tap.test(
-    'Try to create a Publication with an invalid keywords',
+    'Try to create a Source with an invalid keywords',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             keywords: 1.23
           })
@@ -754,85 +739,79 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Publication validation error: keywords should be a string or an array of strings'
+        'Source validation error: keywords should be a string or an array of strings'
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
+  await tap.test('Try to create a Source with an invalid genre', async () => {
+    const res = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 'Book',
+          genre: ['something', 'else']
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Source validation error: genre should be a string`
+    )
+    await tap.equal(error.details.requestUrl, '/sources')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Source C')
+  })
+
+  await tap.test('Try to create a Source with an invalid url', async () => {
+    const res = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source C',
+          type: 'Book',
+          url: 1.23
+        })
+      )
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(
+      error.message,
+      `Source validation error: url should be a string`
+    )
+    await tap.equal(error.details.requestUrl, '/sources')
+    await tap.type(error.details.requestBody, 'object')
+    await tap.equal(error.details.requestBody.name, 'Source C')
+  })
+
   await tap.test(
-    'Try to create a Publication with an invalid genre',
+    'Try to create a Source with an invalid attribution',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
-            type: 'Book',
-            genre: ['something', 'else']
-          })
-        )
-
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        `Publication validation error: genre should be a string`
-      )
-      await tap.equal(error.details.requestUrl, '/publications')
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
-    }
-  )
-
-  await tap.test(
-    'Try to create a Publication with an invalid url',
-    async () => {
-      const res = await request(app)
-        .post('/publications')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
-            type: 'Book',
-            url: 1.23
-          })
-        )
-
-      await tap.equal(res.status, 400)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 400)
-      await tap.equal(error.error, 'Bad Request')
-      await tap.equal(
-        error.message,
-        `Publication validation error: url should be a string`
-      )
-      await tap.equal(error.details.requestUrl, '/publications')
-      await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
-    }
-  )
-
-  await tap.test(
-    'Try to create a Publication with an invalid attribution',
-    async () => {
-      const res = await request(app)
-        .post('/publications')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
-        .send(
-          JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             illustrator: 123
           })
@@ -846,23 +825,23 @@ const test = async app => {
         error.message,
         `illustrator attribution validation error: attribution should be either an attribution object or a string`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid attribution type',
+    'Try to create a Source with an invalid attribution type',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             creator: [{ name: 'John Smith', type: 'invalid' }]
           })
@@ -875,23 +854,23 @@ const test = async app => {
         error.message,
         `creator attribution Validation Error: invalid is not a valid type. Must be 'Person' or 'Organization'`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid attribution object',
+    'Try to create a Source with an invalid attribution object',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             creator: [{ prop: 'value' }]
           })
@@ -904,23 +883,23 @@ const test = async app => {
         error.message,
         `creator attribution Validation Error: name is a required property`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
   await tap.test(
-    'Try to create a Publication with an invalid inDirection value',
+    'Try to create a Source with an invalid inDirection value',
     async () => {
       const res = await request(app)
-        .post('/publications')
+        .post('/sources')
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            name: 'Publication C',
+            name: 'Source C',
             type: 'Book',
             inDirection: 'invalid value'
           })
@@ -932,17 +911,17 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        `Publication validation error: inDirection should be either "ltr" or "rtl"`
+        `Source validation error: inDirection should be either "ltr" or "rtl"`
       )
-      await tap.equal(error.details.requestUrl, '/publications')
+      await tap.equal(error.details.requestUrl, '/sources')
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.name, 'Publication C')
+      await tap.equal(error.details.requestBody.name, 'Source C')
     }
   )
 
-  await tap.test('Try to create a Publication without a body', async () => {
+  await tap.test('Try to create a Source without a body', async () => {
     const res = await request(app)
-      .post('/publications')
+      .post('/sources')
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -953,9 +932,9 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      `Create Publication Error: Request body must be a JSON object`
+      `Create Source Error: Request body must be a JSON object`
     )
-    await tap.equal(error.details.requestUrl, '/publications')
+    await tap.equal(error.details.requestUrl, '/sources')
   })
 
   await destroyDB(app)

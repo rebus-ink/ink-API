@@ -2,7 +2,7 @@ const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { Reader } = require('../../models/Reader')
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
 
@@ -14,9 +14,9 @@ const test = async app => {
 
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
-  const simplePublication = {
+  const simpleSource = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     readingOrder: [
       {
         type: 'Link',
@@ -33,10 +33,7 @@ const test = async app => {
     ]
   }
 
-  const publication = await Publication.createPublication(
-    createdReader,
-    simplePublication
-  )
+  const source = await Source.createSource(createdReader, simpleSource)
 
   const selectorJsonObject = {
     selector: { property: 'value' },
@@ -50,7 +47,7 @@ const test = async app => {
   await tap.test('Create ReadActivity with selector and json', async () => {
     let readActivity = await ReadActivity.createReadActivity(
       createdReader.id,
-      publication.id,
+      source.id,
       selectorJsonObject
     )
 
@@ -61,7 +58,7 @@ const test = async app => {
     await tap.ok(readActivity)
     await tap.equal(readActivity.id, lastReadActivity.id)
     await tap.equal(readActivity.readerId, createdReader.id)
-    await tap.equal(readActivity.publicationId, publication.id)
+    await tap.equal(readActivity.sourceId, source.id)
     await tap.equal(readActivity.selector.property, 'value')
     await tap.equal(readActivity.json.anotherProperty, 88)
   })
@@ -69,33 +66,30 @@ const test = async app => {
   await tap.test('Create ReadActivity with selector only', async () => {
     let readActivity = await ReadActivity.createReadActivity(
       urlToId(createdReader.id),
-      urlToId(publication.id),
+      urlToId(source.id),
       selectorObject
     )
 
     await tap.ok(readActivity)
     await tap.equal(readActivity.readerId, createdReader.id)
-    await tap.equal(readActivity.publicationId, publication.id)
+    await tap.equal(readActivity.sourceId, source.id)
     await tap.equal(readActivity.selector.property, 'someValue')
     await tap.equal(readActivity.json, null)
   })
 
-  await tap.test(
-    'Create ReadActivity with non-existent publicationId',
-    async () => {
-      try {
-        await ReadActivity.createReadActivity(
-          urlToId(createdReader.id),
-          urlToId(publication.id + 'AnotherRandomString'),
-          selectorObject
-        )
-      } catch (err) {
-        await tap.equal(err.message, 'no publication')
-      }
+  await tap.test('Create ReadActivity with non-existent sourceId', async () => {
+    try {
+      await ReadActivity.createReadActivity(
+        urlToId(createdReader.id),
+        urlToId(source.id + 'AnotherRandomString'),
+        selectorObject
+      )
+    } catch (err) {
+      await tap.equal(err.message, 'no source')
     }
-  )
+  })
 
-  await tap.test('Get latests ReadActivity of a publication', async () => {
+  await tap.test('Get latests ReadActivity of a source', async () => {
     const newReader = {
       name: 'Latest Reader'
     }
@@ -107,18 +101,18 @@ const test = async app => {
 
     await ReadActivity.createReadActivity(
       urlToId(latestReader.id),
-      urlToId(publication.id),
+      urlToId(source.id),
       selectorObject
     )
 
     const lastReadActivity = await ReadActivity.createReadActivity(
       urlToId(latestReader.id),
-      urlToId(publication.id),
+      urlToId(source.id),
       selectorJsonObject
     )
 
     let readActivity = await ReadActivity.getLatestReadActivity(
-      urlToId(publication.id)
+      urlToId(source.id)
     )
 
     await tap.ok(readActivity)
@@ -128,7 +122,7 @@ const test = async app => {
   })
 
   await tap.test(
-    'Get latests ReadActivity with an invalid publicationId',
+    'Get latests ReadActivity with an invalid sourceId',
     async () => {
       let readActivity = await ReadActivity.getLatestReadActivity(null)
 

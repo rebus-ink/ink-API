@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../models/Publication')
+const { Source } = require('../models/Source')
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../utils/utils')
 const { libraryCacheUpdate } = require('../utils/cache')
@@ -24,7 +24,7 @@ module.exports = function (app) {
       process.env.NODE_ENV === 'test' ||
       req.connection.remoteAddress === '10.0.0.1'
     ) {
-      await Publication.query()
+      await Source.query()
         .delete()
         .where('deleted', '<', timestamp)
       await Attribution.query()

@@ -15,8 +15,8 @@ module.exports = app => {
    * /library:
    *   get:
    *     tags:
-   *       - publications
-   *     description: GET a collection of publications and tags for a reader
+   *       - sources
+   *     description: GET a collection of sources and tags for a reader
    *     parameters:
    *       - in: path
    *         name: id
@@ -72,8 +72,8 @@ module.exports = app => {
    *         name: type
    *         schema:
    *           type: string
-   *         enum: ['Article', 'Blog', 'Book', 'Chapter', 'Collection', 'Comment', 'Conversation', 'Course', 'Dataset', 'Drawing', 'Episode', 'Manuscript', 'Map', 'MediaObject', 'MusicRecording', 'Painting', 'Photograph', 'Play', 'Poster', 'PublicationIssue', 'PublicationVolume', 'Review', 'ShortStory', 'Thesis', 'VisualArtwork', 'WebContent']
-   *         description: the type of publication to filter by.
+   *         enum: ['Article', 'Blog', 'Book', 'Chapter', 'Collection', 'Comment', 'Conversation', 'Course', 'Dataset', 'Drawing', 'Episode', 'Manuscript', 'Map', 'MediaObject', 'MusicRecording', 'Painting', 'Photograph', 'Play', 'Poster', 'SourceIssue', 'SourceVolume', 'Review', 'ShortStory', 'Thesis', 'VisualArtwork', 'WebContent']
+   *         description: the type of source to filter by.
    *       - in: query
    *         name: keyword
    *         schema:
@@ -88,7 +88,7 @@ module.exports = app => {
    *         schema:
    *           type: string
    *           enum: ['title', 'datePublished', 'type']
-   *         description: used to order either alphabetically by title or type or by date of creation of the publication object (most recent first)
+   *         description: used to order either alphabetically by title or type or by date of creation of the source object (most recent first)
    *       - in: query
    *         name: reverse
    *         schema:
@@ -106,7 +106,7 @@ module.exports = app => {
    *       - application/json
    *     responses:
    *       200:
-   *         description: A list of publications for the reader
+   *         description: A list of sources for the reader
    *         content:
    *           application/json:
    *             schema:
@@ -170,17 +170,17 @@ module.exports = app => {
             returnedReader = reader
             // skip count query if we know we are at the last page
             if (
-              reader.publications.length < req.query.limit &&
-              reader.publications.length > 0
+              reader.sources.length < req.query.limit &&
+              reader.sources.length > 0
             ) {
-              return Promise.resolve(reader.publications.length + req.skip)
+              return Promise.resolve(reader.sources.length + req.skip)
             }
             return Library.getLibraryCount(urlToId(reader.id), filters)
           }
         })
         .then(count => {
           let reader = returnedReader
-          let publications = reader.publications.map(pub => {
+          let sources = reader.sources.map(pub => {
             return _.pick(pub.toJSON(), [
               'id',
               'name',
@@ -203,7 +203,7 @@ module.exports = app => {
           res.end(
             JSON.stringify({
               totalItems: parseInt(count),
-              items: publications,
+              items: sources,
               tags: reader.tags,
               page: req.query.page,
               pageSize: parseInt(req.query.limit)

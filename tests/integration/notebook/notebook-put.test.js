@@ -4,7 +4,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNoteContext,
   createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')

@@ -63,19 +63,19 @@ const createReader = async (app, token, object = {}) => {
   return response.body
 }
 
-const createPublication = async (app, token, object = {}) => {
-  const publicationDate = new Date(2002, 12, 25).toISOString()
-  const pubObject = Object.assign(
+const createSource = async (app, token, object = {}) => {
+  const sourceDate = new Date(2002, 12, 25).toISOString()
+  const sourceObject = Object.assign(
     {
       type: 'Book',
-      name: 'publication name',
+      name: 'source name',
       author: 'generic author',
       editor: 'generic editor',
       abstract: 'this is a description!!',
       numberOfPages: 100,
       encodingFormat: 'epub',
       keywords: 'one, two',
-      datePublished: publicationDate,
+      datePublished: sourceDate,
       readingOrder: [
         {
           type: 'Link',
@@ -124,11 +124,11 @@ const createPublication = async (app, token, object = {}) => {
   )
 
   const response = await request(app)
-    .post('/publications')
+    .post('/sources')
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
-    .send(JSON.stringify(pubObject))
+    .send(JSON.stringify(sourceObject))
 
   return response.body
 }
@@ -264,22 +264,22 @@ const addNoteToOutline = async (app, token, contextId, object) => {
   return response.body
 }
 
-const addPubToCollection = async (app, token, pubId, tagId) => {
+const addSourceToCollection = async (app, token, sourceId, tagId) => {
   tagId = urlToId(tagId)
-  pubId = urlToId(pubId)
+  sourceId = urlToId(sourceId)
   const res = await request(app)
-    .put(`/publications/${pubId}/tags/${tagId}`)
+    .put(`/sources/${sourceId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
   return res
 }
 
-const addPubToNotebook = async (app, token, pubId, notebookId) => {
-  pubId = urlToId(pubId)
+const addSourceToNotebook = async (app, token, sourceId, notebookId) => {
+  sourceId = urlToId(sourceId)
   notebookId = urlToId(notebookId)
   const res = await request(app)
-    .put(`/notebooks/${notebookId}/publications/${pubId}`)
+    .put(`/notebooks/${notebookId}/sources/${sourceId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
@@ -337,10 +337,10 @@ module.exports = {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createTag,
-  addPubToCollection,
+  addSourceToCollection,
   addNoteToCollection,
   createNoteRelation,
   createNoteContext,
@@ -350,7 +350,7 @@ module.exports = {
   createReader,
   createOutline,
   createNotebook,
-  addPubToNotebook,
+  addSourceToNotebook,
   addNoteToNotebook,
   addTagToNotebook
 }

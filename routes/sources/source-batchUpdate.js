@@ -3,7 +3,7 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
@@ -22,14 +22,14 @@ const batchUpdateArrayProperties = ['keywords', 'inLanguage']
 module.exports = function (app) {
   /**
    * @swagger
-   * /publications/batchUpdate:
+   * /sources/batchUpdate:
    *   patch:
    *     tags:
-   *       - publications
-   *     description: Apply the same update to multiple publications
+   *       - sources
+   *     description: Apply the same update to multiple sources
    *     parameters:
    *       - in: path
-   *         name: pubId
+   *         name: sourceId
    *         schema:
    *           type: string
    *         required: true
@@ -39,28 +39,28 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/publicationBatchUpdateRequest'
+   *             $ref: '#/definitions/sourceBatchUpdateRequest'
    *       description: body should only include fields to be updated
    *     responses:
    *       204:
-   *         description: Successfully updated Publications
+   *         description: Successfully updated Sources
    *       207:
    *         description: Multiple status. This is returned if at least one of the changes returned an error
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#definitions/publicationBatchUpdateResponse'
+   *               $ref: '#definitions/sourceBatchUpdateResponse'
    */
   app.use('/', router)
   router
-    .route('/publications/batchUpdate')
+    .route('/sources/batchUpdate')
     .patch(jwtAuth, async function (req, res, next) {
       let errors = []
 
       if (!req.body || _.isEmpty(req.body)) {
         return next(
           boom.badRequest(
-            'Batch Update Publication Request Error: Body must be a JSON object',
+            'Batch Update Source Request Error: Body must be a JSON object',
             {
               requestUrl: req.originalUrl,
               requestBody: req.body
@@ -74,13 +74,13 @@ module.exports = function (app) {
       if (!req.body.hasOwnProperty('property')) missingProps.push('property')
       if (!req.body.hasOwnProperty('value')) missingProps.push('value')
       if (!req.body.hasOwnProperty('operation')) missingProps.push('operation')
-      if (!req.body.hasOwnProperty('publications')) {
-        missingProps.push('publications')
+      if (!req.body.hasOwnProperty('sources')) {
+        missingProps.push('sources')
       }
       if (missingProps.length) {
         return next(
           boom.badRequest(
-            `Batch Update Publication Request Error: Body missing properties: ${missingProps} `,
+            `Batch Update Source Request Error: Body missing properties: ${missingProps} `,
             {
               requestUrl: req.originalUrl,
               requestBody: req.body
@@ -99,16 +99,14 @@ module.exports = function (app) {
         )
       }
 
-      req.body.publications.forEach(publicationId => {
-        if (!checkOwnership(reader.id, publicationId)) {
+      req.body.sources.forEach(sourceId => {
+        if (!checkOwnership(reader.id, sourceId)) {
           errors.push({
-            id: publicationId,
+            id: sourceId,
             status: 403,
-            message: `Access to publication ${publicationId} disallowed`
+            message: `Access to source ${sourceId} disallowed`
           })
-          req.body.publications = req.body.publications.filter(
-            item => item !== publicationId
-          )
+          req.body.sources = req.body.sources.filter(item => item !== sourceId)
         }
       })
 
@@ -118,9 +116,9 @@ module.exports = function (app) {
         }
         req.body.value.forEach(tag => {
           if (!checkOwnership(reader.id, urlToId(tag))) {
-            req.body.publications.forEach(publicationId => {
+            req.body.sources.forEach(sourceId => {
               errors.push({
-                id: publicationId,
+                id: sourceId,
                 status: 403,
                 message: `Access to tag ${tag} disallowed`,
                 value: tag
@@ -144,31 +142,31 @@ module.exports = function (app) {
           }
 
           try {
-            const result = await Publication.batchUpdate(req.body)
+            const result = await Source.batchUpdate(req.body)
 
-            // if some publicaitons were note found...
-            if (result < req.body.publications.length || errors.length > 0) {
-              const numberOfErrors = req.body.publications.length - result
+            // if some sources were note found...
+            if (result < req.body.sources.length || errors.length > 0) {
+              const numberOfErrors = req.body.sources.length - result
               const status = []
               let index = 0
               while (
                 status.length < numberOfErrors ||
-                index < req.body.publications.length
+                index < req.body.sources.length
               ) {
-                const exists = await Publication.checkIfExists(
-                  req.body.publications[index]
+                const exists = await Source.checkIfExists(
+                  req.body.sources[index]
                 )
                 if (!exists) {
                   status.push({
-                    id: req.body.publications[index],
+                    id: req.body.sources[index],
                     status: 404,
-                    message: `No Publication found with id ${
-                      req.body.publications[index]
+                    message: `No Source found with id ${
+                      req.body.sources[index]
                     }`
                   })
                 } else {
                   status.push({
-                    id: req.body.publications[index],
+                    id: req.body.sources[index],
                     status: 204
                   })
                 }
@@ -187,9 +185,7 @@ module.exports = function (app) {
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
-                  `Validation Error on Batch Update Publication: ${
-                    err.message
-                  }`,
+                  `Validation Error on Batch Update Source: ${err.message}`,
                   {
                     requestUrl: req.originalUrl,
                     requestBody: req.body,
@@ -211,7 +207,7 @@ module.exports = function (app) {
         case 'add':
           if (
             batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
-            Publication.attributionTypes.indexOf(req.body.property) === -1 &&
+            Source.attributionTypes.indexOf(req.body.property) === -1 &&
             req.body.property !== 'tags'
           ) {
             return next(
@@ -249,9 +245,7 @@ module.exports = function (app) {
               )
             }
 
-            const result = await Publication.batchUpdateAddArrayProperty(
-              req.body
-            )
+            const result = await Source.batchUpdateAddArrayProperty(req.body)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -261,11 +255,9 @@ module.exports = function (app) {
                 .status(207)
                 .end(JSON.stringify({ status: result.concat(errors) }))
             }
-          } else if (
-            Publication.attributionTypes.indexOf(req.body.property) > -1
-          ) {
+          } else if (Source.attributionTypes.indexOf(req.body.property) > -1) {
             // ATTRIBUTIONS
-            const result = await Publication.batchUpdateAddAttribution(
+            const result = await Source.batchUpdateAddAttribution(
               req.body,
               urlToId(reader.id)
             )
@@ -286,7 +278,7 @@ module.exports = function (app) {
             // TAGS
             // check ownership of tags. First check that they are strings?
 
-            const result = await Publication.batchUpdateAddTags(
+            const result = await Source.batchUpdateAddTags(
               req.body,
               urlToId(reader.id)
             )
@@ -310,7 +302,7 @@ module.exports = function (app) {
         case 'remove':
           if (
             batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
-            Publication.attributionTypes.indexOf(req.body.property) === -1 &&
+            Source.attributionTypes.indexOf(req.body.property) === -1 &&
             req.body.property !== 'tags'
           ) {
             return next(
@@ -348,7 +340,7 @@ module.exports = function (app) {
             }
 
             try {
-              const result = await Publication.batchUpdateRemoveArrayProperty(
+              const result = await Source.batchUpdateRemoveArrayProperty(
                 req.body
               )
               if (!_.find(result, { status: 404 }) && errors.length === 0) {
@@ -363,9 +355,7 @@ module.exports = function (app) {
             } catch (err) {
               console.log(err)
             }
-          } else if (
-            Publication.attributionTypes.indexOf(req.body.property) > -1
-          ) {
+          } else if (Source.attributionTypes.indexOf(req.body.property) > -1) {
             // ATTRIBUTIONS
             // validate values
             if (!_.every(req.body.value, _.isString)) {
@@ -374,9 +364,9 @@ module.exports = function (app) {
                 if (_.isString(value)) {
                   validValues.push(value)
                 } else {
-                  req.body.publications.forEach(pub => {
+                  req.body.sources.forEach(source => {
                     errors.push({
-                      id: pub,
+                      id: source,
                       status: 400,
                       value: value,
                       message: `Values for ${req.body.property} must be strings`
@@ -387,9 +377,7 @@ module.exports = function (app) {
               req.body.value = validValues
             }
 
-            const result = await Publication.batchUpdateRemoveAttribution(
-              req.body
-            )
+            const result = await Source.batchUpdateRemoveAttribution(req.body)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -403,7 +391,7 @@ module.exports = function (app) {
             // TAGS
             // check ownership of tags. First check that they are strings?
 
-            const result = await Publication.batchUpdateRemoveTags(
+            const result = await Source.batchUpdateRemoveTags(
               req.body,
               urlToId(reader.id)
             )
@@ -427,7 +415,7 @@ module.exports = function (app) {
         default:
           return next(
             boom.badRequest(
-              `Batch Update Publication Request Error: ${
+              `Batch Update Source Request Error: ${
                 req.body.operation
               } is not a valid operation. Must be 'replace', 'add' or 'remove' `,
               {

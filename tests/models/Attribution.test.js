@@ -1,7 +1,7 @@
 const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
-const { Publication } = require('../../models/Publication')
+const { Source } = require('../../models/Source')
 const { Attribution } = require('../../models/Attribution')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
@@ -14,9 +14,9 @@ const test = async app => {
 
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
-  const simplePublication = {
+  const simpleSource = {
     type: 'Book',
-    name: 'Publication A',
+    name: 'Source A',
     readingOrder: [
       {
         type: 'Link',
@@ -31,10 +31,7 @@ const test = async app => {
     ]
   }
 
-  const publication = await Publication.createPublication(
-    createdReader,
-    simplePublication
-  )
+  const source = await Source.createSource(createdReader, simpleSource)
 
   const attributionObject = {
     name: 'Seymour Butts',
@@ -55,7 +52,7 @@ const test = async app => {
     let response = await Attribution.createAttribution(
       attributionObject,
       'author',
-      publication
+      source
     )
     await tap.ok(response)
     await tap.ok(response instanceof Attribution)
@@ -67,7 +64,7 @@ const test = async app => {
     let response = await Attribution.createAttribution(
       attributionString,
       'editor',
-      publication
+      source
     )
     await tap.ok(response)
     await tap.ok(response instanceof Attribution)
@@ -80,7 +77,7 @@ const test = async app => {
       await Attribution.createAttribution(
         invalidAttributionObject,
         'author',
-        publication
+        source
       )
     } catch (err) {
       await tap.equal(
@@ -92,11 +89,7 @@ const test = async app => {
 
   await tap.test('Try to create Attribution without a name', async () => {
     try {
-      await Attribution.createAttribution(
-        { type: 'Person' },
-        'author',
-        publication
-      )
+      await Attribution.createAttribution({ type: 'Person' }, 'author', source)
     } catch (err) {
       await tap.equal(
         err.message,
@@ -112,11 +105,11 @@ const test = async app => {
     await tap.ok(response instanceof Attribution)
   })
 
-  await tap.test('Get all attributions by publicationId', async () => {
-    await Attribution.createAttribution('Sonya Rabhi', 'editor', publication)
+  await tap.test('Get all attributions by sourceId', async () => {
+    await Attribution.createAttribution('Sonya Rabhi', 'editor', source)
 
-    let attributions = await Attribution.getAttributionByPubId(
-      urlToId(publication.id)
+    let attributions = await Attribution.getAttributionBySourceId(
+      urlToId(source.id)
     )
 
     let isSonyaFound = false
@@ -137,19 +130,19 @@ const test = async app => {
   })
 
   await tap.test(
-    'Delete attributions with a certain role of a given publication',
+    'Delete attributions with a certain role of a given source',
     async () => {
-      await Attribution.createAttribution('John Doe', 'author', publication)
+      await Attribution.createAttribution('John Doe', 'author', source)
 
-      await Attribution.createAttribution('Bugs Bunny', 'editor', publication)
+      await Attribution.createAttribution('Bugs Bunny', 'editor', source)
 
-      let numDeleted = await Attribution.deleteAttributionOfPub(
-        urlToId(publication.id),
+      let numDeleted = await Attribution.deleteAttributionOfSource(
+        urlToId(source.id),
         'author'
       )
 
-      let attributions = await Attribution.getAttributionByPubId(
-        urlToId(publication.id)
+      let attributions = await Attribution.getAttributionBySourceId(
+        urlToId(source.id)
       )
 
       let isBunnyFound = false

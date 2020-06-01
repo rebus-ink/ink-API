@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
 const { ReadActivity } = require('../../../models/ReadActivity')
@@ -20,13 +20,13 @@ const test = async app => {
   }
   const reader1 = await Reader.createReader(readerId, person)
 
-  // Create Publication
-  const publication = await createPublication(app, token, urlToId(readerId))
-  const publicationId = urlToId(publication.id)
+  // Create Source
+  const source = await createSource(app, token, urlToId(readerId))
+  const sourceId = urlToId(source.id)
 
   await tap.test('Create Read activity with only a selector', async () => {
     const readActivity = await request(app)
-      .post(`/publications/${publicationId}/readActivity`)
+      .post(`/sources/${sourceId}/readActivity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -41,17 +41,17 @@ const test = async app => {
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
     await tap.equal(body.selector.type, 'XPathSelector')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
 
     // Get the latests ReadActivity
-    const latestAct = await ReadActivity.getLatestReadActivity(publicationId)
+    const latestAct = await ReadActivity.getLatestReadActivity(sourceId)
     await tap.equal(latestAct.readerId, reader1.authId)
-    await tap.equal(urlToId(latestAct.publicationId), publicationId)
+    await tap.equal(urlToId(latestAct.sourceId), sourceId)
   })
 
   await tap.test('Create a ReadActivity with json', async () => {
     const readActivity = await request(app)
-      .post(`/publications/${publicationId}/readActivity`)
+      .post(`/sources/${sourceId}/readActivity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -66,11 +66,11 @@ const test = async app => {
       )
 
     // Get the latests ReadActivity
-    await ReadActivity.getLatestReadActivity(publicationId)
+    await ReadActivity.getLatestReadActivity(sourceId)
     await tap.equal(readActivity.statusCode, 201)
     const body = readActivity.body
     await tap.equal(body.selector.type, 'XPathSelector')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.equal(body.json.property, 'value')
   })
 
@@ -78,7 +78,7 @@ const test = async app => {
     'Try to create a ReadActivity without a selector',
     async () => {
       const readActivity = await request(app)
-        .post(`/publications/${publicationId}/readActivity`)
+        .post(`/sources/${sourceId}/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -93,7 +93,7 @@ const test = async app => {
       )
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}/readActivity`
+        `/sources/${sourceId}/readActivity`
       )
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.json.property, 'value')
@@ -107,10 +107,10 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to create a ReadActivity with invalid pubId',
+    'Try to create a ReadActivity with invalid sourceId',
     async () => {
       const res = await request(app)
-        .post(`/publications/${publicationId}abc/readActivity`)
+        .post(`/sources/${sourceId}abc/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -126,13 +126,10 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 404)
       await tap.equal(error.error, 'Not Found')
-      await tap.equal(
-        error.message,
-        `No Publication found with id ${publicationId}abc`
-      )
+      await tap.equal(error.message, `No Source found with id ${sourceId}abc`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}abc/readActivity`
+        `/sources/${sourceId}abc/readActivity`
       )
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.json.property, 'value')

@@ -18,9 +18,9 @@ exports.up = function (knex, Promise) {
       .string('document')
       .index()
     table
-      .string('publicationId')
+      .string('sourceId')
       .references('id')
-      .inTable('Publication')
+      .inTable('Source')
       .onDelete('SET NULL')
       .index()
     table

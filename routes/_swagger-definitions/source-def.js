@@ -1,7 +1,7 @@
 // DEFINITIONS for
 // annotation
 // link
-// publication
+// source
 
 /**
  * @swagger
@@ -40,7 +40,7 @@
  *     required:
  *       - url
  *
- *   publication:
+ *   source:
  *     properties:
  *       id:
  *         type: string
@@ -114,13 +114,13 @@
  *           type: string
  *           format: url
  *         readOnly: true
- *         description: url Ids for Notes that belong to this publication
+ *         description: url Ids for Notes that belong to this source
  *       tags:
  *         type: array
  *         items:
  *           $ref: '#/definitions/tag'
  *         readOnly: true
- *         description: tags assigned to this publication
+ *         description: tags assigned to this source
  *       abstract:
  *         type: string
  *       datePublished:
@@ -210,7 +210,7 @@
  *       - type
  *       - published
  *
- *   publication-ref:
+ *   source-ref:
  *     properties:
  *       id:
  *         type: string
@@ -310,6 +310,6 @@
  *       items:
  *         type: array
  *         items:
- *           $ref: '#/definitions/publication-ref'
+ *           $ref: '#/definitions/source-ref'
  *
  */

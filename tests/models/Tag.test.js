@@ -2,8 +2,8 @@ const tap = require('tap')
 const { destroyDB } = require('../utils/testUtils')
 const { Reader } = require('../../models/Reader')
 const { Tag } = require('../../models/Tag')
-const { Publication_Tag } = require('../../models/Publications_Tags')
-const { Publication } = require('../../models/Publication')
+const { Source_Tag } = require('../../models/Source_Tag')
+const { Source } = require('../../models/Source')
 const { Notebook } = require('../../models/Notebook')
 const crypto = require('crypto')
 const { urlToId } = require('../../utils/utils')
@@ -24,8 +24,8 @@ const test = async app => {
 
   const createdReader = await Reader.createReader(`auth0|foo${random}`, reader)
 
-  const simplePublication = {
-    name: 'Publication A',
+  const simpleSource = {
+    name: 'Source A',
     type: 'Book',
     readingOrder: [
       {
@@ -43,12 +43,9 @@ const test = async app => {
     ]
   }
 
-  let response = await Publication.createPublication(
-    createdReader,
-    simplePublication
-  )
+  let response = await Source.createSource(createdReader, simpleSource)
 
-  const publication = await Publication.byId(urlToId(response.id))
+  const source = await Source.byId(urlToId(response.id))
 
   const notebook = await Notebook.createNotebook(
     { name: 'test' },
@@ -131,7 +128,7 @@ const test = async app => {
     await tap.ok(responseGet[3] instanceof Tag)
   })
 
-  await tap.test('Delete Publication_Tags of a Tag', async () => {
+  await tap.test('Delete Source_Tags of a Tag', async () => {
     // Create 2 additional tags for testing purposes
     const createdTag2 = await Tag.createTag(urlToId(createdReader.id), {
       type: 'stack',
@@ -143,38 +140,38 @@ const test = async app => {
       name: 'mystack3'
     })
 
-    await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag2.id)
+    await Source_Tag.addTagToSource(urlToId(source.id), createdTag2.id)
 
-    await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag3.id)
+    await Source_Tag.addTagToSource(urlToId(source.id), createdTag3.id)
 
-    // Get the Publication with 2 new tags
-    const pub = await Publication.byId(urlToId(publication.id))
+    // Get the Source with 2 new tags
+    const source2 = await Source.byId(urlToId(source.id))
 
-    await tap.equal(pub.tags.length, 2)
+    await tap.equal(source2.tags.length, 2)
     await tap.ok(
-      pub.tags[0].name === 'mystack2' || pub.tags[0].name === 'mystack3'
+      source2.tags[0].name === 'mystack2' || source2.tags[0].name === 'mystack3'
     )
     await tap.ok(
-      pub.tags[1].name === 'mystack3' || pub.tags[1].name === 'mystack2'
+      source2.tags[1].name === 'mystack3' || source2.tags[1].name === 'mystack2'
     )
 
-    // Delete the entries in Publication_Tag of createdTag2
-    const numDeleted = await Publication_Tag.deletePubTagsOfTag(
+    // Delete the entries in Source_Tag of createdTag2
+    const numDeleted = await Source_Tag.deleteSourceTagsOfTag(
       urlToId(createdTag2.id)
     )
 
-    // Get the updated Publication
-    const newPub = await Publication.byId(urlToId(publication.id))
+    // Get the updated Source
+    const newSource = await Source.byId(urlToId(source.id))
 
     await tap.equal(numDeleted, 1)
-    await tap.equal(newPub.tags.length, 1)
-    await tap.equal(newPub.tags[0].name, createdTag3.name)
+    await tap.equal(newSource.tags.length, 1)
+    await tap.equal(newSource.tags[0].name, createdTag3.name)
 
-    await Publication_Tag.deletePubTagsOfTag(urlToId(createdTag3.id))
+    await Source_Tag.deleteSourceTagsOfTag(urlToId(createdTag3.id))
   })
 
   await tap.test(
-    'Delete Publication_Tags of a Tag with a tagId that does not exist',
+    'Delete Source_Tags of a Tag with a tagId that does not exist',
     async () => {
       // Create 2 additional tags for testing purposes
       const createdTag4 = await Tag.createTag(urlToId(createdReader.id), {
@@ -182,27 +179,27 @@ const test = async app => {
         name: 'mystack4'
       })
 
-      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag4.id)
+      await Source_Tag.addTagToSource(urlToId(source.id), createdTag4.id)
 
-      // Get the Publication with 2 new tags
-      const pub = await Publication.byId(urlToId(publication.id))
+      // Get the Source with 2 new tags
+      const source2 = await Source.byId(urlToId(source.id))
 
-      await tap.equal(pub.tags.length, 1)
-      await tap.equal(pub.tags[0].name, 'mystack4')
+      await tap.equal(source2.tags.length, 1)
+      await tap.equal(source2.tags[0].name, 'mystack4')
 
-      // Delete the entries in Publication_Tag of createdTag2
-      const numDeleted = await Publication_Tag.deletePubTagsOfTag(
+      // Delete the entries in Source_Tag of createdTag2
+      const numDeleted = await Source_Tag.deleteSourceTagsOfTag(
         urlToId(createdTag4.id) + 'randomString'
       )
 
       await tap.equal(numDeleted, 0)
 
-      await Publication_Tag.deletePubTagsOfTag(urlToId(createdTag4.id))
+      await Source_Tag.deleteSourceTagsOfTag(urlToId(createdTag4.id))
     }
   )
 
   await tap.test(
-    'Delete Publication_Tags of a Tag with a tagId that is invalid',
+    'Delete Source_Tags of a Tag with a tagId that is invalid',
     async () => {
       // Create 2 additional tags for testing purposes
       const createdTag5 = await Tag.createTag(urlToId(createdReader.id), {
@@ -210,21 +207,21 @@ const test = async app => {
         name: 'mystack5'
       })
 
-      await Publication_Tag.addTagToPub(urlToId(publication.id), createdTag5.id)
+      await Source_Tag.addTagToSource(urlToId(source.id), createdTag5.id)
 
-      // Get the Publication with 2 new tags
-      const pub = await Publication.byId(urlToId(publication.id))
+      // Get the Source with 2 new tags
+      const source2 = await Source.byId(urlToId(source.id))
 
-      await tap.equal(pub.tags.length, 1)
-      await tap.equal(pub.tags[0].name, 'mystack5')
+      await tap.equal(source2.tags.length, 1)
+      await tap.equal(source2.tags[0].name, 'mystack5')
 
-      // Delete the entries in Publication_Tag of createdTag2
-      const responseDelete = await Publication_Tag.deletePubTagsOfTag(null)
+      // Delete the entries in Source_Tag of createdTag2
+      const responseDelete = await Source_Tag.deleteSourceTagsOfTag(null)
 
       await tap.ok(typeof responseDelete, Error)
       await tap.equal(responseDelete.message, 'no tag')
 
-      await Publication_Tag.deletePubTagsOfTag(urlToId(createdTag5.id))
+      await Source_Tag.deleteSourceTagsOfTag(urlToId(createdTag5.id))
     }
   )
 
@@ -237,14 +234,14 @@ const test = async app => {
 
     const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
-    // Add tag to a publiction
-    await Publication_Tag.addTagToPub(urlToId(publication.id), tagCreated.id)
+    // Add tag to a source
+    await Source_Tag.addTagToSource(urlToId(source.id), tagCreated.id)
 
-    // Fetch the publication to make sure there is a tag
-    const pubBefore = await Publication.byId(urlToId(publication.id))
+    // Fetch the source to make sure there is a tag
+    const sourceBefore = await Source.byId(urlToId(source.id))
 
-    await tap.equal(pubBefore.tags.length, 1)
-    await tap.equal(pubBefore.tags[0].name, tagCreated.name)
+    await tap.equal(sourceBefore.tags.length, 1)
+    await tap.equal(sourceBefore.tags[0].name, tagCreated.name)
 
     // Delete the tag
     const numDeleted = await tagCreated.delete()
@@ -252,12 +249,12 @@ const test = async app => {
     // Try to fetch the deleted tag from library
     const tagDeleted = await Tag.byId(tagCreated.id)
 
-    // Fetch the publication to make sure there there is no tag
-    const pubAfter = await Publication.byId(urlToId(publication.id))
+    // Fetch the source to make sure there there is no tag
+    const sourceAfter = await Source.byId(urlToId(source.id))
 
     await tap.equal(numDeleted, 1)
     await tap.ok(!tagDeleted)
-    await tap.equal(pubAfter.tags.length, 0)
+    await tap.equal(sourceAfter.tags.length, 0)
   })
 
   await tap.test('Update tag', async () => {
@@ -269,14 +266,14 @@ const test = async app => {
 
     const tagCreated = await Tag.createTag(createdReader.id, newTagObject)
 
-    // Add tag to a publiction
-    await Publication_Tag.addTagToPub(urlToId(publication.id), tagCreated.id)
+    // Add tag to a source
+    await Source_Tag.addTagToSource(urlToId(source.id), tagCreated.id)
 
-    // Fetch the publication to make sure there is a tag
-    const pubBefore = await Publication.byId(urlToId(publication.id))
+    // Fetch the source to make sure there is a tag
+    const sourceBefore = await Source.byId(urlToId(source.id))
 
-    await tap.equal(pubBefore.tags.length, 1)
-    await tap.equal(pubBefore.tags[0].name, tagCreated.name)
+    await tap.equal(sourceBefore.tags.length, 1)
+    await tap.equal(sourceBefore.tags[0].name, tagCreated.name)
     // Update the tag - name and json should be updated, invalid should be ignored
     const updatedTag = await tagCreated.update(
       Object.assign(tagCreated, {
@@ -295,9 +292,9 @@ const test = async app => {
     const tag = await Tag.byId(tagCreated.id)
     await tap.equal(tag.name, 'new name')
 
-    // Fetch the publication to make sure there there is no tag
-    const pubAfter = await Publication.byId(urlToId(publication.id))
-    await tap.equal(pubAfter.tags[0].name, 'new name')
+    // Fetch the source to make sure there there is no tag
+    const sourceAfter = await Source.byId(urlToId(source.id))
+    await tap.equal(sourceAfter.tags[0].name, 'new name')
   })
 
   await tap.test('Try to update tag with invalid data', async () => {

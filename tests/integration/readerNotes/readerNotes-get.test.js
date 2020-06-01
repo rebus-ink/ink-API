@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createNoteContext,
   addNoteToContext,
@@ -18,15 +18,15 @@ const test = async app => {
   const token = getToken()
   const readerId = await createUser(app, token)
 
-  const publication = await createPublication(app, token, {
-    name: 'Publication A'
+  const source = await createSource(app, token, {
+    name: 'Source A'
   })
-  const publicationUrl = publication.id
-  const publicationId = urlToId(publication.id)
+  const sourceUrl = source.id
+  const sourceId = urlToId(source.id)
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { publicationId, body: { motivation: 'test' } },
+      { sourceId, body: { motivation: 'test' } },
       object
     )
     return await createNote(app, token, noteObj)
@@ -73,36 +73,33 @@ const test = async app => {
     await tap.ok(firstItem.body)
     await tap.ok(firstItem.body[0].content)
     await tap.equal(firstItem.body[0].motivation, 'test')
-    await tap.ok(firstItem.publicationId)
-    // notes should include publication information
-    await tap.ok(firstItem.publication)
-    await tap.type(firstItem.publication.name, 'string')
-    await tap.ok(firstItem.publication.author)
-    await tap.type(firstItem.publication.author[0].name, 'string')
+    await tap.ok(firstItem.sourceId)
+    // notes should include source information
+    await tap.ok(firstItem.source)
+    await tap.type(firstItem.source.name, 'string')
+    await tap.ok(firstItem.source.author)
+    await tap.type(firstItem.source.author[0].name, 'string')
     // should include tags
     await tap.ok(firstItem.tags)
     await tap.equal(firstItem.tags.length, 1)
   })
 
-  await tap.test(
-    'Should also include notes without a publicationId',
-    async () => {
-      await createNote(app, token, {
-        body: { motivation: 'test' }
-      })
+  await tap.test('Should also include notes without a sourceId', async () => {
+    await createNote(app, token, {
+      body: { motivation: 'test' }
+    })
 
-      const res = await request(app)
-        .get('/notes')
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token}`)
-        .type('application/ld+json')
+    const res = await request(app)
+      .get('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-      await tap.equal(res.status, 200)
-      const body = res.body
-      await tap.equal(body.totalItems, 4)
-      await tap.equal(body.items.length, 4)
-    }
-  )
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.equal(body.totalItems, 4)
+    await tap.equal(body.items.length, 4)
+  })
 
   await tap.test('Should not include notes that have a contextId', async () => {
     const context = await createNoteContext(app, token)

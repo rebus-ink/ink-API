@@ -1,4 +1,4 @@
-const { Publication } = require('./Publication')
+const { Source } = require('./Source')
 const { Attribution } = require('./Attribution')
 const { Reader } = require('./Reader')
 
@@ -15,35 +15,30 @@ class Library {
         filter.type.substring(1).toLowerCase()
     }
 
-    let builder = Publication.query(Publication.knex())
-      .select('Publication.id')
-      .from('Publication')
-    builder.distinct('Publication.id')
-    builder.whereNull('Publication.deleted')
-    builder.where('Publication.readerId', '=', readerId)
+    let builder = Source.query(Source.knex())
+      .select('Source.id')
+      .from('Source')
+    builder.distinct('Source.id')
+    builder.whereNull('Source.deleted')
+    builder.where('Source.readerId', '=', readerId)
     if (filter.title) {
       const title = filter.title.toLowerCase()
-      builder.where('Publication.name', 'ilike', `%${title}%`)
+      builder.where('Source.name', 'ilike', `%${title}%`)
     }
     if (filter.language) {
-      builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
+      builder.whereJsonSupersetOf('Source.metadata:inLanguage', [
         filter.language
       ])
     }
     if (filter.keyword) {
-      builder.whereJsonSupersetOf('Publication.metadata:keywords', [
+      builder.whereJsonSupersetOf('Source.metadata:keywords', [
         filter.keyword.toLowerCase()
       ])
     }
     if (filter.type) {
-      builder.where('Publication.type', '=', type)
+      builder.where('Source.type', '=', type)
     }
-    builder.leftJoin(
-      'Attribution',
-      'Attribution.publicationId',
-      '=',
-      'Publication.id'
-    )
+    builder.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
 
     if (filter.author) {
       builder
@@ -59,14 +54,14 @@ class Library {
     builder.withGraphFetched('[tags, attributions]')
     if (filter.collection) {
       builder.leftJoin(
-        'publication_tag as publication_tag_collection',
-        'publication_tag_collection.publicationId',
+        'source_tag as source_tag_collection',
+        'source_tag_collection.sourceId',
         '=',
-        'Publication.id'
+        'Source.id'
       )
       builder.leftJoin(
         'Tag as Tag_collection',
-        'publication_tag_collection.tagId',
+        'source_tag_collection.tagId',
         '=',
         'Tag_collection.id'
       )
@@ -77,14 +72,14 @@ class Library {
     }
     if (filter.tag) {
       builder.leftJoin(
-        'publication_tag as publication_tag_tag',
-        'publication_tag_tag.publicationId',
+        'source_tag as source_tag_tag',
+        'source_tag_tag.sourceId',
         '=',
-        'Publication.id'
+        'Source.id'
       )
       builder.leftJoin(
         'Tag as Tag_tag',
-        'publication_tag_tag.tagId',
+        'source_tag_tag.tagId',
         '=',
         'Tag_tag.id'
       )
@@ -95,11 +90,11 @@ class Library {
       const search = filter.search.toLowerCase()
       builder.where(nestedBuilder => {
         nestedBuilder
-          .where('Publication.name', 'ilike', `%${search}%`)
+          .where('Source.name', 'ilike', `%${search}%`)
           .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
-          .orWhere('Publication.abstract', 'ilike', `%${search}%`)
-          .orWhere('Publication.description', 'ilike', `%${search}%`)
-          .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+          .orWhere('Source.abstract', 'ilike', `%${search}%`)
+          .orWhere('Source.description', 'ilike', `%${search}%`)
+          .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
       })
     }
 
@@ -128,48 +123,48 @@ class Library {
     const readers = await Reader.query(Reader.knex())
       .where('Reader.authId', '=', readerAuthId)
       .skipUndefined()
-      .withGraphFetched('[tags, publications]')
-      .modifyGraph('publications', builder => {
+      .withGraphFetched('[tags, sources]')
+      .modifyGraph('sources', builder => {
         builder
           .select(
-            'Publication.id',
-            'Publication.metadata',
-            'Publication.name',
-            'Publication.datePublished',
-            'Publication.status',
-            'Publication.type',
-            'Publication.encodingFormat',
-            'Publication.published',
-            'Publication.updated',
-            'Publication.deleted',
-            'Publication.resources',
-            'Publication.links'
+            'Source.id',
+            'Source.metadata',
+            'Source.name',
+            'Source.datePublished',
+            'Source.status',
+            'Source.type',
+            'Source.encodingFormat',
+            'Source.published',
+            'Source.updated',
+            'Source.deleted',
+            'Source.resources',
+            'Source.links'
           )
-          .from('Publication')
-        builder.distinct('Publication.id')
-        builder.whereNull('Publication.deleted')
+          .from('Source')
+        builder.distinct('Source.id')
+        builder.whereNull('Source.deleted')
         if (filter.title) {
           const title = filter.title.toLowerCase()
-          builder.where('Publication.name', 'ilike', `%${title}%`)
+          builder.where('Source.name', 'ilike', `%${title}%`)
         }
         if (filter.language) {
-          builder.whereJsonSupersetOf('Publication.metadata:inLanguage', [
+          builder.whereJsonSupersetOf('Source.metadata:inLanguage', [
             filter.language
           ])
         }
         if (filter.keyword) {
-          builder.whereJsonSupersetOf('Publication.metadata:keywords', [
+          builder.whereJsonSupersetOf('Source.metadata:keywords', [
             filter.keyword.toLowerCase()
           ])
         }
         if (filter.type) {
-          builder.where('Publication.type', '=', type)
+          builder.where('Source.type', '=', type)
         }
         builder.leftJoin(
           'Attribution',
-          'Attribution.publicationId',
+          'Attribution.sourceId',
           '=',
-          'Publication.id'
+          'Source.id'
         )
 
         if (filter.author) {
@@ -190,14 +185,14 @@ class Library {
         builder.withGraphFetched('[tags, attributions]')
         if (filter.collection) {
           builder.leftJoin(
-            'publication_tag as publication_tag_collection',
-            'publication_tag_collection.publicationId',
+            'source_tag as source_tag_collection',
+            'source_tag_collection.sourceId',
             '=',
-            'Publication.id'
+            'Source.id'
           )
           builder.leftJoin(
             'Tag as Tag_collection',
-            'publication_tag_collection.tagId',
+            'source_tag_collection.tagId',
             '=',
             'Tag_collection.id'
           )
@@ -208,14 +203,14 @@ class Library {
         }
         if (filter.tag) {
           builder.leftJoin(
-            'publication_tag as publication_tag_tag',
-            'publication_tag_tag.publicationId',
+            'source_tag as source_tag_tag',
+            'source_tag_tag.sourceId',
             '=',
-            'Publication.id'
+            'Source.id'
           )
           builder.leftJoin(
             'Tag as Tag_tag',
-            'publication_tag_tag.tagId',
+            'source_tag_tag.tagId',
             '=',
             'Tag_tag.id'
           )
@@ -226,18 +221,18 @@ class Library {
           const search = filter.search.toLowerCase()
           builder.where(nestedBuilder => {
             nestedBuilder
-              .where('Publication.name', 'ilike', `%${search}%`)
+              .where('Source.name', 'ilike', `%${search}%`)
               .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
-              .orWhere('Publication.abstract', 'ilike', `%${search}%`)
-              .orWhere('Publication.description', 'ilike', `%${search}%`)
-              .orWhereJsonSupersetOf('Publication.metadata:keywords', [search])
+              .orWhere('Source.abstract', 'ilike', `%${search}%`)
+              .orWhere('Source.description', 'ilike', `%${search}%`)
+              .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
           })
         }
         if (filter.orderBy === 'title') {
           if (filter.reverse) {
-            builder.orderBy('Publication.name', 'desc')
+            builder.orderBy('Source.name', 'desc')
           } else {
-            builder.orderBy('Publication.name')
+            builder.orderBy('Source.name')
           }
         } else if (filter.orderBy === 'datePublished') {
           if (filter.reverse) {
@@ -253,9 +248,9 @@ class Library {
           }
         } else {
           if (filter.reverse) {
-            builder.orderBy('Publication.updated')
+            builder.orderBy('Source.updated')
           } else {
-            builder.orderBy('Publication.updated', 'desc')
+            builder.orderBy('Source.updated', 'desc')
           }
         }
         builder.limit(limit)
