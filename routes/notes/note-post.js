@@ -37,7 +37,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Publication (from note.publicationId) not found
+   *         description: Source (from note.sourceId) not found
    */
   app.use('/', router)
   router.route('/notes').post(jwtAuth, function (req, res, next) {
@@ -77,12 +77,10 @@ module.exports = function (app) {
                 }
               )
             )
-          } else if (err.message === 'no publication') {
+          } else if (err.message === 'no source') {
             return next(
               boom.notFound(
-                `Create Note Error: No Publication found with id: ${
-                  body.publicationId
-                }`,
+                `Create Note Error: No Source found with id: ${body.sourceId}`,
                 {
                   requestUrl: req.originalUrl,
                   requestBody: req.body

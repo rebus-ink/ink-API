@@ -5,8 +5,8 @@ const {
   createUser,
   destroyDB,
   createNotebook,
-  addPubToNotebook,
-  createPublication,
+  addSourceToNotebook,
+  createSource,
   addNoteToNotebook,
   addTagToNotebook,
   createTag,
@@ -16,7 +16,7 @@ const {
 
 const test = async app => {
   const token = getToken()
-  const reader = await createUser(app, token)
+  await createUser(app, token)
 
   const notebook = await createNotebook(app, token, {
     name: 'notebook1',
@@ -41,16 +41,16 @@ const test = async app => {
     await tap.equal(body.description, 'test')
     await tap.equal(body.status, 'archived')
     await tap.equal(body.settings.property, 'value')
-    // notes, tags, notebookTags, pubs, noteContexts
+    // notes, tags, notebookTags, sources, noteContexts
     await tap.equal(body.notes.length, 0)
     await tap.equal(body.tags.length, 0)
     await tap.equal(body.notebookTags.length, 0)
-    await tap.equal(body.publications.length, 0)
+    await tap.equal(body.sources.length, 0)
     await tap.equal(body.noteContexts.length, 0)
   })
 
-  const pub = await createPublication(app, token)
-  await addPubToNotebook(app, token, pub.shortId, notebook.shortId)
+  const source = await createSource(app, token)
+  await addSourceToNotebook(app, token, source.shortId, notebook.shortId)
 
   const note = await createNote(app, token, {
     body: { content: 'test!!', motivation: 'test' }
@@ -69,7 +69,7 @@ const test = async app => {
     notebookId: notebook.shortId
   })
 
-  await tap.test('Get notebook with publication', async () => {
+  await tap.test('Get notebook with source', async () => {
     const res = await request(app)
       .get(`/notebooks/${notebook.shortId}`)
       .set('Host', 'reader-api.test')
@@ -83,7 +83,7 @@ const test = async app => {
     await tap.equal(body.description, 'test')
     await tap.equal(body.status, 'archived')
     await tap.equal(body.settings.property, 'value')
-    // notes, tags, notebookTags, pubs, noteContexts
+    // notes, tags, notebookTags, sources, noteContexts
     await tap.equal(body.notes.length, 1)
     await tap.equal(body.notes[0].shortId, note.shortId)
     await tap.equal(body.notes[0].body[0].content, 'test!!')
@@ -91,8 +91,8 @@ const test = async app => {
     await tap.equal(body.tags[0].id, tag.id)
     await tap.equal(body.notebookTags.length, 1)
     await tap.equal(body.notebookTags[0].id, notebookTag.id)
-    await tap.equal(body.publications.length, 1)
-    await tap.equal(body.publications[0].shortId, pub.shortId)
+    await tap.equal(body.sources.length, 1)
+    await tap.equal(body.sources[0].shortId, source.shortId)
     await tap.equal(body.noteContexts.length, 1)
     await tap.equal(body.noteContexts[0].shortId, notebookNoteContext.shortId)
   })

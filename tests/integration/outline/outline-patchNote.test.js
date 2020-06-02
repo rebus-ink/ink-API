@@ -8,13 +8,11 @@ const {
   createNoteContext,
   addNoteToOutline
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerUrl = await createUser(app, token)
-  const readerId = urlToId(readerUrl)
+  await createUser(app, token)
 
   const outline = await createNoteContext(app, token, {
     name: 'my outline',
@@ -48,7 +46,8 @@ const test = async app => {
     canonical: '6',
     parentId: note3.shortId
   })
-  const note7 = await addNoteToOutline(app, token, outlineId, {
+  // note7
+  await addNoteToOutline(app, token, outlineId, {
     canonical: '7',
     parentId: note3.shortId,
     previous: note6.shortId
@@ -60,7 +59,8 @@ const test = async app => {
     body: { motivation: 'test', content: 'original content' },
     json: { property: 'value' }
   })
-  const note9 = await addNoteToOutline(app, token, outlineId, {
+  // note9
+  await addNoteToOutline(app, token, outlineId, {
     canonical: '9'
   })
 

@@ -3,10 +3,10 @@ const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
-const { Publication } = require('../../../models/Publication')
+const { Source } = require('../../../models/Source')
 const { Attribution } = require('../../../models/Attribution')
 const { ReadActivity } = require('../../../models/ReadActivity')
-const { Publication_Tag } = require('../../../models/Publications_Tags')
+const { Source_Tag } = require('../../../models/Source_Tag')
 const { Tag } = require('../../../models/Tag')
 const _ = require('lodash')
 
@@ -20,47 +20,47 @@ const test = async () => {
   // now
   const timestampNow = new Date(Date.now()).toISOString()
 
-  // create publications
-  const pub1 = await Publication.query().insertAndFetch({
-    name: 'pub1',
+  // create sources
+  const source1 = await Source.query().insertAndFetch({
+    name: 'source1',
     type: 'Article',
     readerId: readerId,
     deleted: timestamp25
   })
-  const pub2 = await Publication.query().insertAndFetch({
-    name: 'pub2',
+  const source2 = await Source.query().insertAndFetch({
+    name: 'source2',
     type: 'Article',
     readerId: readerId,
     deleted: timestamp25
   })
 
   // not deleted
-  const pub3 = await Publication.query().insertAndFetch({
-    name: 'pub3',
+  const source3 = await Source.query().insertAndFetch({
+    name: 'source3',
     type: 'Article',
     readerId: readerId
   })
 
   // deleted recently
-  const pub4 = await Publication.query().insertAndFetch({
-    name: 'pub4',
+  const source4 = await Source.query().insertAndFetch({
+    name: 'source4',
     type: 'Article',
     readerId: readerId,
     deleted: timestampNow
   })
 
-  // pub-tag relation
+  // source-tag relation
   const tag = await Tag.query().insertAndFetch({
     type: 'test',
     name: 'test tag',
     readerId
   })
-  await Publication_Tag.query().insert({
-    publicationId: pub1.id,
+  await Source_Tag.query().insert({
+    sourceId: source1.id,
     tagId: tag.id
   })
-  await Publication_Tag.query().insert({
-    publicationId: pub4.id,
+  await Source_Tag.query().insert({
+    sourceId: source4.id,
     tagId: tag.id
   })
 
@@ -71,17 +71,17 @@ const test = async () => {
     name: 'author1',
     normalizedName: 'johnsmith',
     readerId: readerId,
-    publicationId: pub3.id,
+    sourceId: source3.id,
     deleted: timestamp25
   })
 
-  // not directly deleted, but associated with a deleted publication
+  // not directly deleted, but associated with a deleted source
   await Attribution.query().insertAndFetch({
     role: 'author',
     name: 'author2',
     normalizedName: 'johnsmith2',
     readerId: readerId,
-    publicationId: pub2.id
+    sourceId: source2.id
   })
 
   // not deleted
@@ -90,7 +90,7 @@ const test = async () => {
     name: 'author3',
     normalizedName: 'johnsmith2',
     readerId: readerId,
-    publicationId: pub3.id
+    sourceId: source3.id
   })
 
   // deleted recently
@@ -99,40 +99,40 @@ const test = async () => {
     name: 'author4',
     normalizedName: 'johnsmith2',
     readerId: readerId,
-    publicationId: pub4.id,
+    sourceId: source4.id,
     deleted: timestampNow
   })
 
-  // readActivities -- NOTE: do not have a 'deleted' field, but should be deleted when the publication is
+  // readActivities -- NOTE: do not have a 'deleted' field, but should be deleted when the source is
   await ReadActivity.query().insertAndFetch({
     selector: { property: 'value' },
     readerId: readerId,
-    publicationId: pub1.id
+    sourceId: source1.id
   })
 
   await ReadActivity.query().insertAndFetch({
     selector: { property: 'value' },
     readerId: readerId,
-    publicationId: pub2.id
+    sourceId: source2.id
   })
 
   // not deleted
   await ReadActivity.query().insertAndFetch({
     selector: { property: 'value' },
     readerId: readerId,
-    publicationId: pub3.id
+    sourceId: source3.id
   })
 
   // deleted recently
   await ReadActivity.query().insertAndFetch({
     selector: { property: 'value' },
     readerId: readerId,
-    publicationId: pub4.id
+    sourceId: source4.id
   })
 
   await tap.test('Before hard delete', async () => {
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 4)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 4)
 
     const attributions = await Attribution.query()
     await tap.equal(attributions.length, 4)
@@ -140,8 +140,8 @@ const test = async () => {
     const readActivities = await ReadActivity.query()
     await tap.equal(readActivities.length, 4)
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 2)
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 2)
   })
 
   await tap.test('Hard Delete', async () => {
@@ -152,12 +152,12 @@ const test = async () => {
       .type('application/ld+json')
     await tap.equal(res.status, 204)
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 2)
-    await tap.notOk(_.find(pubs, { name: 'pub1' }))
-    await tap.notOk(_.find(pubs, { name: 'pub2' }))
-    await tap.ok(_.find(pubs, { name: 'pub3' }))
-    await tap.ok(_.find(pubs, { name: 'pub4' }))
+    const sources = await Source.query()
+    await tap.equal(sources.length, 2)
+    await tap.notOk(_.find(sources, { name: 'source1' }))
+    await tap.notOk(_.find(sources, { name: 'source2' }))
+    await tap.ok(_.find(sources, { name: 'source3' }))
+    await tap.ok(_.find(sources, { name: 'source4' }))
 
     const attributions = await Attribution.query()
     await tap.equal(attributions.length, 2)
@@ -168,14 +168,14 @@ const test = async () => {
 
     const readActivities = await ReadActivity.query()
     await tap.equal(readActivities.length, 2)
-    await tap.notOk(_.find(readActivities, { publicationId: pub1.id }))
-    await tap.notOk(_.find(readActivities, { publicationId: pub2.id }))
-    await tap.ok(_.find(readActivities, { publicationId: pub3.id }))
-    await tap.ok(_.find(readActivities, { publicationId: pub4.id }))
+    await tap.notOk(_.find(readActivities, { sourceId: source1.id }))
+    await tap.notOk(_.find(readActivities, { sourceId: source2.id }))
+    await tap.ok(_.find(readActivities, { sourceId: source3.id }))
+    await tap.ok(_.find(readActivities, { sourceId: source4.id }))
 
-    const pub_tags = await Publication_Tag.query()
-    await tap.equal(pub_tags.length, 1)
-    await tap.equal(pub_tags[0].publicationId, pub4.id)
+    const source_tags = await Source_Tag.query()
+    await tap.equal(source_tags.length, 1)
+    await tap.equal(source_tags[0].sourceId, source4.id)
   })
 
   await destroyDB(app)

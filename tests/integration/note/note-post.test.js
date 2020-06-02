@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -13,12 +13,12 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(app, token)
-  const publicationId = urlToId(publication.id)
-  const publicationUrl = publication.id
+  const source = await createSource(app, token)
+  const sourceId = urlToId(source.id)
+  const sourceUrl = source.id
 
-  const publication2 = await createPublication(app, token)
-  const publicationId2 = urlToId(publication2.id)
+  // source2
+  await createSource(app, token)
 
   await tap.test('Create Note with single body', async () => {
     const res = await request(app)
@@ -84,7 +84,7 @@ const test = async app => {
     await tap.equal(body.body[1].motivation, 'test')
   })
 
-  await tap.test('Create Note with publicationId', async () => {
+  await tap.test('Create Note with sourceId', async () => {
     const res = await request(app)
       .post('/notes')
       .set('Host', 'reader-api.test')
@@ -96,7 +96,7 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
-          publicationId,
+          sourceId,
           document: 'doc123'
         })
       )
@@ -108,15 +108,15 @@ const test = async app => {
     await tap.ok(body.body)
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.equal(body.document, 'doc123')
   })
 
   await tap.test(
-    'Note with publicationId should be attached to publication',
+    'Note with sourceId should be attached to source',
     async () => {
       const res = await request(app)
-        .get(`/publications/${urlToId(publicationUrl)}`)
+        .get(`/sources/${urlToId(sourceUrl)}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -272,7 +272,7 @@ const test = async app => {
 
   // // ---------------------------------------- OTHER ERRORS -----------------------------------
 
-  await tap.test('Try to create Note with invalid Publication id', async () => {
+  await tap.test('Try to create Note with invalid Source id', async () => {
     const res = await request(app)
       .post('/notes')
       .set('Host', 'reader-api.test')
@@ -281,7 +281,7 @@ const test = async app => {
       .send(
         JSON.stringify({
           body: { motivation: 'test' },
-          publicationId: publicationId + 'abc'
+          sourceId: sourceId + 'abc'
         })
       )
 
@@ -291,7 +291,7 @@ const test = async app => {
     await tap.equal(error.error, 'Not Found')
     await tap.equal(
       error.message,
-      `Create Note Error: No Publication found with id: ${publicationId}abc`
+      `Create Note Error: No Source found with id: ${sourceId}abc`
     )
     await tap.equal(error.details.requestUrl, `/notes`)
     await tap.type(error.details.requestBody, 'object')

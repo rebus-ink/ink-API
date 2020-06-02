@@ -5,8 +5,6 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
-const _ = require('lodash')
-const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const { NoteContext } = require('../../models/NoteContext')
 
@@ -120,9 +118,8 @@ module.exports = function (app) {
             )
           }
 
-          let deleted
           try {
-            deleted = await Note.delete(req.params.noteId)
+            await Note.delete(req.params.noteId)
           } catch (err) {
             return next(
               boom.badRequest(err.message, {

@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { ReaderNotes } = require('../../models/readerNotes')
-const { getId } = require('../../utils/get-id.js')
 const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
@@ -35,10 +34,10 @@ module.exports = app => {
    *           type: string
    *         description: the document the note is associated with. When this filter is used, will not paginate. Will return all results.
    *       - in: query
-   *         name: publication
+   *         name: source
    *         schema:
    *           type: string
-   *         description: the id of the publication the note is associated with
+   *         description: the id of the source the note is associated with
    *       - in: query
    *         name: motivation
    *         schema:
@@ -113,9 +112,8 @@ module.exports = app => {
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const id = req.params.id
       const filters = {
-        publication: req.query.publication,
+        source: req.query.source,
         document: req.query.document,
         motivation: req.query.motivation,
         search: req.query.search,
@@ -167,7 +165,6 @@ module.exports = app => {
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({
-              id: getId(`/readers/${id}/notes`),
               totalItems: parseInt(count),
               items: reader.replies,
               page: req.query.page,

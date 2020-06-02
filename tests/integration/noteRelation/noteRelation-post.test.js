@@ -22,8 +22,6 @@ const test = async app => {
   })
   const noteId2 = urlToId(note2.id)
 
-  let noteRelation1, noteRelation2
-
   await tap.test('Create NoteRelation', async () => {
     const res = await request(app)
       .post('/noteRelations')

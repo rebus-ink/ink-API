@@ -52,12 +52,12 @@
  *           $ref: '#/definitions/tag'
  *         readOnly: true
  *         description: tags that belong to the notebook
- *       publications:
+ *       sources:
  *         type: array
  *         items:
- *           $ref: '#/definitions/publication'
+ *           $ref: '#/definitions/source'
  *         readOnly: true
- *         description: publications assigned to the notebook
+ *         description: sources assigned to the notebook
  *       notes:
  *         type: array
  *         items:

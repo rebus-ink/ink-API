@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createTag
 } = require('../../utils/testUtils')
@@ -25,11 +25,11 @@ const test = async app => {
   }
   await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(app, token)
+  const source = await createSource(app, token)
 
   // create Note for reader 1
   const note = await createNote(app, token, {
-    publicationId: publication.id,
+    sourceId: source.id,
     body: { motivation: 'test' }
   })
   const noteUrl = note.id

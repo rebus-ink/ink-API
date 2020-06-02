@@ -3,7 +3,7 @@ const router = express.Router()
 const boom = require('@hapi/boom')
 const request = require('request')
 const { urlToId } = require('../utils/utils')
-const { Publication_Tag } = require('../models/Publications_Tags')
+const { Source_Tag } = require('../models/Source_Tag')
 
 /**
  * @swagger
@@ -58,15 +58,15 @@ module.exports = app => {
    *           enum: ['true', 'false']
    *           default: 'false'
    *       - in: query
-   *         name: publication
+   *         name: source
    *         schema:
    *           type: string
-   *         description: the id of the publication to search. Should not be used with a collection filter.
+   *         description: the id of the source to search. Should not be used with a collection filter.
    *       - in: query
    *         name: collection
    *         schema:
    *           type: string
-   *         description: the name of the collection. Should not be used with a publication filter.
+   *         description: the name of the collection. Should not be used with a source filter.
    *     security:
    *       - Bearer: []
    *     produces:
@@ -100,14 +100,14 @@ module.exports = app => {
 
       let query, filter
 
-      // filter by publication?
-      if (req.query.publication) {
-        if (req.query.publication.startsWith('http:')) {
-          req.query.publication = urlToId(req.query.publication)
+      // filter by source?
+      if (req.query.source) {
+        if (req.query.source.startsWith('http:')) {
+          req.query.source = urlToId(req.query.source)
         }
         filter = [
           { term: { readerId: id } },
-          { term: { publicationId: req.query.publication } }
+          { term: { sourceId: req.query.source } }
         ]
       } else {
         filter = [{ term: { readerId: id } }]
@@ -115,14 +115,11 @@ module.exports = app => {
 
       // filter by collection?
       if (req.query.collection) {
-        const list = await Publication_Tag.getIdsByCollection(
+        const list = await Source_Tag.getIdsByCollection(
           req.query.collection,
           id
         )
-        filter = [
-          { term: { readerId: id } },
-          { terms: { publicationId: list } }
-        ]
+        filter = [{ term: { readerId: id } }, { terms: { sourceId: list } }]
       }
 
       // exact search?

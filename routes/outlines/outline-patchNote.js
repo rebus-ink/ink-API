@@ -49,7 +49,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Context or Note not found
+   *         description: Source (from note.sourceId) Context or Note not found
    */
   app.use('/', router)
   router
@@ -146,11 +146,11 @@ module.exports = function (app) {
                   }
                 )
               )
-            } else if (err.message === 'no publication') {
+            } else if (err.message === 'no source') {
               return next(
                 boom.notFound(
-                  `Update Note in Outline Error: No Publication found with id: ${
-                    body.publicationId
+                  `Update Note in Outline Error: No Source found with id: ${
+                    body.sourceId
                   }`,
                   {
                     requestUrl: req.originalUrl,

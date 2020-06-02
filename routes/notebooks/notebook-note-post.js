@@ -44,7 +44,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Notebook or Publication not found
+   *         description: Notebook or Source not found
    */
   app.use('/', router)
   router
@@ -99,11 +99,11 @@ module.exports = function (app) {
                   }
                 )
               )
-            } else if (err.message === 'no publication') {
+            } else if (err.message === 'no source') {
               return next(
                 boom.notFound(
-                  `Create Note Error: No Publication found with id: ${
-                    body.publicationId
+                  `Create Note Error: No Source found with id: ${
+                    body.sourceId
                   }`,
                   {
                     requestUrl: req.originalUrl,

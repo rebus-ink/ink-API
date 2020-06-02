@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,113 +12,113 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication A',
+  await createSourceSimplified({
+    name: 'Source A',
     author: 'John Smith',
     editor: 'Jane Doe',
     datePublished: undefined
   })
-  await createPublicationSimplified({ name: 'Publication 2' })
-  await createPublicationSimplified({ name: 'Publication 3' })
-  await createPublicationSimplified({ name: 'Publication 4' })
-  await createPublicationSimplified({ name: 'Publication 5' })
-  await createPublicationSimplified({ name: 'Publication 6' })
-  await createPublicationSimplified({ name: 'Publication 7' })
-  await createPublicationSimplified({ name: 'Publication 8' })
-  await createPublicationSimplified({ name: 'Publication 9' })
-  await createPublicationSimplified({ name: 'Publication 10' })
-  await createPublicationSimplified({ name: 'Publication 11' })
-  await createPublicationSimplified({ name: 'Publication 12' })
-  await createPublicationSimplified({ name: 'Publication 13' })
-  await createPublicationSimplified({ name: 'superbook' })
-  await createPublicationSimplified({ name: 'Super great book!' })
+  await createSourceSimplified({ name: 'Source 2' })
+  await createSourceSimplified({ name: 'Source 3' })
+  await createSourceSimplified({ name: 'Source 4' })
+  await createSourceSimplified({ name: 'Source 5' })
+  await createSourceSimplified({ name: 'Source 6' })
+  await createSourceSimplified({ name: 'Source 7' })
+  await createSourceSimplified({ name: 'Source 8' })
+  await createSourceSimplified({ name: 'Source 9' })
+  await createSourceSimplified({ name: 'Source 10' })
+  await createSourceSimplified({ name: 'Source 11' })
+  await createSourceSimplified({ name: 'Source 12' })
+  await createSourceSimplified({ name: 'Source 13' })
+  await createSourceSimplified({ name: 'superbook' })
+  await createSourceSimplified({ name: 'Super great book!' })
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 1',
     author: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 2',
     author: `jo H. n'dOe`
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3',
     author: 'John Smith',
     editor: 'John doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 4',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 5',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 6',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 7',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 8',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 9',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 10',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 11',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 12',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 13',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 14',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 15',
     author: 'Jane Smith',
     editor: 'John Doe'
   })
-  await createPublicationSimplified({ name: 'BBBB' })
-  await createPublicationSimplified({ name: 'AAAA' })
-  await createPublicationSimplified({ name: 'aabb' })
-  await createPublicationSimplified({ name: 'ffff' })
-  await createPublicationSimplified({ name: 'ffaa' })
-  await createPublicationSimplified({ name: 'abc' })
-  await createPublicationSimplified({ name: 'ccccc', author: 'anonymous' })
-  await createPublicationSimplified({ name: 'zzz', author: 'Anonymous' })
-  await createPublicationSimplified({ name: 'XXXX', author: 'anonyMOUS' })
+  await createSourceSimplified({ name: 'BBBB' })
+  await createSourceSimplified({ name: 'AAAA' })
+  await createSourceSimplified({ name: 'aabb' })
+  await createSourceSimplified({ name: 'ffff' })
+  await createSourceSimplified({ name: 'ffaa' })
+  await createSourceSimplified({ name: 'abc' })
+  await createSourceSimplified({ name: 'ccccc', author: 'anonymous' })
+  await createSourceSimplified({ name: 'zzz', author: 'Anonymous' })
+  await createSourceSimplified({ name: 'XXXX', author: 'anonyMOUS' })
 
   // -------------------------------------------DEFAULT ------------------------------------------
 
@@ -147,10 +147,10 @@ const test = async () => {
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
 
-      await tap.equal(res.body.items[0].name, 'Publication A')
-      await tap.equal(res.body.items[1].name, 'Publication 2')
-      await tap.equal(res.body.items[2].name, 'Publication 3')
-      await tap.equal(res.body.items[3].name, 'Publication 4')
+      await tap.equal(res.body.items[0].name, 'Source A')
+      await tap.equal(res.body.items[1].name, 'Source 2')
+      await tap.equal(res.body.items[2].name, 'Source 3')
+      await tap.equal(res.body.items[3].name, 'Source 4')
     }
   )
 

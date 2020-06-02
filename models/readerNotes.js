@@ -1,7 +1,6 @@
 const { Note } = require('./Note')
 const { Reader } = require('./Reader')
 const { urlToId } = require('../utils/utils')
-const urlparse = require('url').parse
 
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {
@@ -17,11 +16,11 @@ class ReaderNotes {
       .andWhere('Note.readerId', '=', readerId)
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
 
-    if (filters.publication) {
+    if (filters.source) {
       resultQuery = resultQuery.where(
-        'Note.publicationId',
+        'Note.sourceId',
         '=',
-        urlToId(filters.publication)
+        urlToId(filters.source)
       )
     }
     if (filters.motivation) {
@@ -127,7 +126,7 @@ class ReaderNotes {
     }
 
     const readers = await qb
-      .withGraphFetched('replies.[publication.[attributions], body, tags]')
+      .withGraphFetched('replies.[source.[attributions], body, tags]')
       .modifyGraph('replies', builder => {
         builder.modifyGraph('body', bodyBuilder => {
           bodyBuilder.select('content', 'language', 'motivation')
@@ -135,9 +134,9 @@ class ReaderNotes {
         })
         builder.select('Note.*').from('Note')
         builder.distinct('Note.id')
-        // load details of parent publication for each note
-        builder.modifyGraph('publication', pubBuilder => {
-          pubBuilder.whereNull('Publication.deleted')
+        // load details of parent source for each note
+        builder.modifyGraph('source', pubBuilder => {
+          pubBuilder.whereNull('Source.deleted')
           pubBuilder.select(
             'id',
             'name',
@@ -151,8 +150,8 @@ class ReaderNotes {
         builder.whereNull('Note.contextId')
 
         // filters
-        if (filters.publication) {
-          builder.where('publicationId', '=', urlToId(filters.publication))
+        if (filters.source) {
+          builder.where('sourceId', '=', urlToId(filters.source))
         }
         if (filters.document) {
           builder.where('document', '=', filters.document)

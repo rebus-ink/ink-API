@@ -59,18 +59,18 @@ const test = async app => {
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
     await tap.equal(responseReader.name, 'J. Random Reader')
-    await tap.ok(responseReader.publications === undefined)
+    await tap.ok(responseReader.sources === undefined)
   })
 
   await tap.test('Get reader by id with eager loading', async () => {
     const responseReader = await Reader.byId(
       urlToId(createdReader.id),
-      '[publications]'
+      '[sources]'
     )
 
     await tap.type(responseReader, 'object')
     await tap.ok(responseReader instanceof Reader)
-    await tap.ok(Array.isArray(responseReader.publications))
+    await tap.ok(Array.isArray(responseReader.sources))
   })
 
   await tap.test('Get reader by auth id', async () => {

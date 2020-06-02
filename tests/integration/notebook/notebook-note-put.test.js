@@ -10,7 +10,7 @@ const {
 
 const test = async app => {
   const token = getToken()
-  const reader = await createUser(app, token)
+  await createUser(app, token)
 
   const note = await createNote(app, token)
   const noteId = note.shortId

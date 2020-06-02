@@ -21,18 +21,18 @@ const readerGetRoute = require('./routes/readers/reader-get') // GET /readers/:i
 const readerPutRoute = require('./routes/readers/reader-put') // PUT /readers/:id
 const readerDeleteRoute = require('./routes/readers/reader-delete') // DELETE /readers/:id
 
-// Publications
-const publicationPostRoute = require('./routes/publications/publication-post') // POST /publications
-const publicationPatchRoute = require('./routes/publications/publication-patch') // PATCH /publications/:id
-const publicationDeleteRoute = require('./routes/publications/publication-delete') // DELETE /publications/:id
-const publicationPutTagRoute = require('./routes/publications/publication-put-tag') // PUT /publications/:pubId/tags/:tagId
-const publicationDeleteTagRoute = require('./routes/publications/publication-delete-tag') // DELETE /publications/:pubId/tags/:tagId
-const publicationGetRoute = require('./routes/publications/publication-get') // GET /publications/:id
-const readActivityPostRoute = require('./routes/publications/readActivity-post') // POST /publications/:id/readActivity
-const publicationBatchUpdate = require('./routes/publications/publication-batchUpdate') // PATCH /publications/batchUpdate
+// Sources
+const sourcePostRoute = require('./routes/sources/source-post') // POST /sources
+const sourcePatchRoute = require('./routes/sources/source-patch') // PATCH /sources/:id
+const sourceDeleteRoute = require('./routes/sources/source-delete') // DELETE /sources/:id
+const sourcePutTagRoute = require('./routes/sources/source-put-tag') // PUT /sources/:sourceId/tags/:tagId
+const sourceDeleteTagRoute = require('./routes/sources/source-delete-tag') // DELETE /sources/:sourceId/tags/:tagId
+const sourceGetRoute = require('./routes/sources/source-get') // GET /sources/:id
+const readActivityPostRoute = require('./routes/sources/readActivity-post') // POST /sources/:id/readActivity
+const sourceBatchUpdate = require('./routes/sources/source-batchUpdate') // PATCH /sources/batchUpdate
 
 // Search
-const searchRoute = require('./routes/search') // not working!
+// const searchRoute = require('./routes/search') // not working!
 
 // Tags
 const getTagsRoute = require('./routes/tags/tags-get') // GET /tags
@@ -41,7 +41,7 @@ const tagPutRoute = require('./routes/tags/tag-put') // PUT /tags/:id
 const tagDeleteRoute = require('./routes/tags/tag-delete') // DELETE /tags/:id
 
 // Library
-const readerLibraryRoute = require('./routes/publications/library-get') // GET /library
+const readerLibraryRoute = require('./routes/sources/library-get') // GET /library
 
 // Notes
 const readerNotesRoute = require('./routes/notes/readerNotes-get') // GET /notes
@@ -79,8 +79,8 @@ const notebookGetRoute = require('./routes/notebooks/notebook-get') // GET /note
 const notebooksGetRoute = require('./routes/notebooks/notebooks.get') // GET /notebooks
 const notebookPutRoute = require('./routes/notebooks/notebook-put') // PUT /notebooks/:id
 const notebookDeleteRoute = require('./routes/notebooks/notebook-delete') // DELETE /notebooks/:id
-const notebookPutPubRoute = require('./routes/notebooks/notebook-put-pub') // PUT /notebooks/:id/publications/:pubId
-const notebookDeletePubRoute = require('./routes/notebooks/notebook-delete-pub') // DELETE /notebooks/:id/publications/:pubId
+const notebookPutSourceRoute = require('./routes/notebooks/notebook-put-source') // PUT /notebooks/:id/sources/:sourceId
+const notebookDeleteSourceRoute = require('./routes/notebooks/notebook-delete-source') // DELETE /notebooks/:id/sources/:sourceId
 const notebookPutNoteRoute = require('./routes/notebooks/notebook-put-note') // PUT /notebooks/:id/notes/:noteId
 const notebookDeleteNoteRoute = require('./routes/notebooks/notebook-delete-note') // DELETE /notebooks/:id/notes/:noteId
 const notebookPostNoteRoute = require('./routes/notebooks/notebook-note-post') // POST /notebooks/:id/notes
@@ -234,13 +234,13 @@ getTagsRoute(app)
 
 // new routes
 readActivityPostRoute(app)
-publicationPostRoute(app)
-publicationBatchUpdate(app)
-publicationPatchRoute(app)
-publicationDeleteRoute(app)
-publicationPutTagRoute(app)
-publicationDeleteTagRoute(app)
-publicationGetRoute(app)
+sourcePostRoute(app)
+sourceBatchUpdate(app)
+sourcePatchRoute(app)
+sourceDeleteRoute(app)
+sourcePutTagRoute(app)
+sourceDeleteTagRoute(app)
+sourceGetRoute(app)
 tagPostRoute(app)
 tagPutRoute(app)
 tagDeleteRoute(app)
@@ -275,8 +275,8 @@ notebookGetRoute(app)
 notebooksGetRoute(app)
 notebookPutRoute(app)
 notebookDeleteRoute(app)
-notebookPutPubRoute(app)
-notebookDeletePubRoute(app)
+notebookPutSourceRoute(app)
+notebookDeleteSourceRoute(app)
 notebookPutNoteRoute(app)
 notebookDeleteNoteRoute(app)
 notebookPostNoteRoute(app)

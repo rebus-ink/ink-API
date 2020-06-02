@@ -11,7 +11,7 @@ type ReadActivityType = {
   selector?: Object,
   json?: Object,
   readerId: string,
-  publicationId: string,
+  sourceId: string,
   published: Date
 };
 */
@@ -33,15 +33,15 @@ class ReadActivity extends BaseModel {
         selector: { type: 'object' },
         json: { type: 'object' },
         readerId: { type: 'string' },
-        publicationId: { type: 'string' },
+        sourceId: { type: 'string' },
         published: { type: 'string', format: 'date-time' }
       },
-      required: ['readerId', 'publicationId', 'selector']
+      required: ['readerId', 'sourceId', 'selector']
     }
   }
 
   static get relationMappings () /*: any */ {
-    const { Publication } = require('./Publication.js')
+    const { Source } = require('./Source.js')
     const { Reader } = require('./Reader.js')
 
     return {
@@ -53,12 +53,12 @@ class ReadActivity extends BaseModel {
           to: 'Reader.id'
         }
       },
-      publication: {
+      source: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Publication,
+        modelClass: Source,
         join: {
-          from: 'readActivity.publicationId',
-          to: 'Publication.id'
+          from: 'readActivity.sourceId',
+          to: 'Source.id'
         }
       }
     }
@@ -66,15 +66,15 @@ class ReadActivity extends BaseModel {
 
   static async createReadActivity (
     readerId /*: string */,
-    publicationId /*: string */,
+    sourceId /*: string */,
     object /*: any */
   ) /*: Promise<any> */ {
-    if (!publicationId) throw new Error('no publication')
+    if (!sourceId) throw new Error('no source')
 
     const props = _.pick(object, ['selector', 'json'])
 
     props.readerId = readerId
-    props.publicationId = publicationId
+    props.sourceId = sourceId
     props.published = new Date().toISOString()
     try {
       return await ReadActivity.query()
@@ -83,8 +83,8 @@ class ReadActivity extends BaseModel {
     } catch (err) {
       if (err.constraint === 'readactivity_readerid_foreign') {
         throw 'no reader' // NOTE: should not happen. Should be caught by the post readActivity route
-      } else if (err.constraint === 'readactivity_publicationid_foreign') {
-        throw new Error('no publication') // keep this message... needed to differentiate 400 and 404 errors.
+      } else if (err.constraint === 'readactivity_sourceid_foreign') {
+        throw new Error('no source') // keep this message... needed to differentiate 400 and 404 errors.
       } else if (err instanceof ValidationError) {
         throw err
       } else throw err
@@ -92,12 +92,12 @@ class ReadActivity extends BaseModel {
   }
 
   static async getLatestReadActivity (
-    publicationId /*: string */
+    sourceId /*: string */
   ) /*: Promise<ReadActivityType|Error> */ {
-    if (!publicationId) return new Error('missing publicationId')
+    if (!sourceId) return new Error('missing sourceId')
 
     const readActivities = await ReadActivity.query()
-      .where('publicationId', '=', publicationId)
+      .where('sourceId', '=', sourceId)
       .orderBy('published', 'desc')
       .limit(1)
 

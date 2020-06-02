@@ -22,12 +22,12 @@ const notePostTests = require('./note/note-post.test')
 const noteDeleteTests = require('./note/note-delete.test')
 const notePutTests = require('./note/note-put.test')
 
-const publicationGetTests = require('./publication/publication-get.test')
-const publicationDeleteTests = require('./publication/publication-delete.test')
-const publicationPostTests = require('./publication/publication-post.test')
-const publicationPatchTests = require('./publication/publication-patch.test')
-const readActivityPostTests = require('./publication/readActivity-post.test')
-const publicationBatchUpdateTests = require('./publication/publication-batchUpdate.test')
+const sourceGetTests = require('./source/source-get.test')
+const sourceDeleteTests = require('./source/source-delete.test')
+const sourcePostTests = require('./source/source-post.test')
+const sourcePatchTests = require('./source/source-patch.test')
+const readActivityPostTests = require('./source/readActivity-post.test')
+const sourceBatchUpdateTests = require('./source/source-batchUpdate.test')
 
 const readerCreateTests = require('./reader/reader-post.test')
 const readerGetTests = require('./reader/reader-get.test')
@@ -37,7 +37,7 @@ const readerDeleteTests = require('./reader/reader-delete.test')
 const readerNotesGetTests = require('./readerNotes/readerNotes-get.test')
 const readerNotesPaginateTests = require('./readerNotes/readerNotes-paginate.test')
 const readerNotesOrderByTests = require('./readerNotes/readerNotes-orderBy.test')
-const readerNotesFilterPubTests = require('./readerNotes/readerNotes-filter-publication.test')
+const readerNotesFilterPubTests = require('./readerNotes/readerNotes-filter-source.test')
 const readerNotesFilterMotivationTests = require('./readerNotes/readerNotes-filter-motivation.test')
 const readerNotesFilterSearchTests = require('./readerNotes/readerNotes-filter-search.test')
 const readerNotesFilterCollectionTests = require('./readerNotes/readerNotes-filter-collection.test')
@@ -47,8 +47,8 @@ const readerNotesFilterDateRange = require('./readerNotes/readerNotes-filter-dat
 const readerNotesFilterFlagTests = require('./readerNotes/readerNotes-filter-flag.test')
 const readerNotesFilterDocumentTests = require('./readerNotes/readerNotes-filter-document.test')
 
-const publicationAddTagTests = require('./tag/publication-tag-put.test')
-const publicationRemoveTagTests = require('./tag/publication-tag-delete.test')
+const sourceAddTagTests = require('./tag/source-tag-put.test')
+const sourceRemoveTagTests = require('./tag/source-tag-delete.test')
 const tagsGetTests = require('./tag/tags-get.test')
 const tagsPostTests = require('./tag/tag-post.test')
 const tagPutTests = require('./tag/tag-put.test')
@@ -79,8 +79,8 @@ const notebookGetTests = require('./notebook/notebook-get.test')
 const notebooksGetTests = require('./notebook/notebooks-get.test')
 const notebookPutTests = require('./notebook/notebook-put.test')
 const notebookDeleteTests = require('./notebook/notebook-delete.test')
-const notebookPubPutTests = require('./notebook/notebook-pub-put.test')
-const notebookPubDeleteTests = require('./notebook/notebook-pub-delete.test')
+const notebookPubPutTests = require('./notebook/notebook-source-put.test')
+const notebookPubDeleteTests = require('./notebook/notebook-source-delete.test')
 const notebookNotePutTests = require('./notebook/notebook-note-put.test')
 const notebookNoteDeleteTests = require('./notebook/notebook-note-delete.test')
 const notebookNotePostTests = require('./notebook/notebook-note-post.test')
@@ -137,16 +137,16 @@ const allTests = async () => {
     }
   }
 
-  if (!test || test === 'publication') {
+  if (!test || test === 'source') {
     try {
-      await publicationGetTests(app)
-      await publicationDeleteTests(app)
-      await publicationPostTests(app)
-      await publicationPatchTests(app)
+      await sourceGetTests(app)
+      await sourceDeleteTests(app)
+      await sourcePostTests(app)
+      await sourcePatchTests(app)
       await readActivityPostTests(app)
-      await publicationBatchUpdateTests(app)
+      await sourceBatchUpdateTests(app)
     } catch (err) {
-      console.log('publication integration test error: ', err)
+      console.log('source integration test error: ', err)
     }
   }
 
@@ -175,8 +175,8 @@ const allTests = async () => {
   if (!test || test === 'tag') {
     try {
       await tagsGetTests(app)
-      await publicationAddTagTests(app)
-      await publicationRemoveTagTests(app)
+      await sourceAddTagTests(app)
+      await sourceRemoveTagTests(app)
       await tagNotePutTests(app)
       await tagNoteDeleteTests(app)
       await tagDeleteTests(app)

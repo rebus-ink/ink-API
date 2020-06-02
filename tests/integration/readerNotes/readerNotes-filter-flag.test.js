@@ -12,7 +12,7 @@ const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   // get reader flag tags:
   const tagsres = await request(app)

@@ -5,7 +5,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createTag,
   createNoteRelation,
@@ -32,18 +32,17 @@ const test = async app => {
   const token2 = getToken()
   const readerCompleteUrl2 = await createUser(app, token2)
   const readerUrl2 = urlparse(readerCompleteUrl2).path
-  const readerId2 = urlToId(readerCompleteUrl2)
 
-  // create publication and tag for reader 1
-  const publication = await createPublication(app, token)
-  const publicationId = urlToId(publication.id)
+  // create source and tag for reader 1
+  const source = await createSource(app, token)
+  const sourceId = urlToId(source.id)
 
   const tag = await createTag(app, token)
   const tagId = urlToId(tag.id)
 
-  // create publication and tag for reader 2
-  const publication2 = await createPublication(app, token2)
-  publicationId2 = urlToId(publication2.id)
+  // create source and tag for reader 2
+  const source2 = await createSource(app, token2)
+  sourceId2 = urlToId(source2.id)
 
   const tag2 = await createTag(app, token2, readerUrl2)
   const tagId2 = urlToId(tag2.id)
@@ -84,12 +83,27 @@ const test = async app => {
   const notebook1 = await createNotebook(app, token)
   const notebook2 = await createNotebook(app, token2)
 
-  // ------------------------ PUBLICATION -------------------------------------
+  // ------------------------ SOURCE -------------------------------------
+  await tap.test('Try to get source belonging to another reader', async () => {
+    const res = await request(app)
+      .get(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(error.message, `Access to source ${sourceId} disallowed`)
+    await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
+  })
+
   await tap.test(
-    'Try to get publication belonging to another reader',
+    'Try to delete a source belonging to another user',
     async () => {
       const res = await request(app)
-        .get(`/publications/${publicationId}`)
+        .delete(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -98,22 +112,16 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to publication ${publicationId} disallowed`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.message, `Access to source ${sourceId} disallowed`)
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
     }
   )
 
   await tap.test(
-    'Try to delete a publication belonging to another user',
+    'Try to update a source belonging to another user',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${publicationId}`)
+        .patch(`/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -122,55 +130,25 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to publication ${publicationId} disallowed`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
+      await tap.equal(error.message, `Access to source ${sourceId} disallowed`)
+      await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
     }
   )
 
+  // ------------------------ SOURCE BATCH UPDATE -------------------------------------
   await tap.test(
-    'Try to update a publication belonging to another user',
-    async () => {
-      const res = await request(app)
-        .patch(`/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to publication ${publicationId} disallowed`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/publications/${publicationId}`
-      )
-    }
-  )
-
-  // ------------------------ PUBLICATION BATCH UPDATE -------------------------------------
-  await tap.test(
-    'Try to batch update a publication belonging to another reader',
+    'Try to batch update a source belonging to another reader',
     async () => {
       // replace
       const res1 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'replace',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'type',
             value: 'Article'
           })
@@ -182,19 +160,19 @@ const test = async app => {
       await tap.equal(result1[0].status, 403)
       await tap.equal(
         result1[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // add metadata
       const res2 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'add',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'keywords',
             value: 'something'
           })
@@ -206,19 +184,19 @@ const test = async app => {
       await tap.equal(result2[0].status, 403)
       await tap.equal(
         result2[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // remove metadata
       const res3 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'remove',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'keywords',
             value: 'something'
           })
@@ -230,19 +208,19 @@ const test = async app => {
       await tap.equal(result3[0].status, 403)
       await tap.equal(
         result3[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // add attribution
       const res4 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'add',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'author',
             value: 'something'
           })
@@ -254,19 +232,19 @@ const test = async app => {
       await tap.equal(result4[0].status, 403)
       await tap.equal(
         result4[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // remove attribution
       const res5 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'remove',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'author',
             value: 'something'
           })
@@ -278,19 +256,19 @@ const test = async app => {
       await tap.equal(result5[0].status, 403)
       await tap.equal(
         result5[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // add tags
       const res6 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'add',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'tags',
             value: ['something']
           })
@@ -302,19 +280,19 @@ const test = async app => {
       await tap.equal(result6[0].status, 403)
       await tap.equal(
         result6[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
 
       // remove tags
       const res7 = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'remove',
-            publications: [publicationId],
+            sources: [sourceId],
             property: 'tags',
             value: 'something'
           })
@@ -326,23 +304,23 @@ const test = async app => {
       await tap.equal(result7[0].status, 403)
       await tap.equal(
         result7[0].message,
-        `Access to publication ${publicationId} disallowed`
+        `Access to source ${sourceId} disallowed`
       )
     }
   )
 
   await tap.test(
-    'Try to batch update a publication by adding a tag that belongs to another user',
+    'Try to batch update a source by adding a tag that belongs to another user',
     async () => {
       const res = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'add',
-            publications: [publicationId2],
+            sources: [sourceId2],
             property: 'tags',
             value: [tagId]
           })
@@ -357,17 +335,17 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to batch update a publication by removing a tag that belongs to another user',
+    'Try to batch update a source by removing a tag that belongs to another user',
     async () => {
       const res = await request(app)
-        .patch(`/publications/batchUpdate`)
+        .patch(`/sources/batchUpdate`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
             operation: 'remove',
-            publications: [publicationId2],
+            sources: [sourceId2],
             property: 'tags',
             value: [tagId]
           })
@@ -1046,10 +1024,10 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to assign a publication belonging to another user to a notebook',
+    'Try to assign a source belonging to another user to a notebook',
     async () => {
       const res = await request(app)
-        .put(`/notebooks/${notebook2.shortId}/publications/${publicationId}`)
+        .put(`/notebooks/${notebook2.shortId}/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1058,22 +1036,19 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Publication ${publicationId} disallowed`
-      )
+      await tap.equal(error.message, `Access to Source ${sourceId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebook2.shortId}/publications/${publicationId}`
+        `/notebooks/${notebook2.shortId}/sources/${sourceId}`
       )
     }
   )
 
   await tap.test(
-    'Try to assign a publication to a notebook belongint to another user',
+    'Try to assign a source to a notebook belongint to another user',
     async () => {
       const res = await request(app)
-        .put(`/notebooks/${notebook1.shortId}/publications/${publicationId2}`)
+        .put(`/notebooks/${notebook1.shortId}/sources/${sourceId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1088,16 +1063,16 @@ const test = async app => {
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
+        `/notebooks/${notebook1.shortId}/sources/${sourceId2}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove a publication belonging to another user from a notebook',
+    'Try to remove a source belonging to another user from a notebook',
     async () => {
       const res = await request(app)
-        .delete(`/notebooks/${notebook2.shortId}/publications/${publicationId}`)
+        .delete(`/notebooks/${notebook2.shortId}/sources/${sourceId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1106,74 +1081,19 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Publication ${publicationId} disallowed`
-      )
+      await tap.equal(error.message, `Access to Source ${sourceId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebook2.shortId}/publications/${publicationId}`
+        `/notebooks/${notebook2.shortId}/sources/${sourceId}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove a publication to a notebook belongint from another user',
+    'Try to remove a source to a notebook belongint from another user',
     async () => {
       const res = await request(app)
-        .delete(
-          `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
-        )
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Notebook ${notebook1.shortId} disallowed`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
-      )
-    }
-  )
-
-  await tap.test(
-    'Try to remove a publication belonging to another user from a notebook',
-    async () => {
-      const res = await request(app)
-        .delete(`/notebooks/${notebook2.shortId}/publications/${publicationId}`)
-        .set('Host', 'reader-api.test')
-        .set('Authorization', `Bearer ${token2}`)
-        .type('application/ld+json')
-
-      await tap.equal(res.statusCode, 403)
-      const error = JSON.parse(res.text)
-      await tap.equal(error.statusCode, 403)
-      await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Publication ${publicationId} disallowed`
-      )
-      await tap.equal(
-        error.details.requestUrl,
-        `/notebooks/${notebook2.shortId}/publications/${publicationId}`
-      )
-    }
-  )
-
-  await tap.test(
-    'Try to remove a publication to a notebook belongint from another user',
-    async () => {
-      const res = await request(app)
-        .delete(
-          `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
-        )
+        .delete(`/notebooks/${notebook1.shortId}/sources/${sourceId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1188,7 +1108,52 @@ const test = async app => {
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebook1.shortId}/publications/${publicationId2}`
+        `/notebooks/${notebook1.shortId}/sources/${sourceId2}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to remove a source belonging to another user from a notebook',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook2.shortId}/sources/${sourceId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(error.message, `Access to Source ${sourceId} disallowed`)
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook2.shortId}/sources/${sourceId}`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to remove a source to a notebook belongint from another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/notebooks/${notebook1.shortId}/sources/${sourceId2}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook1.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook1.shortId}/sources/${sourceId2}`
       )
     }
   )
@@ -1468,13 +1433,13 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/tags/${tagId}`)
   })
 
-  // ------------------------------------- TAG - PUBLICATION ---------------------------
+  // ------------------------------------- TAG - SOURCE ---------------------------
 
   await tap.test(
-    'Try to assign a tag to a publication belonging to another user',
+    'Try to assign a tag to a source belonging to another user',
     async () => {
       const res = await request(app)
-        .put(`/publications/${publicationId}/tags/${tagId2}`)
+        .put(`/sources/${sourceId}/tags/${tagId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1483,22 +1448,19 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Publication ${publicationId} disallowed`
-      )
+      await tap.equal(error.message, `Access to Source ${sourceId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}/tags/${tagId2}`
+        `/sources/${sourceId}/tags/${tagId2}`
       )
     }
   )
 
   await tap.test(
-    'Try to assign a tag belonging to another user to a publication',
+    'Try to assign a tag belonging to another user to a source',
     async () => {
       const res = await request(app)
-        .put(`/publications/${publicationId2}/tags/${tagId}`)
+        .put(`/sources/${sourceId2}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1510,16 +1472,16 @@ const test = async app => {
       await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId2}/tags/${tagId}`
+        `/sources/${sourceId2}/tags/${tagId}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove a tag from a publication belonging to another user',
+    'Try to remove a tag from a source belonging to another user',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${publicationId}/tags/${tagId2}`)
+        .delete(`/sources/${sourceId}/tags/${tagId2}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1528,22 +1490,19 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to Publication ${publicationId} disallowed`
-      )
+      await tap.equal(error.message, `Access to Source ${sourceId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}/tags/${tagId2}`
+        `/sources/${sourceId}/tags/${tagId2}`
       )
     }
   )
 
   await tap.test(
-    'Try to remove a tag belonging to another user from a publication',
+    'Try to remove a tag belonging to another user from a source',
     async () => {
       const res = await request(app)
-        .delete(`/publications/${publicationId2}/tags/${tagId}`)
+        .delete(`/sources/${sourceId2}/tags/${tagId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1555,7 +1514,7 @@ const test = async app => {
       await tap.equal(error.message, `Access to Tag ${tagId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId2}/tags/${tagId}`
+        `/sources/${sourceId2}/tags/${tagId}`
       )
     }
   )
@@ -1649,10 +1608,10 @@ const test = async app => {
   // ----------------------------------- READACTIVITY ---------------------------
 
   await tap.test(
-    'Try to create a readActivity for a publication belonging to another user',
+    'Try to create a readActivity for a source belonging to another user',
     async () => {
       const res = await request(app)
-        .post(`/publications/${publicationId}/readActivity`)
+        .post(`/sources/${sourceId}/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
@@ -1662,13 +1621,10 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)
       await tap.equal(error.error, 'Forbidden')
-      await tap.equal(
-        error.message,
-        `Access to publication ${publicationId} disallowed`
-      )
+      await tap.equal(error.message, `Access to source ${sourceId} disallowed`)
       await tap.equal(
         error.details.requestUrl,
-        `/publications/${publicationId}/readActivity`
+        `/sources/${sourceId}/readActivity`
       )
     }
   )

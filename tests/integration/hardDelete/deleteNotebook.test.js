@@ -10,8 +10,8 @@ const { Tag } = require('../../../models/Tag')
 const { Notebook } = require('../../../models/Notebook')
 const { Notebook_Tag } = require('../../../models/Notebook_Tag')
 const { Notebook_Note } = require('../../../models/Notebook_Note')
-const { Notebook_Pub } = require('../../../models/Notebook_Pub')
-const { Publication } = require('../../../models/Publication')
+const { Notebook_Source } = require('../../../models/Notebook_Source')
+const { Source } = require('../../../models/Source')
 
 const _ = require('lodash')
 
@@ -102,27 +102,28 @@ const test = async () => {
     notebookId: urlToId(notebook3.id)
   })
 
-  // create pub and notebook-pub relation
+  // create source and notebook-source relation
 
-  const pub = await Publication.query().insertAndFetch({
+  const source = await Source.query().insertAndFetch({
     name: 'test',
     type: 'Book',
     readerId
   })
 
-  await Notebook_Pub.query().insert({
-    publicationId: urlToId(pub.id),
+  await Notebook_Source.query().insert({
+    sourceId: urlToId(source.id),
     notebookId: urlToId(notebook1.id)
   })
 
-  await Notebook_Pub.query().insert({
-    publicationId: urlToId(pub.id),
+  await Notebook_Source.query().insert({
+    sourceId: urlToId(source.id),
     notebookId: urlToId(notebook4.id)
   })
 
   // create noteContexts
 
-  const context1 = await NoteContext.query().insertAndFetch({
+  // context1
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook1.id)
@@ -134,7 +135,8 @@ const test = async () => {
     notebookId: urlToId(notebook3.id)
   })
 
-  const context3 = await NoteContext.query().insertAndFetch({
+  // context3
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook3.id),
@@ -159,11 +161,11 @@ const test = async () => {
     const notebook_notes = await Notebook_Note.query()
     await tap.equal(notebook_notes.length, 2)
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 1)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 1)
 
-    const notebook_pubs = await Notebook_Pub.query()
-    await tap.equal(notebook_pubs.length, 2)
+    const notebook_sources = await Notebook_Source.query()
+    await tap.equal(notebook_sources.length, 2)
 
     const contexts = await NoteContext.query()
     await tap.equal(contexts.length, 3)
@@ -200,12 +202,12 @@ const test = async () => {
     await tap.equal(notebook_notes.length, 1)
     await tap.equal(notebook_notes[0].notebookId, urlToId(notebook3.id))
 
-    const pubs = await Publication.query()
-    await tap.equal(pubs.length, 1)
+    const sources = await Source.query()
+    await tap.equal(sources.length, 1)
 
-    const notebook_pubs = await Notebook_Pub.query()
-    await tap.equal(notebook_pubs.length, 1)
-    await tap.equal(notebook_pubs[0].notebookId, urlToId(notebook4.id))
+    const notebook_sources = await Notebook_Source.query()
+    await tap.equal(notebook_sources.length, 1)
+    await tap.equal(notebook_sources[0].notebookId, urlToId(notebook4.id))
 
     const contexts = await NoteContext.query()
     await tap.equal(contexts.length, 1)

@@ -29,7 +29,7 @@
  *         type: object
  *       target:
  *         type: object
- *       publicationId:
+ *       sourceId:
  *         type: string
  *         format: url
  *       document:
@@ -54,7 +54,7 @@
  *       - $ref: '#/definitions/note'
  *       - type: object
  *         properties:
- *           publication:
+ *           source:
  *             properties:
  *               id:
  *                 type: string

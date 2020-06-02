@@ -23,11 +23,11 @@ class BaseModel extends Model {
    */
   formatIdsToUrl (json /*: any */, type /* :?string */) /*: any */ {
     if (
-      type === 'publication' &&
+      type === 'source' &&
       json.id &&
       !json.id.startsWith(process.env.DOMAIN)
     ) {
-      json.id = `${domain}/publications/${json.id}`
+      json.id = `${domain}/sources/${json.id}`
     } else if (
       type === 'reader' &&
       json.id &&
@@ -51,11 +51,8 @@ class BaseModel extends Model {
       json.readerId = `${domain}/readers/${json.readerId}`
     }
 
-    if (
-      json.publicationId &&
-      !json.publicationId.startsWith(process.env.DOMAIN)
-    ) {
-      json.publicationId = `${domain}/publications/${json.publicationId}`
+    if (json.sourceId && !json.sourceId.startsWith(process.env.DOMAIN)) {
+      json.sourceId = `${domain}/sources/${json.sourceId}`
     }
 
     if (json.noteId && !json.noteId.startsWith(process.env.DOMAIN)) {
@@ -89,7 +86,7 @@ class BaseModel extends Model {
       const time = new Date().toISOString()
       doc.published = time
       doc.readerId = urlToId(doc.readerId)
-      doc.publicationId = urlToId(doc.publicationId)
+      doc.sourceId = urlToId(doc.sourceId)
       doc.tagId = urlToId(doc.tagId)
 
       Object.keys(doc).forEach(
@@ -105,7 +102,7 @@ class BaseModel extends Model {
       doc.id = urlToId(doc.id)
       doc.updated = new Date().toISOString()
       doc.readerId = urlToId(doc.readerId)
-      doc.publicationId = urlToId(doc.publicationId)
+      doc.sourceId = urlToId(doc.sourceId)
 
       Object.keys(doc).forEach(
         key => (doc[key] === undefined ? delete doc[key] : '')
@@ -115,7 +112,7 @@ class BaseModel extends Model {
 
   getType () /*: ?string */ {
     const tables = [
-      'Publication',
+      'Source',
       'Reader',
       'Note',
       'ReadActivity',

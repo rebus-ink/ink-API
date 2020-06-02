@@ -19,7 +19,7 @@ const test = async app => {
   const readerUrl = urlparse(readerCompleteUrl).path
 
   // upload files:
-  // publication1 has two documents:
+  // source1 has two documents:
   //    doc1 contains 'silly hat'
   //    doc2 contains 'hat'
   // will be in collection my_test
@@ -28,7 +28,7 @@ const test = async app => {
     .set('Authorization', `Bearer ${token}`)
     .field('name', 'file')
     .attach('file', 'tests/test-files/epub1.epub')
-  // publication2 has two documents:
+  // source2 has two documents:
   //   doc1 contains 'silly hat'
   //   doc2 contains neither 'silly' nor 'hat'
   // not in any collection
@@ -40,7 +40,7 @@ const test = async app => {
     .attach('file', 'tests/test-files/epub2.epub')
 
   //  await sleep(5000)
-  // publication3 has two documents:
+  // source3 has two documents:
   //   doc1 contains 'silly hat'
   //   doc2 contains neither 'silly' nor 'hat'
   // will be in collection my_test
@@ -55,34 +55,34 @@ const test = async app => {
   // create collection:
   const stack = await createTag(app, token, { name: 'my_test' })
 
-  // get jobs to get publicationIds
+  // get jobs to get sourceIds
   const job1 = await request(app)
     .get(`/job-${res1.body.id}`)
     .set('Authorization', `Bearer ${token}`)
-  const publicationId = job1.body.publicationId
+  const sourceId = job1.body.sourceId
 
   const job2 = await request(app)
     .get(`/job-${res2.body.id}`)
     .set('Authorization', `Bearer ${token}`)
-  const publicationId2 = job2.body.publicationId
+  const sourceId2 = job2.body.sourceId
 
   const job3 = await request(app)
     .get(`/job-${res3.body.id}`)
     .set('Authorization', `Bearer ${token}`)
-  const publicationId3 = job3.body.publicationId
+  const sourceId3 = job3.body.sourceId
 
-  await addPubToCollection(app, token, publicationId, stack.id)
-  await addPubToCollection(app, token, publicationId3, stack.id)
+  await addPubToCollection(app, token, sourceId, stack.id)
+  await addPubToCollection(app, token, sourceId3, stack.id)
 
   // for testing purposes, we will compare the search results to the expected
-  // results, as defined by their publicationId and their path
+  // results, as defined by their sourceId and their path
   // here I will concatenate them for easy comparison.
 
   // pub1, chapter 1, etc.
-  const pub1ch1 = `${publicationId}-EPUB/text/ch001.xhtml`
-  const pub1ch2 = `${publicationId}-EPUB/text/ch002.xhtml`
-  const pub2ch1 = `${publicationId2}-EPUB/text/ch001.xhtml`
-  const pub3ch1 = `${publicationId3}-EPUB/text/ch001.xhtml`
+  const pub1ch1 = `${sourceId}-EPUB/text/ch001.xhtml`
+  const pub1ch2 = `${sourceId}-EPUB/text/ch002.xhtml`
+  const pub2ch1 = `${sourceId2}-EPUB/text/ch001.xhtml`
+  const pub3ch1 = `${sourceId3}-EPUB/text/ch001.xhtml`
 
   await sleep(6000)
 
@@ -98,20 +98,20 @@ const test = async app => {
     const hit4 = body.hits.hits[3]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit4.publicationId}-${hit4.documentPath}`),
+      expectedDocuments.indexOf(`${hit4.sourceId}-${hit4.documentPath}`),
       -1
     )
 
@@ -144,19 +144,19 @@ const test = async app => {
     const hit4 = body.hits.hits[3]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
     // doc3 should be last because it only matches 'hat' and not 'silly'
-    await tap.equal(`${hit4.publicationId}-${hit4.documentPath}`, pub1ch2)
+    await tap.equal(`${hit4.sourceId}-${hit4.documentPath}`, pub1ch2)
 
     // make sure the highlight is working
     const expectedHighlight = '<mark>hat</mark>'
@@ -189,16 +189,16 @@ const test = async app => {
     const hit3 = body.hits.hits[2]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
 
@@ -215,9 +215,9 @@ const test = async app => {
     )
   })
 
-  await tap.test('search by publication', async () => {
+  await tap.test('search by source', async () => {
     const res = await request(app).get(
-      `${readerUrl}/search?search=hat&publication=${publicationId}`
+      `${readerUrl}/search?search=hat&source=${sourceId}`
     )
 
     const body = res.body
@@ -228,11 +228,11 @@ const test = async app => {
     const hit2 = body.hits.hits[1]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
 
@@ -261,22 +261,22 @@ const test = async app => {
     const hit3 = body.hits.hits[2]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
   })
 
-  await tap.test('Search after publication is deleted', async () => {
-    // delete publication2
+  await tap.test('Search after source is deleted', async () => {
+    // delete source2
     await request(app)
       .post(`${readerUrl}/activity`)
       .set('Host', 'reader-api.test')
@@ -288,7 +288,7 @@ const test = async app => {
           type: 'Delete',
           object: {
             type: 'Publication',
-            id: publicationId2
+            id: sourceId2
           }
         })
       )
@@ -306,20 +306,20 @@ const test = async app => {
     const hit3 = body.hits.hits[2]._source
 
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit1.publicationId}-${hit1.documentPath}`),
+      expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit2.publicationId}-${hit2.documentPath}`),
+      expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
     await tap.notEqual(
-      expectedDocuments.indexOf(`${hit3.publicationId}-${hit3.documentPath}`),
+      expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
   })
 
-  // not part of the tests, deleting other publications to limit the junk stored in elasticsearch
+  // not part of the tests, deleting other sources to limit the junk stored in elasticsearch
   await request(app)
     .post(`${readerUrl}/activity`)
     .set('Host', 'reader-api.test')
@@ -331,7 +331,7 @@ const test = async app => {
         type: 'Delete',
         object: {
           type: 'Publication',
-          id: publicationId
+          id: sourceId
         }
       })
     )
@@ -347,7 +347,7 @@ const test = async app => {
         type: 'Delete',
         object: {
           type: 'Publication',
-          id: publicationId3
+          id: sourceId3
         }
       })
     )

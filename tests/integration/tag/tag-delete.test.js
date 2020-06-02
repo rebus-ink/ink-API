@@ -4,11 +4,11 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createTag,
   addNoteToCollection,
-  addPubToCollection
+  addSourceToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const { Reader } = require('../../../models/Reader')
@@ -22,13 +22,13 @@ const test = async app => {
   const person = {
     name: 'J. Random Reader'
   }
-  const reader1 = await Reader.createReader(readerId, person)
+  await Reader.createReader(readerId, person)
 
-  const publication = await createPublication(app, token)
+  const source = await createSource(app, token)
 
   // create Note for reader 1
   const note = await createNote(app, token, {
-    publicationId: publication.id,
+    sourceId: source.id,
     body: { motivation: 'test' }
   })
 
@@ -80,16 +80,16 @@ const test = async app => {
 
     await tap.equal(tagsBefore.body.length, 18) // 4 default modes + 13 flags + our tag
 
-    // Add a tag to the note and pub
+    // Add a tag to the note and source
     await addNoteToCollection(app, token, urlToId(noteUrl), urlToId(stack.id))
-    await addPubToCollection(
+    await addSourceToCollection(
       app,
       token,
-      urlToId(publication.id),
+      urlToId(source.id),
       urlToId(stack.id)
     )
 
-    // Note and Publication have the tag
+    // Note and Source have the tag
     const resNote = await request(app)
       .get(`/notes/${urlToId(noteUrl)}`)
       .set('Host', 'reader-api.test')
@@ -99,14 +99,14 @@ const test = async app => {
     await tap.equal(resNote.body.tags.length, 1)
     await tap.equal(resNote.body.tags[0].id, stack.id)
 
-    const resPub = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+    const resSource = await request(app)
+      .get(`/sources/${urlToId(source.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(resPub.body.tags.length, 1)
-    await tap.equal(resPub.body.tags[0].id, stack.id)
+    await tap.equal(resSource.body.tags.length, 1)
+    await tap.equal(resSource.body.tags[0].id, stack.id)
 
     // Delete the tag
     const res = await request(app)
@@ -136,7 +136,7 @@ const test = async app => {
 
     await tap.equal(tagsAfter.body.length, 17) // 4 default modes + 13 flags
 
-    // Note and Publication should no longer have the tag
+    // Note and Source should no longer have the tag
     const resNoteAfter = await request(app)
       .get(`/notes/${urlToId(noteUrl)}`)
       .set('Host', 'reader-api.test')
@@ -145,13 +145,13 @@ const test = async app => {
 
     await tap.equal(resNoteAfter.body.tags.length, 0)
 
-    const resPubAfter = await request(app)
-      .get(`/publications/${urlToId(publication.id)}`)
+    const resSourceAfter = await request(app)
+      .get(`/sources/${urlToId(source.id)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(resPubAfter.body.tags.length, 0)
+    await tap.equal(resSourceAfter.body.tags.length, 0)
   })
 
   await tap.test(

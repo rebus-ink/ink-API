@@ -9,11 +9,10 @@ const {
   createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
-const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   const tag1 = await createTag(app, token)
   const tagId1 = tag1.id

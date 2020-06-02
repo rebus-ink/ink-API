@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,31 +12,31 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({ name: 'Publication 1' })
-  await createPublicationSimplified({ name: 'Publication 2' })
-  await createPublicationSimplified({ name: 'Publication 3' })
-  await createPublicationSimplified({ name: 'Publication 4' })
-  await createPublicationSimplified({ name: 'Publication 5' })
-  await createPublicationSimplified({ name: 'Publication 6' })
-  await createPublicationSimplified({ name: 'Publication 7' })
-  await createPublicationSimplified({ name: 'Publication 8' })
-  await createPublicationSimplified({ name: 'Publication 9' })
-  await createPublicationSimplified({
-    name: 'Publication 10'
+  await createSourceSimplified({ name: 'Source 1' })
+  await createSourceSimplified({ name: 'Source 2' })
+  await createSourceSimplified({ name: 'Source 3' })
+  await createSourceSimplified({ name: 'Source 4' })
+  await createSourceSimplified({ name: 'Source 5' })
+  await createSourceSimplified({ name: 'Source 6' })
+  await createSourceSimplified({ name: 'Source 7' })
+  await createSourceSimplified({ name: 'Source 8' })
+  await createSourceSimplified({ name: 'Source 9' })
+  await createSourceSimplified({
+    name: 'Source 10'
   })
-  await createPublicationSimplified({
-    name: 'Publication 11'
+  await createSourceSimplified({
+    name: 'Source 11'
   })
-  await createPublicationSimplified({ name: 'Publication 12' })
-  await createPublicationSimplified({
-    name: 'Publication 13'
+  await createSourceSimplified({ name: 'Source 12' })
+  await createSourceSimplified({
+    name: 'Source 13'
   })
-  await createPublicationSimplified({ name: 'superbook' })
-  await createPublicationSimplified({ name: 'Super great book!' })
+  await createSourceSimplified({ name: 'superbook' })
+  await createSourceSimplified({ name: 'Super great book!' })
 
   await tap.test('Filter Library by title', async () => {
     const res = await request(app)
@@ -55,7 +55,7 @@ const test = async () => {
 
   await tap.test('Filter Library by title with pagination', async () => {
     const res2 = await request(app)
-      .get(`/library?title=publication`)
+      .get(`/library?title=source`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
@@ -64,7 +64,7 @@ const test = async () => {
     await tap.equal(res2.body.items.length, 10)
 
     const res3 = await request(app)
-      .get(`/library?title=publication&limit=11`)
+      .get(`/library?title=source&limit=11`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')

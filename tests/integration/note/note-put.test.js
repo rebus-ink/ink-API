@@ -4,23 +4,22 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerUrl = await createUser(app, token)
-  const readerId = urlToId(readerUrl)
+  await createUser(app, token)
 
-  const publication = await createPublication(app, token)
+  const source = await createSource(app, token)
 
-  const publicationId = urlToId(publication.id)
+  const sourceId = urlToId(source.id)
 
   const note = await createNote(app, token, {
     body: { content: 'test content', motivation: 'test' },
-    publicationId,
+    sourceId,
     document: 'doc123',
     json: { property: 'value' },
     canonical: '123'
@@ -48,7 +47,7 @@ const test = async app => {
     await tap.equal(body.body[0].content, 'new content')
     await tap.notEqual(body.published, body.updated)
     // check that old properties are still there
-    await tap.type(body.publicationId, 'string')
+    await tap.type(body.sourceId, 'string')
     await tap.equal(body.json.property, 'value')
   })
 
@@ -110,7 +109,7 @@ const test = async app => {
     const newNote = Object.assign(note, {
       canonical: undefined,
       document: undefined,
-      stylesheet: undefined /* publicationId: undefined */
+      stylesheet: undefined /* sourceId: undefined */
     })
 
     const res = await request(app)
@@ -127,7 +126,7 @@ const test = async app => {
     await tap.notOk(body.canonical)
     await tap.notOk(body.stylesheet)
     await tap.notOk(body.document)
-    // await tap.notOk(body.publicationId)
+    // await tap.notOk(body.sourceId)
   })
 
   await tap.test(

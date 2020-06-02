@@ -4,23 +4,23 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
-  const publication = await createPublication(app, token, {
-    name: 'Publication A'
+  await createUser(app, token)
+  const source = await createSource(app, token, {
+    name: 'Source A'
   })
-  const publicationUrl = publication.id
-  const publicationId = urlToId(publicationUrl)
+  const sourceUrl = source.id
+  const sourceId = urlToId(sourceUrl)
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { publicationId, body: { motivation: 'test' } },
+      { sourceId, body: { motivation: 'test' } },
       object
     )
     return await createNote(app, token, noteObj)

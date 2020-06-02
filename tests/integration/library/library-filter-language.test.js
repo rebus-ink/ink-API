@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,69 +12,69 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication 10',
+  await createSourceSimplified({
+    name: 'Source 10',
     inLanguage: ['de', 'km']
   })
-  await createPublicationSimplified({
-    name: 'Publication 11',
+  await createSourceSimplified({
+    name: 'Source 11',
     inLanguage: 'km'
   })
-  await createPublicationSimplified({ name: 'Publication 12' })
-  await createPublicationSimplified({
-    name: 'Publication 13',
+  await createSourceSimplified({ name: 'Source 12' })
+  await createSourceSimplified({
+    name: 'Source 13',
     inLanguage: ['km']
   })
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 4 - the sequel',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 5',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 6',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 7',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 8 - the sequel',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 9',
     inLanguage: ['en', 'km']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 10',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 11',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 12',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 13',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 14',
     inLanguage: ['en', 'fr']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 15 - the sequel',
     inLanguage: ['fr']
   })

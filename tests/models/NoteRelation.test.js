@@ -42,7 +42,7 @@ const test = async app => {
     readerId
   )
 
-  let noteRel1_2, noteRel2_3, noteRel4
+  let noteRel1_2, noteRel2_3
 
   await tap.test('Create NoteRelation with two notes', async () => {
     let error
@@ -82,7 +82,7 @@ const test = async app => {
   await tap.test('Try to create a NoteRelation without a type', async () => {
     let error
     try {
-      noteRel4 = await NoteRelation.createNoteRelation(
+      await NoteRelation.createNoteRelation(
         {
           from: noteId4,
           to: noteId2,
@@ -102,7 +102,7 @@ const test = async app => {
     async () => {
       let error
       try {
-        noteRel4 = await NoteRelation.createNoteRelation(
+        await NoteRelation.createNoteRelation(
           {
             type: 'test',
             to: noteId2,

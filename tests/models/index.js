@@ -1,11 +1,11 @@
-const publicationTests = require('./Publication.test')
+const sourceTests = require('./Source.test')
 const readerTests = require('./Reader.test')
 const noteTests = require('./Note.test')
 const tagTests = require('./Tag.test')
 const readActivityTests = require('./ReadActivity.test')
-const attributionTests = require('./Attribution.test')
+// const attributionTests = require('./Attribution.test')
 const noteBodyTests = require('./NoteBody.test')
-const noteContextTests = require('./NoteContext.test')
+// const noteContextTests = require('./NoteContext.test')
 const noteRelationTests = require('./NoteRelation.test')
 const notebookTests = require('./Notebook.test')
 const notebookTagTests = require('./Notebook_Tag.test')
@@ -30,7 +30,7 @@ const allTests = async () => {
     await app.knex.migrate.latest()
   }
 
-  await publicationTests(app)
+  await sourceTests(app)
   // await attributionTests(app) // skipped for now. need to fix create attribution tests
   await readerTests(app)
   await noteTests(app)

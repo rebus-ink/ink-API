@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNoteContext,
   createNote
 } = require('../../utils/testUtils')
@@ -15,12 +15,11 @@ const test = async app => {
   const readerUrl = await createUser(app, token)
   const readerId = urlToId(readerUrl)
 
-  const publication = await createPublication(app, token)
-  const publicationId = urlToId(publication.id)
-  const publicationUrl = publication.id
+  const source = await createSource(app, token)
+  const sourceId = urlToId(source.id)
 
-  // pub2
-  await createPublication(app, token)
+  // source2
+  await createSource(app, token)
 
   const context = await createNoteContext(app, token, {
     type: 'test',
@@ -99,7 +98,7 @@ const test = async app => {
     await tap.equal(body.body[1].motivation, 'test')
   })
 
-  await tap.test('Create Note with publicationId', async () => {
+  await tap.test('Create Note with sourceId', async () => {
     const res = await request(app)
       .post(`/noteContexts/${contextId}/notes`)
       .set('Host', 'reader-api.test')
@@ -111,7 +110,7 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
-          publicationId
+          sourceId
         })
       )
     await tap.equal(res.status, 201)
@@ -123,7 +122,7 @@ const test = async app => {
     await tap.ok(body.body)
     await tap.ok(body.body[0].content)
     await tap.equal(body.body[0].motivation, 'test')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
   })
 
   // ADD TESTS: notes should show up when fetching the context

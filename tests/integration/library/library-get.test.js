@@ -1,24 +1,16 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
-  createTag,
-  addPubToCollection
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
-const { urlToId } = require('../../../utils/utils')
 
 const test = async () => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerUrl = urlparse(readerCompleteUrl).path
-  const readerId = urlToId(readerCompleteUrl)
-
-  let time
+  await createUser(app, token)
 
   await tap.test('Get empty library', async () => {
     const res = await request(app)
@@ -35,10 +27,10 @@ const test = async () => {
     await tap.ok(Array.isArray(body.items))
   })
 
-  await tap.test('Get Library containing a publication', async () => {
-    await createPublication(app, token, {
+  await tap.test('Get Library containing a source', async () => {
+    await createSource(app, token, {
       type: 'Book',
-      name: 'Publication A',
+      name: 'Source A',
       author: ['John Smith'],
       editor: 'Jane Doe',
       contributor: ['Sample Contributor'],
@@ -79,42 +71,42 @@ const test = async () => {
     await tap.equal(body.pageSize, 10)
     await tap.ok(Array.isArray(body.items))
     // documents should include:
-    const pub = body.items[0]
-    await tap.equal(pub.type, 'Book')
-    await tap.type(pub.id, 'string')
-    await tap.type(pub.name, 'string')
-    await tap.equal(pub.name, 'Publication A')
-    await tap.equal(pub.author[0].name, 'John Smith')
-    await tap.equal(pub.editor[0].name, 'Jane Doe')
-    await tap.ok(pub.links)
-    // await tap.equal(pub.contributor[0].name, 'Sample Contributor')
-    // await tap.equal(pub.creator[0].name, 'Sample Creator')
-    // await tap.equal(pub.illustrator[0].name, 'Sample Illustrator')
-    // await tap.equal(pub.publisher[0].name, 'Sample Publisher')
-    // await tap.equal(pub.translator[0].name, 'Sample Translator')
-    // await tap.equal(pub.keywords[0], 'one')
-    // await tap.ok(pub.json)
-    await tap.ok(pub.resources)
-    await tap.equal(pub.encodingFormat, 'epub')
-    await tap.equal(pub.bookFormat, 'EBook')
+    const source = body.items[0]
+    await tap.equal(source.type, 'Book')
+    await tap.type(source.id, 'string')
+    await tap.type(source.name, 'string')
+    await tap.equal(source.name, 'Source A')
+    await tap.equal(source.author[0].name, 'John Smith')
+    await tap.equal(source.editor[0].name, 'Jane Doe')
+    await tap.ok(source.links)
+    // await tap.equal(source.contributor[0].name, 'Sample Contributor')
+    // await tap.equal(source.creator[0].name, 'Sample Creator')
+    // await tap.equal(source.illustrator[0].name, 'Sample Illustrator')
+    // await tap.equal(source.sourcelisher[0].name, 'Sample Sourcelisher')
+    // await tap.equal(source.translator[0].name, 'Sample Translator')
+    // await tap.equal(source.keywords[0], 'one')
+    // await tap.ok(source.json)
+    await tap.ok(source.resources)
+    await tap.equal(source.encodingFormat, 'epub')
+    await tap.equal(source.bookFormat, 'EBook')
     // // documents should NOT include:
-    await tap.notOk(pub.readingOrder)
-    await tap.notOk(pub.contributor)
-    await tap.notOk(pub.creator)
-    await tap.notOk(pub.illustrator)
-    await tap.notOk(pub.publisher)
-    await tap.notOk(pub.translator)
-    await tap.notOk(pub.keywords)
-    await tap.notOk(pub.json)
-    await tap.notOk(pub.abstract)
-    await tap.notOk(pub.numberOfPages)
-    await tap.notOk(pub.url)
-    await tap.notOk(pub.dateModified)
-    await tap.notOk(pub.bookEdition)
-    await tap.notOk(pub.isbn)
-    await tap.notOk(pub.copyrightYear)
-    await tap.notOk(pub.genre)
-    await tap.notOk(pub.license)
+    await tap.notOk(source.readingOrder)
+    await tap.notOk(source.contributor)
+    await tap.notOk(source.creator)
+    await tap.notOk(source.illustrator)
+    await tap.notOk(source.publisher)
+    await tap.notOk(source.translator)
+    await tap.notOk(source.keywords)
+    await tap.notOk(source.json)
+    await tap.notOk(source.abstract)
+    await tap.notOk(source.numberOfPages)
+    await tap.notOk(source.url)
+    await tap.notOk(source.dateModified)
+    await tap.notOk(source.bookEdition)
+    await tap.notOk(source.isbn)
+    await tap.notOk(source.copyrightYear)
+    await tap.notOk(source.genre)
+    await tap.notOk(source.license)
   })
 
   // if (process.env.REDIS_PASSWORD) {
@@ -190,12 +182,12 @@ const test = async () => {
   //     }
   //   )
 
-  //   let publication
+  //   let source
 
   //   await tap.test(
-  //     'Get Library with if-modified-since header - after publication created',
+  //     'Get Library with if-modified-since header - after source created',
   //     async () => {
-  //       publication = await createPublication(app, token)
+  //       source = await createSource(app, token)
 
   //       const res = await request(app)
   //         .get('/library')
@@ -214,7 +206,7 @@ const test = async () => {
   //   )
 
   //   await tap.test(
-  //     'Get Library with if-modified-since header - after publication updated',
+  //     'Get Library with if-modified-since header - after source updated',
   //     async () => {
   //       await request(app)
   //         .post(`${readerUrl}/activity`)
@@ -225,8 +217,8 @@ const test = async () => {
   //           JSON.stringify({
   //             type: 'Update',
   //             object: {
-  //               type: 'Publication',
-  //               id: publication.id,
+  //               type: 'Source',
+  //               id: source.id,
   //               abstract: 'new description!'
   //             }
   //           })
@@ -248,13 +240,13 @@ const test = async () => {
   //   )
 
   //   await tap.test(
-  //     'Get Library with if-modified-since header - after publication added to collection',
+  //     'Get Library with if-modified-since header - after source added to collection',
   //     async () => {
-  //       await addPubToCollection(
+  //       await addSourceToCollection(
   //         app,
   //         token,
   //         readerId,
-  //         publication.id,
+  //         source.id,
   //         collectionId
   //       )
 
@@ -275,12 +267,12 @@ const test = async () => {
   //   )
 
   //   await tap.test(
-  //     'Get Library with if-modified-since header - after publication removed from collection',
+  //     'Get Library with if-modified-since header - after source removed from collection',
   //     async () => {
   //       await request(app)
   //         .delete(
-  //           `/readers/${readerId}/publications/${urlToId(
-  //             publication.id
+  //           `/readers/${readerId}/sources/${urlToId(
+  //             source.id
   //           )}/tags/${urlToId(collectionId)}`
   //         )
   //         .set('Host', 'reader-api.test')
@@ -304,7 +296,7 @@ const test = async () => {
   //   )
 
   //   await tap.test(
-  //     'Get Library with if-modified-since header - after publication deleted',
+  //     'Get Library with if-modified-since header - after source deleted',
   //     async () => {
   //       await request(app)
   //         .post(`${readerUrl}/activity`)
@@ -315,8 +307,8 @@ const test = async () => {
   //           JSON.stringify({
   //             type: 'Delete',
   //             object: {
-  //               type: 'Publication',
-  //               id: publication.id
+  //               type: 'Source',
+  //               id: source.id
   //             }
   //           })
   //         )

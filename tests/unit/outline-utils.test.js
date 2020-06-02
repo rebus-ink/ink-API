@@ -19,9 +19,9 @@ const test = async () => {
       readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
       target: { property: 'something' },
       documentUrl:
-        'https://reader-api.test/publications/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55/path/1',
-      publicationId:
-        'https://reader-api.test/publications/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55',
+        'https://reader-api.test/sources/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55/path/1',
+      sourceId:
+        'https://reader-api.test/sources/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55',
       published: '2020-02-28T13:55:40.345Z',
       updated: '2020-02-28T13:55:40.345Z',
       body: [{ content: 'note content 1', motivation: 'test' }],

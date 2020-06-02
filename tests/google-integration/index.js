@@ -1,6 +1,4 @@
-const fileUploadTests = require('./file-upload.test')
 const searchTests = require('./search.test')
-const fileUploadPubTests = require('./file-upload-pub.test')
 
 const app = require('../../server').app
 
@@ -14,8 +12,6 @@ const allTests = async () => {
   }
 
   await searchTests(app)
-  await fileUploadPubTests(app)
-  // await fileUploadTests(app)
 
   await app.knex.migrate.rollback()
   await app.terminate()

@@ -31,7 +31,7 @@ module.exports = function (app) {
    *       404:
    *         description: Note not found
    *       403:
-   *         description: 'Access to publication {noteId} disallowed'
+   *         description: 'Access to Note {noteId} disallowed'
    */
   app.use('/', router)
   router.route('/notes/:noteId').delete(jwtAuth, function (req, res, next) {

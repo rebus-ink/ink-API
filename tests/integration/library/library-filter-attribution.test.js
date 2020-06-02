@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,48 +12,48 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication A',
+  await createSourceSimplified({
+    name: 'Source A',
     author: 'John Smith',
     editor: 'Jane Doe'
   })
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 1',
     author: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3',
     author: 'John Smith',
     editor: 'John doe'
   })
 
   // adding for other attribution types
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3b',
     contributor: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3c',
     creator: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3d',
     illustrator: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3e',
     publisher: 'John Doe'
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 3f',
     translator: 'John Doe'
   })
@@ -99,73 +99,73 @@ const test = async () => {
     }
   )
 
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 5',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 6',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 7',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 8 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 9',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en', 'km']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 10',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 11',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 12',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 13',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 14',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en', 'fr']
   })
-  await createPublicationSimplified({
+  await createSourceSimplified({
     name: 'new book 15 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',

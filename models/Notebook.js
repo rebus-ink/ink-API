@@ -40,7 +40,7 @@ class Notebook extends BaseModel {
     const { Note } = require('./Note')
     const { NoteContext } = require('./NoteContext')
     const { Tag } = require('./Tag')
-    const { Publication } = require('./Publication')
+    const { Source } = require('./Source')
 
     return {
       reader: {
@@ -79,16 +79,16 @@ class Notebook extends BaseModel {
           to: 'Tag.id'
         }
       },
-      publications: {
+      sources: {
         relation: Model.ManyToManyRelation,
-        modelClass: Publication,
+        modelClass: Source,
         join: {
           from: 'Notebook.id',
           through: {
-            from: 'notebook_pub.notebookId',
-            to: 'notebook_pub.publicationId'
+            from: 'notebook_source.notebookId',
+            to: 'notebook_source.sourceId'
           },
-          to: 'Publication.id'
+          to: 'Source.id'
         }
       },
       notes: {
@@ -146,7 +146,7 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[body], notebookTags(notDeleted), noteContexts(notDeleted), tags(notDeleted), publications(notDeleted)]'
+        '[reader, notes(notDeleted).[body], notebookTags(notDeleted), noteContexts(notDeleted), tags(notDeleted), sources(notDeleted)]'
       )
       .modifiers({
         notDeleted (builder) {

@@ -72,7 +72,7 @@ module.exports = function (app) {
           }
 
           Note_Tag.addTagToNote(noteId, tagId)
-            .then(async result => {
+            .then(async () => {
               res.status(204).end()
             })
             .catch(err => {

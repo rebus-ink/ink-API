@@ -5,7 +5,6 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
-const urlparse = require('url').parse
 const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
 
@@ -19,7 +18,7 @@ type NoteType = {
   body?: Object,
   json?: Object,
   document?: string,
-  publicationId?: string,
+  sourceId?: string,
   contextId?: string,
   original?: string,
   previous?: string,
@@ -45,7 +44,7 @@ class Note extends BaseModel {
         canonical: { type: ['string', 'null'] },
         stylesheet: { type: ['object', 'null'] },
         target: { type: ['object', 'null'] },
-        publicationId: { type: ['string', 'null'] },
+        sourceId: { type: ['string', 'null'] },
         document: { type: ['string', 'null'] },
         body: { type: 'object' },
         json: { type: ['object', 'null'] },
@@ -64,7 +63,7 @@ class Note extends BaseModel {
   }
 
   static get relationMappings () /*: any */ {
-    const { Publication } = require('./Publication.js')
+    const { Source } = require('./Source.js')
     const { Reader } = require('./Reader.js')
     const { Tag } = require('./Tag.js')
     const { NoteRelation } = require('./NoteRelation')
@@ -78,12 +77,12 @@ class Note extends BaseModel {
           to: 'Reader.id'
         }
       },
-      publication: {
+      source: {
         relation: Model.BelongsToOneRelation,
-        modelClass: Publication,
+        modelClass: Source,
         join: {
-          from: 'Note.publicationId',
-          to: 'Publication.id'
+          from: 'Note.sourceId',
+          to: 'Source.id'
         }
       },
       body: {
@@ -140,7 +139,7 @@ class Note extends BaseModel {
       'canonical',
       'stylesheet',
       'target',
-      'publicationId',
+      'sourceId',
       'json',
       'readerId',
       'document',
@@ -211,8 +210,8 @@ class Note extends BaseModel {
     try {
       createdNote = await Note.query().insertAndFetch(props)
     } catch (err) {
-      if (err.constraint === 'note_publicationid_foreign') {
-        throw new Error('no publication')
+      if (err.constraint === 'note_sourceid_foreign') {
+        throw new Error('no source')
       } else if (err.constraint === 'note_contextid_foreign') {
         throw new Error('no context')
       } else if (err.constraint === 'note_previous_foreign') {
@@ -327,7 +326,7 @@ class Note extends BaseModel {
       'document',
       'next',
       'parentId',
-      /* 'publicationId', */ 'json'
+      /* 'sourceId', */ 'json'
     ]
     propsCanBeDeleted.forEach(prop => {
       if (note[prop] === undefined) {

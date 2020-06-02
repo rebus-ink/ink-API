@@ -4,7 +4,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication
+  createSource
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -12,21 +12,21 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const createPublicationSimplified = async object => {
-    return await createPublication(app, token, object)
+  const createSourceSimplified = async object => {
+    return await createSource(app, token, object)
   }
 
-  await createPublicationSimplified({
-    name: 'Publication 1',
+  await createSourceSimplified({
+    name: 'Source 1',
     type: 'Article',
     author: 'anonymous'
   })
-  await createPublicationSimplified({
-    name: 'Publication 2',
+  await createSourceSimplified({
+    name: 'Source 2',
     type: 'Manuscript'
   })
-  await createPublicationSimplified({
-    name: 'Publication 3',
+  await createSourceSimplified({
+    name: 'Source 3',
     type: 'Book',
     illustrator: 'anonymous'
   })
@@ -37,9 +37,9 @@ const test = async () => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.items[0].name, 'Publication 1')
-    await tap.equal(res.body.items[1].name, 'Publication 3')
-    await tap.equal(res.body.items[2].name, 'Publication 2')
+    await tap.equal(res.body.items[0].name, 'Source 1')
+    await tap.equal(res.body.items[1].name, 'Source 3')
+    await tap.equal(res.body.items[2].name, 'Source 2')
   })
 
   await tap.test('Order Library by type, reversed', async () => {
@@ -48,18 +48,18 @@ const test = async () => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.items[0].name, 'Publication 2')
-    await tap.equal(res.body.items[1].name, 'Publication 3')
-    await tap.equal(res.body.items[2].name, 'Publication 1')
+    await tap.equal(res.body.items[0].name, 'Source 2')
+    await tap.equal(res.body.items[1].name, 'Source 3')
+    await tap.equal(res.body.items[2].name, 'Source 1')
   })
 
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({
     name: 'ZZZ',
     type: 'Manuscript',
     author: 'anonymous'
   })
-  await createPublicationSimplified({ name: 'zzz', type: 'Article' })
+  await createSourceSimplified({ name: 'zzz', type: 'Article' })
 
   await tap.test('Order Library by type with filter by title', async () => {
     const res1 = await request(app)
@@ -83,7 +83,7 @@ const test = async () => {
 
     await tap.equal(res2.body.items.length, 2)
 
-    await tap.equal(res2.body.items[0].name, 'Publication 1')
+    await tap.equal(res2.body.items[0].name, 'Source 1')
     await tap.equal(res2.body.items[1].name, 'ZZZ')
   })
 
@@ -98,24 +98,24 @@ const test = async () => {
 
       await tap.equal(res3.body.items.length, 3)
 
-      await tap.equal(res3.body.items[0].name, 'Publication 1')
-      await tap.equal(res3.body.items[1].name, 'Publication 3')
+      await tap.equal(res3.body.items[0].name, 'Source 1')
+      await tap.equal(res3.body.items[1].name, 'Source 3')
       await tap.equal(res3.body.items[2].name, 'ZZZ')
     }
   )
 
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
-  await createPublicationSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
+  await createSourceSimplified({ name: 'zbc', type: 'Book' })
 
   await tap.test('Order Library by type with pagination', async () => {
     const res = await request(app)

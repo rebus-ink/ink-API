@@ -5,7 +5,7 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createPublication,
+  createSource,
   createNote,
   createNoteRelation
 } = require('../../utils/testUtils')
@@ -14,16 +14,16 @@ const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
-  const publication = await createPublication(app, token)
-  const publicationUrl = publication.id
-  const publicationId = publication.shortId
+  const source = await createSource(app, token)
+  const sourceUrl = source.id
+  const sourceId = source.shortId
 
   const note = await createNote(app, token, {
     body: { motivation: 'test', content: 'content goes here' },
     target: { property1: 'target information' },
-    publicationId,
+    sourceId,
     document: 'doc123'
   })
   const noteId = urlToId(note.id)
@@ -46,7 +46,7 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.equal(body.document, 'doc123')
     await tap.ok(body.published)
     await tap.ok(body.updated)
@@ -66,7 +66,7 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.publicationId), publicationId)
+    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.ok(body.published)
     await tap.ok(body.updated)
   })
@@ -124,9 +124,9 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/notes/${noteId}123`)
   })
 
-  await tap.test('Get Publication with reference to Notes', async () => {
+  await tap.test('Get Source with reference to Notes', async () => {
     const res = await request(app)
-      .get(`/publications/${urlToId(publicationUrl)}`)
+      .get(`/sources/${urlToId(sourceUrl)}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
