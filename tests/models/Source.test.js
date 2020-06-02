@@ -645,10 +645,10 @@ const test = async app => {
     await Source_Tag.addTagToSource(sourceId, tagAdded.id)
 
     // Get the Source with new tags
-    const source = await Source.byId(sourceId)
+    const source1 = await Source.byId(sourceId)
 
-    await tap.equal(source.tags.length, 1)
-    await tap.equal(source.tags[0].name, 'tagAdded')
+    await tap.equal(source1.tags.length, 1)
+    await tap.equal(source1.tags[0].name, 'tagAdded')
 
     const res = await Source.delete(sourceId)
 

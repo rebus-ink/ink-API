@@ -11,7 +11,6 @@ const {
   createNoteRelation,
   createOutline
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
@@ -30,7 +29,7 @@ const test = async app => {
   })
 
   // add stuff for reader
-  const pub = await createSource(app, token)
+  const source = await createSource(app, token)
   const note1 = await createNote(app, token)
   const note2 = await createNote(app, token)
   const context = await createNoteContext(app, token, {
@@ -91,7 +90,7 @@ const test = async app => {
     'Cannot get deleted source, note, noteContext, tag... belonging to deleted reader',
     async () => {
       const resPub = await request(app)
-        .get(`/sources/${pub.shortId}`)
+        .get(`/sources/${source.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -102,9 +101,9 @@ const test = async app => {
       await tap.equal(errorPub.error, 'Not Found')
       await tap.equal(
         errorPub.message,
-        `No Source found with id ${pub.shortId}`
+        `No Source found with id ${source.shortId}`
       )
-      await tap.equal(errorPub.details.requestUrl, `/sources/${pub.shortId}`)
+      await tap.equal(errorPub.details.requestUrl, `/sources/${source.shortId}`)
 
       const resNote = await request(app)
         .get(`/notes/${note1.shortId}`)
@@ -228,7 +227,7 @@ const test = async app => {
 
       // PATCH /sources/:id
       const res2 = await request(app)
-        .patch(`/sources/${pub.shortId}`)
+        .patch(`/sources/${source.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -236,12 +235,15 @@ const test = async app => {
 
       await tap.equal(res2.status, 404)
       const error2 = JSON.parse(res2.text)
-      await tap.equal(error2.message, `No Source found with id ${pub.shortId}`)
+      await tap.equal(
+        error2.message,
+        `No Source found with id ${source.shortId}`
+      )
       await tap.ok(error2.details.requestUrl)
 
       // DELETE /sources/:id
       const res3 = await request(app)
-        .delete(`/sources/${pub.shortId}`)
+        .delete(`/sources/${source.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -251,9 +253,9 @@ const test = async app => {
       await tap.equal(error3.message, `No reader found with this token`)
       await tap.ok(error3.details.requestUrl)
 
-      // PUT /sources/:pubId/tags/:tagId
+      // PUT /sources/:sourceId/tags/:tagId
       const res4 = await request(app)
-        .put(`/sources/${pub.shortId}/tags/${tag.shortId}`)
+        .put(`/sources/${source.shortId}/tags/${tag.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -263,9 +265,9 @@ const test = async app => {
       await tap.equal(error4.message, `No reader found with this token`)
       await tap.ok(error4.details.requestUrl)
 
-      // DELETE /sources/:pubId/tags/:tagId
+      // DELETE /sources/:sourceId/tags/:tagId
       const res5 = await request(app)
-        .delete(`/sources/${pub.shortId}/tags/${tag.shortId}`)
+        .delete(`/sources/${source.shortId}/tags/${tag.shortId}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -277,7 +279,7 @@ const test = async app => {
 
       // POST /sources/:id/readActivity
       const res6 = await request(app)
-        .post(`/sources/${pub.shortId}/readActivity`)
+        .post(`/sources/${source.shortId}/readActivity`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -305,7 +307,7 @@ const test = async app => {
           JSON.stringify({
             operation: 'add',
             property: 'keywords',
-            sources: [pub.shortId],
+            sources: [source.shortId],
             value: 'test'
           })
         )

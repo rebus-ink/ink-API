@@ -17,8 +17,8 @@ const test = async app => {
   const sourceId = urlToId(source.id)
   const sourceUrl = source.id
 
-  const source2 = await createSource(app, token)
-  const sourceId2 = urlToId(source2.id)
+  // source2
+  await createSource(app, token)
 
   await tap.test('Create Note with single body', async () => {
     const res = await request(app)

@@ -32,7 +32,7 @@ const readActivityPostRoute = require('./routes/sources/readActivity-post') // P
 const sourceBatchUpdate = require('./routes/sources/source-batchUpdate') // PATCH /sources/batchUpdate
 
 // Search
-const searchRoute = require('./routes/search') // not working!
+// const searchRoute = require('./routes/search') // not working!
 
 // Tags
 const getTagsRoute = require('./routes/tags/tags-get') // GET /tags

@@ -86,7 +86,7 @@ const test = async app => {
       .send(
         JSON.stringify({
           type: 'Article',
-          name: 'New name for pub A',
+          name: 'New name for source A',
           // datePublished: timestamp,
           abstract: 'New description for Source',
           numberOfPages: 444,
@@ -117,7 +117,7 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.equal(body.name, 'New name for pub A')
+    await tap.equal(body.name, 'New name for source A')
     await tap.equal(body.abstract, 'New description for Source')
     // await tap.equal(body.datePublished, timestamp)
     await tap.equal(body.json.property, 'New value for json property')

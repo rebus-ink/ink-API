@@ -122,7 +122,8 @@ const test = async () => {
 
   // create noteContexts
 
-  const context1 = await NoteContext.query().insertAndFetch({
+  // context1
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook1.id)
@@ -134,7 +135,8 @@ const test = async () => {
     notebookId: urlToId(notebook3.id)
   })
 
-  const context3 = await NoteContext.query().insertAndFetch({
+  // context3
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook3.id),

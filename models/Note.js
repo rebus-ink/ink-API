@@ -5,7 +5,6 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
-const urlparse = require('url').parse
 const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
 

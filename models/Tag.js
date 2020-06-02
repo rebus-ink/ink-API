@@ -6,9 +6,6 @@ const { Note_Tag } = require('./Note_Tag')
 const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
 const crypto = require('crypto')
-const { Reader } = require('./Reader')
-const { Notebook } = require('./Notebook')
-const { Model } = require('objection')
 
 /*::
 type TagType = {

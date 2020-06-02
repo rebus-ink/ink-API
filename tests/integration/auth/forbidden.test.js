@@ -32,7 +32,6 @@ const test = async app => {
   const token2 = getToken()
   const readerCompleteUrl2 = await createUser(app, token2)
   const readerUrl2 = urlparse(readerCompleteUrl2).path
-  const readerId2 = urlToId(readerCompleteUrl2)
 
   // create source and tag for reader 1
   const source = await createSource(app, token)

@@ -120,7 +120,8 @@ const test = async () => {
   })
 
   // create noterelation
-  const relation1 = await NoteRelation.query().insertAndFetch({
+  // relation1
+  await NoteRelation.query().insertAndFetch({
     from: urlToId(note1.id),
     to: urlToId(note3.id),
     type: 'test',
@@ -135,7 +136,8 @@ const test = async () => {
   })
 
   // noterelation that is deleted directly
-  const relation3 = await NoteRelation.query().insertAndFetch({
+  // relation3
+  await NoteRelation.query().insertAndFetch({
     from: urlToId(note4.id),
     to: urlToId(note3.id),
     type: 'test',

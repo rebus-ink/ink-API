@@ -14,7 +14,7 @@ const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   const source = await createSource(app, token)
   const sourceUrl = source.id

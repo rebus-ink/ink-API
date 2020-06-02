@@ -1,7 +1,6 @@
 const { Note } = require('./Note')
 const { Reader } = require('./Reader')
 const { urlToId } = require('../utils/utils')
-const urlparse = require('url').parse
 
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {

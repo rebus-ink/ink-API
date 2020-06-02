@@ -19,7 +19,8 @@ const test = async app => {
   const source = await createSource(app, token)
   const sourceId = urlToId(source.id)
 
-  const source2 = await createSource(app, token)
+  // source2
+  await createSource(app, token)
 
   const outline = await createNoteContext(app, token, {
     name: 'my outline',
@@ -32,7 +33,7 @@ const test = async app => {
   })
   const noteId = urlToId(note.id)
   let noteCopy
-  let note1, note2, note3, note4, note5, note6
+  let note1, note4, note5, note6
 
   await tap.test('Add to outline a Note with a single body', async () => {
     const res = await request(app)

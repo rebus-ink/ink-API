@@ -180,8 +180,8 @@ module.exports = app => {
         })
         .then(count => {
           let reader = returnedReader
-          let sources = reader.sources.map(pub => {
-            return _.pick(pub.toJSON(), [
+          let sources = reader.sources.map(source => {
+            return _.pick(source.toJSON(), [
               'id',
               'name',
               'datePublished',

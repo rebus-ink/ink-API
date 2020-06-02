@@ -587,9 +587,9 @@ class Source extends BaseModel {
       const source = await Source.query().findById(sourceId)
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         // add item to existing list
@@ -603,11 +603,11 @@ class Source extends BaseModel {
           newMetadata[body.property] = source.metadata[body.property].concat(
             body.value
           )
-          await Source.query().patchAndFetchById(source, {
+          await Source.query().patchAndFetchById(sourceId, {
             metadata: newMetadata
           })
           result.push({
-            id: source,
+            id: sourceId,
             status: 204
           })
           // add item to empty list or undefined prop
@@ -617,17 +617,17 @@ class Source extends BaseModel {
         ) {
           const newMetadata = source.metadata
           newMetadata[body.property] = body.value
-          await Source.query().patchAndFetchById(source, {
+          await Source.query().patchAndFetchById(sourceId, {
             metadata: newMetadata
           })
           result.push({
-            id: source,
+            id: sourceId,
             status: 204
           })
           // if already exists in the list, do not do anything
         } else {
           result.push({
-            id: source,
+            id: sourceId,
             status: 204
           })
         }
@@ -644,9 +644,9 @@ class Source extends BaseModel {
       const source = await Source.query().findById(sourceId)
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         // remove existing item from list
@@ -661,18 +661,18 @@ class Source extends BaseModel {
               return body.value.indexOf(item) === -1
             }
           )
-          await Source.query().patchAndFetchById(source, {
+          await Source.query().patchAndFetchById(sourceId, {
             metadata: newMetadata
           })
           result.push({
-            id: source,
+            id: sourceId,
             status: 204
           })
           // r
         } else {
           // if not in the list, do nothing
           result.push({
-            id: source,
+            id: sourceId,
             status: 204
           })
         }
@@ -681,10 +681,7 @@ class Source extends BaseModel {
     return result
   }
 
-  static async batchUpdateAddAttribution (
-    body /*: any */,
-    readerId /*: string */
-  ) /*: Promise<any> */ {
+  static async batchUpdateAddAttribution (body /*: any */) /*: Promise<any> */ {
     const result = []
 
     for (const sourceId of body.sources) {
@@ -693,9 +690,9 @@ class Source extends BaseModel {
         .withGraphFetched('attributions')
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         for (const attribution of body.value) {
@@ -713,7 +710,7 @@ class Source extends BaseModel {
             })
           ) {
             result.push({
-              id: source,
+              id: sourceId,
               status: 204,
               value: attribution
             })
@@ -722,17 +719,17 @@ class Source extends BaseModel {
               await Attribution.createSingleAttribution(
                 body.property,
                 attribution,
-                source,
+                sourceId,
                 urlToId(source.readerId)
               )
               result.push({
-                id: source,
+                id: sourceId,
                 status: 204,
                 value: attribution
               })
             } catch (err) {
               result.push({
-                id: source,
+                id: sourceId,
                 status: 400,
                 message: err.message,
                 value: attribution
@@ -755,9 +752,9 @@ class Source extends BaseModel {
         .withGraphFetched('attributions')
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         for (const attribution of body.value) {
@@ -775,25 +772,25 @@ class Source extends BaseModel {
           ) {
             try {
               await Attribution.deleteAttribution(
-                source,
+                sourceId,
                 body.property,
                 normalizedName
               )
               result.push({
-                id: source,
+                id: sourceId,
                 status: 204,
                 value: attribution
               })
             } catch (err) {
               result.push({
-                id: source,
+                id: sourceId,
                 status: 400,
                 value: attribution
               })
             }
           } else {
             result.push({
-              id: source,
+              id: sourceId,
               status: 204,
               value: attribution
             })
@@ -804,10 +801,7 @@ class Source extends BaseModel {
     return result
   }
 
-  static async batchUpdateAddTags (
-    body /*: any */,
-    readerId /*: string */
-  ) /*: Promise<any> */ {
+  static async batchUpdateAddTags (body /*: any */) /*: Promise<any> */ {
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -815,9 +809,9 @@ class Source extends BaseModel {
         .withGraphFetched('tags')
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         for (const tag of body.value) {
@@ -828,29 +822,29 @@ class Source extends BaseModel {
             })
           ) {
             result.push({
-              id: source,
+              id: sourceId,
               status: 204,
               value: tag
             })
           } else {
             try {
-              await Source_Tag.addTagToSource(source, tag)
+              await Source_Tag.addTagToSource(sourceId, tag)
               result.push({
-                id: source,
+                id: sourceId,
                 status: 204,
                 value: tag
               })
             } catch (err) {
               if (err.message === 'no tag') {
                 result.push({
-                  id: source,
+                  id: sourceId,
                   status: 404,
                   value: tag,
                   message: `No Tag found with id ${tag}`
                 })
               } else {
                 result.push({
-                  id: source,
+                  id: sourceId,
                   status: 400,
                   value: tag,
                   message: err.message
@@ -864,10 +858,7 @@ class Source extends BaseModel {
     return result
   }
 
-  static async batchUpdateRemoveTags (
-    body /*: any */,
-    readerId /*: string */
-  ) /*: Promise<any> */ {
+  static async batchUpdateRemoveTags (body /*: any */) /*: Promise<any> */ {
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -875,9 +866,9 @@ class Source extends BaseModel {
         .withGraphFetched('tags')
       if (!source) {
         result.push({
-          id: source,
+          id: sourceId,
           status: 404,
-          message: `No Source found with id ${source}`
+          message: `No Source found with id ${sourceId}`
         })
       } else {
         for (const tag of body.value) {
@@ -888,21 +879,21 @@ class Source extends BaseModel {
             })
           ) {
             result.push({
-              id: source,
+              id: sourceId,
               status: 204,
               value: tag
             })
           } else {
             try {
-              await Source_Tag.removeTagFromSourceNoError(source, tag)
+              await Source_Tag.removeTagFromSourceNoError(sourceId, tag)
               result.push({
-                id: source,
+                id: sourceId,
                 status: 204,
                 value: tag
               })
             } catch (err) {
               result.push({
-                id: source,
+                id: sourceId,
                 status: 400,
                 value: tag,
                 message: err.message

@@ -16,12 +16,11 @@ const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   const source = await createSource(app, token, {
     name: 'Source A'
   })
-  const sourceUrl = source.id
   const sourceId = urlToId(source.id)
 
   const createNoteSimplified = async object => {

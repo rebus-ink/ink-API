@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { ReaderNotes } = require('../../models/readerNotes')
-const { getId } = require('../../utils/get-id.js')
 const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
@@ -113,7 +112,6 @@ module.exports = app => {
     paginate,
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
-      const id = req.params.id
       const filters = {
         source: req.query.source,
         document: req.query.document,
@@ -167,7 +165,6 @@ module.exports = app => {
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({
-              id: getId(`/readers/${id}/notes`),
               totalItems: parseInt(count),
               items: reader.replies,
               page: req.query.page,

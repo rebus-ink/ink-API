@@ -17,7 +17,7 @@ To start the dev-server (which uses `nodemon` to automatically restart): `npm ru
 
 Test for the database models can be run with `npm run test-models`
 Integration test for the routes can be run with `npm run test-integration`
-You can also run more specific integration tests by doing: `npm run test-integration --test=<category>`. Valid categories are 'activity', 'library', 'note', 'outbox', 'publication', 'reader', 'readerNotes' and 'tag'
+You can also run more specific integration tests by doing: `npm run test-integration --test=<category>`. Valid categories are 'library', 'note', 'source', 'reader', 'readerNotes', 'notebook', 'noteContext', 'noteRelation' and 'tag'
 
 `npm run test` will run all three sets of tests
 
@@ -66,20 +66,7 @@ The documentation for the routes is available at: https://rebusfoundation.github
 Note for developers: inline swagger documentation should be updated whenever you make changes to the routes
 The hosted documentation will be updated automatically once a pull request is merged on master
 
-### Activity types
-
-The server can handle the following activity types.
-
 #### Create Publication
-
-To upload a publication, use an activity with type `Create` and object type
-`Publication`. The publication should include all of its `Document`
-members by value, with their full content.
-
-#### Read Document
-
-To note that a reader has read a document, use an activity with type `Read` and
-object type `Document`.
 
 ## Administration
 

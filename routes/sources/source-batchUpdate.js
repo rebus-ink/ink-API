@@ -7,7 +7,6 @@ const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate } = require('../../utils/cache')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 
 const batchUpdateSimpleProperties = [

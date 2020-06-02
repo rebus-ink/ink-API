@@ -7,7 +7,7 @@ const { Note } = require('../../../models/Note')
 const { Tag } = require('../../../models/Tag')
 const { Note_Tag } = require('../../../models/Note_Tag')
 const { Source } = require('../../../models/Source')
-const { Source_Tag } = require('../../../models/Sources_Tags')
+const { Source_Tag } = require('../../../models/Source_Tag')
 const { Notebook } = require('../../../models/Notebook')
 const { Notebook_Tag } = require('../../../models/Notebook_Tag')
 

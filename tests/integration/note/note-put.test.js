@@ -11,8 +11,7 @@ const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerUrl = await createUser(app, token)
-  const readerId = urlToId(readerUrl)
+  await createUser(app, token)
 
   const source = await createSource(app, token)
 

@@ -17,7 +17,6 @@ const test = async app => {
 
   const source = await createSource(app, token)
   const sourceId = urlToId(source.id)
-  const sourceUrl = source.id
 
   // source2
   await createSource(app, token)

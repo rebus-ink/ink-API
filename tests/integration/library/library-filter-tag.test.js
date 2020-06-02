@@ -1,7 +1,5 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
-const _ = require('lodash')
 const {
   getToken,
   createUser,

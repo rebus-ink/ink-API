@@ -20,7 +20,7 @@ const test = async app => {
   const person = {
     name: 'J. Random Reader'
   }
-  const reader1 = await Reader.createReader(readerId, person)
+  await Reader.createReader(readerId, person)
 
   const source = await createSource(app, token)
 

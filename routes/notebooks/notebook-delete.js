@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const _ = require('lodash')
 const { Notebook } = require('../../models/Notebook')
 const { checkOwnership } = require('../../utils/utils')
 

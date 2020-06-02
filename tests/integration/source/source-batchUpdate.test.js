@@ -391,7 +391,6 @@ const test = async app => {
       .type('application/ld+json')
 
     const source1Body = getSource1.body
-
     await tap.equal(source1Body.inLanguage.length, 1)
     await tap.equal(source1Body.inLanguage[0], 'fr')
     await tap.equal(source1Body.name, 'Source A')

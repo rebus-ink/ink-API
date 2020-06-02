@@ -188,19 +188,22 @@ const test = async () => {
 
   // readActivity
 
-  const readActivity1 = await ReadActivity.query().insertAndFetch({
+  // readActivity1
+  await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId1,
     sourceId: source1.id
   })
 
-  const readActivity2 = await ReadActivity.query().insertAndFetch({
+  // readActivity2
+  await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId2,
     sourceId: source2.id
   })
 
-  const readActivity3 = await ReadActivity.query().insertAndFetch({
+  // readActivity3
+  await ReadActivity.query().insertAndFetch({
     selector: { something: '!!' },
     readerId: readerId3,
     sourceId: source3.id

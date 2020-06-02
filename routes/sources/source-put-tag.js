@@ -73,7 +73,7 @@ module.exports = function (app) {
           }
 
           Source_Tag.addTagToSource(sourceId, tagId)
-            .then(async result => {
+            .then(async () => {
               await libraryCacheUpdate(reader.id)
               res.status(204).end()
             })

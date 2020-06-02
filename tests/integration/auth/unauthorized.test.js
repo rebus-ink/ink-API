@@ -1,12 +1,10 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
   createUser,
   destroyDB,
   createSource,
-  createNote,
   createTag
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
@@ -27,7 +25,7 @@ const test = async app => {
 
   // reader2
   const token2 = getToken()
-  const readerCompleteUrl2 = await createUser(app, token2)
+  await createUser(app, token2)
 
   // create tag for reader 1
 

@@ -6,11 +6,10 @@ const {
   destroyDB,
   createNote
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  const readerId = await createUser(app, token)
+  await createUser(app, token)
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
