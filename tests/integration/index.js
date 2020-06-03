@@ -91,6 +91,9 @@ const notebooksGetFilterStatus = require('./notebook/notebooks-get-filter-status
 const notebooksGetFilterSearchTests = require('./notebook/notebooks-get-filter-search.test')
 const notebooksGetFilterCombinedTests = require('./notebook/notebooks-get-filter-combined.test')
 const notebooksGetFilterColourTests = require('./notebook/notebooks-get-filter-colour.test')
+const notebooksGetOrderByNameTests = require('./notebook/notebooks-get-orderBy-name.test')
+const notebooksGetOrderByCreated = require('./notebook/notebooks-get-orderBy-created.test')
+const notebooksGetOrderByDefaultTests = require('./notebook/notebooks-get-orderBy-default.test')
 
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
@@ -267,6 +270,9 @@ const allTests = async () => {
       await notebooksGetFilterSearchTests(app)
       await notebooksGetFilterCombinedTests(app)
       await notebooksGetFilterColourTests(app)
+      await notebooksGetOrderByNameTests(app)
+      await notebooksGetOrderByCreated(app)
+      await notebooksGetOrderByDefaultTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
     }

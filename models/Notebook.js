@@ -196,6 +196,26 @@ class Notebook extends BaseModel {
 
     this.applyFilters(query, filters)
 
+    if (filters.orderBy === 'name') {
+      if (filters.reverse) {
+        query = query.orderByRaw('LOWER(name) desc')
+      } else {
+        query = query.orderByRaw('LOWER(name) asc')
+      }
+    } else if (filters.orderBy === 'created') {
+      if (filters.reverse) {
+        query = query.orderBy('published')
+      } else {
+        query = query.orderBy('published', 'desc')
+      }
+    } else {
+      if (filters.reverse) {
+        query = query.orderBy('updated')
+      } else {
+        query = query.orderBy('updated', 'desc')
+      }
+    }
+
     return await query
   }
 

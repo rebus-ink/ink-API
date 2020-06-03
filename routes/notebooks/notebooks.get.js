@@ -44,6 +44,16 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         description: colour found in the settings object
+   *       - in: query
+   *         name: orderBy
+   *         type: string
+   *         enum: ['name', 'dateCreated', 'dateUpdated']
+   *       - in: query
+   *         name: reverse
+   *         schema:
+   *           type: boolean
+   *         default: false
+   *         description: a modifier to use with orderBy to reverse the order
    *     security:
    *       - Bearer: []
    *     produces:
@@ -71,7 +81,9 @@ module.exports = function (app) {
       const filters = {
         status: req.query.status,
         search: req.query.search,
-        colour: req.query.colour
+        colour: req.query.colour,
+        orderBy: req.query.orderBy,
+        reverse: req.query.reverse
       }
 
       Reader.byAuthId(req.user)
