@@ -86,6 +86,11 @@ const notebookNoteDeleteTests = require('./notebook/notebook-note-delete.test')
 const notebookNotePostTests = require('./notebook/notebook-note-post.test')
 const notebookTagPutTests = require('./notebook/notebook-tag-put.test')
 const notebookTagDeleteTests = require('./notebook/notebook-tag-delete.test')
+const notebooksGetPaginateTests = require('./notebook/notebooks-get-paginate.test')
+const notebooksGetFilterStatus = require('./notebook/notebooks-get-filter-status.test')
+const notebooksGetFilterSearchTests = require('./notebook/notebooks-get-filter-search.test')
+const notebooksGetFilterCombinedTests = require('./notebook/notebooks-get-filter-combined.test')
+const notebooksGetFilterColourTests = require('./notebook/notebooks-get-filter-colour.test')
 
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
@@ -257,6 +262,11 @@ const allTests = async () => {
       await notebookNotePostTests(app)
       await notebookTagPutTests(app)
       await notebookTagDeleteTests(app)
+      await notebooksGetPaginateTests(app)
+      await notebooksGetFilterStatus(app)
+      await notebooksGetFilterSearchTests(app)
+      await notebooksGetFilterCombinedTests(app)
+      await notebooksGetFilterColourTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
     }

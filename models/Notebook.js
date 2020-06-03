@@ -156,11 +156,62 @@ class Notebook extends BaseModel {
       .whereNull('deleted')
   }
 
-  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
-    return await Notebook.query()
+  static async applyFilters (query /*: any */, filters /*: any */) {
+    if (filters.search) {
+      query = query.where(nestedQuery => {
+        nestedQuery
+          .where('name', 'ilike', '%' + filters.search.toLowerCase() + '%')
+          .orWhere(
+            'description',
+            'ilike',
+            '%' + filters.search.toLowerCase() + '%'
+          )
+      })
+    }
+
+    if (filters.status) {
+      const status = statusMap[filters.status]
+      query = query.where('status', '=', status)
+    }
+
+    if (filters.colour) {
+      query = query.whereJsonSupersetOf('settings', { colour: filters.colour })
+    }
+
+    return await query
+  }
+
+  static async byReader (
+    id /*: string */,
+    limit /* :number */,
+    skip /*: number */,
+    filters /*: any */
+  ) /*: Promise<Array<any>> */ {
+    let query = Notebook.query()
       .where('readerId', '=', id)
-      .withGraphFetched('tags')
       .whereNull('deleted')
+      .limit(limit)
+      .offset(skip)
+      .withGraphFetched('tags')
+
+    this.applyFilters(query, filters)
+
+    return await query
+  }
+
+  static async count (
+    id /*: string */,
+    filters /*: any */
+  ) /*: Promise<number> */ {
+    let query = Notebook.query()
+      .where('readerId', '=', id)
+      .whereNull('deleted')
+
+    this.applyFilters(query, filters)
+
+    const result = await query
+
+    return result.length
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {

@@ -18,12 +18,6 @@ module.exports = app => {
    *       - sources
    *     description: GET a collection of sources and tags for a reader
    *     parameters:
-   *       - in: path
-   *         name: id
-   *         schema:
-   *           type: string
-   *         required: true
-   *         description: the short id of the reader
    *       - in: query
    *         name: limit
    *         schema:

@@ -20,7 +20,10 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    await tap.equal(res.body.length, 0)
+    await tap.equal(res.body.items.length, 0)
+    await tap.equal(res.body.totalItems, 0)
+    await tap.equal(res.body.page, 1)
+    await tap.equal(res.body.pageSize, 10)
   })
 
   await createNotebook(app, token, {
@@ -46,9 +49,10 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    await tap.equal(res.body.length, 2)
+    await tap.equal(res.body.items.length, 2)
+    await tap.equal(res.body.totalItems, 2)
 
-    const body = res.body[0]
+    const body = res.body.items[0]
     await tap.ok(body.id)
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.ok(body.name)
