@@ -102,7 +102,7 @@ const test = async app => {
   })
 
   await tap.test('Get notebooks for a reader', async () => {
-    let notebooks = await Notebook.byReader(urlToId(createdReader.id))
+    let notebooks = await Notebook.byReader(urlToId(createdReader.id), 10, 0)
 
     await tap.equal(notebooks.length, 2)
     await tap.ok(notebooks[0].tags)

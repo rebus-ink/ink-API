@@ -183,9 +183,9 @@ class Notebook extends BaseModel {
 
   static async byReader (
     id /*: string */,
-    limit /* :number */,
-    skip /*: number */,
-    filters /*: any */
+    limit /*: number */ = 10,
+    skip /*: number */ = 0,
+    filters /*: any */ = {}
   ) /*: Promise<Array<any>> */ {
     let query = Notebook.query()
       .where('readerId', '=', id)

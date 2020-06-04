@@ -47,7 +47,8 @@ module.exports = function (app) {
    *       - in: query
    *         name: orderBy
    *         type: string
-   *         enum: ['name', 'dateCreated', 'dateUpdated']
+   *         enum: ['name', 'created', 'updated']
+   *         default: 'updated'
    *       - in: query
    *         name: reverse
    *         schema:
