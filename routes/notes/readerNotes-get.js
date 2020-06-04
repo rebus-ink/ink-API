@@ -49,6 +49,11 @@ module.exports = app => {
    *           type: string
    *         description: word to search for in the content of notes. Not case sensitive.
    *       - in: query
+   *         name: notebook
+   *         schema:
+   *           type: string
+   *         description: shortId of the notebook to filter by
+   *       - in: query
    *         name: stack
    *         schema:
    *           type: string
@@ -122,6 +127,7 @@ module.exports = app => {
         collection: req.query.stack,
         tag: req.query.tag,
         flag: req.query.flag,
+        notebook: req.query.notebook,
         publishedStart: req.query.publishedStart,
         publishedEnd: req.query.publishedEnd
       }
