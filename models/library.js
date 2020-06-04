@@ -51,6 +51,24 @@ class Library {
         builder.andWhere('Attribution.role', '=', filter.role)
       }
     }
+    builder.withGraphFetched('notebooks')
+    if (filter.notebook) {
+      builder.leftJoin(
+        'notebook_source',
+        'notebook_source.sourceId',
+        '=',
+        'Source.id'
+      )
+      builder.leftJoin(
+        'Notebook',
+        'notebook_source.notebookId',
+        '=',
+        'Notebook.id'
+      )
+      builder.whereNull('Notebook.deleted')
+      builder.where('Notebook.id', '=', filter.notebook)
+    }
+
     builder.withGraphFetched('[tags, attributions]')
     if (filter.collection) {
       builder.leftJoin(
@@ -182,6 +200,25 @@ class Library {
             builder.andWhere('Attribution.role', '=', filter.role)
           }
         }
+
+        builder.withGraphFetched('notebooks')
+        if (filter.notebook) {
+          builder.leftJoin(
+            'notebook_source',
+            'notebook_source.sourceId',
+            '=',
+            'Source.id'
+          )
+          builder.leftJoin(
+            'Notebook',
+            'notebook_source.notebookId',
+            '=',
+            'Notebook.id'
+          )
+          builder.whereNull('Notebook.deleted')
+          builder.where('Notebook.id', '=', filter.notebook)
+        }
+
         builder.withGraphFetched('[tags, attributions]')
         if (filter.collection) {
           builder.leftJoin(

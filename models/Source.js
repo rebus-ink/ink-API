@@ -166,6 +166,7 @@ class Source extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
     const { Tag } = require('./Tag.js')
+    const { Notebook } = require('./Notebook')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -201,6 +202,18 @@ class Source extends BaseModel {
             to: 'source_tag.tagId'
           },
           to: 'Tag.id'
+        }
+      },
+      notebooks: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Notebook,
+        join: {
+          from: 'Source.id',
+          through: {
+            from: 'notebook_source.sourceId',
+            to: 'notebook_source.notebookId'
+          },
+          to: 'Notebook.id'
         }
       },
       readActivities: {

@@ -16,6 +16,7 @@ const libraryOrderByDefaultTests = require('./library/library-orderBy-default.te
 const libraryOrderByTitleTests = require('./library/library-orderBy-title.test')
 const libraryOrderByDatePublishedTests = require('./library/library-orderBy-datePublished.test')
 const libraryOrderByTypeTest = require('./library/library-orderBy-type.test')
+const libraryFilterNotebookTests = require('./library/library-filter-notebook.test')
 
 const noteGetTests = require('./note/note-get.test')
 const notePostTests = require('./note/note-post.test')
@@ -140,6 +141,7 @@ const allTests = async () => {
       await libraryOrderByDatePublishedTests(app)
       await libraryFilterKeyword(app)
       await libraryFilterSearch(app)
+      await libraryFilterNotebookTests(app)
     } catch (err) {
       console.log('library integration test error: ', err)
     }

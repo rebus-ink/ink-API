@@ -78,6 +78,11 @@ module.exports = app => {
    *            type: string
    *         description: searches in title, description, abstract, keywords and attributions
    *       - in: query
+   *         name: notebook
+   *         schema:
+   *           type: string
+   *         description: the shortId of the notebook to filter by
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -132,7 +137,8 @@ module.exports = app => {
         type: req.query.type,
         keyword: req.query.keyword,
         search: req.query.search,
-        tag: req.query.tag
+        tag: req.query.tag,
+        notebook: req.query.notebook
       }
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
