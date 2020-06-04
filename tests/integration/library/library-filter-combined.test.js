@@ -6,11 +6,51 @@ const {
   destroyDB,
   createSource,
   addSourceToCollection,
+  createNotebook,
+  addSourceToNotebook,
   createTag
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
+
+/*
+1: auth: John Smith, ed: Jane Doe, mystack, tag1, notebook
+2: mystack
+3: mystack
+4: 'test', stack, notebook
+5: stack, ['km']
+6: stack, ['km']
+7: 'test', stack
+8: stack
+9: stack
+10: ['de', 'km'], stack
+11: ['km'], notebook
+12: ['km'], stack, notebook
+13: 'super', auth: anonymous
+14: 'super', auth: anonymous
+15: auth: John Doe, type: Article, abstract: 'test', ['word'], notebook
+16: 'sequel', auth: John Doe, type: Article, abstract: 'test, ['word'], tag1
+17: auth: John Smith, ed: John Doe, type: Article
+18: contributor: John Doe ['word']
+19: creator: John Doe ['word']
+20: illustrator: John Doe ['word']
+21: publisher: John Doe
+22: translator: John Doe
+23: 'sequel', auth: Jane Smith, ed: John Doe, ['en'], ['word'], tag1, notebook
+24: auth: Jane Smith testing, ed: John Doe, ['en']
+25: auth: Jane Smith, ed: John Doe, ['en']
+26: auth: Jane Smith, ed: John Doe, ['en']
+27: 'sequel', auth: Jane Smith, ed: John Doe, ['en'], Article
+28: 'testing', auth: Jane Smith, ed: John Doe, ['en', 'km'], Article, tag1, notebook
+29: auth: Jane Smith, ed: John Doe, ['en'], ['word']
+30: 'testing', auth: Jane Smith, ed: John Doe, ['en'], ['word']
+31: auth: Jane Smith, ed: John Doe, ['en'], ['word']
+32: auth: Jane Smith, ed: John Doe, ['en'], ['word'],
+33: auth: Jane Smith, ed: John Doe, ['en', 'fr'], ['word']
+34: 'sequel', auth: Jane Smith, ed: John Doe, ['fr'], notebook
+
+*/
 
 const test = async () => {
   const token = getToken()
@@ -20,97 +60,88 @@ const test = async () => {
     return await createSource(app, token, object)
   }
 
-  await createSourceSimplified({
+  const source1 = await createSourceSimplified({
     name: 'Source A',
     author: 'John Smith',
     editor: 'Jane Doe'
   })
 
-  const source = await createSourceSimplified({
+  const source2 = await createSourceSimplified({
     name: 'Source 2'
   })
 
-  // source 3
-  await createSourceSimplified({ name: 'Source 3' })
+  const source3 = await createSourceSimplified({ name: 'Source 3' })
 
   // create a stack / tag
-  const stack = await createTag(app, token)
+  const stack = await createTag(app, token, { name: 'mystack' })
   const tag1 = await createTag(app, token, { name: 'tag1' })
 
   // assign mystack to source B
-  await addSourceToCollection(app, token, source.id, stack.id)
+  await addSourceToCollection(app, token, urlToId(sourceId2), stack.id)
 
-  await createSourceSimplified({ name: 'Source 4 test' })
-  await createSourceSimplified({ name: 'Source 5' })
-  await createSourceSimplified({ name: 'Source 6' })
-  await createSourceSimplified({ name: 'Source 7 test' })
-  await createSourceSimplified({ name: 'Source 8' })
-  await createSourceSimplified({ name: 'Source 9' })
-  await createSourceSimplified({
+  const source4 = await createSourceSimplified({ name: 'Source 4 test' })
+  const source5 = await createSourceSimplified({
+    name: 'Source 5',
+    inLanguage: ['km']
+  })
+  const source6 = await createSourceSimplified({
+    name: 'Source 6',
+    inLanguage: ['km']
+  })
+  const source7 = await createSourceSimplified({ name: 'Source 7 test' })
+  const source8 = await createSourceSimplified({ name: 'Source 8' })
+  const source9 = await createSourceSimplified({ name: 'Source 9' })
+  const source10 = await createSourceSimplified({
     name: 'Source 10',
     inLanguage: ['de', 'km']
   })
-  await createSourceSimplified({
+  const source11 = await createSourceSimplified({
     name: 'Source 11',
     inLanguage: 'km'
   })
-  await createSourceSimplified({ name: 'Source 12' })
-  await createSourceSimplified({
-    name: 'Source 13',
+  const source12 = await createSourceSimplified({
+    name: 'Source 12',
     inLanguage: ['km']
   })
 
-  // get whole library to get ids:
-  const resLibrary = await request(app)
-    .get(`/library?limit=20`)
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .type('application/ld+json')
+  const notebook = await createNotebook(app, token, { name: 'something' })
 
-  const library = resLibrary.body.items
-  const sourceId1 = library[0].id
-  const sourceId2 = library[1].id
-  const sourceId3 = library[2].id
-  const sourceId4 = library[3].id
-  const sourceId5 = library[4].id
-  const sourceId6 = library[5].id
-  // skipping 7
-  const sourceId8 = library[7].id
-  const sourceId9 = library[8].id
-  const sourceId10 = library[9].id
-  const sourceId13 = library[12].id
+  await addSourceToCollection(app, token, source1.shortId, stack.id)
+  await addSourceToCollection(app, token, source2.shortId, stack.id)
+  await addSourceToCollection(app, token, source3.shortId, stack.id)
+  await addSourceToCollection(app, token, source4.shortId, stack.id)
+  await addSourceToCollection(app, token, source5.shortId, stack.id)
+  await addSourceToCollection(app, token, source6.shortId, stack.id)
+  await addSourceToCollection(app, token, source8.shortId, stack.id)
+  await addSourceToCollection(app, token, source9.shortId, stack.id)
+  await addSourceToCollection(app, token, source10.shortId, stack.id)
+  await addSourceToCollection(app, token, source12.shortId, stack.id)
 
-  await addSourceToCollection(app, token, sourceId1, stack.id)
-  await addSourceToCollection(app, token, sourceId2, stack.id)
-  await addSourceToCollection(app, token, sourceId3, stack.id)
-  await addSourceToCollection(app, token, sourceId4, stack.id)
-  await addSourceToCollection(app, token, sourceId5, stack.id)
-  await addSourceToCollection(app, token, sourceId6, stack.id)
-  await addSourceToCollection(app, token, sourceId8, stack.id)
-  await addSourceToCollection(app, token, sourceId9, stack.id)
-  await addSourceToCollection(app, token, sourceId10, stack.id)
-  await addSourceToCollection(app, token, sourceId13, stack.id)
-
+  // 13
   await createSourceSimplified({ name: 'superbook', author: 'anonymous' })
+  // 14
   await createSourceSimplified({
     name: 'Super great book!',
     author: 'anonymous'
   })
 
-  await createSourceSimplified({
+  // 15
+  const source15 = await createSourceSimplified({
     name: 'new book 1',
     author: 'John Doe',
     type: 'Article',
     description: 'testing',
     keywords: ['word']
   })
-  const source01 = await createSourceSimplified({
+  // 16
+  const source16 = await createSourceSimplified({
     name: 'new book 2 - the sequel',
     author: `jo H. n'dOe`,
     type: 'Article',
     abstract: 'testing',
     keywords: ['word']
   })
+  // 17
   await createSourceSimplified({
     name: 'new book 3',
     author: 'John Smith',
@@ -119,55 +150,65 @@ const test = async () => {
   })
 
   // adding for other attribution types
+  // 18
   await createSourceSimplified({
     name: 'new book 3b',
     contributor: 'John Doe',
     keywords: ['word']
   })
+  // 19
   await createSourceSimplified({
     name: 'new book 3c',
     creator: 'John Doe',
     keywords: ['word']
   })
+  // 20
   await createSourceSimplified({
     name: 'new book 3d',
     illustrator: 'John Doe',
     keywords: ['word']
   })
+  // 21
   await createSourceSimplified({
     name: 'new book 3e',
-    sourcelisher: 'John Doe'
+    publisher: 'John Doe'
   })
+  // 22
   await createSourceSimplified({
     name: 'new book 3f',
     translator: 'John Doe'
   })
 
-  const source02 = await createSourceSimplified({
+  // 23
+  const source23 = await createSourceSimplified({
     name: 'new book 4 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en'],
     keywords: ['word']
   })
+  // 24
   await createSourceSimplified({
     name: 'new book 5',
     author: 'Jane Smith testing',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 25
   await createSourceSimplified({
     name: 'new book 6',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 26
   await createSourceSimplified({
     name: 'new book 7',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 27
   await createSourceSimplified({
     name: 'new book 8 - the sequel',
     author: 'Jane Smith',
@@ -175,13 +216,15 @@ const test = async () => {
     inLanguage: ['en'],
     type: 'Article'
   })
-  const source03 = await createSourceSimplified({
+  // 28
+  const source28 = await createSourceSimplified({
     name: 'new book 9 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     type: 'Article',
     inLanguage: ['en', 'km']
   })
+  // 29
   await createSourceSimplified({
     name: 'new book 10',
     author: 'Jane Smith',
@@ -189,24 +232,28 @@ const test = async () => {
     inLanguage: ['en'],
     keywords: 'word'
   })
+  // 30
   await createSourceSimplified({
     name: 'new book 11 testing',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 31
   await createSourceSimplified({
     name: 'new book 12',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 32
   await createSourceSimplified({
     name: 'new book 13',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['en']
   })
+  // 33
   await createSourceSimplified({
     name: 'new book 14',
     author: 'Jane Smith',
@@ -214,19 +261,30 @@ const test = async () => {
     inLanguage: ['en', 'fr'],
     keywords: ['word']
   })
-  await createSourceSimplified({
+  // 34
+  const source34 = await createSourceSimplified({
     name: 'new book 15 - the sequel',
     author: 'Jane Smith',
     editor: 'John Doe',
     inLanguage: ['fr']
   })
 
+  // add sources to notebook
+  await addSourceToNotebook(app, token, source1.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source4.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source11.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source12.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source15.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source23.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source28.shortId, notebook.shortId)
+  await addSourceToNotebook(app, token, source34.shortId, notebook.shortId)
+
   // add sources to collection
-  await addSourceToCollection(app, token, urlToId(source01.id), tag1.id)
-  await addSourceToCollection(app, token, urlToId(source02.id), tag1.id)
-  await addSourceToCollection(app, token, urlToId(source03.id), tag1.id)
-  await addSourceToCollection(app, token, sourceId1, tag1.id)
-  await addSourceToCollection(app, token, sourceId2, tag1.id)
+  await addSourceToCollection(app, token, source16.shortId, tag1.id)
+  await addSourceToCollection(app, token, source23.shortId, tag1.id)
+  await addSourceToCollection(app, token, source28.shortId, tag1.id)
+  await addSourceToCollection(app, token, source1.shortId, tag1.id)
+  await addSourceToCollection(app, token, source2.shortId, tag1.id)
 
   await tap.test('filter by author and title', async () => {
     const res = await request(app)
@@ -251,11 +309,12 @@ const test = async () => {
       .type('application/ld+json')
 
     const body = res.body
-    await tap.equal(body.totalItems, 3)
-    await tap.equal(body.items.length, 3)
+    await tap.equal(body.totalItems, 4)
+    await tap.equal(body.items.length, 4)
     await tap.ok(_.find(body.items, { name: 'Source 10' }))
-    await tap.ok(_.find(body.items, { name: 'Source 11' }))
-    await tap.ok(_.find(body.items, { name: 'Source 13' }))
+    await tap.ok(_.find(body.items, { name: 'Source 5' }))
+    await tap.ok(_.find(body.items, { name: 'Source 6' }))
+    await tap.ok(_.find(body.items, { name: 'Source 12' }))
   })
 
   await tap.test('filter by author and language', async () => {
@@ -529,8 +588,8 @@ const test = async () => {
 
     const body = res.body
 
-    await tap.equal(body.totalItems, 2)
-    await tap.equal(body.items.length, 2)
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
     await tap.ok(_.find(body.items, { name: 'new book 9 testing' }))
   })
 
@@ -575,6 +634,113 @@ const test = async () => {
 
     await tap.equal(body.totalItems, 2)
     await tap.equal(body.items.length, 2)
+  })
+
+  await tap.test('filter by notebook and attribution', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&attribution=Jane%20Doe`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 1)
+    await tap.equal(body.items.length, 1)
+    await tap.ok(_.find(body.items, { shortId: source1.shortId }))
+  })
+
+  await tap.test('filter by notebook and keyword', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&keyword=word`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { shortId: source15.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source23.shortId }))
+  })
+
+  await tap.test('filter by notebook and language', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&language=km`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { shortId: source11.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source12.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source28.shortId }))
+  })
+
+  await tap.test('filter by notebook and search', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&search=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { shortId: source4.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source15.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source28.shortId }))
+  })
+
+  await tap.test('filter by notebook and tag', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&tag=${tag1.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 3)
+    await tap.equal(body.items.length, 3)
+    await tap.ok(_.find(body.items, { shortId: source1.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source23.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source28.shortId }))
+  })
+
+  await tap.test('filter by notebook and title', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&title=sequel`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { shortId: source23.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source34.shortId }))
+  })
+
+  await tap.test('filter by notebook and type', async () => {
+    const res = await request(app)
+      .get(`/library?notebook=${notebook.shortId}&type=Article`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = res.body
+
+    await tap.equal(body.totalItems, 2)
+    await tap.equal(body.items.length, 2)
+    await tap.ok(_.find(body.items, { shortId: source15.shortId }))
+    await tap.ok(_.find(body.items, { shortId: source28.shortId }))
   })
 
   await destroyDB(app)
