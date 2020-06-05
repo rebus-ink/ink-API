@@ -18,12 +18,12 @@ module.exports = function (app) {
    *     parameters:
    *       - in: query
    *         name: limit
-   *           schema:
-   *             type: number
-   *             default: 10
-   *             minimum: 10
-   *             maximum: 100
-   *           description: the number of notebook items to return
+   *         schema:
+   *           type: number
+   *           default: 10
+   *           minimum: 10
+   *           maximum: 100
+   *         description: the number of notebook items to return
    *       - in: query
    *         name: page
    *         schema:

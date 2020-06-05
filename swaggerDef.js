@@ -13,5 +13,5 @@ module.exports = {
     }
   },
   openapi: '3.0.0',
-  apis: ['server.js', './routes/*.js', './routes/swagger-definitions/*.js']
+  apis: ['server.js', './routes/**/*.js']
 }

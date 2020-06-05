@@ -6,7 +6,7 @@ const { urlToId } = require('../utils/utils')
 const { Source_Tag } = require('../models/Source_Tag')
 
 /**
- * @swagger
+ * @ swagger
  * definition:
  *   search-result:
  *     properties:
@@ -33,7 +33,7 @@ const { Source_Tag } = require('../models/Source_Tag')
  */
 module.exports = app => {
   /**
-   * @swagger
+   * @ swagger
    * /reader-{id}/search:
    *   get:
    *     tags:

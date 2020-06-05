@@ -13,7 +13,7 @@ module.exports = function (app) {
    * notebooks/{notebookId}/notes/{noteId}:
    *   delete:
    *     tags:
-   *       - notebooks
+   *       - notebook-note
    *     description: Remove assignment of Note to Notebook
    *     parameters:
    *       - in: path

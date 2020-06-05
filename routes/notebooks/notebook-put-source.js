@@ -13,7 +13,7 @@ module.exports = function (app) {
    * notebooks/{notebookId}/sources/{sourceId}:
    *   put:
    *     tags:
-   *       - notebooks
+   *       - notebook-source
    *     description: Assign a Source to a Notebook
    *     parameters:
    *       - in: path
