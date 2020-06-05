@@ -88,7 +88,8 @@ const test = async () => {
     name: 'Source 6',
     inLanguage: ['km']
   })
-  const source7 = await createSourceSimplified({ name: 'Source 7 test' })
+  // 7
+  await createSourceSimplified({ name: 'Source 7 test' })
   const source8 = await createSourceSimplified({ name: 'Source 8' })
   const source9 = await createSourceSimplified({ name: 'Source 9' })
   const source10 = await createSourceSimplified({
