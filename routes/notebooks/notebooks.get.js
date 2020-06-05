@@ -65,9 +65,7 @@ module.exports = function (app) {
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/definitions/notebook-ref'
+   *               $ref: '#/definitions/notebook-list'
    *       401:
    *         description: No Authenticationd
    *       404:
