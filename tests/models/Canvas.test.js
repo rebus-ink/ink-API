@@ -58,7 +58,6 @@ const test = async app => {
         notebookId: notebook.id
       })
     } catch (err) {
-      console.log(err)
       error = err
     }
     await tap.notOk(error)
