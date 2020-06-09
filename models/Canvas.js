@@ -39,7 +39,7 @@ class Canvas extends BaseModel {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
         join: {
-          from: 'NoteContext.readerId',
+          from: 'Canvas.readerId',
           to: 'Reader.id'
         }
       },
@@ -74,7 +74,7 @@ class Canvas extends BaseModel {
   static async byId (id /*: string */) /*: Promise<any> */ {
     const canvas = await Canvas.query()
       .findById(id)
-      .withGraphFetched('[reader, noteContexts(notDeleted)]')
+      .withGraphFetched('[noteContexts(notDeleted)]')
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')

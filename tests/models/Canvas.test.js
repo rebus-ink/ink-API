@@ -21,7 +21,7 @@ const test = async app => {
     readerId
   )
 
-  await tap.test('Create Canvas shouldn not throw an error', async () => {
+  await tap.test('Create Canvas should not throw an error', async () => {
     let error
     try {
       let canvas = await Canvas.createCanvas(
@@ -37,6 +37,15 @@ const test = async app => {
       error = err
     }
     await tap.notOk(error)
+  })
+
+  await tap.test('Get Canvas by Id', async () => {
+    let canvas = await Canvas.byId(canvasId)
+    await tap.equal(canvas.name, 'something')
+    await tap.equal(canvas.description, 'a description goes here')
+    await tap.ok(canvas.readerId)
+    await tap.ok(canvas.id)
+    await tap.equal(canvas.notebookId, notebook.id)
   })
 
   await tap.test('Update a Canvas', async () => {
