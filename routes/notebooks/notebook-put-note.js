@@ -13,7 +13,7 @@ module.exports = function (app) {
    * notebooks/{notebookId}/notes/{noteId}:
    *   put:
    *     tags:
-   *       - notebooks
+   *       - notebook-note
    *     description: Assign a Note to a Notebook
    *     parameters:
    *       - in: path

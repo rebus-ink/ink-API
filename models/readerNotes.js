@@ -55,6 +55,14 @@ class ReaderNotes {
       )
     }
 
+    if (filters.notebook) {
+      resultQuery = resultQuery
+        .leftJoin('notebook_note', 'notebook_note.noteId', '=', 'Note.id')
+        .leftJoin('Notebook', 'notebook_note.notebookId', '=', 'Notebook.id')
+        .whereNull('Notebook.deleted')
+        .where('Notebook.id', '=', filters.notebook)
+    }
+
     if (filters.collection) {
       resultQuery = resultQuery
         .leftJoin(
@@ -175,6 +183,23 @@ class ReaderNotes {
             'ilike',
             '%' + filters.search.toLowerCase() + '%'
           )
+        }
+
+        if (filters.notebook) {
+          builder.leftJoin(
+            'notebook_note',
+            'notebook_note.noteId',
+            '=',
+            'Note.id'
+          )
+          builder.leftJoin(
+            'Notebook',
+            'notebook_note.notebookId',
+            '=',
+            'Notebook.id'
+          )
+          builder.whereNull('Notebook.deleted')
+          builder.where('Notebook.id', '=', filters.notebook)
         }
 
         if (filters.collection) {

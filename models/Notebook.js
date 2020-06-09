@@ -156,11 +156,82 @@ class Notebook extends BaseModel {
       .whereNull('deleted')
   }
 
-  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
-    return await Notebook.query()
+  static async applyFilters (query /*: any */, filters /*: any */) {
+    if (filters.search) {
+      query = query.where(nestedQuery => {
+        nestedQuery
+          .where('name', 'ilike', '%' + filters.search.toLowerCase() + '%')
+          .orWhere(
+            'description',
+            'ilike',
+            '%' + filters.search.toLowerCase() + '%'
+          )
+      })
+    }
+
+    if (filters.status) {
+      const status = statusMap[filters.status]
+      query = query.where('status', '=', status)
+    }
+
+    if (filters.colour) {
+      query = query.whereJsonSupersetOf('settings', { colour: filters.colour })
+    }
+
+    return await query
+  }
+
+  static async byReader (
+    id /*: string */,
+    limit /*: number */ = 10,
+    skip /*: number */ = 0,
+    filters /*: any */ = {}
+  ) /*: Promise<Array<any>> */ {
+    let query = Notebook.query()
       .where('readerId', '=', id)
-      .withGraphFetched('tags')
       .whereNull('deleted')
+      .limit(limit)
+      .offset(skip)
+      .withGraphFetched('tags')
+
+    this.applyFilters(query, filters)
+
+    if (filters.orderBy === 'name') {
+      if (filters.reverse) {
+        query = query.orderByRaw('LOWER(name) desc')
+      } else {
+        query = query.orderByRaw('LOWER(name) asc')
+      }
+    } else if (filters.orderBy === 'created') {
+      if (filters.reverse) {
+        query = query.orderBy('published')
+      } else {
+        query = query.orderBy('published', 'desc')
+      }
+    } else {
+      if (filters.reverse) {
+        query = query.orderBy('updated')
+      } else {
+        query = query.orderBy('updated', 'desc')
+      }
+    }
+
+    return await query
+  }
+
+  static async count (
+    id /*: string */,
+    filters /*: any */
+  ) /*: Promise<number> */ {
+    let query = Notebook.query()
+      .where('readerId', '=', id)
+      .whereNull('deleted')
+
+    this.applyFilters(query, filters)
+
+    const result = await query
+
+    return result.length
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {

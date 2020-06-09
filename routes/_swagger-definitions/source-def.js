@@ -295,12 +295,10 @@
  *
  *   library:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *       type:
- *         type: string
- *         enum: ['Collection']
+ *       page:
+ *         type: integer
+ *       pageSize:
+ *         type: integer
  *       tags:
  *         type: array
  *         items:

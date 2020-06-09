@@ -15,7 +15,7 @@ module.exports = function (app) {
    * /notebooks/{notebookId}/notes:
    *   post:
    *     tags:
-   *       - notes
+   *       - notebook-note
    *     description: Create a note and assign it to a Notebook
    *     security:
    *       - Bearer: []

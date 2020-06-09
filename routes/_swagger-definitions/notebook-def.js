@@ -71,5 +71,17 @@
  *         readOnly: true
  *         description: noteContexts that belong to this notebook
  *
+ *   notebook-list:
+ *     properties:
+ *       page:
+ *         type: integer
+ *       pageSize:
+ *         type: integer
+ *       totalItems:
+ *         type: integer
+ *       items:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/notebook-ref'
  *
  */

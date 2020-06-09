@@ -7,10 +7,31 @@ const {
   createSource,
   createNote,
   createTag,
-  addNoteToCollection
+  addNoteToCollection,
+  createNotebook,
+  addNoteToNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
+
+/*
+1: testCollection, notebook
+2: highlighting
+3: sourceId2, highlighting, doc1, testCollection
+4: sourceId2, testCollection
+5: sourceId2, doc1, highlighting, 'abc' testCollection, tag2, flag: question, notebook
+6: sourceId2, tag2
+7: sourceId2, tag2, notebook
+8: sourceId2
+9: sourceId2, notebook
+10: sourceId2, test, 'abc'
+11: sourceId2, doc2, test, 'abc'
+12: sourceId2
+13: sourceId2, doc1, test, 'abc', notebook
+14: sourceId2, doc1, highlighting, 'something', notebook
+15: sourceId2
+
+*/
 
 const test = async app => {
   const token = getToken()
@@ -40,73 +61,73 @@ const test = async app => {
     return await createNote(app, token, noteObj)
   }
 
-  const note0 = await createNoteSimplified() // collection
-  await createNoteSimplified({ body: { motivation: 'highlighting' } }) // 2
-  await createNoteSimplified() // 3
-  await createNoteSimplified() // 4
-  await createNoteSimplified() // 5
-  await createNoteSimplified() // 6
-  await createNoteSimplified() // 7
-  await createNoteSimplified() // 8
-  await createNoteSimplified() // 9
-  await createNoteSimplified() // 10
-  await createNoteSimplified() // 11
-  await createNoteSimplified() // 12
-  await createNoteSimplified() // 13
+  const note1 = await createNoteSimplified() // collection
+  // 2
+  await createNoteSimplified({ body: { motivation: 'highlighting' } })
 
   // create more notes for another source
-  const note1 = await createNoteSimplified({
+  const note3 = await createNoteSimplified({
     // collection
     sourceId: sourceId2,
     body: { motivation: 'highlighting' },
     document: 'doc1'
   })
-  const note2 = await createNoteSimplified({
+  const note4 = await createNoteSimplified({
     // collection
     sourceId: sourceId2,
     document: 'doc1'
   })
 
-  const note3 = await createNoteSimplified({
+  const note5 = await createNoteSimplified({
     // collection & flag
     sourceId: sourceId2,
     document: 'doc1',
     body: { motivation: 'highlighting', content: 'this contains abc' }
   })
-  const note4 = await createNoteSimplified({
+  // 6
+  const note6 = await createNoteSimplified({
     sourceId: sourceId2
   })
-  const note5 = await createNoteSimplified({
+  // 7
+  const note7 = await createNoteSimplified({
     sourceId: sourceId2
   })
+  // 8
   await createNoteSimplified({
     sourceId: sourceId2
   })
-  await createNoteSimplified({
+  // 9
+  const note9 = await createNoteSimplified({
     sourceId: sourceId2
   })
+  // 10
   await createNoteSimplified({
     sourceId: sourceId2,
     body: { motivation: 'test', content: 'a!bc' }
   })
+  // 11
   await createNoteSimplified({
     sourceId: sourceId2,
     document: 'doc2',
     body: { motivation: 'test', content: 'this contains abc' }
   })
+  // 12
   await createNoteSimplified({
     sourceId: sourceId2
-  }) // 10
-  await createNoteSimplified({
+  })
+  // 13
+  const note13 = await createNoteSimplified({
     sourceId: sourceId2,
     document: 'doc1',
     body: { motivation: 'test', content: 'ABCDE' }
   })
-  await createNoteSimplified({
+  // 14
+  const note14 = await createNoteSimplified({
     sourceId: sourceId2,
     document: 'doc1',
     body: { motivation: 'highlighting', content: 'something' }
   })
+  // 15
   await createNoteSimplified({
     sourceId: sourceId2
   })
@@ -116,10 +137,10 @@ const test = async app => {
   })
   const tagId = tagCreated.id
   // add 3 notes to this collection
-  await addNoteToCollection(app, token, urlToId(note0.id), tagId)
-  await addNoteToCollection(app, token, urlToId(note1.id), tagId)
-  await addNoteToCollection(app, token, urlToId(note2.id), tagId)
-  await addNoteToCollection(app, token, urlToId(note3.id), tagId)
+  await addNoteToCollection(app, token, note1.shortId, tagId)
+  await addNoteToCollection(app, token, note3.shortId, tagId)
+  await addNoteToCollection(app, token, note4.shortId, tagId)
+  await addNoteToCollection(app, token, note5.shortId, tagId)
 
   const tag2 = await createTag(app, token)
   const tagsres = await request(app)
@@ -130,13 +151,23 @@ const test = async app => {
 
   const questionTagId = _.find(tagsres.body, { name: 'question' }).id
 
-  // assign notes to workspace
-  await addNoteToCollection(app, token, urlToId(note3.id), tag2.id)
-  await addNoteToCollection(app, token, urlToId(note4.id), tag2.id)
-  await addNoteToCollection(app, token, urlToId(note5.id), tag2.id)
+  // assign notes to tag
+  await addNoteToCollection(app, token, note5.shortId, tag2.id)
+  await addNoteToCollection(app, token, note6.shortId, tag2.id)
+  await addNoteToCollection(app, token, note7.shortId, tag2.id)
 
   // assign notes to flag
-  await addNoteToCollection(app, token, urlToId(note3.id), questionTagId)
+  await addNoteToCollection(app, token, note5.shortId, questionTagId)
+
+  // notebook
+  const notebook = await createNotebook(app, token, { name: 'notebook1' })
+
+  await addNoteToNotebook(app, token, note1.shortId, notebook.shortId)
+  await addNoteToNotebook(app, token, note5.shortId, notebook.shortId)
+  await addNoteToNotebook(app, token, note7.shortId, notebook.shortId)
+  await addNoteToNotebook(app, token, note9.shortId, notebook.shortId)
+  await addNoteToNotebook(app, token, note13.shortId, notebook.shortId)
+  await addNoteToNotebook(app, token, note14.shortId, notebook.shortId)
 
   await tap.test('Filter Notes by motivation and SourceId', async () => {
     const res2 = await request(app)
@@ -241,6 +272,150 @@ const test = async app => {
     await tap.ok(res2.body.totalItems, 2)
     await tap.equal(res2.body.items.length, 2)
   })
+
+  await tap.test('Filter Notes by notebook and collection', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&stack=testCollection`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note1.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and document', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&document=doc1`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 3)
+    await tap.equal(res2.body.items.length, 3)
+    await tap.ok(_.find(res2.body.items, { shortId: note13.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and flag', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&flag=question`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and motivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&motivation=highlighting`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and search', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&search=abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note13.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and source', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&source=${sourceId2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 5)
+    await tap.equal(res2.body.items.length, 5)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note7.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note9.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note13.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook and tag', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&tag=${tag2.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note7.shortId }))
+  })
+
+  await tap.test('Filter Notes by notebook, tag and search', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&tag=${tag2.id}&search=abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test(
+    'Filter Notes by notebook, document, source and search',
+    async () => {
+      const res2 = await request(app)
+        .get(
+          `/notes?notebook=${
+            notebook.shortId
+          }&source=${sourceId2}&document=doc1&search=abc`
+        )
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res2.status, 200)
+      await tap.ok(res2.body)
+      await tap.ok(res2.body.totalItems, 2)
+      await tap.equal(res2.body.items.length, 2)
+      await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+      await tap.ok(_.find(res2.body.items, { shortId: note13.shortId }))
+    }
+  )
 
   await destroyDB(app)
 }

@@ -13,7 +13,7 @@ module.exports = function (app) {
    * notebooks/{notebookId}/tags/{tagId}:
    *   put:
    *     tags:
-   *       - notebooks
+   *       - notebook-tag
    *     description: Assign a Tag to a Notebook
    *     parameters:
    *       - in: path

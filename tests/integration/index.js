@@ -16,6 +16,7 @@ const libraryOrderByDefaultTests = require('./library/library-orderBy-default.te
 const libraryOrderByTitleTests = require('./library/library-orderBy-title.test')
 const libraryOrderByDatePublishedTests = require('./library/library-orderBy-datePublished.test')
 const libraryOrderByTypeTest = require('./library/library-orderBy-type.test')
+const libraryFilterNotebookTests = require('./library/library-filter-notebook.test')
 
 const noteGetTests = require('./note/note-get.test')
 const notePostTests = require('./note/note-post.test')
@@ -46,6 +47,7 @@ const readerNotesFilterCombinedTests = require('./readerNotes/readerNotes-filter
 const readerNotesFilterDateRange = require('./readerNotes/readerNotes-filter-dateRange.test')
 const readerNotesFilterFlagTests = require('./readerNotes/readerNotes-filter-flag.test')
 const readerNotesFilterDocumentTests = require('./readerNotes/readerNotes-filter-document.test')
+const readerNotesFilterNotebookTests = require('./readerNotes/readerNotes-filter-notebook.test')
 
 const sourceAddTagTests = require('./tag/source-tag-put.test')
 const sourceRemoveTagTests = require('./tag/source-tag-delete.test')
@@ -86,6 +88,14 @@ const notebookNoteDeleteTests = require('./notebook/notebook-note-delete.test')
 const notebookNotePostTests = require('./notebook/notebook-note-post.test')
 const notebookTagPutTests = require('./notebook/notebook-tag-put.test')
 const notebookTagDeleteTests = require('./notebook/notebook-tag-delete.test')
+const notebooksGetPaginateTests = require('./notebook/notebooks-get-paginate.test')
+const notebooksGetFilterStatus = require('./notebook/notebooks-get-filter-status.test')
+const notebooksGetFilterSearchTests = require('./notebook/notebooks-get-filter-search.test')
+const notebooksGetFilterCombinedTests = require('./notebook/notebooks-get-filter-combined.test')
+const notebooksGetFilterColourTests = require('./notebook/notebooks-get-filter-colour.test')
+const notebooksGetOrderByNameTests = require('./notebook/notebooks-get-orderBy-name.test')
+const notebooksGetOrderByCreated = require('./notebook/notebooks-get-orderBy-created.test')
+const notebooksGetOrderByDefaultTests = require('./notebook/notebooks-get-orderBy-default.test')
 
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
@@ -132,6 +142,7 @@ const allTests = async () => {
       await libraryOrderByDatePublishedTests(app)
       await libraryFilterKeyword(app)
       await libraryFilterSearch(app)
+      await libraryFilterNotebookTests(app)
     } catch (err) {
       console.log('library integration test error: ', err)
     }
@@ -202,6 +213,7 @@ const allTests = async () => {
       await readerNotesFilterDateRange(app)
       await readerNotesFilterFlagTests(app)
       await readerNotesFilterDocumentTests(app)
+      await readerNotesFilterNotebookTests(app)
     } catch (err) {
       console.log('readerNotes integration tests error: ', err)
     }
@@ -257,6 +269,14 @@ const allTests = async () => {
       await notebookNotePostTests(app)
       await notebookTagPutTests(app)
       await notebookTagDeleteTests(app)
+      await notebooksGetPaginateTests(app)
+      await notebooksGetFilterStatus(app)
+      await notebooksGetFilterSearchTests(app)
+      await notebooksGetFilterCombinedTests(app)
+      await notebooksGetFilterColourTests(app)
+      await notebooksGetOrderByNameTests(app)
+      await notebooksGetOrderByCreated(app)
+      await notebooksGetOrderByDefaultTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
     }
