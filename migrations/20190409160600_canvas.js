@@ -1,20 +1,14 @@
 exports.up = function (knex, Promise) {
-  return knex.schema.createTable('NoteContext', function (table) {
+  return knex.schema.createTable('Canvas', function (table) {
     table.string('id').primary()
     table.string('name')
     table.string('description')
-    table.string('type').notNullable().index()
     table.jsonb('json')
+    table.jsonb('settings')
     table
       .string('notebookId')
       .references('id')
       .inTable('Notebook')
-      .onDelete('CASCADE')
-      .index()
-    table
-      .string('canvasId')
-      .references('id')
-      .inTable('Canvas')
       .onDelete('CASCADE')
       .index()
     table
@@ -38,5 +32,5 @@ exports.up = function (knex, Promise) {
 }
 
 exports.down = function (knex, Promise) {
-  return knex.schema.dropTable('NoteContext')
+  return knex.schema.dropTable('Canvas')
 }

@@ -6,12 +6,12 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 
-class NoteContext extends BaseModel {
+class Canvas extends BaseModel {
   static get tableName () /*: string */ {
-    return 'NoteContext'
+    return 'Canvas'
   }
   get path () /*: string */ {
-    return 'noteContext'
+    return 'canvas'
   }
   static get jsonSchema () /*: any */ {
     return {
@@ -20,111 +20,85 @@ class NoteContext extends BaseModel {
         id: { type: 'string' },
         name: { type: ['string', 'null'] },
         description: { type: ['string', 'null'] },
-        type: { type: 'string' },
+        settings: { type: ['object', 'null'] },
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
         notebookId: { type: ['string', 'null'] },
-        canvasId: { type: 'string' },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' }
       },
-      required: ['type', 'readerId']
+      required: ['readerId', 'notebookId']
     }
   }
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
-    const { Note } = require('./Note')
+    const { NoteContext } = require('./NoteContext')
 
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
         modelClass: Reader,
         join: {
-          from: 'NoteContext.readerId',
+          from: 'Canvas.readerId',
           to: 'Reader.id'
         }
       },
-      notes: {
+      noteContexts: {
         relation: Model.HasManyRelation,
-        modelClass: Note,
+        modelClass: NoteContext,
         join: {
-          from: 'NoteContext.id',
-          to: 'Note.contextId'
+          from: 'Canvas.id',
+          to: 'NoteContext.canvasId'
         }
       }
     }
   }
 
-  static async createNoteContext (
+  static async createCanvas (
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
     const props = _.pick(object, [
-      'type',
       'name',
       'description',
-      'canvasId',
       'json',
+      'settings',
       'notebookId'
     ])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
 
-    return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
+    return await Canvas.query().insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    const noteContext = await NoteContext.query()
+    const canvas = await Canvas.query()
       .findById(id)
-      .withGraphFetched(
-        '[reader, notes(notDeleted).[relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body]]'
-      )
+      .withGraphFetched('[noteContexts(notDeleted)]')
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
         }
       })
 
-    if (noteContext) {
-      noteContext.notes.forEach((note, index) => {
-        noteContext.notes[index].relations = _.concat(
-          note.relationsFrom,
-          note.relationsTo
-        )
-        noteContext.notes[index].relationsFrom = null
-        noteContext.notes[index].relationsTo = null
-      })
-    }
-
-    return noteContext
-  }
-
-  static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
-    const noteContext = await NoteContext.query().findById(id)
-    if (!noteContext || noteContext.deleted) {
-      return false
-    } else return true
+    return canvas
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
     const props = _.pick(object, [
       'readerId',
-      'type',
       'name',
       'description',
       'json',
-      'notebookId',
-      'canvasId'
+      'settings',
+      'notebookId'
     ])
 
-    return await NoteContext.query(NoteContext.knex()).updateAndFetchById(
-      object.id,
-      props
-    )
+    return await Canvas.query().updateAndFetchById(object.id, props)
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
-    return await NoteContext.query().deleteById(id)
+    return await Canvas.query().deleteById(id)
   }
 
   $formatJson (json /*: any */) /*: any */ {
@@ -136,4 +110,4 @@ class NoteContext extends BaseModel {
   }
 }
 
-module.exports = { NoteContext }
+module.exports = { Canvas }
