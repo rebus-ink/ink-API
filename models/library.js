@@ -1,9 +1,13 @@
 const { Source } = require('./Source')
 const { Attribution } = require('./Attribution')
 const { Reader } = require('./Reader')
+const debug = require('debug')('ink:models:library')
 
 class Library {
   static async getLibraryCount (readerId, filter) {
+    debug('**getLibraryCount**')
+    debug('readerId: ', readerId)
+    debug('filters: ', filter)
     let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)
     if (filter.attribution) {
@@ -126,6 +130,10 @@ class Library {
     offset /*: number */,
     filter /*: any */
   ) {
+    debug('**getLibrary**')
+    debug('readerAuthId: ', readerAuthId)
+    debug('limit: ', limit, 'offset: ', offset)
+    debug('filters: ', filter)
     offset = !offset ? 0 : offset
     let author, attribution, type
     if (filter.author) author = Attribution.normalizeName(filter.author)

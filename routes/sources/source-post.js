@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
+const debug = require('debug')('ink:routes:source-post')
 
 module.exports = function (app) {
   /**
@@ -52,6 +53,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest(
@@ -66,7 +68,9 @@ module.exports = function (app) {
         let createdSource
         try {
           createdSource = await Source.createSource(reader, body)
+          debug('createdSource: ', createdSource)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -7,6 +7,7 @@ const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:tag-delete')
 
 module.exports = function (app) {
   /**
@@ -37,8 +38,10 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/tags/:tagId').delete(jwtAuth, function (req, res, next) {
     const tagId = req.params.tagId
+    debug('tagId: ', tagId)
     Tag.byId(tagId)
       .then(async tag => {
+        debug('tag retrieved: ', tag)
         if (!tag) {
           return next(
             boom.notFound(`Delete Tag Error: No Tag found with id ${tagId}`, {
@@ -67,6 +70,7 @@ module.exports = function (app) {
         try {
           await tag.delete()
         } catch (err) {
+          debug('error: ', err.message)
           return next(
             boom.badRequest(err.message, {
               requestUrl: req.originalUrl

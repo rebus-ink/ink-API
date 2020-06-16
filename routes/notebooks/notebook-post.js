@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { Notebook } = require('../../models/Notebook')
+const debug = require('debug')('ink:routes:notebook-post')
 
 module.exports = function (app) {
   /**
@@ -51,6 +52,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -63,6 +65,7 @@ module.exports = function (app) {
         let createdNotebook
         try {
           createdNotebook = await Notebook.createNotebook(body, reader.id)
+          debug('created notebook: ', createdNotebook)
         } catch (err) {
           if (err instanceof ValidationError) {
             return next(

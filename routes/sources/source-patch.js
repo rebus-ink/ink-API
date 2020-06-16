@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:source-patch')
 
 module.exports = function (app) {
   /**
@@ -50,8 +51,10 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/sources/:sourceId').patch(jwtAuth, function (req, res, next) {
     const sourceId = req.params.sourceId
+    debug('sourceId: ', sourceId)
     Source.byId(sourceId)
       .then(async source => {
+        debug('source retrieved: ', source)
         if (!source) {
           return next(
             boom.notFound(`No Source found with id ${sourceId}`, {
@@ -79,6 +82,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body: ', body)
         if (typeof body !== 'object' || Object.keys(body).length === 0) {
           return next(
             boom.badRequest(
@@ -95,7 +99,9 @@ module.exports = function (app) {
         let updatedSource
         try {
           updatedSource = await Source.update(source, body)
+          debug('updated source: ', updatedSource)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

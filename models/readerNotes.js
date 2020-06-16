@@ -1,9 +1,13 @@
 const { Note } = require('./Note')
 const { Reader } = require('./Reader')
 const { urlToId } = require('../utils/utils')
+const debug = require('debug')('ink:models:readerNotes')
 
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {
+    debug('**getNotesCount**')
+    debug('readerId: ', readerId)
+    debug('filters: ', filters)
     // note: not applied with filters.document
     let flag
     if (filters.flag) {
@@ -120,6 +124,9 @@ class ReaderNotes {
     offset /*: number */,
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
+    debug('**getNotes**')
+    debug('readerAuthId: ', readerAuthId, 'limit: ', limit, 'offset: ', offset)
+    debug('filters: ', filters)
     offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
     let flag

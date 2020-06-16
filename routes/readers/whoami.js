@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
-const debug = require('debug')('hobb:routes:whoami')
 const boom = require('@hapi/boom')
+const debug = require('debug')('ink:routes:whoami')
 
 module.exports = app => {
   /**
@@ -36,6 +36,7 @@ module.exports = app => {
     function (req, res, next) {
       Reader.byAuthId(req.user)
         .then(reader => {
+          debug('retrieved reader: ', reader)
           if (!reader || reader.deleted) {
             return next(
               boom.notFound(`No reader found with this token`, {

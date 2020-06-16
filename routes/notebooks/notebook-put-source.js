@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Source } = require('../../models/Notebook_Source')
+const debug = require('debug')('ink:routes:notebook-put-source')
 
 module.exports = function (app) {
   /**
@@ -46,6 +47,7 @@ module.exports = function (app) {
     .put(jwtAuth, function (req, res, next) {
       const sourceId = req.params.sourceId
       const notebookId = req.params.notebookId
+      debug('sourceId', sourceId, 'notebookId', notebookId)
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -75,6 +77,7 @@ module.exports = function (app) {
             await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
             res.status(204).end()
           } catch (err) {
+            debug('error', err.message)
             if (err.message === 'no source') {
               return next(
                 boom.notFound(

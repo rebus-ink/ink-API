@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
+const debug = require('debug')('ink:routes:tag-post')
 
 module.exports = function (app) {
   /**
@@ -52,6 +53,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -64,7 +66,9 @@ module.exports = function (app) {
         let createdTag
         try {
           createdTag = await Tag.createTag(reader.id, body)
+          debug('created tag: ', createdTag)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -4,6 +4,7 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
+const debug = require('debug')('ink:models:ReadActivity')
 
 /*::
 type ReadActivityType = {
@@ -69,6 +70,9 @@ class ReadActivity extends BaseModel {
     sourceId /*: string */,
     object /*: any */
   ) /*: Promise<any> */ {
+    debug('**createReadActivity**')
+    debug('readerId: ', readerId, 'sourceId: ', sourceId)
+    debug('object: ', object)
     if (!sourceId) throw new Error('no source')
 
     const props = _.pick(object, ['selector', 'json'])
@@ -81,6 +85,7 @@ class ReadActivity extends BaseModel {
         .insert(props)
         .returning('*')
     } catch (err) {
+      debug('error: ', err.message)
       if (err.constraint === 'readactivity_readerid_foreign') {
         throw 'no reader' // NOTE: should not happen. Should be caught by the post readActivity route
       } else if (err.constraint === 'readactivity_sourceid_foreign') {
@@ -94,6 +99,8 @@ class ReadActivity extends BaseModel {
   static async getLatestReadActivity (
     sourceId /*: string */
   ) /*: Promise<ReadActivityType|Error> */ {
+    debug('**getLatestReadActivity**')
+    debug('sourceId: ', sourceId)
     if (!sourceId) return new Error('missing sourceId')
 
     const readActivities = await ReadActivity.query()

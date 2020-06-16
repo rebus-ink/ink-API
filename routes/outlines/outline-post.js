@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { NoteContext } = require('../../models/NoteContext')
+const debug = require('debug')('ink:routes:outline-delete')
 
 module.exports = function (app) {
   /**
@@ -50,6 +51,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body: ', body)
         if (typeof body !== 'object') {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -63,7 +65,9 @@ module.exports = function (app) {
         let createdOutline
         try {
           createdOutline = await NoteContext.createNoteContext(body, reader.id)
+          debug('created outline: ', createdOutline)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Source } = require('../../models/Source')
-const debug = require('debug')('hobb:routes:source')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const debug = require('debug')('ink:routes:source-get')
 
 module.exports = function (app) {
   /**
@@ -44,8 +44,10 @@ module.exports = function (app) {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const sourceId = req.params.sourceId
+      debug('sourceId: ', sourceId)
       Source.byId(sourceId)
         .then(source => {
+          debug('source retrieved: ', source)
           if (!source || source.deleted) {
             return next(
               boom.notFound(`No Source found with id ${sourceId}`, {
@@ -60,7 +62,6 @@ module.exports = function (app) {
               })
             )
           } else {
-            debug(source)
             res.setHeader('Content-Type', 'application/ld+json')
             const sourceJson = source.toJSON()
             res.end(

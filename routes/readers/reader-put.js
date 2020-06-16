@@ -5,6 +5,7 @@ const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { urlToId } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:reader-put')
 
 module.exports = function (app) {
   /**
@@ -50,7 +51,7 @@ module.exports = function (app) {
     passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
       const reader = await Reader.byAuthId(req.user)
-
+      debug('readerId: ', req.params.id)
       const exists = await Reader.checkIfExistsById(req.params.id)
       if (!exists) {
         return next(
@@ -72,7 +73,9 @@ module.exports = function (app) {
       let updatedReader
       try {
         updatedReader = await Reader.update(req.params.id, req.body)
+        debug('updated reader', updatedReader)
       } catch (err) {
+        debug('error: ', err.message)
         if (err instanceof ValidationError) {
           return next(
             boom.badRequest(

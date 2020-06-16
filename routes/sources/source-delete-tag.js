@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:source-delete-tag')
 
 module.exports = function (app) {
   /**
@@ -45,6 +46,7 @@ module.exports = function (app) {
     .delete(jwtAuth, function (req, res, next) {
       const sourceId = req.params.sourceId
       const tagId = req.params.tagId
+      debug('sourceId: ', sourceId, 'tagId: ', tagId)
       Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader || reader.deleted) {
@@ -75,6 +77,7 @@ module.exports = function (app) {
                 res.status(204).end()
               })
               .catch(err => {
+                debug('error: ', err.message)
                 return next(
                   boom.notFound(err.message, {
                     requestUrl: req.originalUrl

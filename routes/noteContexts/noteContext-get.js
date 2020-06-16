@@ -4,6 +4,7 @@ const passport = require('passport')
 const { NoteContext } = require('../../models/NoteContext')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const debug = require('debug')('ink:routes:noteContexts-get')
 
 module.exports = app => {
   app.use('/', router)
@@ -46,8 +47,10 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
+      debug('notecontext id: ', id)
       NoteContext.byId(id)
         .then(noteContext => {
+          debug('noteContext retrieved: ', noteContext)
           if (!noteContext || noteContext.deleted) {
             return next(
               boom.notFound(

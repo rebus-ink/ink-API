@@ -38,6 +38,7 @@ module.exports = {
     'vars-on-top': 'error',
     'no-label-var': 'error',
     'no-shadow': 'error',
-    'no-unused-vars': 'warn'
+    'no-unused-vars': 'warn',
+    'no-useless-catch': 'error'
   }
 }

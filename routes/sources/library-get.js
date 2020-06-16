@@ -6,6 +6,7 @@ const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const _ = require('lodash')
+const debug = require('debug')('ink:routes:library-get')
 
 const { libraryCacheGet } = require('../../utils/cache')
 
@@ -140,6 +141,7 @@ module.exports = app => {
         tag: req.query.tag,
         notebook: req.query.notebook
       }
+      debug('filters: ', filters)
       let returnedReader
       if (req.query.limit < 10) req.query.limit = 10 // prevents people from cheating by setting limit=0 to get everything
 
@@ -160,6 +162,7 @@ module.exports = app => {
           )
         })
         .then(reader => {
+          debug('reader retrieved: ', reader)
           if (!reader || reader.deleted) {
             return next(
               boom.notFound(`No reader found with this token`, {
@@ -179,6 +182,7 @@ module.exports = app => {
           }
         })
         .then(count => {
+          debug('count: ', count)
           let reader = returnedReader
           let sources = reader.sources.map(source => {
             return _.pick(source.toJSON(), [
@@ -199,6 +203,7 @@ module.exports = app => {
               'inLanguage'
             ])
           })
+          debug('sources after filtering out properties: ', sources)
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({

@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
+const debug = require('debug')('ink:models:Canvas')
 
 class Canvas extends BaseModel {
   static get tableName () /*: string */ {
@@ -58,6 +59,9 @@ class Canvas extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
+    debug('**createCanvas**')
+    debug('incoming canvas object: ', object)
+    debug('readerId', readerId)
     const props = _.pick(object, [
       'name',
       'description',
@@ -67,11 +71,13 @@ class Canvas extends BaseModel {
     ])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-
+    debug('canvas to add to database: ', props)
     return await Canvas.query().insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
+    debug('**byId**')
+    debug('id: ', id)
     const canvas = await Canvas.query()
       .findById(id)
       .withGraphFetched('[noteContexts(notDeleted)]')
@@ -80,11 +86,13 @@ class Canvas extends BaseModel {
           builder.whereNull('deleted')
         }
       })
-
+    debug('canvas retrieved: ', canvas)
     return canvas
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
+    debug('**update**')
+    debug('incoming object: ', object)
     const props = _.pick(object, [
       'readerId',
       'name',
@@ -93,11 +101,13 @@ class Canvas extends BaseModel {
       'settings',
       'notebookId'
     ])
-
+    debug('props passed to database: ', props)
     return await Canvas.query().updateAndFetchById(object.id, props)
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
+    debug('**delete**')
+    debug('id: ', id)
     return await Canvas.query().deleteById(id)
   }
 

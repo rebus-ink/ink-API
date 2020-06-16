@@ -7,6 +7,7 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const { NoteContext } = require('../../models/NoteContext')
+const debug = require('debug')('ink:routes:outline-deleteNote')
 
 module.exports = function (app) {
   /**
@@ -71,6 +72,7 @@ module.exports = function (app) {
           }
 
           const outlineExists = await NoteContext.checkIfExists(req.params.id)
+          debug('outline exists? ', outlineExists)
           if (!outlineExists) {
             return next(
               boom.notFound(`No Outline found with id ${req.params.id}`, {
@@ -82,6 +84,7 @@ module.exports = function (app) {
 
           // get Note
           const note = await Note.byId(req.params.noteId)
+          debug('note to be deleted: ', note)
           if (!note || note.deleted) {
             return next(
               boom.notFound(`No Note found with id: ${req.params.noteId}`, {
@@ -106,12 +109,14 @@ module.exports = function (app) {
 
           // linked list adjustments
           if (note.previous) {
+            debug('previous note: ', note.previous)
             const previousNote = await Note.byId(note.previous)
             await Note.update(
               Object.assign(previousNote, { next: urlToId(note.next) })
             )
           }
           if (note.next) {
+            debug('next note: ', note.next)
             const nextNote = await Note.byId(note.next)
             await Note.update(
               Object.assign(nextNote, { previous: urlToId(note.previous) })
@@ -121,6 +126,7 @@ module.exports = function (app) {
           try {
             await Note.delete(req.params.noteId)
           } catch (err) {
+            debug('deleting error: ', err.message)
             return next(
               boom.badRequest(err.message, {
                 requestUrl: req.originalUrl,

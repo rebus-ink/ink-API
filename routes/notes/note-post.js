@@ -7,6 +7,7 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
+const debug = require('debug')('ink:routes:note-post')
 
 module.exports = function (app) {
   /**
@@ -65,8 +66,10 @@ module.exports = function (app) {
         let createdNote
         try {
           createdNote = await Note.createNote(reader, body)
+          debug('created note: ', createdNote)
         } catch (err) {
           if (err instanceof ValidationError) {
+            debug('error: ', err.message)
             return next(
               boom.badRequest(
                 `Validation Error on Create Note: ${err.message}`,

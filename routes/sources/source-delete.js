@@ -7,6 +7,7 @@ const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { libraryCacheUpdate } = require('../../utils/cache')
+const debug = require('debug')('ink:routes:source-delete')
 
 module.exports = function (app) {
   /**
@@ -37,6 +38,7 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/sources/:sourceId').delete(jwtAuth, function (req, res, next) {
     const sourceId = req.params.sourceId
+    debug('sourceId: ', sourceId)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -65,6 +67,7 @@ module.exports = function (app) {
         }
 
         const result = await Source.delete(sourceId)
+        debug('result: ', result)
         if (!result) {
           return next(
             boom.notFound(`No Source found with id ${sourceId}`, {

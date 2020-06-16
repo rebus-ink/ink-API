@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { Notebook } = require('../../models/Notebook')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:notebook-delete')
 
 module.exports = function (app) {
   /**
@@ -57,7 +58,9 @@ module.exports = function (app) {
         let deleted
         try {
           deleted = await Notebook.delete(req.params.id)
+          debug('deleted: ', deleted)
         } catch (err) {
+          debug('error: ', err.message)
           return next(
             boom.badRequest(err.message, {
               requestUrl: req.originalUrl,

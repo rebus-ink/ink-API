@@ -11,6 +11,7 @@ const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
 const { Source_Tag } = require('./Source_Tag')
+const debug = require('debug')('ink:models:Source')
 
 const metadataProps = [
   'inLanguage',
@@ -228,6 +229,8 @@ class Source extends BaseModel {
   }
 
   static _isValidLink (link /*: any */) /*: boolean */ {
+    debug('**_isValidLink**')
+    debug('link: ', link)
     if (_.isObject(link) && !link.url) {
       return false
     }
@@ -239,6 +242,8 @@ class Source extends BaseModel {
 
   // TODO: should not be static (wait until old deprecated code is removed)
   static _validateIncomingSource (source /*: any */) /*: any */ {
+    debug('**_validateIncomingSource**')
+    debug('incoming source: ', source)
     // check languages
     if (_.isString(source.inLanguage)) {
       source.inLanguage = [source.inLanguage]
@@ -399,7 +404,9 @@ class Source extends BaseModel {
     source /*: any */
   ) /*: any */ {
     // IMPORTANT: formating for the metadata property should be done here, before it is stored in a metadata object
-
+    debug('**_formatIncomingSource**')
+    debug('reader: ', reader)
+    debug('incoming source: ', source)
     // language
     if (_.isString(source.inLanguage)) {
       source.inLanguage = [source.inLanguage]
@@ -479,7 +486,7 @@ class Source extends BaseModel {
     if (source.status) {
       source.status = statusMap[source.status]
     }
-
+    debug('formatted source: ', source)
     return source
   }
 
@@ -487,23 +494,19 @@ class Source extends BaseModel {
     reader /*: any */,
     source /*: any */
   ) /*: Promise<SourceType|Error> */ {
-    try {
-      this._validateIncomingSource(source)
-    } catch (err) {
-      throw err
-    }
+    debug('**createSource**')
+    debug('reader: ', reader)
+    debug('incoming source: ', source)
+
+    this._validateIncomingSource(source)
+
     const formattedSource = this._formatIncomingSource(reader, source)
-    let createdSource
     formattedSource.id = `${urlToId(reader.id)}-${crypto
       .randomBytes(5)
       .toString('hex')}`
-    try {
-      createdSource = await Source.query(Source.knex()).insertAndFetch(
-        formattedSource
-      )
-    } catch (err) {
-      throw err
-    }
+    let createdSource = await Source.query(Source.knex()).insertAndFetch(
+      formattedSource
+    )
 
     // create attributions
     const attributions = await Attribution.createAttributionsForSource(
@@ -521,6 +524,7 @@ class Source extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<SourceType|null> */ {
+    debug('**byId**')
     const source = await Source.query()
       .findById(id)
       .withGraphFetched(
@@ -531,20 +535,24 @@ class Source extends BaseModel {
           builder.whereNull('deleted')
         }
       })
-
+    debug('retrieved source: ', source)
     if (!source || source.deleted) return null
 
     const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
+    debug('latest readActivity: ', latestReadActivity)
     if (latestReadActivity && latestReadActivity.selector) {
       source.position = latestReadActivity.selector
     }
     if (source.readingOrder) source.readingOrder = source.readingOrder.data
     if (source.links) source.links = source.links.data
     if (source.resources) source.resources = source.resources.data
+    debug('source to return: ', source)
     return source
   }
 
   static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
+    debug('**checkIfExists**')
+    debug('id: ', id)
     const source = await Source.query().findById(id)
     if (!source || source.deleted) {
       return false
@@ -552,6 +560,8 @@ class Source extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<number|null> */ {
+    debug('**delete**')
+    debug('id: ', id)
     let source = await Source.query().findById(id)
 
     if (!source || source.deleted) {
@@ -571,6 +581,8 @@ class Source extends BaseModel {
   }
 
   static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
+    debug('**deleteNotes**')
+    debug('id: ', id)
     const time = new Date().toISOString()
     return await Note.query()
       .patch({ deleted: time })
@@ -578,13 +590,13 @@ class Source extends BaseModel {
   }
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {
+    debug('**batchUpdate**')
+    debug('body: ', body)
     let modification = {}
     modification[body.property] = body.value
-    try {
-      Source._validateIncomingSource(modification)
-    } catch (err) {
-      throw err
-    }
+
+    Source._validateIncomingSource(modification)
+
     let modificationFormatted = this._formatIncomingSource(null, modification)
     modificationFormatted = _.omit(modificationFormatted, 'metadata')
     return await Source.query()
@@ -595,6 +607,8 @@ class Source extends BaseModel {
   static async batchUpdateAddArrayProperty (
     body /*: any */
   ) /*: Promise<any> */ {
+    debug('**batchUpdateAddArrayProperty**')
+    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query().findById(sourceId)
@@ -652,6 +666,8 @@ class Source extends BaseModel {
   static async batchUpdateRemoveArrayProperty (
     body /*: any */
   ) /*: Promise<any> */ {
+    debug('**batchUpdateRemoveArrayProperty**')
+    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query().findById(sourceId)
@@ -695,6 +711,8 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateAddAttribution (body /*: any */) /*: Promise<any> */ {
+    debug('**batchUpdateAddAttribution**')
+    debug('body: ', body)
     const result = []
 
     for (const sourceId of body.sources) {
@@ -758,6 +776,8 @@ class Source extends BaseModel {
   static async batchUpdateRemoveAttribution (
     body /*: any */
   ) /*: Promise<any> */ {
+    debug('**batchUpdateRemoveAttribution**')
+    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -815,6 +835,8 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateAddTags (body /*: any */) /*: Promise<any> */ {
+    debug('**batchUpdateAddTags**')
+    debug('body: ', body)
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -872,6 +894,8 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateRemoveTags (body /*: any */) /*: Promise<any> */ {
+    debug('**batchUpdateRemoveTags**')
+    debug('body: ', body)
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -923,12 +947,11 @@ class Source extends BaseModel {
     source /*: any */,
     body /*: any */
   ) /*: Promise<SourceType|null> */ {
+    debug('**update**')
+    debug('source: ', source)
+    debug('body: ', body)
     const id = urlToId(source.id)
-    try {
-      Source._validateIncomingSource(body)
-    } catch (err) {
-      throw err
-    }
+    Source._validateIncomingSource(body)
 
     const modifications = Source._formatIncomingSource(null, body)
     if (
@@ -942,18 +965,12 @@ class Source extends BaseModel {
       )
     }
     let updatedSource
-    try {
-      if (_.isEmpty(modifications)) {
-        updatedSource = await Source.query().findById(id)
-      } else {
-        updatedSource = await Source.query().patchAndFetchById(
-          id,
-          modifications
-        )
-      }
-    } catch (err) {
-      throw err
+    if (_.isEmpty(modifications)) {
+      updatedSource = await Source.query().findById(id)
+    } else {
+      updatedSource = await Source.query().patchAndFetchById(id, modifications)
     }
+
     // attach attributions to the udpatedSource object
     if (source.attributions) {
       attributionTypes.forEach(type => {
