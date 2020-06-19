@@ -4,6 +4,7 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const debug = require('debug')('ink:routes:reader-get')
 
 module.exports = app => {
   /**
@@ -45,6 +46,7 @@ module.exports = app => {
     function (req, res, next) {
       Reader.byId(req.params.id)
         .then(reader => {
+          debug('reader retrieved: ', reader)
           if (!reader || reader.deleted) {
             return next(
               boom.notFound(

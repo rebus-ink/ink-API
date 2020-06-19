@@ -102,199 +102,201 @@ const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
 const hardDeleteNotebookTests = require('./hardDelete/deleteNotebook.test')
 const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
 const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
+const tap = require('tap')
 
 const app = require('../../server').app
 
 require('dotenv').config()
 
 const allTests = async () => {
-  await app.initialize(true)
-  await app.knex.migrate.rollback()
-  if (process.env.POSTGRE_DB === 'travis_ci_test') {
-    await app.knex.migrate.latest()
-  }
-
-  const test = process.env.npm_config_test
-
-  if (!test || test === 'auth') {
-    try {
-      await forbiddedTests(app)
-      await unauthorizedTests(app)
-    } catch (err) {
-      console.log('authentication integration test error: ', err)
+  tap.only('all tests', async () => {
+    await app.initialize(true)
+    await app.knex.migrate.rollback()
+    if (process.env.POSTGRE_DB === 'travis_ci_test') {
+      await app.knex.migrate.latest()
     }
-  }
 
-  if (!test || test === 'library') {
-    try {
-      await libraryGetTests(app)
-      await libraryPaginateTests(app)
-      await libraryFilterCollectionTests(app)
-      await libraryFilterTagTests(app)
-      await libraryFilterTitleTests(app)
-      await libraryFilterAttributionTests(app)
-      await libraryFilterLanguageTests(app)
-      await libraryFilterTypeTests(app)
-      await libraryFilterCombinedTests(app)
-      await libraryOrderByDefaultTests(app)
-      await libraryOrderByTitleTests(app)
-      await libraryOrderByTypeTest(app)
-      await libraryOrderByDatePublishedTests(app)
-      await libraryFilterKeyword(app)
-      await libraryFilterSearch(app)
-      await libraryFilterNotebookTests(app)
-    } catch (err) {
-      console.log('library integration test error: ', err)
+    const test = process.env.npm_config_test
+
+    if (!test || test === 'auth') {
+      try {
+        await forbiddedTests(app)
+        await unauthorizedTests(app)
+      } catch (err) {
+        console.log('authentication integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'source') {
-    try {
-      await sourceGetTests(app)
-      await sourceDeleteTests(app)
-      await sourcePostTests(app)
-      await sourcePatchTests(app)
-      await readActivityPostTests(app)
-      await sourceBatchUpdateTests(app)
-    } catch (err) {
-      console.log('source integration test error: ', err)
+    if (!test || test === 'library') {
+      try {
+        await libraryGetTests(app)
+        await libraryPaginateTests(app)
+        await libraryFilterCollectionTests(app)
+        await libraryFilterTagTests(app)
+        await libraryFilterTitleTests(app)
+        await libraryFilterAttributionTests(app)
+        await libraryFilterLanguageTests(app)
+        await libraryFilterTypeTests(app)
+        await libraryFilterCombinedTests(app)
+        await libraryOrderByDefaultTests(app)
+        await libraryOrderByTitleTests(app)
+        await libraryOrderByTypeTest(app)
+        await libraryOrderByDatePublishedTests(app)
+        await libraryFilterKeyword(app)
+        await libraryFilterSearch(app)
+        await libraryFilterNotebookTests(app)
+      } catch (err) {
+        console.log('library integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'reader') {
-    try {
-      await readerCreateTests(app)
-      await readerGetTests(app)
-      await readerPutTests(app)
-      await readerDeleteTests(app)
-    } catch (err) {
-      console.log('reader integration test error: ', err)
+    if (!test || test === 'source') {
+      try {
+        await sourceGetTests(app)
+        await sourceDeleteTests(app)
+        await sourcePostTests(app)
+        await sourcePatchTests(app)
+        await readActivityPostTests(app)
+        await sourceBatchUpdateTests(app)
+      } catch (err) {
+        console.log('source integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'note') {
-    try {
-      await noteGetTests(app)
-      await notePostTests(app)
-      await noteDeleteTests(app)
-      await notePutTests(app)
-    } catch (err) {
-      console.log('note integration test error: ', err)
+    if (!test || test === 'reader') {
+      try {
+        await readerCreateTests(app)
+        await readerGetTests(app)
+        await readerPutTests(app)
+        await readerDeleteTests(app)
+      } catch (err) {
+        console.log('reader integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'tag') {
-    try {
-      await tagsGetTests(app)
-      await sourceAddTagTests(app)
-      await sourceRemoveTagTests(app)
-      await tagNotePutTests(app)
-      await tagNoteDeleteTests(app)
-      await tagDeleteTests(app)
-      await tagsPostTests(app)
-      await tagPutTests(app)
-    } catch (err) {
-      console.log('tag integration test error: ', err)
+    if (!test || test === 'note') {
+      try {
+        await noteGetTests(app)
+        await notePostTests(app)
+        await noteDeleteTests(app)
+        await notePutTests(app)
+      } catch (err) {
+        console.log('note integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'readerNotes') {
-    try {
-      await readerNotesGetTests(app)
-      await readerNotesPaginateTests(app)
-      await readerNotesOrderByTests(app)
-      // filter
-      await readerNotesFilterPubTests(app)
-      await readerNotesFilterMotivationTests(app)
-      await readerNotesFilterSearchTests(app)
-      await readerNotesFilterCollectionTests(app)
-      await readerNotesFilterTagTests(app)
-      await readerNotesFilterCombinedTests(app)
-      await readerNotesFilterDateRange(app)
-      await readerNotesFilterFlagTests(app)
-      await readerNotesFilterDocumentTests(app)
-      await readerNotesFilterNotebookTests(app)
-    } catch (err) {
-      console.log('readerNotes integration tests error: ', err)
+    if (!test || test === 'tag') {
+      try {
+        await tagsGetTests(app)
+        await sourceAddTagTests(app)
+        await sourceRemoveTagTests(app)
+        await tagNotePutTests(app)
+        await tagNoteDeleteTests(app)
+        await tagDeleteTests(app)
+        await tagsPostTests(app)
+        await tagPutTests(app)
+      } catch (err) {
+        console.log('tag integration test error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'noteRelation') {
-    try {
-      await noteRelationPostTests(app)
-      await noteRelationPutTests(app)
-      await noteRelationDeleteTests(app)
-    } catch (err) {
-      console.log('noteRelation integration tests error: ', err)
+    if (!test || test === 'readerNotes') {
+      try {
+        await readerNotesGetTests(app)
+        await readerNotesPaginateTests(app)
+        await readerNotesOrderByTests(app)
+        // filter
+        await readerNotesFilterPubTests(app)
+        await readerNotesFilterMotivationTests(app)
+        await readerNotesFilterSearchTests(app)
+        await readerNotesFilterCollectionTests(app)
+        await readerNotesFilterTagTests(app)
+        await readerNotesFilterCombinedTests(app)
+        await readerNotesFilterDateRange(app)
+        await readerNotesFilterFlagTests(app)
+        await readerNotesFilterDocumentTests(app)
+        await readerNotesFilterNotebookTests(app)
+      } catch (err) {
+        console.log('readerNotes integration tests error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'noteContext') {
-    try {
-      await noteContextPostTests(app)
-      await noteContextPutTests(app)
-      await noteContextDeleteTests(app)
-      await noteContextAddNoteTests(app)
-      await noteContextGetTests(app)
-    } catch (err) {
-      console.log('noteContext integration tests error: ', err)
+    if (!test || test === 'noteRelation') {
+      try {
+        await noteRelationPostTests(app)
+        await noteRelationPutTests(app)
+        await noteRelationDeleteTests(app)
+      } catch (err) {
+        console.log('noteRelation integration tests error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'outline') {
-    try {
-      await outlineGetTests(app)
-      await outlinePostTests(app)
-      await outlineDeleteTests(app)
-      await outlinePutTests(app)
-      await outlineAddNoteTests(app)
-      await outlineDeleteNoteTests(app)
-      await outlinePatchNoteTests(app)
-    } catch (err) {
-      console.log('outline integration tests error: ', err)
+    if (!test || test === 'noteContext') {
+      try {
+        await noteContextPostTests(app)
+        await noteContextPutTests(app)
+        await noteContextDeleteTests(app)
+        await noteContextAddNoteTests(app)
+        await noteContextGetTests(app)
+      } catch (err) {
+        console.log('noteContext integration tests error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'notebook') {
-    try {
-      await notebookPostTests(app)
-      await notebookGetTests(app)
-      await notebooksGetTests(app)
-      await notebookPutTests(app)
-      await notebookDeleteTests(app)
-      await notebookPubPutTests(app)
-      await notebookPubDeleteTests(app)
-      await notebookNotePutTests(app)
-      await notebookNoteDeleteTests(app)
-      await notebookNotePostTests(app)
-      await notebookTagPutTests(app)
-      await notebookTagDeleteTests(app)
-      await notebooksGetPaginateTests(app)
-      await notebooksGetFilterStatus(app)
-      await notebooksGetFilterSearchTests(app)
-      await notebooksGetFilterCombinedTests(app)
-      await notebooksGetFilterColourTests(app)
-      await notebooksGetOrderByNameTests(app)
-      await notebooksGetOrderByCreated(app)
-      await notebooksGetOrderByDefaultTests(app)
-    } catch (err) {
-      console.log('notebook integration test error: ', err)
+    if (!test || test === 'outline') {
+      try {
+        await outlineGetTests(app)
+        await outlinePostTests(app)
+        await outlineDeleteTests(app)
+        await outlinePutTests(app)
+        await outlineAddNoteTests(app)
+        await outlineDeleteNoteTests(app)
+        await outlinePatchNoteTests(app)
+      } catch (err) {
+        console.log('outline integration tests error: ', err)
+      }
     }
-  }
 
-  if (!test || test === 'delete') {
-    try {
-      await hardDeletePubTests(app)
-      await hardDeleteNoteTests(app)
-      await hardDeleteNotebookTests(app)
-      await hardDeleteTagTests(app)
-      await hardDeleteReaderTests(app)
-    } catch (err) {
-      console.log('hard delete integration test error: ', err)
+    if (!test || test === 'notebook') {
+      try {
+        await notebookPostTests(app)
+        await notebookGetTests(app)
+        await notebooksGetTests(app)
+        await notebookPutTests(app)
+        await notebookDeleteTests(app)
+        await notebookPubPutTests(app)
+        await notebookPubDeleteTests(app)
+        await notebookNotePutTests(app)
+        await notebookNoteDeleteTests(app)
+        await notebookNotePostTests(app)
+        await notebookTagPutTests(app)
+        await notebookTagDeleteTests(app)
+        await notebooksGetPaginateTests(app)
+        await notebooksGetFilterStatus(app)
+        await notebooksGetFilterSearchTests(app)
+        await notebooksGetFilterCombinedTests(app)
+        await notebooksGetFilterColourTests(app)
+        await notebooksGetOrderByNameTests(app)
+        await notebooksGetOrderByCreated(app)
+        await notebooksGetOrderByDefaultTests(app)
+      } catch (err) {
+        console.log('notebook integration test error: ', err)
+      }
     }
-  }
 
-  await app.knex.migrate.rollback()
-  await app.terminate()
+    if (!test || test === 'delete') {
+      try {
+        await hardDeletePubTests(app)
+        await hardDeleteNoteTests(app)
+        await hardDeleteNotebookTests(app)
+        await hardDeleteTagTests(app)
+        await hardDeleteReaderTests(app)
+      } catch (err) {
+        console.log('hard delete integration test error: ', err)
+      }
+    }
+    await app.knex.migrate.rollback()
+    await app.terminate()
+  })
 }
 allTests()

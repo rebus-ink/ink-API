@@ -8,6 +8,7 @@ const { checkOwnership } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 const { ValidationError } = require('objection')
+const debug = require('debug')('ink:routes:note-put')
 
 module.exports = function (app) {
   /**
@@ -49,7 +50,7 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/notes/:noteId').put(jwtAuth, function (req, res, next) {
     const noteId = req.params.noteId
-
+    debug('id of note to update: ', noteId)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -71,10 +72,13 @@ module.exports = function (app) {
 
         const note = Object.assign(req.body, { id: urlToId(noteId) })
         note.readerId = reader.id
+        debug('update to be applied: ', note)
         let updatedNote
         try {
           updatedNote = await Note.update(note)
+          debug('note updated: ', updatedNote)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

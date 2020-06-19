@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { NoteRelation } = require('../../models/NoteRelation')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:noteRelation-delete')
 
 module.exports = function (app) {
   /**
@@ -56,11 +57,13 @@ module.exports = function (app) {
             )
           )
         }
-
+        debug('id to be deleted: ', req.params.id)
         let deleted
         try {
           deleted = await NoteRelation.delete(req.params.id)
+          debug('deleted result: ', deleted)
         } catch (err) {
+          debug('error: ', err.message)
           return next(
             boom.badRequest(err.message, {
               requestUrl: req.originalUrl,

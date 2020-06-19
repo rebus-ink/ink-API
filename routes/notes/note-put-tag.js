@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { checkOwnership } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:note-put-tag')
 
 module.exports = function (app) {
   /**
@@ -46,6 +47,7 @@ module.exports = function (app) {
     .put(jwtAuth, function (req, res, next) {
       const noteId = req.params.noteId
       const tagId = req.params.tagId
+      debug('noteId: ', noteId, 'tagId: ', tagId)
       Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader || reader.deleted) {
@@ -76,6 +78,7 @@ module.exports = function (app) {
               res.status(204).end()
             })
             .catch(err => {
+              debug('error: ', err)
               if (err.message === 'no tag') {
                 return next(
                   boom.notFound(

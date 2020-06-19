@@ -11,6 +11,8 @@
     "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/models/index.js",
     "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/unit/*.test.js",
+    "test-integration-debug": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test DEBUG='ink*' TAP_ONLY=1 tap --reporter=dot --no-coverage-report --timeout=120 tests/integration/index.js",
+    "test-models-debug": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test DEBUG='ink*' TAP_ONLY=1 tap --reporter=dot --no-coverage-report --timeout=120 tests/models/index.js",
 
     "test": "npm run test-integration && npm run test-models && npm run test-unit",
     "start": "node index.js",

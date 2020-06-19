@@ -3,6 +3,7 @@
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
+const debug = require('debug')('ink:models:Attribution')
 
 /*::
 type AttributionType = {
@@ -72,6 +73,9 @@ class Attribution extends BaseModel {
     readerId /*: string */,
     role /*: string */
   ) /*: any */ {
+    debug('**_formatAttribution**')
+    debug('attribution passed in: ', attribution)
+    debug('sourceId: ', sourceId, 'readerId', readerId, 'role: ', role)
     let props
     if (_.isString(attribution)) {
       props = {
@@ -108,7 +112,7 @@ class Attribution extends BaseModel {
     }
 
     props.normalizedName = this.normalizeName(props.name)
-
+    debug('props returned: ', props)
     return props
   }
 
@@ -118,6 +122,9 @@ class Attribution extends BaseModel {
     sourceId /*: string */,
     readerId /*: string */
   ) {
+    debug('**createSingleAttribution**')
+    debug('attribution: ', attribution)
+    debug('sourceId: ', sourceId, 'readerId: ', readerId, 'role: ', role)
     if (!_.isString(attribution) && !_.isObject(attribution)) {
       throw new Error(
         `${role} attribution validation error: attribution should be either an attribution object or a string`
@@ -142,6 +149,10 @@ class Attribution extends BaseModel {
     sourceId /*: string */,
     readerId /*: string */
   ) /*: any */ {
+    debug('**createAttributionForSource**')
+    debug('source: ', source)
+    debug('sourceId: ', sourceId)
+    debug('readerId: ', readerId)
     let attributions = []
     let returnedAttributions = {}
     const attributionRoles = [
@@ -180,12 +191,14 @@ class Attribution extends BaseModel {
         })
       }
     })
-
+    debug('attributions to be added to database: ', attributions)
     await Attribution.query(Attribution.knex()).insert(attributions)
     return returnedAttributions
   }
 
   static normalizeName (name /*: string */) /*: string */ {
+    debug('**normalizeName**')
+    debug('before: ', name)
     return name
       .toLowerCase()
       .normalize('NFD')
@@ -195,12 +208,16 @@ class Attribution extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<AttributionType> */ {
+    debug('**byId**')
+    debug('id: ', id)
     return await Attribution.query().findById(id)
   }
 
   static async getAttributionBySourceId (
     sourceId /*: string */
   ) /*: Promise<AttributionType> */ {
+    debug('**getAttributionBySourceId**')
+    debug('sourceId: ', sourceId)
     if (sourceId === null) {
       throw Error(`Your sourceId cannot be null`)
     }
@@ -216,6 +233,8 @@ class Attribution extends BaseModel {
     role /*: string */,
     name /*: string */
   ) /*: Promise<number> */ {
+    debug('**deleteAttribution**')
+    debug('sourceId: ', sourceId, 'role: ', role, 'name: ', name)
     return await Attribution.query(Attribution.knex())
       .where('normalizedName', name)
       .andWhere('sourceId', '=', sourceId)
@@ -227,6 +246,8 @@ class Attribution extends BaseModel {
     sourceId /*: string */,
     role /*: string */
   ) /*: Promise<number> */ {
+    debug('**deleteAttributionOfSource**')
+    debug('sourceId: ', sourceId, 'role: ', role)
     return await Attribution.query(Attribution.knex())
       .where('role', '=', role)
       .andWhere('sourceId', '=', sourceId)

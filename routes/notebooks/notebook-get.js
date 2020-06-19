@@ -4,6 +4,7 @@ const passport = require('passport')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { Notebook } = require('../../models/Notebook')
+const debug = require('debug')('ink:routes:notebook-get')
 
 module.exports = app => {
   app.use('/', router)
@@ -46,8 +47,10 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
+      debug('id of notebook to get: ', id)
       Notebook.byId(id)
         .then(notebook => {
+          debug('notebook found: ', notebook)
           if (!notebook || notebook.deleted) {
             return next(
               boom.notFound(

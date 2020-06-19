@@ -7,6 +7,7 @@ const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
+const debug = require('debug')('ink:models:Note')
 
 /*::
 type NoteType = {
@@ -135,6 +136,8 @@ class Note extends BaseModel {
   static async _formatIncomingNote (
     note /*: NoteType */
   ) /*: Promise<NoteType> */ {
+    debug('**_formatIncomingNote**')
+    debug('note: ', note)
     const props = _.pick(note, [
       'canonical',
       'stylesheet',
@@ -149,7 +152,7 @@ class Note extends BaseModel {
       'parentId'
     ])
     if (note.id) props.id = urlToId(note.id)
-
+    debug('note formatted: ', props)
     return props
   }
 
@@ -158,7 +161,12 @@ class Note extends BaseModel {
     notebookId /*: string */,
     note /*: any */
   ) {
+    debug('**createNoteInNotebook**')
+    debug('reader: ', reader)
+    debug('notebookId: ', notebookId)
+    debug('note: ', note)
     const createdNote = await this.createNote(reader, note)
+    debug('created note: ', createdNote)
     if (createdNote) {
       try {
         // $FlowFixMe
@@ -168,6 +176,7 @@ class Note extends BaseModel {
           urlToId(createdNote.id)
         )
       } catch (err) {
+        debug('error when adding to notebook: ', err.message)
         this.hardDelete(createdNote.id)
         throw err
       }
@@ -177,6 +186,8 @@ class Note extends BaseModel {
   }
 
   static async hardDelete (noteId /*: ?string */) {
+    debug('**hardDelete**')
+    debug('noteId: ', noteId)
     noteId = urlToId(noteId)
     await Note.query()
       .delete()
@@ -189,12 +200,12 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<NoteType|Error> */ {
-    let props
-    try {
-      props = await Note._formatIncomingNote(note)
-    } catch (err) {
-      throw err
-    }
+    debug('**createNote**')
+    debug('incoming note: ', note)
+    debug('reader: ', reader)
+
+    let props = await Note._formatIncomingNote(note)
+
     props.readerId = reader.id
     props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
@@ -209,7 +220,9 @@ class Note extends BaseModel {
 
     try {
       createdNote = await Note.query().insertAndFetch(props)
+      debug('created note: ', createdNote)
     } catch (err) {
+      debug('error: ', err.message)
       if (err.constraint === 'note_sourceid_foreign') {
         throw new Error('no source')
       } else if (err.constraint === 'note_contextid_foreign') {
@@ -231,6 +244,7 @@ class Note extends BaseModel {
           reader.id
         )
         createdNote.body = note.body
+        debug('added multiple bodies: ', createdNote.body)
       } else {
         await NoteBody.createNoteBody(
           note.body,
@@ -238,8 +252,10 @@ class Note extends BaseModel {
           reader.id
         )
         createdNote.body = [note.body]
+        debug('added single body: ', createdNote.body)
       }
     } catch (err) {
+      debug('error: ', err.message)
       noteBodyError = err
     }
 
@@ -250,6 +266,7 @@ class Note extends BaseModel {
         .del()
       throw noteBodyError
     }
+    debug('created note to return: ', createdNote)
     return createdNote
   }
 
@@ -257,6 +274,8 @@ class Note extends BaseModel {
     noteId /*: string */,
     contextId /*: string */
   ) /*: Promise<any> */ {
+    debug('**copyToContext**')
+    debug('noteId: ', noteId, 'contextId: ', contextId)
     const originalNote = await Note.query()
       .findById(noteId)
       .withGraphFetched('[body, reader]')
@@ -270,14 +289,18 @@ class Note extends BaseModel {
         language: body.language
       }
     })
+
     const newNote = await Note.createNote(
       originalNote.reader,
       _.omit(originalNote, ['published', 'updated', 'id'])
     )
+    debug('new note: ', newNote)
     return newNote
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
+    debug('**byId**')
+    debug('id: ', id)
     const note = await Note.query()
       .findById(id)
       .withGraphFetched(
@@ -296,15 +319,19 @@ class Note extends BaseModel {
       note.relationsFrom = null
       note.relationsTo = null
     }
+    debug('note: ', note)
 
     return note
   }
 
   asRef () /*: string */ {
+    debug('**asRef**')
     return this.id
   }
 
   static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
+    debug('**delete**')
+    debug('id: ', id)
     // Delete all Note_Tag associated with the note
     const { Note_Tag } = require('./Note_Tag')
     await Note_Tag.deleteNoteTagsOfNote(id)
@@ -318,6 +345,8 @@ class Note extends BaseModel {
 
   static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
     // replace undefined to null for properties that can be deleted by the user
+    debug('**update**')
+    debug('incoming note: ', note)
     const propsCanBeDeleted = [
       'canonical',
       'stylesheet',
@@ -337,48 +366,43 @@ class Note extends BaseModel {
 
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
-    let updatedNote
-
     if (!note.body) {
       throw new Error(
         'Note Update Validation Error: body is a required property'
       )
     }
 
-    try {
-      updatedNote = await Note.query()
-        .updateAndFetchById(urlToId(note.id), modifications)
-        .whereNull('deleted')
-    } catch (err) {
-      throw err
-    }
+    let updatedNote = await Note.query()
+      .updateAndFetchById(urlToId(note.id), modifications)
+      .whereNull('deleted')
+    debug('updated note: ', updatedNote)
+
     // if note not found:
     if (!updatedNote) return null
 
     // create NoteBody
-    try {
-      if (note.body) {
-        if (_.isArray(note.body)) {
-          for (const body of note.body) {
-            await NoteBody.createNoteBody(
-              body,
-              urlToId(updatedNote.id),
-              note.readerId
-            )
-          }
-          updatedNote.body = note.body
-        } else {
+    if (note.body) {
+      if (_.isArray(note.body)) {
+        for (const body of note.body) {
           await NoteBody.createNoteBody(
-            note.body,
+            body,
             urlToId(updatedNote.id),
             note.readerId
           )
-          updatedNote.body = [note.body]
         }
+        updatedNote.body = note.body
+        debug('added multiple bodies: ', updatedNote.body)
+      } else {
+        await NoteBody.createNoteBody(
+          note.body,
+          urlToId(updatedNote.id),
+          note.readerId
+        )
+        updatedNote.body = [note.body]
+        debug('added single body: ', updatedNote.body)
       }
-    } catch (err) {
-      throw err
     }
+    debug('updated note after bodies: ', updatedNote)
 
     return updatedNote
   }

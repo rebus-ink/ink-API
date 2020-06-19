@@ -40,16 +40,11 @@ const notesListToTree = notes => {
     throw new Error('Invalid linked list')
   }
 
-  let tree
-  try {
-    tree = arrayToTree(orderedList, {
-      id: 'shortId',
-      dataField: null
-      // throwIfOrphans: true
-    })
-  } catch (err) {
-    throw err
-  }
+  let tree = arrayToTree(orderedList, {
+    id: 'shortId',
+    dataField: null
+    // throwIfOrphans: true
+  })
 
   return tree
 }

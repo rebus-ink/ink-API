@@ -7,6 +7,7 @@ const checkReader = (req, reader) => {
 const checkOwnership = (readerId, resourceId) => {
   readerId = urlToId(readerId)
   resourceId = urlToId(resourceId)
+  if (!resourceId) return false
   return resourceId.startsWith(readerId)
 }
 

@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:outline-patchNote')
 
 module.exports = function (app) {
   /**
@@ -55,6 +56,7 @@ module.exports = function (app) {
   router
     .route('/outlines/:id/notes/:noteId')
     .patch(jwtAuth, function (req, res, next) {
+      debug('outlineId: ', req.params.id, 'noteId: ', req.params.noteId)
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -84,6 +86,7 @@ module.exports = function (app) {
           }
 
           const body = req.body
+          debug('body: ', req.body)
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
               boom.badRequest('Body must be a JSON object', {
@@ -95,6 +98,7 @@ module.exports = function (app) {
 
           // get Note
           const note = await Note.byId(req.params.noteId)
+          debug('note retrieved: ', note)
           if (!note || note.deleted) {
             return next(
               boom.notFound(`No Note found with id: ${req.params.noteId}`, {
@@ -119,12 +123,14 @@ module.exports = function (app) {
 
           // linked list adjustments
           if (note.previous) {
+            debug('previous note: ', note.previous)
             const previousNote = await Note.byId(note.previous)
             await Note.update(
               Object.assign(previousNote, { next: urlToId(note.next) })
             )
           }
           if (note.next) {
+            debug('nextNote: ', note.next)
             const nextNote = await Note.byId(note.next)
             await Note.update(
               Object.assign(nextNote, { previous: urlToId(note.previous) })
@@ -134,7 +140,9 @@ module.exports = function (app) {
           let updatedNote
           try {
             updatedNote = await Note.update(Object.assign(note, body))
+            debug('updated note: ', updatedNote)
           } catch (err) {
+            debug('error: ', err.message)
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
@@ -205,6 +213,7 @@ module.exports = function (app) {
           }
           // if updatedNote.previous
           if (updatedNote.previous) {
+            debug('previous note: ', updatedNote.previous)
             const previousNote = await Note.byId(updatedNote.previous)
             await Note.update(
               Object.assign(previousNote, { next: urlToId(updatedNote.id) })
@@ -213,6 +222,7 @@ module.exports = function (app) {
 
           // if updatedNote.next
           if (updatedNote.next) {
+            debug('next note: ', updatedNote.next)
             const nextNote = await Note.byId(updatedNote.next)
             await Note.update(
               Object.assign(nextNote, { previous: urlToId(updatedNote.id) })

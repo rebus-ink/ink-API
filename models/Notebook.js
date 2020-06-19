@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
+const debug = require('debug')('ink:models:Notebook')
 
 const statusMap = {
   active: 1,
@@ -107,6 +108,8 @@ class Notebook extends BaseModel {
   }
 
   static _validateNotebook (notebook /*: any */) /*: any */ {
+    debug('**validateNotebook**')
+    debug('notebook: ', notebook)
     if (notebook.status && !statusMap[notebook.status]) {
       throw new Error(
         `Notebook validation error: ${notebook.status} is not a valid status`
@@ -120,6 +123,9 @@ class Notebook extends BaseModel {
     notebook /*: any */,
     readerId /*: string|null */
   ) /*: any */ {
+    debug('**_formatNotebook**')
+    debug('notebook: ', notebook)
+    debug('readerId: ', readerId)
     notebook = _.pick(notebook, ['name', 'description', 'status', 'settings'])
     if (readerId) {
       notebook.readerId = readerId
@@ -129,6 +135,7 @@ class Notebook extends BaseModel {
     } else {
       notebook.status = 1
     }
+    debug('formatted notebook: ', notebook)
     return notebook
   }
 
@@ -136,13 +143,19 @@ class Notebook extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
+    debug('**createNotebook**')
+    debug('object: ', object)
+    debug('readerId: ', readerId)
     this._validateNotebook(object)
     const props = this._formatNotebook(object, readerId)
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
+    debug('props to be added to database: ', props)
     return await Notebook.query(Notebook.knex()).insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
+    debug('**byId**')
+    debug('id: ', id)
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
@@ -157,6 +170,8 @@ class Notebook extends BaseModel {
   }
 
   static async applyFilters (query /*: any */, filters /*: any */) {
+    debug('**applyFilters**')
+    debug('filters: ', filters)
     if (filters.search) {
       query = query.where(nestedQuery => {
         nestedQuery
@@ -187,6 +202,9 @@ class Notebook extends BaseModel {
     skip /*: number */ = 0,
     filters /*: any */ = {}
   ) /*: Promise<Array<any>> */ {
+    debug('**byReader**')
+    debug('id: ', id, 'limit: ', limit, 'skip: ', skip)
+    debug('filters: ', filters)
     let query = Notebook.query()
       .where('readerId', '=', id)
       .whereNull('deleted')
@@ -223,6 +241,9 @@ class Notebook extends BaseModel {
     id /*: string */,
     filters /*: any */
   ) /*: Promise<number> */ {
+    debug('**count**')
+    debug('id: ', id)
+    debug('filters: ', filters)
     let query = Notebook.query()
       .where('readerId', '=', id)
       .whereNull('deleted')
@@ -235,6 +256,8 @@ class Notebook extends BaseModel {
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
+    debug('**update**')
+    debug('object: ', object)
     const props = this._formatNotebook(object, null)
     props.readerId = object.readerId
 
@@ -244,7 +267,9 @@ class Notebook extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
+    debug('**delete**')
     id = urlToId(id)
+    debug('id: ', id)
     const date = new Date().toISOString()
     return await Notebook.query()
       .patch({ deleted: date })

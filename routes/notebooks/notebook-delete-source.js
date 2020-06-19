@@ -6,6 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Source } = require('../../models/Notebook_Source')
+const debug = require('debug')('ink:routes:notebook-delete-source')
 
 module.exports = function (app) {
   /**
@@ -44,6 +45,7 @@ module.exports = function (app) {
     .delete(jwtAuth, function (req, res, next) {
       const sourceId = req.params.sourceId
       const notebookId = req.params.notebookId
+      debug('sourceId', sourceId, 'notebookId', notebookId)
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -75,6 +77,7 @@ module.exports = function (app) {
               )
               res.status(204).end()
             } catch (err) {
+              debug('error: ', err.message)
               return next(
                 boom.notFound(err.message, {
                   requestUrl: req.originalUrl

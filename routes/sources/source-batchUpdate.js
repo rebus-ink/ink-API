@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
+const debug = require('debug')('ink:routes:source-batchUpdate')
 
 const batchUpdateSimpleProperties = [
   'type',
@@ -55,7 +56,7 @@ module.exports = function (app) {
     .route('/sources/batchUpdate')
     .patch(jwtAuth, async function (req, res, next) {
       let errors = []
-
+      debug('body: ', req.body)
       if (!req.body || _.isEmpty(req.body)) {
         return next(
           boom.badRequest(
@@ -77,6 +78,7 @@ module.exports = function (app) {
         missingProps.push('sources')
       }
       if (missingProps.length) {
+        debug('missing properties: ', missingProps)
         return next(
           boom.badRequest(
             `Batch Update Source Request Error: Body missing properties: ${missingProps} `,
@@ -99,6 +101,7 @@ module.exports = function (app) {
       }
 
       req.body.sources.forEach(sourceId => {
+        debug('source: ', sourceId)
         if (!checkOwnership(reader.id, sourceId)) {
           errors.push({
             id: sourceId,
@@ -142,7 +145,7 @@ module.exports = function (app) {
 
           try {
             const result = await Source.batchUpdate(req.body)
-
+            debug('result of replace update: ', result)
             // if some sources were note found...
             if (result < req.body.sources.length || errors.length > 0) {
               const numberOfErrors = req.body.sources.length - result
@@ -171,16 +174,19 @@ module.exports = function (app) {
                 }
                 index++
               }
+              debug('multiple status', status)
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
                 .end(JSON.stringify({ status: status.concat(errors) }))
             } else {
               // if all went well...
+              debug('all went well, one status 204')
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             }
           } catch (err) {
+            debug('err with replace: ', err.message)
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
@@ -245,6 +251,7 @@ module.exports = function (app) {
             }
 
             const result = await Source.batchUpdateAddArrayProperty(req.body)
+            debug('result for add array property: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -260,6 +267,7 @@ module.exports = function (app) {
               req.body,
               urlToId(reader.id)
             )
+            debug('result add attribution: ', result)
             if (
               !_.find(result, { status: 404 }) &&
               !_.find(result, { status: 400 }) &&
@@ -281,6 +289,7 @@ module.exports = function (app) {
               req.body,
               urlToId(reader.id)
             )
+            debug('result add tags: ', result)
             if (
               !_.find(result, { status: 404 }) &&
               !_.find(result, { status: 400 }) &&
@@ -342,6 +351,7 @@ module.exports = function (app) {
               const result = await Source.batchUpdateRemoveArrayProperty(
                 req.body
               )
+              debug('result remove array property: ', result)
               if (!_.find(result, { status: 404 }) && errors.length === 0) {
                 res.setHeader('Content-Type', 'application/ld+json')
                 res.status(204).end()
@@ -377,6 +387,7 @@ module.exports = function (app) {
             }
 
             const result = await Source.batchUpdateRemoveAttribution(req.body)
+            debug('result for remove attribution: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -394,6 +405,7 @@ module.exports = function (app) {
               req.body,
               urlToId(reader.id)
             )
+            debug('result remove tags: ', result)
             if (
               !_.find(result, { status: 404 }) &&
               !_.find(result, { status: 400 }) &&

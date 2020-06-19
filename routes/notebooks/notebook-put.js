@@ -8,6 +8,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { urlToId, checkOwnership } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
+const debug = require('debug')('ink:routes:notebook-put')
 
 module.exports = function (app) {
   /**
@@ -54,6 +55,7 @@ module.exports = function (app) {
         }
 
         const body = req.body
+        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -79,7 +81,9 @@ module.exports = function (app) {
         let updatedNotebook
         try {
           updatedNotebook = await Notebook.update(body)
+          debug('updated notebook: ', updatedNotebook)
         } catch (err) {
+          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

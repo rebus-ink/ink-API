@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Note } = require('../../models/Note')
-const debug = require('debug')('hobb:routes:document')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
+const debug = require('debug')('ink:routes:note-get')
 
 module.exports = app => {
   app.use('/', router)
@@ -47,6 +47,7 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
+      debug('note id: ', id)
       Note.byId(id)
         .then(note => {
           if (!note || note.deleted) {
@@ -62,7 +63,7 @@ module.exports = app => {
               })
             )
           } else {
-            debug(note)
+            debug('note created: ', note)
             res.setHeader('Content-Type', 'application/ld+json')
             res.end(JSON.stringify(note.toJSON()))
           }

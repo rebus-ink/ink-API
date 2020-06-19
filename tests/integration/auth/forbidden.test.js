@@ -707,7 +707,6 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token2}`)
         .type('application/ld+json')
-
       await tap.equal(res.statusCode, 403)
       const error = JSON.parse(res.text)
       await tap.equal(error.statusCode, 403)

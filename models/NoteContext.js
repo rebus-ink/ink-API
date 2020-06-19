@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
+const debug = require('debug')('ink:models:Attribution')
 
 class NoteContext extends BaseModel {
   static get tableName () /*: string */ {
@@ -59,6 +60,9 @@ class NoteContext extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
+    debug('**createNoteContext**')
+    debug('object: ', object)
+    debug('readerId: ', readerId)
     const props = _.pick(object, [
       'type',
       'name',
@@ -69,11 +73,13 @@ class NoteContext extends BaseModel {
     ])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-
+    debug('props to insert in database: ', props)
     return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
+    debug('**byId**')
+    debug('id: ', id)
     const noteContext = await NoteContext.query()
       .findById(id)
       .withGraphFetched(
@@ -95,11 +101,14 @@ class NoteContext extends BaseModel {
         noteContext.notes[index].relationsTo = null
       })
     }
+    debug('noteContext: ', noteContext)
 
     return noteContext
   }
 
   static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
+    debug('**checkIfExists**')
+    debug('id: ', id)
     const noteContext = await NoteContext.query().findById(id)
     if (!noteContext || noteContext.deleted) {
       return false
@@ -107,6 +116,8 @@ class NoteContext extends BaseModel {
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
+    debug('**update**')
+    debug('object: ', object)
     const props = _.pick(object, [
       'readerId',
       'type',
@@ -124,6 +135,8 @@ class NoteContext extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
+    debug('**delete**')
+    debug('id: ', id)
     return await NoteContext.query().deleteById(id)
   }
 
