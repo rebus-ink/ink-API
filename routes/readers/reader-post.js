@@ -5,6 +5,7 @@ const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:reader-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -74,6 +75,11 @@ module.exports = function (app) {
           )
         }
       }
+
+      await metricsQueue.add({
+        type: 'createReader',
+        readerId: createdReader.id
+      })
 
       res.setHeader('Content-Type', 'application/ld+json')
       res.setHeader('Location', createdReader.id)
