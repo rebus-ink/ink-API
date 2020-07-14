@@ -8,7 +8,7 @@ exports.up = function (knex, Promise) {
       .notNullable()
       .onDelete('CASCADE')
       .index()
-    table.string('content')
+    table.text('content')
     table.string('language')
     table.string('motivation').notNullable()
     table
