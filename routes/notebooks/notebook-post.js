@@ -88,10 +88,12 @@ module.exports = function (app) {
             )
           }
         }
-        await metricsQueue.add({
-          type: 'createNotebook',
-          readerId: createdNotebook.readerId
-        })
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNotebook',
+            readerId: createdNotebook.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdNotebook.toJSON()))

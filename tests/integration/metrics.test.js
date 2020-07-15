@@ -6,11 +6,14 @@ const _ = require('lodash')
 
 const test = async () => {
   await tap.test('metrics', async () => {
-    console.log('test??')
     const res = await request(app)
-      .get(
-        '/metrics?start=2020-07-13T15:33:05.762Z&end=2020-07-13T15:33:04.727Z'
-      )
+      // .get(
+      //   '/metrics?end=2020-07-13T15:33:12.800Z'
+      // )
+      // .get(
+      //   '/metrics?start=2020-07-13T15:33:05.762Z&end=2020-07-13T15:34:12.649Z'
+      // )
+      .get('/metrics?countOnly&groupBy=user')
       .set('Host', 'reader-api.test')
       .type('application/ld+json')
 

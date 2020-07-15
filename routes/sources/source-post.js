@@ -95,10 +95,12 @@ module.exports = function (app) {
         const finishedSource = createdSource.toJSON()
 
         await libraryCacheUpdate(reader.id)
-        await metricsQueue.add({
-          type: 'createSource',
-          readerId: finishedSource.readerId
-        })
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createSource',
+            readerId: finishedSource.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', finishedSource.id)

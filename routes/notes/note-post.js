@@ -100,10 +100,12 @@ module.exports = function (app) {
             )
           }
         }
-        await metricsQueue.add({
-          type: 'createNote',
-          readerId: createdNote.readerId
-        })
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNote',
+            readerId: createdNote.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', createdNote.id)

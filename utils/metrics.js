@@ -6,7 +6,7 @@ const request = require('request')
 require('dotenv').config()
 let metricsQueue
 
-if (process.env.REDIS_PASSWORD) {
+if (process.env.REDIS_PASSWORD && process.env.NODE_ENV === 'production') {
   metricsQueue = new Queue('metrics', {
     redis: {
       host: process.env.REDIS_HOST,

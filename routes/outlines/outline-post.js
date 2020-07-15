@@ -89,10 +89,12 @@ module.exports = function (app) {
             )
           }
         }
-        await metricsQueue.add({
-          type: 'createOutline',
-          readerId: createdOutline.readerId
-        })
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createOutline',
+            readerId: createdOutline.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdOutline.toJSON()))

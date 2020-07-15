@@ -103,14 +103,14 @@ const hardDeleteNotebookTests = require('./hardDelete/deleteNotebook.test')
 const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
 const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
 
-const metricsTest = require('./metrics.test')
+// const metricsTest = require('./metrics.test')
 
 const app = require('../../server').app
 
 require('dotenv').config()
-function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
+// function sleep (ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms))
+// }
 const allTests = async () => {
   await app.initialize(true)
   await app.knex.migrate.rollback()
@@ -126,6 +126,7 @@ const allTests = async () => {
       await unauthorizedTests(app)
     } catch (err) {
       console.log('authentication integration test error: ', err)
+      throw err
     }
   }
 
@@ -149,6 +150,7 @@ const allTests = async () => {
       await libraryFilterNotebookTests(app)
     } catch (err) {
       console.log('library integration test error: ', err)
+      throw err
     }
   }
 
@@ -162,6 +164,7 @@ const allTests = async () => {
       await sourceBatchUpdateTests(app)
     } catch (err) {
       console.log('source integration test error: ', err)
+      throw err
     }
   }
 
@@ -173,6 +176,7 @@ const allTests = async () => {
       await readerDeleteTests(app)
     } catch (err) {
       console.log('reader integration test error: ', err)
+      throw err
     }
   }
 
@@ -184,6 +188,7 @@ const allTests = async () => {
       await notePutTests(app)
     } catch (err) {
       console.log('note integration test error: ', err)
+      throw err
     }
   }
 
@@ -199,6 +204,7 @@ const allTests = async () => {
       await tagPutTests(app)
     } catch (err) {
       console.log('tag integration test error: ', err)
+      throw err
     }
   }
 
@@ -220,6 +226,7 @@ const allTests = async () => {
       await readerNotesFilterNotebookTests(app)
     } catch (err) {
       console.log('readerNotes integration tests error: ', err)
+      throw err
     }
   }
 
@@ -230,6 +237,7 @@ const allTests = async () => {
       await noteRelationDeleteTests(app)
     } catch (err) {
       console.log('noteRelation integration tests error: ', err)
+      throw err
     }
   }
 
@@ -242,6 +250,7 @@ const allTests = async () => {
       await noteContextGetTests(app)
     } catch (err) {
       console.log('noteContext integration tests error: ', err)
+      throw err
     }
   }
 
@@ -256,6 +265,7 @@ const allTests = async () => {
       await outlinePatchNoteTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
+      throw err
     }
   }
 
@@ -283,6 +293,7 @@ const allTests = async () => {
       await notebooksGetOrderByDefaultTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
+      throw err
     }
   }
 
@@ -295,13 +306,16 @@ const allTests = async () => {
       await hardDeleteReaderTests(app)
     } catch (err) {
       console.log('hard delete integration test error: ', err)
+      throw err
     }
   }
 
-  if (!test || test === 'metric') {
-    await metricsTest(app)
-  }
-  await sleep(60000)
+  // not real tests, just using it to see the results in the console
+  // if (!test || test === 'metric') {
+  //   await metricsTest(app)
+  // }
+  // only needed for queues, which is only used for metrics.
+  // await sleep(60000)
   await app.knex.migrate.rollback()
   await app.terminate()
 }

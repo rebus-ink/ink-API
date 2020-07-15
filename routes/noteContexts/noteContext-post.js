@@ -93,10 +93,12 @@ module.exports = function (app) {
           }
         }
 
-        await metricsQueue.add({
-          type: 'createNoteContext',
-          readerId: createdNoteContext.readerId
-        })
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNoteContext',
+            readerId: createdNoteContext.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdNoteContext.toJSON()))
