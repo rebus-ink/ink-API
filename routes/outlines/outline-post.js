@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { NoteContext } = require('../../models/NoteContext')
 const debug = require('debug')('ink:routes:outline-delete')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -87,6 +88,12 @@ module.exports = function (app) {
               })
             )
           }
+        }
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createOutline',
+            readerId: createdOutline.readerId
+          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

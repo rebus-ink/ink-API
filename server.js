@@ -11,7 +11,7 @@ const { Strategy, ExtractJwt } = require('passport-jwt')
 // const epubQueue = require('./processFiles/index')
 const cache = require('./utils/cache')
 const errorHandling = require('./routes/_middleware/error-handling')
-
+const { metricsQueue } = require('./utils/metrics')
 // Routes
 
 // Reader
@@ -88,6 +88,8 @@ const notebookPutTagRoute = require('./routes/notebooks/notebook-put-tag') // PU
 const notebookDeleteTagRoute = require('./routes/notebooks/notebook-delete-tag') // DELETE /notebooks/:id/tags/:tagId
 
 const hardDeleteRoute = require('./routes/hardDelete')
+
+const metricsGetRoute = require('./routes/metrics-get')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -210,6 +212,12 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
+  if (metricsQueue) {
+    await metricsQueue.clean(0)
+    await metricsQueue.clean(0, 'failed')
+    await metricsQueue.empty()
+    metricsQueue.close()
+  }
   // if (elasticsearchQueue) {
   //   await elasticsearchQueue.clean(0)
   //   await elasticsearchQueue.clean(0, 'failed')
@@ -283,6 +291,7 @@ notebookPostNoteRoute(app)
 notebookPutTagRoute(app)
 notebookDeleteTagRoute(app)
 hardDeleteRoute(app)
+metricsGetRoute(app)
 
 app.use(errorHandling)
 

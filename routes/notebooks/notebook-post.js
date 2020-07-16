@@ -8,6 +8,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { Notebook } = require('../../models/Notebook')
 const debug = require('debug')('ink:routes:notebook-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -86,6 +87,12 @@ module.exports = function (app) {
               })
             )
           }
+        }
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNotebook',
+            readerId: createdNotebook.readerId
+          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

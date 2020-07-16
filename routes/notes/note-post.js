@@ -8,6 +8,7 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -98,6 +99,12 @@ module.exports = function (app) {
               })
             )
           }
+        }
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNote',
+            readerId: createdNote.readerId
+          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

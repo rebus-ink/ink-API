@@ -8,6 +8,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteContext } = require('../../models/NoteContext')
 const debug = require('debug')('ink:routes:noteContexts-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -90,6 +91,13 @@ module.exports = function (app) {
               })
             )
           }
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createNoteContext',
+            readerId: createdNoteContext.readerId
+          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

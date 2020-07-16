@@ -9,6 +9,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -91,10 +92,15 @@ module.exports = function (app) {
             )
           }
         }
+        const finishedSource = createdSource.toJSON()
 
         await libraryCacheUpdate(reader.id)
-
-        const finishedSource = createdSource.toJSON()
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'createSource',
+            readerId: finishedSource.readerId
+          })
+        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', finishedSource.id)
