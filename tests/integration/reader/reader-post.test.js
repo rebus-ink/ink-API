@@ -11,7 +11,7 @@ const test = async app => {
   await new Promise(_func => setTimeout(_func, 50))
   const token3 = getToken()
 
-  await tap.only('Create Reader', async () => {
+  await tap.test('Create Reader', async () => {
     const res = await request(app)
       .post('/readers')
       .set('Host', 'reader-api.test')
