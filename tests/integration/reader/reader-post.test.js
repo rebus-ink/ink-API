@@ -11,7 +11,7 @@ const test = async app => {
   await new Promise(_func => setTimeout(_func, 50))
   const token3 = getToken()
 
-  await tap.test('Create Reader', async () => {
+  await tap.only('Create Reader', async () => {
     const res = await request(app)
       .post('/readers')
       .set('Host', 'reader-api.test')
@@ -20,8 +20,11 @@ const test = async app => {
       .send(
         JSON.stringify({
           name: 'Jane Doe',
-          profile: { property: 'value' },
+          profile: { property: 'value' }, // deprecated
           preferences: { favoriteColor: 'blueish brown' },
+          username: 'user123',
+          profilePicture: 'picture/something.jpg',
+          role: 'admin',
           json: { something: '!!!!' }
         })
       )
@@ -35,7 +38,10 @@ const test = async app => {
     await tap.equal(res.body.preferences.favoriteColor, 'blueish brown')
     await tap.ok(res.body.json)
     await tap.equal(res.body.json.something, '!!!!')
-
+    await tap.equal(res.body.username, 'user123')
+    await tap.equal(res.body.profilePicture, 'picture/something.jpg')
+    await tap.equal(res.body.status, 'active')
+    await tap.equal(res.body.role, 'admin')
     await tap.type(res.get('Location'), 'string')
     await tap.equal(res.get('Location'), res.body.id)
     readerUrl = res.get('Location')

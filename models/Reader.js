@@ -14,7 +14,18 @@ const debug = require('debug')('ink:models:Reader')
 const short = require('short-uuid')
 const translator = short()
 
-const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
+const attributes = [
+  'id',
+  'authId',
+  'name',
+  'profile',
+  'json',
+  'preferences',
+  'profilePicture',
+  'username',
+  'status',
+  'role'
+]
 
 /*::
 type ReaderType = {
@@ -24,6 +35,10 @@ type ReaderType = {
   json?: Object,
   profile?: Object,
   preferences?: Object,
+  profilePicture?: string,
+  username?: string,
+  status: string,
+  role: string,
   published: Date,
   updated: Date
 };
@@ -180,14 +195,25 @@ class Reader extends BaseModel {
       properties: {
         id: { type: 'string' },
         authId: { type: 'string' },
-        type: { const: 'Person' },
         profile: {
           type: ['object', 'null'],
           additionalProperties: true
-        },
+        }, // deprecated
         preferences: {
           type: ['object', 'null'],
           additionalProperties: true
+        },
+        username: {
+          type: ['string', 'null']
+        },
+        profilePicture: {
+          type: ['string', 'null']
+        },
+        role: {
+          type: ['string', 'null']
+        },
+        status: {
+          type: ['string', 'null']
         },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' },
@@ -213,7 +239,11 @@ class Reader extends BaseModel {
       'name',
       'preferences',
       'profile',
-      'json'
+      'json',
+      'username',
+      'status',
+      'profilePicture',
+      'role'
     ])
     debug('modifications: ', modifications)
     return await Reader.query().updateAndFetchById(urlToId(id), modifications)
@@ -246,7 +276,10 @@ class Reader extends BaseModel {
       .patch({ deleted: now })
       .where('readerId', '=', id)
 
-    return await Reader.query().patchAndFetchById(id, { deleted: now })
+    return await Reader.query().patchAndFetchById(id, {
+      deleted: now,
+      status: 'deleted'
+    })
   }
 
   static get relationMappings () /*: any */ {
@@ -303,6 +336,10 @@ class Reader extends BaseModel {
       'profile',
       'json',
       'published',
+      'username',
+      'profilePicture',
+      'status',
+      'role',
       'updated'
     ])
     json.shortId = urlToId(json.id)

@@ -18,7 +18,6 @@ query parameters:
 module.exports = function (app) {
   app.use('/', router)
   router.route('/metrics').get(async function (req, res) {
-    console.log(req.query)
     let [list] = await datastore.runQuery(metricsQuery)
     list = list.map(item => {
       return {
