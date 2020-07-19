@@ -2,8 +2,6 @@ const request = require('supertest')
 const tap = require('tap')
 const app = require('../../server').app
 
-const _ = require('lodash')
-
 const test = async () => {
   await tap.test('metrics', async () => {
     const res = await request(app)

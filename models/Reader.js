@@ -14,7 +14,21 @@ const debug = require('debug')('ink:models:Reader')
 const short = require('short-uuid')
 const translator = short()
 
-const attributes = ['id', 'authId', 'name', 'profile', 'json', 'preferences']
+const attributes = [
+  'id',
+  'authId',
+  'name',
+  'profile',
+  'json',
+  'preferences',
+  'profilePicture',
+  'username',
+  'status',
+  'role'
+]
+
+const roles = ['reader', 'admin']
+const status = ['active', 'inactive', 'deleted']
 
 /*::
 type ReaderType = {
@@ -24,12 +38,62 @@ type ReaderType = {
   json?: Object,
   profile?: Object,
   preferences?: Object,
+  profilePicture?: string,
+  username?: string,
+  status: string,
+  role: string,
   published: Date,
   updated: Date
 };
 */
 
 class Reader extends BaseModel {
+  static get tableName () /*: string */ {
+    return 'Reader'
+  }
+  get path () /*: string */ {
+    return 'reader'
+  }
+  static get jsonSchema () /*: any */ {
+    return {
+      type: 'object',
+      title: 'Reader Profile',
+      properties: {
+        id: { type: 'string' },
+        authId: { type: 'string' },
+        profile: {
+          type: ['object', 'null'],
+          additionalProperties: true
+        }, // deprecated
+        preferences: {
+          type: ['object', 'null'],
+          additionalProperties: true
+        },
+        username: {
+          type: ['string', 'null']
+        },
+        profilePicture: {
+          type: ['string', 'null']
+        },
+        role: {
+          type: ['string', 'null']
+        },
+        status: {
+          type: ['string', 'null']
+        },
+        published: { type: 'string', format: 'date-time' },
+        updated: { type: 'string', format: 'date-time' },
+        deleted: { type: 'string', format: 'date-time' },
+        json: {
+          type: ['object', 'null'],
+          additionalProperties: true
+        }
+      },
+      // required: ['authId'],
+      additionalProperties: true
+    }
+  }
+
   static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
     debug('**byAuthId**')
     const readers = await Reader.query(Reader.knex()).where(
@@ -77,6 +141,24 @@ class Reader extends BaseModel {
     return readers.length > 0 && !readers[0].deleted
   }
 
+  static _validateReader (object) {
+    // role
+    if (object.role && roles.indexOf(object.role) === -1) {
+      throw new Error(
+        `Reader Validation Error: ${object.role} is not a valid value for role`
+      )
+    }
+
+    // status
+    if (object.status && status.indexOf(object.status) === -1) {
+      throw new Error(
+        `Reader Validation Error: ${
+          object.status
+        } is not a valid value for status`
+      )
+    }
+  }
+
   static async createReader (
     authId /*: string */,
     person /*: any */
@@ -87,6 +169,9 @@ class Reader extends BaseModel {
     const props = _.pick(person, attributes)
     props.id = translator.new()
     props.authId = authId
+
+    this._validateReader(props)
+
     let newReader = await Reader.query(Reader.knex())
       .insert(props)
       .returning('*')
@@ -167,41 +252,6 @@ class Reader extends BaseModel {
     return newReader
   }
 
-  static get tableName () /*: string */ {
-    return 'Reader'
-  }
-  get path () /*: string */ {
-    return 'reader'
-  }
-  static get jsonSchema () /*: any */ {
-    return {
-      type: 'object',
-      title: 'Reader Profile',
-      properties: {
-        id: { type: 'string' },
-        authId: { type: 'string' },
-        type: { const: 'Person' },
-        profile: {
-          type: ['object', 'null'],
-          additionalProperties: true
-        },
-        preferences: {
-          type: ['object', 'null'],
-          additionalProperties: true
-        },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' },
-        json: {
-          type: ['object', 'null'],
-          additionalProperties: true
-        }
-      },
-      // required: ['authId'],
-      additionalProperties: true
-    }
-  }
-
   static async update (
     id /*: string */,
     object /*: any */
@@ -213,8 +263,13 @@ class Reader extends BaseModel {
       'name',
       'preferences',
       'profile',
-      'json'
+      'json',
+      'username',
+      'status',
+      'profilePicture',
+      'role'
     ])
+    this._validateReader(modifications)
     debug('modifications: ', modifications)
     return await Reader.query().updateAndFetchById(urlToId(id), modifications)
   }
@@ -246,7 +301,10 @@ class Reader extends BaseModel {
       .patch({ deleted: now })
       .where('readerId', '=', id)
 
-    return await Reader.query().patchAndFetchById(id, { deleted: now })
+    return await Reader.query().patchAndFetchById(id, {
+      deleted: now,
+      status: 'deleted'
+    })
   }
 
   static get relationMappings () /*: any */ {
@@ -303,6 +361,10 @@ class Reader extends BaseModel {
       'profile',
       'json',
       'published',
+      'username',
+      'profilePicture',
+      'status',
+      'role',
       'updated'
     ])
     json.shortId = urlToId(json.id)

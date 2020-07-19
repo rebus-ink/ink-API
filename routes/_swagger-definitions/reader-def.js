@@ -9,8 +9,18 @@
  *         readOnly: true
  *       name:
  *         type: string
- *       profile:
- *         type: object
+ *       username:
+ *         type: string
+ *       profilePicture:
+ *         type: string
+ *       role:
+ *         type: string
+ *         enum: ['reader', 'admin']
+ *         default: 'reader'
+ *       status:
+ *         type: string
+ *         enum: ['active', 'inactive', 'deleted']
+ *         default: 'active'
  *       preferences:
  *         type: object
  *       json:

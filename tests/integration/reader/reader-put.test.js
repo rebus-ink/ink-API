@@ -39,6 +39,26 @@ const test = async app => {
     await tap.equal(res.body.json.property2, 'value2')
   })
 
+  await tap.test('Update Reader username', async () => {
+    const res = await request(app)
+      .put(`/readers/${reader.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(Object.assign(reader, { username: 'username123' })))
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.shortId, urlToId(res.body.id))
+    await tap.equal(res.body.username, 'username123')
+    await tap.ok(res.body.profile)
+    await tap.equal(res.body.profile.favoriteColor, 'blue')
+    await tap.ok(res.body.preferences)
+    await tap.equal(res.body.preferences.property, 'value1')
+    await tap.ok(res.body.json)
+    await tap.equal(res.body.json.property2, 'value2')
+  })
+
   await tap.test('Update Reader preferences', async () => {
     const res = await request(app)
       .put(`/readers/${reader.shortId}`)
@@ -133,7 +153,31 @@ const test = async app => {
       error.details.validation.preferences[0].params.type,
       'object,null'
     )
+    Object.assign(reader, { preferences: null })
   })
+
+  await tap.test(
+    'Update Reader - Try to update status to invalid value',
+    async () => {
+      const res = await request(app)
+        .put(`/readers/${reader.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify(Object.assign(reader, { status: 'something' })))
+
+      await tap.equal(res.status, 400)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 400)
+      await tap.equal(error.error, 'Bad Request')
+      await tap.equal(
+        error.message,
+        'Reader Validation Error: something is not a valid value for status'
+      )
+      await tap.equal(error.details.requestUrl, `/readers/${reader.shortId}`)
+      await tap.equal(error.details.requestBody.status, 'something')
+    }
+  )
 
   await tap.test('Try to update a reader that does not exist', async () => {
     const res = await request(app)

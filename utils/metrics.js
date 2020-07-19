@@ -1,4 +1,3 @@
-const _ = require('lodash')
 const { urlToId } = require('./utils')
 const crypto = require('crypto')
 const Queue = require('bull')
@@ -30,7 +29,7 @@ if (process.env.REDIS_PASSWORD && process.env.NODE_ENV === 'production') {
         body: JSON.stringify(metrics),
         headers: { 'content-type': 'application/json' }
       },
-      async (err, res) => {
+      async err => {
         if (err) console.log(err)
         done()
       }
