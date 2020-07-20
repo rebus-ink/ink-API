@@ -278,7 +278,7 @@ class Note extends BaseModel {
     debug('noteId: ', noteId, 'contextId: ', contextId)
     const originalNote = await Note.query()
       .findById(noteId)
-      .withGraphFetched('[body, reader]')
+      .withGraphFetched('[body, reader, tags]')
     if (!originalNote) throw new Error('no note')
     originalNote.contextId = contextId
     originalNote.original = urlToId(originalNote.id)

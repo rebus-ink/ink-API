@@ -38,6 +38,10 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/noteBody'
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
  *       published:
  *         type: string
  *         format: date-time
