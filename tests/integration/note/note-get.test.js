@@ -9,6 +9,8 @@ const {
   createNote,
   createNoteRelation,
   addNoteToCollection,
+  createNotebook,
+  addNoteToNotebook,
   createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
@@ -121,8 +123,23 @@ const test = async app => {
     await tap.equal(res.statusCode, 200)
 
     const body = res.body
-    await tap.ok(body.relations)
     await tap.equal(body.tags.length, 1)
+  })
+
+  // with notebook
+  const notebook = await createNotebook(app, token)
+  await addNoteToNotebook(app, token, noteId, notebook.shortId)
+
+  await tap.test('Get Note with Tag', async () => {
+    const res = await request(app)
+      .get(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.equal(body.notebooks.length, 1)
   })
 
   await tap.test('Try to get Note that does not exist', async () => {

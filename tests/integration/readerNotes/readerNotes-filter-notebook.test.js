@@ -59,6 +59,8 @@ const test = async app => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 3)
     await tap.equal(res.body.items.length, 3)
+    await tap.ok(res.body.items[0].notebooks)
+    await tap.equal(res.body.items[0].notebooks.length, 1)
   })
 
   await addNoteToNotebook(app, token, urlToId(note4.id), notebookId)

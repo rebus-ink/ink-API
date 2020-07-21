@@ -69,6 +69,7 @@ class Note extends BaseModel {
     const { Tag } = require('./Tag.js')
     const { NoteRelation } = require('./NoteRelation')
     const { NoteContext } = require('./NoteContext')
+    const { Notebook } = require('./Notebook')
     return {
       reader: {
         relation: Model.BelongsToOneRelation,
@@ -128,6 +129,18 @@ class Note extends BaseModel {
             to: 'note_tag.tagId'
           },
           to: 'Tag.id'
+        }
+      },
+      notebooks: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Notebook,
+        join: {
+          from: 'Note.id',
+          through: {
+            from: 'notebook_note.noteId',
+            to: 'notebook_note.notebookId'
+          },
+          to: 'Notebook.id'
         }
       }
     }
@@ -304,7 +317,7 @@ class Note extends BaseModel {
     const note = await Note.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body]'
+        '[reader, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body, notebooks]'
       )
       .modifiers({
         notDeleted (builder) {
