@@ -309,5 +309,9 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/source-ref'
+ *       lastRead:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/source'
  *
  */

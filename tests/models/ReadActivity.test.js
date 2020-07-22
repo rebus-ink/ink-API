@@ -130,6 +130,26 @@ const test = async app => {
     }
   )
 
+  await tap.test('Get latests ReadActivities of a reader', async () => {
+    const lastReadActivity = await ReadActivity.createReadActivity(
+      urlToId(createdReader.id),
+      urlToId(source.id),
+      selectorJsonObject
+    )
+
+    let readActivities = await ReadActivity.getLatestReadActivitiesForReader(
+      urlToId(createdReader.id),
+      2
+    )
+
+    await tap.ok(readActivities)
+    await tap.equal(readActivities.length, 2)
+    await tap.ok(readActivities[0] instanceof ReadActivity)
+    await tap.equal(readActivities[0].id, lastReadActivity.id)
+    await tap.ok(readActivities[0].source)
+    await tap.equal(readActivities[0].readerId, createdReader.id)
+  })
+
   await destroyDB(app)
 }
 
