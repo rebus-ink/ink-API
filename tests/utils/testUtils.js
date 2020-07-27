@@ -154,6 +154,26 @@ const createNote = async (app, token, object = {}) => {
   return response.body
 }
 
+const createReadActivity = async (app, token, sourceId, object = {}) => {
+  const readActivityObject = Object.assign(
+    {
+      selector: {
+        type: 'XPathSelector',
+        value: '/html/body/p[2]/table/tr[2]/td[3]/span'
+      }
+    },
+    object
+  )
+  const response = await request(app)
+    .post(`/sources/${sourceId}/readActivity`)
+    .set('Host', 'reader-api.test')
+    .set('Authorization', `Bearer ${token}`)
+    .type('application/ld+json')
+    .send(JSON.stringify(readActivityObject))
+
+  return response.body
+}
+
 const updateNote = async (app, token, object) => {
   const response = await request(app)
     .put(`/notes/${object.shortId}`)
@@ -344,6 +364,7 @@ module.exports = {
   addNoteToCollection,
   createNoteRelation,
   createNoteContext,
+  createReadActivity,
   addNoteToContext,
   updateNote,
   addNoteToOutline,

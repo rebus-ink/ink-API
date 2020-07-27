@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Library } = require('../../models/library')
+const { ReadActivity } = require('../../models/ReadActivity')
 const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
@@ -89,6 +90,11 @@ module.exports = app => {
    *           type: string
    *           enum: ['title', 'datePublished', 'type']
    *         description: used to order either alphabetically by title or type or by date of creation of the source object (most recent first)
+   *       - in: query
+   *         name: lastRead
+   *         schema:
+   *           type: number
+   *         description: the number of sources to include in the lastRead list (that is not the same list as the items)
    *       - in: query
    *         name: reverse
    *         schema:
@@ -181,7 +187,7 @@ module.exports = app => {
             return Library.getLibraryCount(urlToId(reader.id), filters)
           }
         })
-        .then(count => {
+        .then(async count => {
           debug('count: ', count)
           let reader = returnedReader
           let sources = reader.sources.map(source => {
@@ -204,16 +210,40 @@ module.exports = app => {
             ])
           })
           debug('sources after filtering out properties: ', sources)
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.end(
-            JSON.stringify({
-              totalItems: parseInt(count),
-              items: sources,
-              tags: reader.tags,
-              page: req.query.page,
-              pageSize: parseInt(req.query.limit)
+
+          if (req.query.lastRead && parseInt(req.query.lastRead)) {
+            const number = parseInt(req.query.lastRead)
+            const readActivities = await ReadActivity.getLatestReadActivitiesForReader(
+              urlToId(returnedReader.id),
+              number
+            )
+            const lastRead = []
+            readActivities.forEach(activity => {
+              lastRead.push(activity.source)
             })
-          )
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.end(
+              JSON.stringify({
+                totalItems: parseInt(count),
+                items: sources,
+                tags: reader.tags,
+                page: req.query.page,
+                pageSize: parseInt(req.query.limit),
+                lastRead
+              })
+            )
+          } else {
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.end(
+              JSON.stringify({
+                totalItems: parseInt(count),
+                items: sources,
+                tags: reader.tags,
+                page: req.query.page,
+                pageSize: parseInt(req.query.limit)
+              })
+            )
+          }
         })
         .catch(err => {
           next(err)

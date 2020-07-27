@@ -38,6 +38,14 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/noteBody'
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *       notebooks:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/notebook'
  *       published:
  *         type: string
  *         format: date-time

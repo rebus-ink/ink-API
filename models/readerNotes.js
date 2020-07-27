@@ -141,7 +141,9 @@ class ReaderNotes {
     }
 
     const readers = await qb
-      .withGraphFetched('replies.[source.[attributions], body, tags]')
+      .withGraphFetched(
+        'replies.[source.[attributions], body, tags, notebooks]'
+      )
       .modifyGraph('replies', builder => {
         builder.modifyGraph('body', bodyBuilder => {
           bodyBuilder.select('content', 'language', 'motivation')

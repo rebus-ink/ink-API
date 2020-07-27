@@ -110,6 +110,23 @@ class ReadActivity extends BaseModel {
 
     return readActivities[0]
   }
+
+  static async getLatestReadActivitiesForReader (
+    readerId /*: string */,
+    number /*: number */ = 1
+  ) /*: Promise<ReadActivityType|Error> */ {
+    debug('**getLatestReadActivitiesForReader**')
+
+    if (!readerId) return new Error('missing sourceId')
+
+    const readActivities = await ReadActivity.query()
+      .where('readerId', '=', readerId)
+      .orderBy('published', 'desc')
+      .limit(number)
+      .withGraphFetched('[source.[tags, notebooks]]')
+
+    return readActivities
+  }
 }
 
 module.exports = { ReadActivity }
