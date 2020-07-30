@@ -121,7 +121,7 @@ const test = async app => {
     })
     let responseGet = await Tag.byReaderId(urlToId(createdReader.id))
 
-    await tap.equal(responseGet.length, 22) // 4 default modes, 13 flags and 2 tags we created
+    await tap.equal(responseGet.length, 18) // 9 flags + 4 colours + 5 tags we created
     await tap.ok(responseGet[0] instanceof Tag)
     await tap.ok(responseGet[1] instanceof Tag)
     await tap.ok(responseGet[2] instanceof Tag)
