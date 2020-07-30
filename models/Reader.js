@@ -216,19 +216,19 @@ class Reader extends BaseModel {
         type: 'flag'
       },
       {
-        name: 'colour 1',
+        name: 'colour1',
         type: 'colour'
       },
       {
-        name: 'colour 2',
+        name: 'colour2',
         type: 'colour'
       },
       {
-        name: 'colour 3',
+        name: 'colour3',
         type: 'colour'
       },
       {
-        name: 'colour 4',
+        name: 'colour4',
         type: 'colour'
       }
     ])

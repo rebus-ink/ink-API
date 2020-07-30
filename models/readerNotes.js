@@ -9,9 +9,12 @@ class ReaderNotes {
     debug('readerId: ', readerId)
     debug('filters: ', filters)
     // note: not applied with filters.document
-    let flag
+    let flag, colour
     if (filters.flag) {
       flag = filters.flag.toLowerCase()
+    }
+    if (filters.colour) {
+      colour = filters.colour.toLowerCase()
     }
     let resultQuery = Note.query(Note.knex())
       .count()
@@ -113,6 +116,25 @@ class ReaderNotes {
         .andWhere('Tag_flag.type', '=', 'flag')
     }
 
+    if (filters.colour) {
+      resultQuery = resultQuery
+        .leftJoin(
+          'note_tag AS note_tag_colour',
+          'note_tag_colour.noteId',
+          '=',
+          'Note.id'
+        )
+        .leftJoin(
+          'Tag AS Tag_colour',
+          'note_tag_colour.tagId',
+          '=',
+          'Tag_colour.id'
+        )
+        .whereNull('Tag_colour.deleted')
+        .where('Tag_colour.name', '=', colour)
+        .andWhere('Tag_colour.type', '=', 'colour')
+    }
+
     const result = await resultQuery
 
     return result[0].count
@@ -129,10 +151,13 @@ class ReaderNotes {
     debug('filters: ', filters)
     offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
-    let flag
+    let flag, colour
 
     if (filters.flag) {
       flag = filters.flag.toLowerCase()
+    }
+    if (filters.colour) {
+      colour = filters.colour.toLowerCase()
     }
     if (filters.document) {
       // no pagination for filter by document
@@ -264,6 +289,25 @@ class ReaderNotes {
           builder
             .where('Tag_flag.name', '=', flag)
             .andWhere('Tag_flag.type', '=', 'flag')
+        }
+
+        if (filters.colour) {
+          builder.leftJoin(
+            'note_tag AS note_tag_colour',
+            'note_tag_colour.noteId',
+            '=',
+            'Note.id'
+          )
+          builder.leftJoin(
+            'Tag AS Tag_colour',
+            'note_tag_colour.tagId',
+            '=',
+            'Tag_colour.id'
+          )
+          builder.whereNull('Tag_colour.deleted')
+          builder
+            .where('Tag_colour.name', '=', colour)
+            .andWhere('Tag_colour.type', '=', 'colour')
         }
 
         // orderBy

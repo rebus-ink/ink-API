@@ -49,6 +49,7 @@ const readerNotesFilterDateRange = require('./readerNotes/readerNotes-filter-dat
 const readerNotesFilterFlagTests = require('./readerNotes/readerNotes-filter-flag.test')
 const readerNotesFilterDocumentTests = require('./readerNotes/readerNotes-filter-document.test')
 const readerNotesFilterNotebookTests = require('./readerNotes/readerNotes-filter-notebook.test')
+const readerNotesFilterColourTests = require('./readerNotes/readerNotes-filter-colour.test')
 
 const sourceAddTagTests = require('./tag/source-tag-put.test')
 const sourceRemoveTagTests = require('./tag/source-tag-delete.test')
@@ -226,6 +227,7 @@ const allTests = async () => {
       await readerNotesFilterFlagTests(app)
       await readerNotesFilterDocumentTests(app)
       await readerNotesFilterNotebookTests(app)
+      await readerNotesFilterColourTests(app)
     } catch (err) {
       console.log('readerNotes integration tests error: ', err)
       throw err
