@@ -65,7 +65,7 @@ const test = async app => {
       noteWithTag.tags[0].name,
       libraryBefore.body.tags[tagIndexBefore].name
     )
-    await tap.equal(libraryBefore.body.tags.length, 18) // 4 modes + 13 flags + created tag
+    await tap.equal(libraryBefore.body.tags.length, 14) // 9 flags + 4 colours + created tag
     const tagIndex = _.findIndex(libraryBefore.body.tags, { name: stack.name })
     await tap.ok(tagIndex !== -1)
 
@@ -98,7 +98,7 @@ const test = async app => {
 
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
-    await tap.equal(libraryAfter.body.tags.length, 18) // modes + flags + created
+    await tap.equal(libraryAfter.body.tags.length, 14) // 9 flags + 4 colours + created
     const tagIndex2 = _.findIndex(libraryAfter.body.tags, { name: 'newName' })
     await tap.ok(tagIndex2 !== -1)
     await tap.equal(noteWithNewTag.tags.length, 1)
@@ -134,7 +134,7 @@ const test = async app => {
 
     // Get the note after the modifications
     const noteWithNewTag = await Note.byId(urlToId(noteUrl))
-    await tap.equal(libraryAfter.body.tags.length, 18) // modes + tags + 1 created
+    await tap.equal(libraryAfter.body.tags.length, 14) // 9 flags + 4 colours + 1 created
     const tagIndex = _.findIndex(libraryAfter.body.tags, { name: 'newName' })
     await tap.ok(tagIndex !== -1)
     await tap.equal(libraryAfter.body.tags[tagIndex].json.property, 'value!!')
