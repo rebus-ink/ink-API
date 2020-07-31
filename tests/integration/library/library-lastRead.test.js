@@ -13,7 +13,8 @@ const test = async () => {
   const token = getToken()
   await createUser(app, token)
 
-  const source1 = await createSource(app, token)
+  // source1
+  await createSource(app, token)
   const source2 = await createSource(app, token)
   const source3 = await createSource(app, token)
 

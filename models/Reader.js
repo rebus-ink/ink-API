@@ -180,22 +180,6 @@ class Reader extends BaseModel {
     // create default Tags
     await Tag.createMultipleTags(newReader.id, [
       {
-        name: 'Research',
-        type: 'workspace'
-      },
-      {
-        name: 'Teaching',
-        type: 'workspace'
-      },
-      {
-        name: 'Public Scholarships',
-        type: 'workspace'
-      },
-      {
-        name: 'Personal',
-        type: 'workspace'
-      },
-      {
         name: 'important',
         type: 'flag'
       },
@@ -232,20 +216,20 @@ class Reader extends BaseModel {
         type: 'flag'
       },
       {
-        name: 'colour 1',
-        type: 'flag'
+        name: 'colour1',
+        type: 'colour'
       },
       {
-        name: 'colour 2',
-        type: 'flag'
+        name: 'colour2',
+        type: 'colour'
       },
       {
-        name: 'colour 3',
-        type: 'flag'
+        name: 'colour3',
+        type: 'colour'
       },
       {
-        name: 'colour 4',
-        type: 'flag'
+        name: 'colour4',
+        type: 'colour'
       }
     ])
 

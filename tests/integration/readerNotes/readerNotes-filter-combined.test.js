@@ -19,13 +19,13 @@ const _ = require('lodash')
 2: highlighting
 3: sourceId2, highlighting, doc1, testCollection
 4: sourceId2, testCollection
-5: sourceId2, doc1, highlighting, 'abc' testCollection, tag2, flag: question, notebook
+5: sourceId2, doc1, highlighting, 'abc' testCollection, tag2, flag: question, notebook, colour: colour1
 6: sourceId2, tag2
 7: sourceId2, tag2, notebook
 8: sourceId2
-9: sourceId2, notebook
+9: sourceId2, notebook, colour: colour1
 10: sourceId2, test, 'abc'
-11: sourceId2, doc2, test, 'abc'
+11: sourceId2, doc2, test, 'abc', colour: colour1
 12: sourceId2
 13: sourceId2, doc1, test, 'abc', notebook
 14: sourceId2, doc1, highlighting, 'something', notebook
@@ -79,7 +79,7 @@ const test = async app => {
   })
 
   const note5 = await createNoteSimplified({
-    // collection & flag
+    // collection & flag & colour1
     sourceId: sourceId2,
     document: 'doc1',
     body: { motivation: 'highlighting', content: 'this contains abc' }
@@ -106,7 +106,7 @@ const test = async app => {
     body: { motivation: 'test', content: 'a!bc' }
   })
   // 11
-  await createNoteSimplified({
+  const note11 = await createNoteSimplified({
     sourceId: sourceId2,
     document: 'doc2',
     body: { motivation: 'test', content: 'this contains abc' }
@@ -150,6 +150,7 @@ const test = async app => {
     .type('application/ld+json')
 
   const questionTagId = _.find(tagsres.body, { name: 'question' }).id
+  const colour1TagId = _.find(tagsres.body, { name: 'colour1' }).id
 
   // assign notes to tag
   await addNoteToCollection(app, token, note5.shortId, tag2.id)
@@ -158,6 +159,11 @@ const test = async app => {
 
   // assign notes to flag
   await addNoteToCollection(app, token, note5.shortId, questionTagId)
+
+  // assign notes to colour1
+  await addNoteToCollection(app, token, note5.shortId, colour1TagId)
+  await addNoteToCollection(app, token, note9.shortId, colour1TagId)
+  await addNoteToCollection(app, token, note11.shortId, colour1TagId)
 
   // notebook
   const notebook = await createNotebook(app, token, { name: 'notebook1' })
@@ -317,6 +323,99 @@ const test = async app => {
     await tap.equal(res2.body.items.length, 1)
     await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
   })
+
+  await tap.test('Filter Notes by colour and search', async () => {
+    const res = await request(app)
+      .get(`/notes?colour=colour1&search=abc`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.ok(res.body.totalItems, 2)
+    await tap.equal(res.body.items.length, 2)
+    await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res.body.items, { shortId: note11.shortId }))
+  })
+
+  await tap.test('Filter Notes by colour and motivation', async () => {
+    const res = await request(app)
+      .get(`/notes?colour=colour1&motivation=highlighting`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.ok(res.body.totalItems, 1)
+    await tap.equal(res.body.items.length, 1)
+    await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test('Filter Notes by colour and flag', async () => {
+    const res = await request(app)
+      .get(`/notes?colour=colour1&flag=question`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.ok(res.body.totalItems, 1)
+    await tap.equal(res.body.items.length, 1)
+    await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test('Filter Notes by colour and notebook', async () => {
+    const res = await request(app)
+      .get(`/notes?colour=colour1&notebook=${notebook.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.ok(res.body.totalItems, 2)
+    await tap.equal(res.body.items.length, 2)
+    await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res.body.items, { shortId: note9.shortId }))
+  })
+
+  await tap.test('Filter Notes by colour and source', async () => {
+    const res = await request(app)
+      .get(`/notes?colour=colour1&source=${sourceId2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.ok(res.body.totalItems, 3)
+    await tap.equal(res.body.items.length, 3)
+    await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res.body.items, { shortId: note9.shortId }))
+    await tap.ok(_.find(res.body.items, { shortId: note11.shortId }))
+  })
+
+  await tap.test(
+    'Filter Notes by colour, collection and motivation',
+    async () => {
+      const res = await request(app)
+        .get(
+          `/notes?colour=colour1&stack=testCollection&motivation=highlighting`
+        )
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.ok(res.body.totalItems, 1)
+      await tap.equal(res.body.items.length, 1)
+      await tap.ok(_.find(res.body.items, { shortId: note5.shortId }))
+    }
+  )
 
   await tap.test('Filter Notes by notebook and motivation', async () => {
     const res2 = await request(app)

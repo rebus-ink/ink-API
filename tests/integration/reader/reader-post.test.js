@@ -54,7 +54,11 @@ const test = async app => {
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(res.body.length, 17)
+    await tap.equal(res.body.length, 13)
+    const flags = res.body.filter(item => item.type === 'flag')
+    await tap.equal(flags.length, 9)
+    const colours = res.body.filter(item => item.type === 'colour')
+    await tap.equal(colours.length, 4)
   })
 
   await tap.test('Create Simple Reader', async () => {

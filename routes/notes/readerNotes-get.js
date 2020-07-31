@@ -70,7 +70,13 @@ module.exports = app => {
    *           type: string
    *         description: flag assigned to notes (tag with type 'flag')
    *         enum: ['important', 'question', 'revisit', 'to do', 'idea', 'important term', 'further reading',
-   *           'urgent', 'reference', 'colour 1', 'colour 2', 'colour 3', 'colour 4']
+   *           'urgent', 'reference']
+   *       - in: query
+   *         name: colour
+   *         schema:
+   *           type: string
+   *         description: colour assigned to notes (tag with type 'colour')
+   *         enum: ['colour1', 'colour2', 'colour3', 'colour4']
    *       - in: query
    *         name: publishedStart
    *         schema:
@@ -128,6 +134,7 @@ module.exports = app => {
         collection: req.query.stack,
         tag: req.query.tag,
         flag: req.query.flag,
+        colour: req.query.colour,
         notebook: req.query.notebook,
         publishedStart: req.query.publishedStart,
         publishedEnd: req.query.publishedEnd
