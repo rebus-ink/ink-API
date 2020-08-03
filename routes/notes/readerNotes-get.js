@@ -58,7 +58,9 @@ module.exports = app => {
    *         name: stack
    *         schema:
    *           type: string
-   *         description: stack to which notes belong (tag with type 'stack')
+   *         description: stack to which notes belong (tag with type 'stack'). Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: tag
    *         schema:
@@ -135,7 +137,7 @@ module.exports = app => {
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack,
+        stack: req.query.stack,
         tag: req.query.tag,
         flag: req.query.flag,
         colour: req.query.colour,

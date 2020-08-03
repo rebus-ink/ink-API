@@ -10,7 +10,7 @@ class ReaderNotes {
     debug('readerId: ', readerId)
     debug('filters: ', filters)
     // note: not applied with filters.document
-    let flag, colour, tags
+    let flag, colour, tags, stacks
     if (filters.flag) {
       if (_.isArray(filters.flag)) {
         flag = filters.flag.map(item => item.toLowerCase())
@@ -25,6 +25,14 @@ class ReaderNotes {
         tags = filters.tag
       } else {
         tags = [filters.tag]
+      }
+    }
+
+    if (filters.stack) {
+      if (_.isArray(filters.stack)) {
+        stacks = filters.stack
+      } else {
+        stacks = [filters.stack]
       }
     }
 
@@ -85,23 +93,25 @@ class ReaderNotes {
         .where('Notebook.id', '=', filters.notebook)
     }
 
-    if (filters.collection) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'note_tag AS note_tag_collection',
-          'note_tag_collection.noteId',
-          '=',
-          'Note.id'
-        )
-        .leftJoin(
-          'Tag AS Tag_collection',
-          'note_tag_collection.tagId',
-          '=',
-          'Tag_collection.id'
-        )
-        .whereNull('Tag_collection.deleted')
-        .where('Tag_collection.name', '=', filters.collection)
-        .andWhere('Tag_collection.type', '=', 'stack')
+    if (stacks) {
+      stacks.forEach(stack => {
+        resultQuery = resultQuery
+          .leftJoin(
+            `note_tag AS note_tag_${stack}`,
+            `note_tag_${stack}.noteId`,
+            '=',
+            'Note.id'
+          )
+          .leftJoin(
+            `Tag AS Tag_${stack}`,
+            `note_tag_${stack}.tagId`,
+            '=',
+            `Tag_${stack}.id`
+          )
+          .whereNull(`Tag_${stack}.deleted`)
+          .where(`Tag_${stack}.name`, '=', stack)
+          .andWhere(`Tag_${stack}.type`, '=', 'stack')
+      })
     }
 
     if (tags) {
@@ -180,7 +190,7 @@ class ReaderNotes {
     debug('filters: ', filters)
     offset = !offset ? 0 : offset
     const qb = Reader.query(Reader.knex()).where('authId', '=', readerAuthId)
-    let flag, colour, tags
+    let flag, colour, tags, stacks
 
     if (filters.flag) {
       if (_.isArray(filters.flag)) {
@@ -196,6 +206,14 @@ class ReaderNotes {
         tags = filters.tag
       } else {
         tags = [filters.tag]
+      }
+    }
+
+    if (filters.stack) {
+      if (_.isArray(filters.stack)) {
+        stacks = filters.stack
+      } else {
+        stacks = [filters.stack]
       }
     }
 
@@ -279,24 +297,26 @@ class ReaderNotes {
           builder.where('Notebook.id', '=', filters.notebook)
         }
 
-        if (filters.collection) {
-          builder.leftJoin(
-            'note_tag AS note_tag_collection',
-            'note_tag_collection.noteId',
-            '=',
-            'Note.id'
-          )
-          builder.leftJoin(
-            'Tag AS Tag_collection',
-            'note_tag_collection.tagId',
-            '=',
-            'Tag_collection.id'
-          )
-          builder.whereNull('Tag_collection.deleted')
+        if (stacks) {
+          stacks.forEach(stack => {
+            builder.leftJoin(
+              `note_tag AS note_tag_${stack}`,
+              `note_tag_${stack}.noteId`,
+              '=',
+              'Note.id'
+            )
+            builder.leftJoin(
+              `Tag AS Tag_${stack}`,
+              `note_tag_${stack}.tagId`,
+              '=',
+              `Tag_${stack}.id`
+            )
+            builder.whereNull(`Tag_${stack}.deleted`)
 
-          builder
-            .where('Tag_collection.name', '=', filters.collection)
-            .andWhere('Tag_collection.type', '=', 'stack')
+            builder
+              .where(`Tag_${stack}.name`, '=', stack)
+              .andWhere(`Tag_${stack}.type`, '=', 'stack')
+          })
         }
 
         if (tags) {

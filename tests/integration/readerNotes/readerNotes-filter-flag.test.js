@@ -141,6 +141,26 @@ const test = async app => {
     }
   )
 
+  await addNoteToCollection(app, token, urlToId(note1.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note2.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note3.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note9.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note10.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note11.id), urgentTagId)
+
+  await tap.test('Get Notes by multiple flags with pagination', async () => {
+    const res = await request(app)
+      .get(`/notes?flag=important&flag=urgent`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 11)
+    await tap.equal(res.body.items.length, 10)
+  })
+
   await destroyDB(app)
 }
 
