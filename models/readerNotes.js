@@ -2,6 +2,7 @@ const { Note } = require('./Note')
 const { Reader } = require('./Reader')
 const { urlToId } = require('../utils/utils')
 const debug = require('debug')('ink:models:readerNotes')
+const _ = require('lodash')
 
 class ReaderNotes {
   static async getNotesCount (readerId, filters) {
@@ -11,8 +12,14 @@ class ReaderNotes {
     // note: not applied with filters.document
     let flag, colour
     if (filters.flag) {
-      flag = filters.flag.toLowerCase()
+      if (_.isArray(filters.flag)) {
+        flag = filters.flag.map(item => item.toLowerCase())
+        flag = _.uniq(flag)
+      } else {
+        flag = [filters.flag.toLowerCase()]
+      }
     }
+
     if (filters.colour) {
       colour = filters.colour.toLowerCase()
     }
@@ -103,17 +110,24 @@ class ReaderNotes {
     }
 
     if (filters.flag) {
-      resultQuery = resultQuery
-        .leftJoin(
-          'note_tag AS note_tag_flag',
-          'note_tag_flag.noteId',
-          '=',
-          'Note.id'
-        )
-        .leftJoin('Tag AS Tag_flag', 'note_tag_flag.tagId', '=', 'Tag_flag.id')
-        .whereNull('Tag_flag.deleted')
-        .where('Tag_flag.name', '=', flag)
-        .andWhere('Tag_flag.type', '=', 'flag')
+      filters.flag.forEach(tagName => {
+        resultQuery = resultQuery
+          .leftJoin(
+            `note_tag AS note_tag_flag${tagName}`,
+            `note_tag_flag${tagName}.noteId`,
+            '=',
+            'Note.id'
+          )
+          .leftJoin(
+            `Tag AS Tag_flag${tagName}`,
+            `note_tag_flag${tagName}.tagId`,
+            '=',
+            `Tag_flag${tagName}.id`
+          )
+          .whereNull(`Tag_flag${tagName}.deleted`)
+          .where(`Tag_flag${tagName}.name`, '=', tagName)
+          .andWhere(`Tag_flag${tagName}.type`, '=', 'flag')
+      })
     }
 
     if (filters.colour) {
@@ -154,7 +168,12 @@ class ReaderNotes {
     let flag, colour
 
     if (filters.flag) {
-      flag = filters.flag.toLowerCase()
+      if (_.isArray(filters.flag)) {
+        flag = filters.flag.map(item => item.toLowerCase())
+        flag = _.uniq(flag)
+      } else {
+        flag = [filters.flag.toLowerCase()]
+      }
     }
     if (filters.colour) {
       colour = filters.colour.toLowerCase()
@@ -273,22 +292,24 @@ class ReaderNotes {
         }
 
         if (filters.flag) {
-          builder.leftJoin(
-            'note_tag AS note_tag_flag',
-            'note_tag_flag.noteId',
-            '=',
-            'Note.id'
-          )
-          builder.leftJoin(
-            'Tag AS Tag_flag',
-            'note_tag_flag.tagId',
-            '=',
-            'Tag_flag.id'
-          )
-          builder.whereNull('Tag_flag.deleted')
-          builder
-            .where('Tag_flag.name', '=', flag)
-            .andWhere('Tag_flag.type', '=', 'flag')
+          flag.forEach(tagName => {
+            builder.leftJoin(
+              `note_tag AS note_tag_flag${tagName}`,
+              `note_tag_flag${tagName}.noteId`,
+              '=',
+              'Note.id'
+            )
+            builder.leftJoin(
+              `Tag AS Tag_flag${tagName}`,
+              `note_tag_flag${tagName}.tagId`,
+              '=',
+              `Tag_flag${tagName}.id`
+            )
+            builder.whereNull(`Tag_flag${tagName}.deleted`)
+            builder
+              .where(`Tag_flag${tagName}.name`, '=', tagName)
+              .andWhere(`Tag_flag${tagName}.type`, '=', 'flag')
+          })
         }
 
         if (filters.colour) {
