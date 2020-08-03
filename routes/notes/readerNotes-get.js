@@ -63,14 +63,18 @@ module.exports = app => {
    *         name: tag
    *         schema:
    *           type: string
-   *         description: tagId - for a tag of any type
+   *         description: tagId - for a tag of any type. Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: flag
    *         schema:
    *           type: string
-   *         description: flag assigned to notes (tag with type 'flag')
+   *         description: flag assigned to notes (tag with type 'flag'). Accepts multiple values.
    *         enum: ['important', 'question', 'revisit', 'to do', 'idea', 'important term', 'further reading',
    *           'urgent', 'reference']
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: colour
    *         schema:
