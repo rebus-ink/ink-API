@@ -17,6 +17,9 @@ const test = async app => {
   const tag1 = await createTag(app, token)
   const tagId1 = tag1.id
 
+  const tag2 = await createTag(app, token, { name: 'tag2' })
+  const tagId2 = tag2.id
+
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
       {
@@ -84,6 +87,45 @@ const test = async app => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 13)
     await tap.equal(res.body.items.length, 1)
+  })
+
+  await addNoteToCollection(app, token, urlToId(note4.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note5.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note6.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note7.id), tagId2)
+
+  await tap.test('Get Notes by multiple tagId', async () => {
+    const res = await request(app)
+      .get(`/notes?tag=${tagId1}&tag=${tagId2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 4)
+    await tap.equal(res.body.items.length, 4)
+  })
+
+  await addNoteToCollection(app, token, urlToId(note1.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note2.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note3.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note8.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note9.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note10.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note11.id), tagId2)
+
+  await tap.test('Get Notes by multiple tagId with pagination', async () => {
+    const res = await request(app)
+      .get(`/notes?tag=${tagId1}&tag=${tagId2}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 11)
+    await tap.equal(res.body.items.length, 10)
   })
 
   await destroyDB(app)

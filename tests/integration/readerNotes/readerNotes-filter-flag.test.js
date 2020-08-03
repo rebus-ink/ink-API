@@ -22,6 +22,7 @@ const test = async app => {
     .type('application/ld+json')
 
   const importantTagId = _.find(tagsres.body, { name: 'important' }).id
+  const urgentTagId = _.find(tagsres.body, { name: 'urgent' }).id
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
@@ -50,7 +51,7 @@ const test = async app => {
   await createNoteSimplified()
   await createNoteSimplified()
 
-  // add 13 notes to important flag
+  // add 3 notes to important flag
   await addNoteToCollection(app, token, urlToId(note1.id), importantTagId)
   await addNoteToCollection(app, token, urlToId(note2.id), importantTagId)
   await addNoteToCollection(app, token, urlToId(note3.id), importantTagId)
@@ -91,6 +92,73 @@ const test = async app => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 13)
     await tap.equal(res.body.items.length, 1)
+  })
+
+  await tap.test('Get Notes by multiple flags', async () => {
+    const res = await request(app)
+      .get(`/notes?flag=important&flag=urgent`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 0)
+    await tap.equal(res.body.items.length, 0)
+  })
+  await addNoteToCollection(app, token, urlToId(note4.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note5.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note6.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note7.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note8.id), urgentTagId)
+
+  await tap.test('Get Notes by multiple flags', async () => {
+    const res = await request(app)
+      .get(`/notes?flag=important&flag=urgent`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 5)
+    await tap.equal(res.body.items.length, 5)
+  })
+
+  await tap.test(
+    'Get Notes by multiple flags should ignore duplicates',
+    async () => {
+      const res = await request(app)
+        .get(`/notes?flag=urgent&flag=urgent`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 200)
+      await tap.ok(res.body)
+      await tap.equal(res.body.totalItems, 5)
+      await tap.equal(res.body.items.length, 5)
+    }
+  )
+
+  await addNoteToCollection(app, token, urlToId(note1.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note2.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note3.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note9.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note10.id), urgentTagId)
+  await addNoteToCollection(app, token, urlToId(note11.id), urgentTagId)
+
+  await tap.test('Get Notes by multiple flags with pagination', async () => {
+    const res = await request(app)
+      .get(`/notes?flag=important&flag=urgent`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 11)
+    await tap.equal(res.body.items.length, 10)
   })
 
   await destroyDB(app)

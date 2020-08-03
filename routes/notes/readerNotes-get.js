@@ -58,19 +58,25 @@ module.exports = app => {
    *         name: stack
    *         schema:
    *           type: string
-   *         description: stack to which notes belong (tag with type 'stack')
+   *         description: stack to which notes belong (tag with type 'stack'). Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: tag
    *         schema:
    *           type: string
-   *         description: tagId - for a tag of any type
+   *         description: tagId - for a tag of any type. Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: flag
    *         schema:
    *           type: string
-   *         description: flag assigned to notes (tag with type 'flag')
+   *         description: flag assigned to notes (tag with type 'flag'). Accepts multiple values.
    *         enum: ['important', 'question', 'revisit', 'to do', 'idea', 'important term', 'further reading',
    *           'urgent', 'reference']
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: colour
    *         schema:
@@ -131,7 +137,7 @@ module.exports = app => {
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack,
+        stack: req.query.stack,
         tag: req.query.tag,
         flag: req.query.flag,
         colour: req.query.colour,

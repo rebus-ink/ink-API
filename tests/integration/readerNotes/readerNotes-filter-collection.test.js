@@ -45,6 +45,11 @@ const test = async app => {
     name: 'testCollection'
   })
   const tagId = tagCreated.id
+
+  const tagCreated2 = await createTag(app, token, {
+    name: 'testCollection2'
+  })
+  const tagId2 = tagCreated2.id
   // add 13 notes to this collection
   await addNoteToCollection(app, token, urlToId(note1.id), tagId)
   await addNoteToCollection(app, token, urlToId(note2.id), tagId)
@@ -85,6 +90,46 @@ const test = async app => {
     await tap.ok(res.body)
     await tap.equal(res.body.totalItems, 13)
     await tap.equal(res.body.items.length, 1)
+  })
+
+  await addNoteToCollection(app, token, urlToId(note7.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note8.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note9.id), tagId2)
+
+  await tap.test('Get Notes by multiple stacks', async () => {
+    const res = await request(app)
+      .get(`/notes?stack=testCollection&stack=testCollection2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 3)
+    await tap.equal(res.body.items.length, 3)
+  })
+
+  await addNoteToCollection(app, token, urlToId(note1.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note2.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note3.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note4.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note5.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note6.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note10.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note11.id), tagId2)
+  await addNoteToCollection(app, token, urlToId(note12.id), tagId2)
+
+  await tap.test('Get Notes by multiple stacks with pagination', async () => {
+    const res = await request(app)
+      .get(`/notes?stack=testCollection&stack=testCollection2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 12)
+    await tap.equal(res.body.items.length, 10)
   })
 
   await destroyDB(app)
