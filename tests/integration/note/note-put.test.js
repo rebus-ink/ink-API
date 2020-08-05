@@ -5,7 +5,8 @@ const {
   createUser,
   destroyDB,
   createSource,
-  createNote
+  createNote,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -25,6 +26,10 @@ const test = async app => {
     canonical: '123'
   })
   const noteId = urlToId(note.id)
+
+  const tag1 = await createTag(app, token, { name: 'tag1' })
+  const tag2 = await createTag(app, token, { name: 'tag2' })
+  const tag3 = await createTag(app, token, { name: 'tag3' })
 
   await tap.test('Update the content of a Note', async () => {
     const newNote = Object.assign(note, {
@@ -128,6 +133,117 @@ const test = async app => {
     await tap.notOk(body.document)
     // await tap.notOk(body.sourceId)
   })
+
+  await tap.test('Update tags for a note - add tags', async () => {
+    const newNote = Object.assign(note, {
+      tags: [tag1, tag2]
+    })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const noteBody = noteRes.body
+    await tap.ok(noteBody.tags)
+    await tap.equal(noteBody.tags.length, 2)
+  })
+
+  await tap.test('Update tags for a note - replace tags', async () => {
+    const newNote = Object.assign(note, {
+      tags: [tag2, tag3, { type: 'stack', name: 'tag4' }]
+    })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const noteBody = noteRes.body
+    await tap.ok(noteBody.tags)
+    await tap.equal(noteBody.tags.length, 3)
+  })
+
+  await tap.test('Update tags for a note - ignore invalid tags', async () => {
+    const newNote = Object.assign(note, {
+      tags: [tag2, { id: tag3.id + 'abc', type: 'stack', name: 'invalid' }]
+    })
+
+    const res = await request(app)
+      .put(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify(newNote))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const noteBody = noteRes.body
+    await tap.ok(noteBody.tags)
+    await tap.equal(noteBody.tags.length, 1)
+  })
+
+  await tap.test(
+    'Update tags for a note - empty array = delete existing tags',
+    async () => {
+      const newNote = Object.assign(note, {
+        tags: []
+      })
+
+      const res = await request(app)
+        .put(`/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify(newNote))
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.tags)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const noteBody = noteRes.body
+      await tap.ok(noteBody.tags)
+      await tap.equal(noteBody.tags.length, 0)
+    }
+  )
 
   await tap.test(
     'Try to update the target of a note to the wrong type',

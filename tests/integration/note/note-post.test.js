@@ -4,7 +4,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createSource
+  createSource,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -19,6 +20,9 @@ const test = async app => {
 
   // source2
   await createSource(app, token)
+
+  const tag1 = await createTag(app, token, { name: 'tag1' })
+  const tag2 = await createTag(app, token, { name: 'tag2' })
 
   await tap.test('Create Note with single body', async () => {
     const res = await request(app)
@@ -138,6 +142,104 @@ const test = async app => {
     }
   )
 
+  await tap.test('Create Note with existing tags', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          },
+          tags: [tag1, tag2]
+        })
+      )
+
+    const body = res.body
+    await tap.ok(body)
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const note = noteRes.body
+    await tap.ok(note.tags)
+    await tap.equal(note.tags.length, 2)
+  })
+
+  await tap.test('Create Note with existing and new tags', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          },
+          tags: [
+            tag1,
+            { name: 'tag3', type: 'stack' },
+            { name: 'tag4', type: 'stack' }
+          ]
+        })
+      )
+
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const note = noteRes.body
+    await tap.ok(note.tags)
+    await tap.equal(note.tags.length, 3)
+  })
+
+  await tap.test('Create Note with existing and invalid tags', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          },
+          tags: [
+            tag1,
+            { id: tag2.id + 'abc', type: 'stack', name: 'invalidTag' }
+          ]
+        })
+      )
+
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const note = noteRes.body
+    await tap.ok(note.tags)
+    await tap.equal(note.tags.length, 1)
+  })
+
   // ------------------------------------- VALIDATION ERRORS ------------------------------------
 
   await tap.test('Try to create a Note without a body', async () => {
@@ -204,7 +306,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 3)
+    await tap.equal(res.body.totalItems, 6)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -306,7 +408,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 3)
+      await tap.equal(res.body.totalItems, 6)
     }
   )
 

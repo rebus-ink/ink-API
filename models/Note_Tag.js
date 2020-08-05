@@ -1,7 +1,10 @@
 // @flow
 const { Model } = require('objection')
 const { urlToId } = require('../utils/utils')
+const Tag = require('./Tag')
+const { Note } = require('./Note')
 const debug = require('debug')('ink:models:Note_Tag')
+const knex = require('knex')
 
 /*::
 type NoteTagType = {
@@ -50,6 +53,31 @@ class Note_Tag extends Model {
     }
   }
 
+  /**
+   * warning: does not throw errors
+   */
+  static async addMultipleTagsToNote (
+    noteId /*: string */,
+    tags /*: Array<string> */
+  ) {
+    const list = tags.map(tag => {
+      return { noteId, tagId: tag }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Note_Tag.query().insert(list)
+    } catch (err) {
+      list.forEach(async item => {
+        try {
+          await Note_Tag.query().insert(item)
+        } catch (err) {
+
+        }
+      })
+    }
+  }
+
   static async removeTagFromNote (
     noteId /*: string */,
     tagId /*: string */
@@ -71,6 +99,14 @@ class Note_Tag extends Model {
     } else {
       return result
     }
+  }
+
+  static async replaceTagsForNote (
+    noteId /*: string */,
+    tags /*: Array<string> */
+  ) /*: Promise<any> */ {
+    await this.deleteNoteTagsOfNote(noteId)
+    return await this.addMultipleTagsToNote(noteId, tags)
   }
 
   static async deleteNoteTagsOfNote (

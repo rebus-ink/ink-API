@@ -12,6 +12,7 @@ const notebookTagTests = require('./Notebook_Tag.test')
 const notebookPubTests = require('./Notebook_Pub.test')
 const notebookNoteTests = require('./Notebook_Note.test')
 const canvasTests = require('./Canvas.test')
+const noteTagTests = require('./Note_Tag.test')
 
 const app = require('../../server').app
 
@@ -45,6 +46,7 @@ const allTests = async () => {
   await notebookPubTests(app)
   await notebookNoteTests(app)
   await canvasTests(app)
+  await noteTagTests(app)
 
   await app.knex.migrate.rollback()
   await app.terminate()
