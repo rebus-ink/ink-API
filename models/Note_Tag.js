@@ -1,10 +1,7 @@
 // @flow
 const { Model } = require('objection')
 const { urlToId } = require('../utils/utils')
-const Tag = require('./Tag')
-const { Note } = require('./Note')
 const debug = require('debug')('ink:models:Note_Tag')
-const knex = require('knex')
 
 /*::
 type NoteTagType = {
@@ -69,11 +66,7 @@ class Note_Tag extends Model {
       await Note_Tag.query().insert(list)
     } catch (err) {
       list.forEach(async item => {
-        try {
-          await Note_Tag.query().insert(item)
-        } catch (err) {
-
-        }
+        await Note_Tag.query().insert(item)
       })
     }
   }
