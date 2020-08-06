@@ -9,6 +9,9 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-post')
 const { metricsQueue } = require('../../utils/metrics')
+const { Tag } = require('../../models/Tag')
+const { Note_Tag } = require('../../models/Note_Tag')
+const { urlToId } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -100,6 +103,23 @@ module.exports = function (app) {
             )
           }
         }
+
+        let tags
+        if (body.tags) {
+          let newTags = body.tags.filter(tag => {
+            return !tag.id
+          })
+          if (newTags) {
+            newTags = await Tag.createMultipleTags(
+              createdNote.readerId,
+              newTags
+            )
+          }
+          tags = body.tags.filter(tag => !!tag.id).concat(newTags)
+          let tagIds = tags.map(tag => tag.id)
+          await Note_Tag.addMultipleTagsToNote(urlToId(createdNote.id), tagIds)
+        }
+
         if (metricsQueue) {
           await metricsQueue.add({
             type: 'createNote',

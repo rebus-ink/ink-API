@@ -4,9 +4,10 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const { checkOwnership } = require('../../utils/utils')
+const { checkOwnership, urlToId } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
-const { urlToId } = require('../../utils/utils')
+const { Tag } = require('../../models/Tag')
+const { Note_Tag } = require('../../models/Note_Tag')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-put')
 
@@ -107,6 +108,21 @@ module.exports = function (app) {
               requestBody: req.body
             })
           )
+        }
+
+        if (req.body.tags) {
+          let newTags = req.body.tags.filter(tag => {
+            return !tag.id
+          })
+          if (newTags) {
+            newTags = await Tag.createMultipleTags(
+              updatedNote.readerId,
+              newTags
+            )
+          }
+          let tags = req.body.tags.filter(tag => !!tag.id).concat(newTags)
+          let tagIds = tags.map(tag => tag.id)
+          await Note_Tag.replaceTagsForNote(urlToId(updatedNote.id), tagIds)
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

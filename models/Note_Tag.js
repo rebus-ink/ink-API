@@ -50,6 +50,27 @@ class Note_Tag extends Model {
     }
   }
 
+  /**
+   * warning: does not throw errors
+   */
+  static async addMultipleTagsToNote (
+    noteId /*: string */,
+    tags /*: Array<string> */
+  ) {
+    const list = tags.map(tag => {
+      return { noteId, tagId: tag }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Note_Tag.query().insert(list)
+    } catch (err) {
+      list.forEach(async item => {
+        await Note_Tag.query().insert(item)
+      })
+    }
+  }
+
   static async removeTagFromNote (
     noteId /*: string */,
     tagId /*: string */
@@ -71,6 +92,14 @@ class Note_Tag extends Model {
     } else {
       return result
     }
+  }
+
+  static async replaceTagsForNote (
+    noteId /*: string */,
+    tags /*: Array<string> */
+  ) /*: Promise<any> */ {
+    await this.deleteNoteTagsOfNote(noteId)
+    return await this.addMultipleTagsToNote(noteId, tags)
   }
 
   static async deleteNoteTagsOfNote (
