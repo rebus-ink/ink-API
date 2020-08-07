@@ -96,6 +96,18 @@ module.exports = app => {
    *           format: date
    *         description: the latest publishedAt time to filter by
    *       - in: query
+   *         name: updatedStart
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: the earliest updated time to filter by
+   *       - in: query
+   *         name: updatedEnd
+   *         schema:
+   *           type: string
+   *           format: date
+   *         description: the latest updated time to filter by
+   *       - in: query
    *         name: orderBy
    *         schema:
    *           type: string
@@ -143,13 +155,18 @@ module.exports = app => {
         colour: req.query.colour,
         notebook: req.query.notebook,
         publishedStart: req.query.publishedStart,
-        publishedEnd: req.query.publishedEnd
+        publishedEnd: req.query.publishedEnd,
+        updatedStart: req.query.updatedStart,
+        updatedEnd: req.query.updatedEnd
       }
       debug('filters: ', filters)
       if (
-        filters.publishedStart &&
-        filters.publishedEnd &&
-        filters.publishedStart > filters.publishedEnd
+        (filters.publishedStart &&
+          filters.publishedEnd &&
+          filters.publishedStart > filters.publishedEnd) ||
+        (filters.updatedStart &&
+          filters.updatedEnd &&
+          filters.updatedStart > filters.updatedEnd)
       ) {
         return next(
           boom.badRequest(
