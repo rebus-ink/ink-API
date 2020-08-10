@@ -85,6 +85,18 @@ class ReaderNotes {
       )
     }
 
+    if (filters.updatedStart) {
+      resultQuery = resultQuery.where(
+        'Note.updated',
+        '>=',
+        filters.updatedStart
+      )
+    }
+
+    if (filters.updatedEnd) {
+      resultQuery = resultQuery.where('Note.updated', '<=', filters.updatedEnd)
+    }
+
     if (filters.notebook) {
       resultQuery = resultQuery
         .leftJoin('notebook_note', 'notebook_note.noteId', '=', 'Note.id')
@@ -265,6 +277,13 @@ class ReaderNotes {
         }
         if (filters.publishedEnd) {
           builder.where('Note.published', '<=', filters.publishedEnd)
+        }
+
+        if (filters.updatedStart) {
+          builder.where('Note.updated', '>=', filters.updatedStart)
+        }
+        if (filters.updatedEnd) {
+          builder.where('Note.updated', '<=', filters.updatedEnd)
         }
 
         builder.leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
