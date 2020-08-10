@@ -2,6 +2,7 @@ const { Source } = require('./Source')
 const { Attribution } = require('./Attribution')
 const { Reader } = require('./Reader')
 const debug = require('debug')('ink:models:library')
+const _ = require('lodash')
 
 class Library {
   static async getLibraryCount (readerId, filter) {
@@ -55,6 +56,23 @@ class Library {
         builder.andWhere('Attribution.role', '=', filter.role)
       }
     }
+    let stacks
+    if (filter.stack) {
+      if (_.isArray(filter.stack)) {
+        stacks = filter.stack
+      } else {
+        stacks = [filter.stack]
+      }
+    }
+    let tags
+    if (filter.tag) {
+      if (_.isArray(filter.tag)) {
+        tags = filter.tag
+      } else {
+        tags = [filter.tag]
+      }
+    }
+
     builder.withGraphFetched('notebooks')
     if (filter.notebook) {
       builder.leftJoin(
@@ -74,40 +92,45 @@ class Library {
     }
 
     builder.withGraphFetched('[tags, attributions]')
-    if (filter.collection) {
-      builder.leftJoin(
-        'source_tag as source_tag_collection',
-        'source_tag_collection.sourceId',
-        '=',
-        'Source.id'
-      )
-      builder.leftJoin(
-        'Tag as Tag_collection',
-        'source_tag_collection.tagId',
-        '=',
-        'Tag_collection.id'
-      )
-      builder.whereNull('Tag_collection.deleted')
-      builder
-        .where('Tag_collection.name', '=', filter.collection)
-        .andWhere('Tag_collection.type', '=', 'stack')
+    if (stacks) {
+      stacks.forEach(stack => {
+        builder.leftJoin(
+          `source_tag as source_tag_${stack}`,
+          `source_tag_${stack}.sourceId`,
+          '=',
+          'Source.id'
+        )
+        builder.leftJoin(
+          `Tag as Tag_${stack}`,
+          `source_tag_${stack}.tagId`,
+          '=',
+          `Tag_${stack}.id`
+        )
+        builder.whereNull(`Tag_${stack}.deleted`)
+        builder
+          .where(`Tag_${stack}.name`, '=', stack)
+          .andWhere(`Tag_${stack}.type`, '=', 'stack')
+      })
     }
-    if (filter.tag) {
-      builder.leftJoin(
-        'source_tag as source_tag_tag',
-        'source_tag_tag.sourceId',
-        '=',
-        'Source.id'
-      )
-      builder.leftJoin(
-        'Tag as Tag_tag',
-        'source_tag_tag.tagId',
-        '=',
-        'Tag_tag.id'
-      )
-      builder.whereNull('Tag_tag.deleted')
-      builder.where('Tag_tag.id', '=', filter.tag)
+    if (tags) {
+      tags.forEach(tag => {
+        builder.leftJoin(
+          `source_tag as source_tag_${tag}`,
+          `source_tag_${tag}.sourceId`,
+          '=',
+          'Source.id'
+        )
+        builder.leftJoin(
+          `Tag as Tag_${tag}`,
+          `source_tag_${tag}.tagId`,
+          '=',
+          `Tag_${tag}.id`
+        )
+        builder.whereNull(`Tag_${tag}.deleted`)
+        builder.where(`Tag_${tag}.id`, '=', tag)
+      })
     }
+
     if (filter.search) {
       const search = filter.search.toLowerCase()
       builder.where(nestedBuilder => {
@@ -144,6 +167,23 @@ class Library {
       type =
         filter.type.charAt(0).toUpperCase() +
         filter.type.substring(1).toLowerCase()
+    }
+    let stacks
+    if (filter.stack) {
+      if (_.isArray(filter.stack)) {
+        stacks = filter.stack
+      } else {
+        stacks = [filter.stack]
+      }
+    }
+
+    let tags
+    if (filter.tag) {
+      if (_.isArray(filter.tag)) {
+        tags = filter.tag
+      } else {
+        tags = [filter.tag]
+      }
     }
 
     const readers = await Reader.query(Reader.knex())
@@ -228,40 +268,47 @@ class Library {
         }
 
         builder.withGraphFetched('[tags, attributions]')
-        if (filter.collection) {
-          builder.leftJoin(
-            'source_tag as source_tag_collection',
-            'source_tag_collection.sourceId',
-            '=',
-            'Source.id'
-          )
-          builder.leftJoin(
-            'Tag as Tag_collection',
-            'source_tag_collection.tagId',
-            '=',
-            'Tag_collection.id'
-          )
-          builder.whereNull('Tag_collection.deleted')
-          builder
-            .where('Tag_collection.name', '=', filter.collection)
-            .andWhere('Tag_collection.type', '=', 'stack')
+
+        if (stacks) {
+          stacks.forEach(stack => {
+            builder.leftJoin(
+              `source_tag as source_tag_${stack}`,
+              `source_tag_${stack}.sourceId`,
+              '=',
+              'Source.id'
+            )
+            builder.leftJoin(
+              `Tag as Tag_${stack}`,
+              `source_tag_${stack}.tagId`,
+              '=',
+              `Tag_${stack}.id`
+            )
+            builder.whereNull(`Tag_${stack}.deleted`)
+            builder
+              .where(`Tag_${stack}.name`, '=', stack)
+              .andWhere(`Tag_${stack}.type`, '=', 'stack')
+          })
         }
-        if (filter.tag) {
-          builder.leftJoin(
-            'source_tag as source_tag_tag',
-            'source_tag_tag.sourceId',
-            '=',
-            'Source.id'
-          )
-          builder.leftJoin(
-            'Tag as Tag_tag',
-            'source_tag_tag.tagId',
-            '=',
-            'Tag_tag.id'
-          )
-          builder.whereNull('Tag_tag.deleted')
-          builder.where('Tag_tag.id', '=', filter.tag)
+
+        if (tags) {
+          tags.forEach(tag => {
+            builder.leftJoin(
+              `source_tag as source_tag_${tag}`,
+              `source_tag_${tag}.sourceId`,
+              '=',
+              'Source.id'
+            )
+            builder.leftJoin(
+              `Tag as Tag_${tag}`,
+              `source_tag_${tag}.tagId`,
+              '=',
+              `Tag_${tag}.id`
+            )
+            builder.whereNull(`Tag_${tag}.deleted`)
+            builder.where(`Tag_${tag}.id`, '=', tag)
+          })
         }
+
         if (filter.search) {
           const search = filter.search.toLowerCase()
           builder.where(nestedBuilder => {

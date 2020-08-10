@@ -87,7 +87,7 @@ const test = async () => {
   })
 
   await createSourceSimplified({
-    name: 'source13'
+    name: 'source14'
   })
 
   // assign sources to tags
@@ -137,6 +137,47 @@ const test = async () => {
     await tap.equal(body.totalItems, 11)
     await tap.equal(body.items.length, 10)
   })
+
+  await tap.test('Filter Library by multiple tags', async () => {
+    const res = await request(app)
+      .get(`/library?tag=${tag2.id}&tag=${tag1.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.totalItems, 2)
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 2)
+  })
+
+  await addSourceToCollection(app, token, sourceId1, tag2.id)
+  await addSourceToCollection(app, token, sourceId2, tag2.id)
+  await addSourceToCollection(app, token, sourceId3, tag2.id)
+  await addSourceToCollection(app, token, sourceId4, tag2.id)
+  await addSourceToCollection(app, token, sourceId5, tag2.id)
+  await addSourceToCollection(app, token, sourceId6, tag2.id)
+  await addSourceToCollection(app, token, sourceId7, tag2.id)
+  await addSourceToCollection(app, token, sourceId8, tag2.id)
+  await addSourceToCollection(app, token, sourceId9, tag2.id)
+
+  await tap.test(
+    'Filter Library by multiple tags with pagination',
+    async () => {
+      const res = await request(app)
+        .get(`/library?tag=${tag2.id}&tag=${tag1.id}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.type(body, 'object')
+      await tap.equal(body.totalItems, 11)
+      await tap.ok(Array.isArray(body.items))
+      await tap.equal(body.items.length, 10)
+    }
+  )
 
   await tap.test('Filter Library with a non-existing tag', async () => {
     const res = await request(app)

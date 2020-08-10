@@ -58,12 +58,16 @@ module.exports = app => {
    *         name: stack
    *         schema:
    *           type: string
-   *         description: the name of the tag of type stack to filter by
+   *         description: stack to which sources belong (tag with type 'stack'). Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: tag
    *         schema:
    *           type: string
-   *         description: the id of the tag to filter by (any type of tag)
+   *         description: the id of the tag to filter by (any type of tag). Accepts multiple values
+   *         style: spaceDelimited
+   *         explode: true
    *       - in: query
    *         name: type
    *         schema:
@@ -139,7 +143,7 @@ module.exports = app => {
         title: req.query.title,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
-        collection: req.query.stack,
+        stack: req.query.stack,
         language: req.query.language,
         type: req.query.type,
         keyword: req.query.keyword,

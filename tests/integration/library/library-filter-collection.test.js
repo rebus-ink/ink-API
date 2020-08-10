@@ -18,28 +18,16 @@ const test = async () => {
     return await createSource(app, token, object)
   }
 
-  await createSourceSimplified({
-    name: 'Source A'
+  const source1 = await createSourceSimplified({
+    name: 'Source 1'
   })
 
-  let stack
+  const stack = await createTag(app, token, { name: 'mystack' })
+  const stack2 = await createTag(app, token, { name: 'mystack2' })
+
+  await addSourceToCollection(app, token, source1.shortId, stack.id)
 
   await tap.test('Filter Library by collection', async () => {
-    // add more sources
-    // source 2
-    const source = await createSourceSimplified({
-      name: 'Source 2'
-    })
-
-    // source 3
-    await createSourceSimplified({ name: 'Source 3' })
-
-    // create a stack
-    stack = await createTag(app, token)
-
-    // assign mystack to source B
-    await addSourceToCollection(app, token, source.id, stack.id)
-
     // get library with filter for collection
     const res = await request(app)
       .get(`/library?stack=mystack`)
@@ -54,58 +42,42 @@ const test = async () => {
     await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 1)
     // documents should include:
-    await tap.equal(body.items[0].name, 'Source 2')
+    await tap.equal(body.items[0].name, 'Source 1')
   })
 
+  const source2 = await createSourceSimplified({
+    name: 'Source 2'
+  })
+  const source3 = await createSourceSimplified({ name: 'Source 3' })
+  const source4 = await createSourceSimplified({ name: 'Source 4 test' })
+  const source5 = await createSourceSimplified({ name: 'Source 5' })
+  const source6 = await createSourceSimplified({ name: 'Source 6' })
+  const source7 = await createSourceSimplified({ name: 'Source 7 test' })
+  const source8 = await createSourceSimplified({ name: 'Source 8' })
+  const source9 = await createSourceSimplified({ name: 'Source 9' })
+  const source10 = await createSourceSimplified({
+    name: 'Source 10'
+  })
+  const source11 = await createSourceSimplified({
+    name: 'Source 11'
+  })
+  const source12 = await createSourceSimplified({ name: 'Source 12' })
+  const source13 = await createSourceSimplified({
+    name: 'Source 13'
+  })
+
+  await addSourceToCollection(app, token, source2.shortId, stack.id)
+  await addSourceToCollection(app, token, source3.shortId, stack.id)
+  await addSourceToCollection(app, token, source4.shortId, stack.id)
+  await addSourceToCollection(app, token, source5.shortId, stack.id)
+  await addSourceToCollection(app, token, source6.shortId, stack.id)
+  await addSourceToCollection(app, token, source8.shortId, stack.id) // skipped 7
+  await addSourceToCollection(app, token, source9.shortId, stack.id)
+  await addSourceToCollection(app, token, source10.shortId, stack.id)
+  await addSourceToCollection(app, token, source11.shortId, stack.id)
+  await addSourceToCollection(app, token, source13.shortId, stack.id) // skipped 12
+
   await tap.test('should work with pagination', async () => {
-    await createSourceSimplified({ name: 'Source 4 test' })
-    await createSourceSimplified({ name: 'Source 5' })
-    await createSourceSimplified({ name: 'Source 6' })
-    await createSourceSimplified({ name: 'Source 7 test' })
-    await createSourceSimplified({ name: 'Source 8' })
-    await createSourceSimplified({ name: 'Source 9' })
-    await createSourceSimplified({
-      name: 'Source 10'
-    })
-    await createSourceSimplified({
-      name: 'Source 11'
-    })
-    await createSourceSimplified({ name: 'Source 12' })
-    await createSourceSimplified({
-      name: 'Source 13'
-    })
-
-    // get whole library to get ids:
-    const resLibrary = await request(app)
-      .get(`/library?limit=20`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    const library = resLibrary.body.items
-    const sourceId1 = library[0].id
-    const sourceId2 = library[1].id
-    const sourceId3 = library[2].id
-    const sourceId4 = library[3].id
-    const sourceId5 = library[4].id
-    const sourceId6 = library[5].id
-    // skipping 7
-    const sourceId8 = library[7].id
-    const sourceId9 = library[8].id
-    const sourceId10 = library[9].id
-    const sourceId13 = library[12].id
-
-    await addSourceToCollection(app, token, sourceId1, stack.id)
-    await addSourceToCollection(app, token, sourceId2, stack.id)
-    await addSourceToCollection(app, token, sourceId3, stack.id)
-    await addSourceToCollection(app, token, sourceId4, stack.id)
-    await addSourceToCollection(app, token, sourceId5, stack.id)
-    await addSourceToCollection(app, token, sourceId6, stack.id)
-    await addSourceToCollection(app, token, sourceId8, stack.id)
-    await addSourceToCollection(app, token, sourceId9, stack.id)
-    await addSourceToCollection(app, token, sourceId10, stack.id)
-    await addSourceToCollection(app, token, sourceId13, stack.id)
-
     // get library with filter for collection with pagination
     const res = await request(app)
       .get(`/library?stack=mystack&limit=10`)
@@ -118,6 +90,52 @@ const test = async () => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.equal(body.totalItems, 11)
+    await tap.equal(body.items.length, 10)
+  })
+
+  await addSourceToCollection(app, token, source1.shortId, stack2.id)
+  await addSourceToCollection(app, token, source2.shortId, stack2.id)
+  await addSourceToCollection(app, token, source3.shortId, stack2.id)
+  await addSourceToCollection(app, token, source4.shortId, stack2.id)
+  await addSourceToCollection(app, token, source7.shortId, stack2.id) // not in first stack
+
+  await tap.test('Filter Library by two stacks', async () => {
+    // get library with filter for collection
+    const res = await request(app)
+      .get(`/library?stack=mystack&stack=mystack2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.totalItems, 4)
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 4)
+  })
+
+  await addSourceToCollection(app, token, source5.shortId, stack2.id)
+  await addSourceToCollection(app, token, source6.shortId, stack2.id)
+  await addSourceToCollection(app, token, source8.shortId, stack2.id)
+  await addSourceToCollection(app, token, source9.shortId, stack2.id)
+  await addSourceToCollection(app, token, source10.shortId, stack2.id)
+  await addSourceToCollection(app, token, source11.shortId, stack2.id)
+  await addSourceToCollection(app, token, source13.shortId, stack2.id)
+
+  await tap.test('Filter Library by two stacks with pagination', async () => {
+    // get library with filter for collection
+    const res = await request(app)
+      .get(`/library?stack=mystack&stack=mystack2`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.equal(body.totalItems, 11)
+    await tap.ok(Array.isArray(body.items))
     await tap.equal(body.items.length, 10)
   })
 
