@@ -61,7 +61,8 @@ const test = async () => {
   const source11 = await createSourceSimplified({
     name: 'Source 11'
   })
-  const source12 = await createSourceSimplified({ name: 'Source 12' })
+  // source12
+  await createSourceSimplified({ name: 'Source 12' })
   const source13 = await createSourceSimplified({
     name: 'Source 13'
   })

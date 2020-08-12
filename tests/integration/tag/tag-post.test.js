@@ -114,7 +114,7 @@ const test = async app => {
     await tap.ok(Array.isArray(body.tags))
     await tap.type(body.tags[0].name, 'string')
     await tap.ok(
-      urlToId(body.tags[0].id).startsWith(urlToId(body.tags[0].readerId))
+      urlToId(body.tags[0].id).startsWith(urlToId(readerCompleteUrl))
     ) // check that id contains readerId
     const tagIndex = _.findIndex(body.tags, { type: 'newTagType!' })
     await tap.ok(tagIndex !== -1)

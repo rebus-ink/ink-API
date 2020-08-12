@@ -65,8 +65,14 @@ class Note_Tag extends Model {
     try {
       await Note_Tag.query().insert(list)
     } catch (err) {
+      // if inserting all at once failed, insert one at a time and ignore errors
       list.forEach(async item => {
-        await Note_Tag.query().insert(item)
+        try {
+          await Note_Tag.query().insert(item)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
       })
     }
   }

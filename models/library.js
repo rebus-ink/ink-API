@@ -189,7 +189,20 @@ class Library {
     const readers = await Reader.query(Reader.knex())
       .where('Reader.authId', '=', readerAuthId)
       .skipUndefined()
-      .withGraphFetched('[tags, sources]')
+      .withGraphFetched('[tags(selectTags), sources]')
+      .modifiers({
+        selectTags (modifierBuilder) {
+          modifierBuilder.select(
+            'Tag.id',
+            'type',
+            'name',
+            'published',
+            'updated',
+            'Tag.json'
+          )
+        }
+      })
+
       .modifyGraph('sources', builder => {
         builder
           .select(
@@ -267,8 +280,35 @@ class Library {
           builder.where('Notebook.id', '=', filter.notebook)
         }
 
-        builder.withGraphFetched('[tags, attributions]')
-
+        builder
+          .withGraphFetched(
+            '[tags(selectTags, notDeleted), attributions(selectAttributions, notDeleted)]'
+          )
+          .modifiers({
+            selectAttributions (modifierBuilder) {
+              modifierBuilder.select(
+                'id',
+                'role',
+                'isContributor',
+                'name',
+                'type',
+                'published'
+              )
+            },
+            notDeleted (modifierBuilder) {
+              modifierBuilder.whereNull('deleted')
+            },
+            selectTags (modifierBuilder) {
+              modifierBuilder.select(
+                'Tag.id',
+                'type',
+                'name',
+                'published',
+                'updated',
+                'Tag.json'
+              )
+            }
+          })
         if (stacks) {
           stacks.forEach(stack => {
             builder.leftJoin(
