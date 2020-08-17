@@ -4,7 +4,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createSource
+  createSource,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -75,6 +76,10 @@ const test = async app => {
   const resCreateSource = await createSource(app, token, sourceObject)
   const sourceUrl = resCreateSource.id
   const sourceId = urlToId(sourceUrl)
+
+  const tag1 = await createTag(app, token, { name: 'tag1', type: 'stack' })
+  const tag2 = await createTag(app, token, { name: 'tag2', type: 'stack' })
+  const tag3 = await createTag(app, token, { name: 'tag3', type: 'stack' })
 
   await tap.test('Update a Source', async () => {
     // const timestamp = new Date(2018, 01, 30).toISOString()
@@ -375,6 +380,107 @@ const test = async app => {
         )
       await tap.equal(res.status, 200)
       await tap.notOk(res.body.creator)
+    }
+  )
+
+  await tap.test('Update tags for a source - add tags', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify({ tags: [tag1, tag2] }))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const sourceBody = sourceRes.body
+    await tap.ok(sourceBody.tags)
+    await tap.equal(sourceBody.tags.length, 2)
+  })
+
+  await tap.test('Update tags for a source - replace tags', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({ tags: [tag2, tag3, { type: 'stack', name: 'tag4' }] })
+      )
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const sourceBody = sourceRes.body
+    await tap.ok(sourceBody.tags)
+    await tap.equal(sourceBody.tags.length, 3)
+  })
+
+  await tap.test('Update tags for a source - ignore invalid tags', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          tags: [tag2, { id: tag3.id + 'abc', type: 'stack', name: 'invalid' }]
+        })
+      )
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.tags)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const sourceBody = sourceRes.body
+    await tap.ok(sourceBody.tags)
+    await tap.equal(sourceBody.tags.length, 1)
+  })
+
+  await tap.test(
+    'Update tags for a source - empty array = delete existing tags',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/${sourceId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ tags: [] }))
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.tags)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const sourceBody = sourceRes.body
+      await tap.ok(sourceBody.tags)
+      await tap.equal(sourceBody.tags.length, 0)
     }
   )
 
