@@ -128,6 +128,41 @@ class Source_Tag extends BaseModel {
     return res.map(object => urlToId(object.sourceId))
   }
 
+  /**
+   * warning: does not throw errors
+   */
+  static async addMultipleTagsToSource (
+    sourceId /*: string */,
+    tags /*: Array<string> */
+  ) {
+    const list = tags.map(tag => {
+      return { sourceId, tagId: tag }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Source_Tag.query().insert(list)
+    } catch (err) {
+      // if inserting all at once failed, insert one at a time and ignore errors
+      list.forEach(async item => {
+        try {
+          await Source_Tag.query().insert(item)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
+    }
+  }
+
+  static async replaceTagsForSource (
+    sourceId /*: string */,
+    tags /*: Array<string> */
+  ) /*: Promise<any> */ {
+    await this.deleteSourceTagsOfSource(sourceId)
+    return await this.addMultipleTagsToSource(sourceId, tags)
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this

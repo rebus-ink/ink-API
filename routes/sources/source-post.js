@@ -10,6 +10,9 @@ const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-post')
 const { metricsQueue } = require('../../utils/metrics')
+const { Tag } = require('../../models/Tag')
+const { Source_Tag } = require('../../models/Source_Tag')
+const { urlToId } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -92,6 +95,25 @@ module.exports = function (app) {
             )
           }
         }
+        let tags
+        if (body.tags) {
+          let newTags = body.tags.filter(tag => {
+            return !tag.id
+          })
+          if (newTags) {
+            newTags = await Tag.createMultipleTags(
+              createdSource.readerId,
+              newTags
+            )
+          }
+          tags = body.tags.filter(tag => !!tag.id).concat(newTags)
+          let tagIds = tags.map(tag => tag.id)
+          await Source_Tag.addMultipleTagsToSource(
+            urlToId(createdSource.id),
+            tagIds
+          )
+        }
+
         const finishedSource = createdSource.toJSON()
 
         await libraryCacheUpdate(reader.id)

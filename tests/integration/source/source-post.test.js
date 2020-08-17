@@ -1,6 +1,11 @@
 const request = require('supertest')
 const tap = require('tap')
-const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
+const {
+  getToken,
+  createUser,
+  destroyDB,
+  createTag
+} = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
@@ -69,6 +74,9 @@ const test = async app => {
     ],
     json: { property: 'value' }
   }
+
+  const tag1 = await createTag(app, token, { name: 'tag1' })
+  const tag2 = await createTag(app, token, { name: 'tag2' })
 
   await tap.test('Create a Simple Source', async () => {
     const res = await request(app)
@@ -319,6 +327,95 @@ const test = async app => {
       await tap.equal(body.keywords[0], 'just one keyword')
     }
   )
+
+  await tap.test('Create a source with existing tags', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, tag2]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and new tags', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and invalid tags', async () => {
+    const res = await request(app)
+      .post(`/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { id: tag2.id + 'abc', name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 1)
+  })
+
+  // ------------------------------------- ERRORS ---------------------------
 
   await tap.test('trying to create a Source without a name', async () => {
     const res = await request(app)
