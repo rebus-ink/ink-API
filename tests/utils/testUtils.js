@@ -330,11 +330,12 @@ const addTagToNotebook = async (app, token, tagId, notebookId) => {
 
 const addNoteToCollection = async (app, token, noteId, tagId) => {
   tagId = urlToId(tagId)
-  return await request(app)
+  const res = await request(app)
     .put(`/notes/${noteId}/tags/${tagId}`)
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .type('application/ld+json')
+  return res
 }
 
 const createNotebook = async (app, token, object) => {

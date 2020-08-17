@@ -255,7 +255,7 @@ const test = async app => {
 
       // PUT /sources/:sourceId/tags/:tagId
       const res4 = await request(app)
-        .put(`/sources/${source.shortId}/tags/${tag.shortId}`)
+        .put(`/sources/${source.shortId}/tags/${tag.id}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
@@ -267,7 +267,7 @@ const test = async app => {
 
       // DELETE /sources/:sourceId/tags/:tagId
       const res5 = await request(app)
-        .delete(`/sources/${source.shortId}/tags/${tag.shortId}`)
+        .delete(`/sources/${source.shortId}/tags/${tag.id}`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')

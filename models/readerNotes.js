@@ -240,14 +240,52 @@ class ReaderNotes {
 
     const readers = await qb
       .withGraphFetched(
-        'replies.[source.[attributions], body, tags, notebooks]'
+        'replies.[source.[attributions(selectAttributions)], body, tags(selectTags), notebooks(selectNotebooks)]'
       )
+      .modifiers({
+        selectTags (modifierBuilder) {
+          modifierBuilder.select(
+            'Tag.id',
+            'Tag.type',
+            'Tag.name',
+            'Tag.published',
+            'Tag.updated'
+          )
+        },
+        selectAttributions (modifierBuilder) {
+          modifierBuilder.select(
+            'Attribution.id',
+            'Attribution.name',
+            'Attribution.role',
+            'Attribution.isContributor',
+            'Attribution.type',
+            'Attribution.published'
+          )
+        },
+        selectNotebooks (modifierBuilder) {
+          modifierBuilder.select(
+            'Notebook.id',
+            'Notebook.name',
+            'Notebook.status',
+            'Notebook.published',
+            'Notebook.updated'
+          )
+        }
+      })
       .modifyGraph('replies', builder => {
         builder.modifyGraph('body', bodyBuilder => {
           bodyBuilder.select('content', 'language', 'motivation')
           bodyBuilder.whereNull('deleted')
         })
-        builder.select('Note.*').from('Note')
+        builder
+          .select(
+            'Note.id',
+            'Note.target',
+            'Note.published',
+            'Note.updated',
+            'Note.sourceId'
+          )
+          .from('Note')
         builder.distinct('Note.id')
         // load details of parent source for each note
         builder.modifyGraph('source', pubBuilder => {
