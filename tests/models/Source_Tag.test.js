@@ -4,9 +4,7 @@ const { Reader } = require('../../models/Reader')
 const { Source } = require('../../models/Source')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { urlToId } = require('../../utils/utils')
-const { Attribution } = require('../../models/Attribution')
 const { Tag } = require('../../models/Tag')
-const { Note } = require('../../models/Note')
 const crypto = require('crypto')
 const _ = require('lodash')
 
@@ -20,10 +18,6 @@ const test = async app => {
 
   const source1 = await Source.createSource(createdReader, {
     name: 'title of source',
-    type: 'Book'
-  })
-  const source2 = await Source.createSource(createdReader, {
-    name: 'title of source2',
     type: 'Book'
   })
 
