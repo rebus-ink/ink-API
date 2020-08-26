@@ -9,6 +9,9 @@ const { ValidationError } = require('objection')
 const { libraryCacheUpdate } = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-patch')
+const { Tag } = require('../../models/Tag')
+const { Source_Tag } = require('../../models/Source_Tag')
+const { urlToId } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -129,6 +132,24 @@ module.exports = function (app) {
               requestUrl: req.originalUrl,
               requestBody: req.body
             })
+          )
+        }
+
+        if (req.body.tags) {
+          let newTags = req.body.tags.filter(tag => {
+            return !tag.id
+          })
+          if (newTags) {
+            newTags = await Tag.createMultipleTags(
+              updatedSource.readerId,
+              newTags
+            )
+          }
+          let tags = req.body.tags.filter(tag => !!tag.id).concat(newTags)
+          let tagIds = tags.map(tag => tag.id)
+          await Source_Tag.replaceTagsForSource(
+            urlToId(updatedSource.id),
+            tagIds
           )
         }
 
