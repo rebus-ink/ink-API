@@ -8,7 +8,7 @@ const crypto = require('crypto')
 const domain = process.env.DOMAIN || ''
 
 /**
- * @property {string} url - the current object's url
+ * @property {string} id - the current object's id or url
  * @property {string} shortId - the current object's short id (used in the url)
  * @property {Date} published - publishing date
  * @property {Date} updated - date of update
@@ -16,11 +16,6 @@ const domain = process.env.DOMAIN || ''
  * The base model for most of the other models. Implements url, shortId, published, and updated.
  */
 class BaseModel extends Model {
-  /**
-   *
-   * @param {object} json
-   * @param {string?} type
-   */
   formatIdsToUrl (json /*: any */, type /* :?string */) /*: any */ {
     if (
       type === 'source' &&
@@ -46,6 +41,12 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/noteContexts/${json.id}`
+    } else if (
+      type === 'notebook' &&
+      json.id &&
+      !json.id.startsWith(process.env.DOMAIN)
+    ) {
+      json.id = `${domain}/notebooks/${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
       json.readerId = `${domain}/readers/${json.readerId}`
@@ -116,8 +117,8 @@ class BaseModel extends Model {
       'Reader',
       'Note',
       'ReadActivity',
-      'Job',
-      'NoteContext'
+      'NoteContext',
+      'Notebook'
     ]
 
     if (_.indexOf(tables, this.constructor.name) > -1) {

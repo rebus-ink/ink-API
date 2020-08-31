@@ -5,76 +5,67 @@ const debug = require('debug')('ink:models:library')
 const _ = require('lodash')
 
 class Library {
-  static async getLibraryCount (readerId, filter) {
-    debug('**getLibraryCount**')
-    debug('readerId: ', readerId)
-    debug('filters: ', filter)
+  static applyFilters (builder, filters) {
     let author, attribution, type
-    if (filter.author) author = Attribution.normalizeName(filter.author)
-    if (filter.attribution) {
-      attribution = Attribution.normalizeName(filter.attribution)
+    if (filters.author) author = Attribution.normalizeName(filters.author)
+    if (filters.attribution) {
+      attribution = Attribution.normalizeName(filters.attribution)
     }
-    if (filter.type) {
+    if (filters.type) {
       type =
-        filter.type.charAt(0).toUpperCase() +
-        filter.type.substring(1).toLowerCase()
+        filters.type.charAt(0).toUpperCase() +
+        filters.type.substring(1).toLowerCase()
     }
 
-    let builder = Source.query(Source.knex())
-      .select('Source.id')
-      .from('Source')
-    builder.distinct('Source.id')
-    builder.whereNull('Source.deleted')
-    builder.where('Source.readerId', '=', readerId)
-    if (filter.title) {
-      const title = filter.title.toLowerCase()
+    if (filters.title) {
+      const title = filters.title.toLowerCase()
       builder.where('Source.name', 'ilike', `%${title}%`)
     }
-    if (filter.language) {
+    if (filters.language) {
       builder.whereJsonSupersetOf('Source.metadata:inLanguage', [
-        filter.language
+        filters.language
       ])
     }
-    if (filter.keyword) {
+    if (filters.keyword) {
       builder.whereJsonSupersetOf('Source.metadata:keywords', [
-        filter.keyword.toLowerCase()
+        filters.keyword.toLowerCase()
       ])
     }
-    if (filter.type) {
+    if (filters.type) {
       builder.where('Source.type', '=', type)
     }
     builder.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
 
-    if (filter.author) {
+    if (filters.author) {
       builder
         .where('Attribution.normalizedName', '=', author)
         .andWhere('Attribution.role', '=', 'author')
     }
-    if (filter.attribution) {
+    if (filters.attribution) {
       builder.where('Attribution.normalizedName', 'like', `%${attribution}%`)
-      if (filter.role) {
-        builder.andWhere('Attribution.role', '=', filter.role)
+      if (filters.role) {
+        builder.andWhere('Attribution.role', '=', filters.role)
       }
     }
     let stacks
-    if (filter.stack) {
-      if (_.isArray(filter.stack)) {
-        stacks = filter.stack
+    if (filters.stack) {
+      if (_.isArray(filters.stack)) {
+        stacks = filters.stack
       } else {
-        stacks = [filter.stack]
+        stacks = [filters.stack]
       }
     }
     let tags
-    if (filter.tag) {
-      if (_.isArray(filter.tag)) {
-        tags = filter.tag
+    if (filters.tag) {
+      if (_.isArray(filters.tag)) {
+        tags = filters.tag
       } else {
-        tags = [filter.tag]
+        tags = [filters.tag]
       }
     }
 
     builder.withGraphFetched('notebooks')
-    if (filter.notebook) {
+    if (filters.notebook) {
       builder.leftJoin(
         'notebook_source',
         'notebook_source.sourceId',
@@ -88,7 +79,7 @@ class Library {
         'Notebook.id'
       )
       builder.whereNull('Notebook.deleted')
-      builder.where('Notebook.id', '=', filter.notebook)
+      builder.where('Notebook.id', '=', filters.notebook)
     }
 
     builder.withGraphFetched('[tags, attributions]')
@@ -131,8 +122,8 @@ class Library {
       })
     }
 
-    if (filter.search) {
-      const search = filter.search.toLowerCase()
+    if (filters.search) {
+      const search = filters.search.toLowerCase()
       builder.where(nestedBuilder => {
         nestedBuilder
           .where('Source.name', 'ilike', `%${search}%`)
@@ -142,6 +133,21 @@ class Library {
           .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
       })
     }
+  }
+
+  static async getLibraryCount (readerId, filters) {
+    debug('**getLibraryCount**')
+    debug('readerId: ', readerId)
+    debug('filters: ', filters)
+
+    let builder = Source.query(Source.knex())
+      .select('Source.id')
+      .from('Source')
+    builder.distinct('Source.id')
+    builder.whereNull('Source.deleted')
+    builder.where('Source.readerId', '=', readerId)
+
+    this.applyFilters(builder, filters)
 
     const result = await builder
     return result.length
@@ -151,40 +157,13 @@ class Library {
     readerAuthId /*: string */,
     limit /*: number */,
     offset /*: number */,
-    filter /*: any */
+    filters /*: any */
   ) {
     debug('**getLibrary**')
     debug('readerAuthId: ', readerAuthId)
     debug('limit: ', limit, 'offset: ', offset)
-    debug('filters: ', filter)
+    debug('filters: ', filters)
     offset = !offset ? 0 : offset
-    let author, attribution, type
-    if (filter.author) author = Attribution.normalizeName(filter.author)
-    if (filter.attribution) {
-      attribution = Attribution.normalizeName(filter.attribution)
-    }
-    if (filter.type) {
-      type =
-        filter.type.charAt(0).toUpperCase() +
-        filter.type.substring(1).toLowerCase()
-    }
-    let stacks
-    if (filter.stack) {
-      if (_.isArray(filter.stack)) {
-        stacks = filter.stack
-      } else {
-        stacks = [filter.stack]
-      }
-    }
-
-    let tags
-    if (filter.tag) {
-      if (_.isArray(filter.tag)) {
-        tags = filter.tag
-      } else {
-        tags = [filter.tag]
-      }
-    }
 
     const readers = await Reader.query(Reader.knex())
       .where('Reader.authId', '=', readerAuthId)
@@ -222,63 +201,8 @@ class Library {
           .from('Source')
         builder.distinct('Source.id')
         builder.whereNull('Source.deleted')
-        if (filter.title) {
-          const title = filter.title.toLowerCase()
-          builder.where('Source.name', 'ilike', `%${title}%`)
-        }
-        if (filter.language) {
-          builder.whereJsonSupersetOf('Source.metadata:inLanguage', [
-            filter.language
-          ])
-        }
-        if (filter.keyword) {
-          builder.whereJsonSupersetOf('Source.metadata:keywords', [
-            filter.keyword.toLowerCase()
-          ])
-        }
-        if (filter.type) {
-          builder.where('Source.type', '=', type)
-        }
-        builder.leftJoin(
-          'Attribution',
-          'Attribution.sourceId',
-          '=',
-          'Source.id'
-        )
 
-        if (filter.author) {
-          builder
-            .where('Attribution.normalizedName', '=', author)
-            .andWhere('Attribution.role', '=', 'author')
-        }
-        if (filter.attribution) {
-          builder.where(
-            'Attribution.normalizedName',
-            'like',
-            `%${attribution}%`
-          )
-          if (filter.role) {
-            builder.andWhere('Attribution.role', '=', filter.role)
-          }
-        }
-
-        builder.withGraphFetched('notebooks')
-        if (filter.notebook) {
-          builder.leftJoin(
-            'notebook_source',
-            'notebook_source.sourceId',
-            '=',
-            'Source.id'
-          )
-          builder.leftJoin(
-            'Notebook',
-            'notebook_source.notebookId',
-            '=',
-            'Notebook.id'
-          )
-          builder.whereNull('Notebook.deleted')
-          builder.where('Notebook.id', '=', filter.notebook)
-        }
+        this.applyFilters(builder, filters)
 
         builder
           .withGraphFetched(
@@ -309,77 +233,27 @@ class Library {
               )
             }
           })
-        if (stacks) {
-          stacks.forEach(stack => {
-            builder.leftJoin(
-              `source_tag as source_tag_${stack}`,
-              `source_tag_${stack}.sourceId`,
-              '=',
-              'Source.id'
-            )
-            builder.leftJoin(
-              `Tag as Tag_${stack}`,
-              `source_tag_${stack}.tagId`,
-              '=',
-              `Tag_${stack}.id`
-            )
-            builder.whereNull(`Tag_${stack}.deleted`)
-            builder
-              .where(`Tag_${stack}.name`, '=', stack)
-              .andWhere(`Tag_${stack}.type`, '=', 'stack')
-          })
-        }
 
-        if (tags) {
-          tags.forEach(tag => {
-            builder.leftJoin(
-              `source_tag as source_tag_${tag}`,
-              `source_tag_${tag}.sourceId`,
-              '=',
-              'Source.id'
-            )
-            builder.leftJoin(
-              `Tag as Tag_${tag}`,
-              `source_tag_${tag}.tagId`,
-              '=',
-              `Tag_${tag}.id`
-            )
-            builder.whereNull(`Tag_${tag}.deleted`)
-            builder.where(`Tag_${tag}.id`, '=', tag)
-          })
-        }
-
-        if (filter.search) {
-          const search = filter.search.toLowerCase()
-          builder.where(nestedBuilder => {
-            nestedBuilder
-              .where('Source.name', 'ilike', `%${search}%`)
-              .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
-              .orWhere('Source.abstract', 'ilike', `%${search}%`)
-              .orWhere('Source.description', 'ilike', `%${search}%`)
-              .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
-          })
-        }
-        if (filter.orderBy === 'title') {
-          if (filter.reverse) {
+        if (filters.orderBy === 'title') {
+          if (filters.reverse) {
             builder.orderBy('Source.name', 'desc')
           } else {
             builder.orderBy('Source.name')
           }
-        } else if (filter.orderBy === 'datePublished') {
-          if (filter.reverse) {
+        } else if (filters.orderBy === 'datePublished') {
+          if (filters.reverse) {
             builder.orderByRaw('"datePublished" NULLS FIRST')
           } else {
             builder.orderByRaw('"datePublished" DESC NULLS LAST')
           }
-        } else if (filter.orderBy === 'type') {
-          if (filter.reverse) {
+        } else if (filters.orderBy === 'type') {
+          if (filters.reverse) {
             builder.orderByRaw('"type" DESC NULLS FIRST')
           } else {
             builder.orderByRaw('"type" NULLS LAST')
           }
         } else {
-          if (filter.reverse) {
+          if (filters.reverse) {
             builder.orderBy('Source.updated')
           } else {
             builder.orderBy('Source.updated', 'desc')
