@@ -28,7 +28,7 @@ const test = async app => {
         {
           name: 'something',
           description: 'a description goes here',
-          notebookId: notebook.id
+          notebookId: urlToId(notebook.id)
         },
         readerId
       )
@@ -45,7 +45,7 @@ const test = async app => {
     await tap.equal(canvas.description, 'a description goes here')
     await tap.ok(canvas.readerId)
     await tap.ok(canvas.id)
-    await tap.equal(canvas.notebookId, notebook.id)
+    await tap.equal(canvas.notebookId, urlToId(notebook.id))
   })
 
   await tap.test('Update a Canvas', async () => {
@@ -55,7 +55,7 @@ const test = async app => {
         id: canvasId,
         name: 'new name',
         readerId,
-        notebookId: notebook.id
+        notebookId: urlToId(notebook.id)
       })
     } catch (err) {
       error = err
