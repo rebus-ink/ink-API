@@ -13,10 +13,11 @@ const {
   createNote,
   createNoteContext
 } = require('../../utils/testUtils')
+const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
-  await createUser(app, token)
+  const reader = await createUser(app, token)
 
   const notebook = await createNotebook(app, token, {
     name: 'notebook1',
@@ -37,6 +38,9 @@ const test = async app => {
     await tap.equal(res.status, 200)
     const body = res.body
     await tap.ok(body.id)
+    await tap.ok(body.id.startsWith('http'))
+    await tap.ok(body.shortId)
+    await tap.ok(body.shortId.startsWith(urlToId(reader)))
     await tap.equal(body.name, 'notebook1')
     await tap.equal(body.description, 'test')
     await tap.equal(body.status, 'archived')

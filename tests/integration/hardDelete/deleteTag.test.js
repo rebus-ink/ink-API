@@ -89,7 +89,7 @@ const test = async () => {
   })
 
   await Notebook_Tag.query().insert({
-    notebookId: notebook.id,
+    notebookId: urlToId(notebook.id),
     tagId: tag3.id
   })
 

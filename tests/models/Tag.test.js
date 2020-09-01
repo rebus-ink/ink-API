@@ -70,7 +70,7 @@ const test = async app => {
     let responseCreate = await Tag.createTag(createdReader.id, {
       name: 'mystack2',
       type: 'test',
-      notebookId: notebook.id,
+      notebookId: urlToId(notebook.id),
       json: { property: 1 }
     })
 

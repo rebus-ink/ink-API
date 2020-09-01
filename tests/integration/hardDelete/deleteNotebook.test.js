@@ -183,8 +183,8 @@ const test = async () => {
     await tap.equal(notebooks.length, 2)
     await tap.notOk(_.find(notebooks, { id: urlToId(notebook1.id) }))
     await tap.notOk(_.find(notebooks, { id: urlToId(notebook2.id) }))
-    await tap.ok(_.find(notebooks, { id: urlToId(notebook3.id) }))
-    await tap.ok(_.find(notebooks, { id: urlToId(notebook4.id) }))
+    await tap.ok(_.find(notebooks, { id: notebook3.id }))
+    await tap.ok(_.find(notebooks, { id: notebook4.id }))
 
     const notes = await Note.query()
     await tap.equal(notes.length, 1)
