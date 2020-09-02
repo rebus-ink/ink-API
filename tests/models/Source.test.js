@@ -531,6 +531,20 @@ const test = async app => {
     await tap.ok(note2.deleted)
   })
 
+  await tap.test('Turn a Source into a reference', async () => {
+    // before
+    const source2 = await Source.byId(sourceId2)
+    await tap.ok(source2.links)
+    await tap.ok(source2.resources)
+    await tap.ok(source2.readingOrder)
+
+    const result = await Source.toReference(sourceId2)
+    await tap.ok(result.referenced)
+    await tap.notOk(result.links)
+    await tap.notOk(result.resources)
+    await tap.notOk(result.readingOrder)
+  })
+
   await tap.test('Get SourceIds By Collection', async () => {
     // create a third source:
     let response = await Source.createSource(createdReader, simpleSource)

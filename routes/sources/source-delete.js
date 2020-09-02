@@ -23,6 +23,11 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         required: true
+   *       - in: query
+   *         name: reference
+   *         schema:
+   *           type: boolean
+   *         description: flag a source that you want to keep as a reference for notes. The source will no longer be in the library.
    *     security:
    *       - Bearer: []
    *     responses:
@@ -66,7 +71,13 @@ module.exports = function (app) {
           )
         }
 
-        const result = await Source.delete(sourceId)
+        let result
+        if (req.query.reference) {
+          result = await Source.toReference(sourceId)
+        } else {
+          result = await Source.delete(sourceId)
+        }
+
         debug('result: ', result)
         if (!result) {
           return next(
