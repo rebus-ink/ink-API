@@ -563,11 +563,6 @@ class Source extends BaseModel {
   static async delete (id /*: string */) /*: Promise<number|null> */ {
     debug('**delete**')
     debug('id: ', id)
-    let source = await Source.query().findById(id)
-
-    if (!source || source.deleted) {
-      return null
-    }
 
     // Delete Source_Tag associated with source
     await Source_Tag.deleteSourceTagsOfSource(id)
@@ -576,9 +571,10 @@ class Source extends BaseModel {
     // if (elasticsearchQueue) {
     //   await elasticsearchQueue.add({ type: 'delete', sourceId: id })
     // }
-
     const date = new Date().toISOString()
-    return await Source.query().patchAndFetchById(id, { deleted: date })
+    return await Source.query()
+      .patchAndFetchById(id, { deleted: date })
+      .whereNull('deleted')
   }
 
   static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {

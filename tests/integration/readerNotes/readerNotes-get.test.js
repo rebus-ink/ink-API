@@ -83,6 +83,40 @@ const test = async app => {
     await tap.equal(firstItem.tags.length, 1)
   })
 
+  await tap.test(
+    'Get all notes for a Reader after a source turned to reference',
+    async () => {
+      const resDelete = await request(app)
+        .delete(`/sources/${sourceId}?reference=true`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(resDelete.statusCode, 204)
+
+      const res = await request(app)
+        .get('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 200)
+      const body = res.body
+      await tap.equal(body.totalItems, 3)
+      await tap.equal(body.items.length, 3)
+      const firstItem = body.items[0]
+      await tap.ok(firstItem.body)
+      await tap.ok(firstItem.body[0].content)
+      await tap.equal(firstItem.body[0].motivation, 'test')
+      await tap.ok(firstItem.sourceId)
+      // notes should still include source information
+      await tap.ok(firstItem.source)
+      await tap.type(firstItem.source.name, 'string')
+      await tap.ok(firstItem.source.author)
+      await tap.type(firstItem.source.author[0].name, 'string')
+    }
+  )
+
   await tap.test('Should also include notes without a sourceId', async () => {
     await createNote(app, token, {
       body: { motivation: 'test' }
