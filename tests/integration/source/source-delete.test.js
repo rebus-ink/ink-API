@@ -8,7 +8,7 @@ const {
   createSource,
   addSourceToCollection
 } = require('../../utils/testUtils')
-
+const { Source } = require('../../../models/Source')
 const { Tag } = require('../../../models/Tag')
 
 const test = async app => {
@@ -64,6 +64,11 @@ const test = async app => {
   const sourceUrl = resCreateSource.id
   const sourceId = urlToId(resCreateSource.id)
 
+  const source2 = await createSource(app, token, {
+    name: 'source2',
+    type: 'Article'
+  })
+
   // second source
   await createSource(app, token)
 
@@ -82,9 +87,9 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(before.body.items.length, 2)
-    await tap.equal(before.body.items[1].tags.length, 1)
-    await tap.equal(before.body.items[1].tags[0].name, 'mystack')
+    await tap.equal(before.body.items.length, 3)
+    await tap.equal(before.body.items[2].tags.length, 1)
+    await tap.equal(before.body.items[2].tags[0].name, 'mystack')
 
     const res = await request(app)
       .delete(`/sources/${sourceId}`)
@@ -120,8 +125,8 @@ const test = async app => {
     await tap.equal(libraryres.status, 200)
     const body = libraryres.body
     await tap.ok(Array.isArray(body.items))
-    await tap.equal(body.items.length, 1)
-    await tap.equal(body.items[0].tags.length, 0)
+    await tap.equal(body.items.length, 2)
+    await tap.equal(body.items[1].tags.length, 0)
   })
 
   await tap.test(
@@ -171,6 +176,45 @@ const test = async app => {
     await tap.equal(error1.error, 'Not Found')
     await tap.equal(error1.message, `No Source found with id 1234`)
     await tap.equal(error1.details.requestUrl, `/sources/1234`)
+  })
+
+  await tap.test('Turn a Source to a reference', async () => {
+    const before = await request(app)
+      .get(`/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(before.body.items.length, 2)
+
+    const res = await request(app)
+      .delete(`/sources/${source2.shortId}?reference=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 204)
+
+    // should not be able to get the source
+    const after = await request(app)
+      .get(`/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(after.body.items.length, 1)
+
+    const getres = await request(app)
+      .get(`/sources/${source2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(getres.statusCode, 404)
+
+    // but the source is not actually deleted, only marked as 'referenced'
+    const source = await Source.query().findById(source2.shortId)
+    await tap.ok(source)
+    await tap.ok(source.referenced)
+    await tap.notOk(source.deleted)
   })
 
   await destroyDB(app)

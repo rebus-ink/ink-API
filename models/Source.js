@@ -159,7 +159,8 @@ class Source extends BaseModel {
         json: { type: ['object', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' }
+        deleted: { type: 'string', format: 'date-time' },
+        referenced: { type: 'string', format: 'date-time' }
       },
       required: ['name', 'readerId', 'type']
     }
@@ -536,7 +537,7 @@ class Source extends BaseModel {
         }
       })
     debug('retrieved source: ', source)
-    if (!source || source.deleted) return null
+    if (!source || source.deleted || source.referenced) return null
 
     const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
     debug('latest readActivity: ', latestReadActivity)
@@ -554,7 +555,7 @@ class Source extends BaseModel {
     debug('**checkIfExists**')
     debug('id: ', id)
     const source = await Source.query().findById(id)
-    if (!source || source.deleted) {
+    if (!source || source.deleted || source.referenced) {
       return false
     } else return true
   }
@@ -562,11 +563,6 @@ class Source extends BaseModel {
   static async delete (id /*: string */) /*: Promise<number|null> */ {
     debug('**delete**')
     debug('id: ', id)
-    let source = await Source.query().findById(id)
-
-    if (!source || source.deleted) {
-      return null
-    }
 
     // Delete Source_Tag associated with source
     await Source_Tag.deleteSourceTagsOfSource(id)
@@ -575,9 +571,10 @@ class Source extends BaseModel {
     // if (elasticsearchQueue) {
     //   await elasticsearchQueue.add({ type: 'delete', sourceId: id })
     // }
-
     const date = new Date().toISOString()
-    return await Source.query().patchAndFetchById(id, { deleted: date })
+    return await Source.query()
+      .patchAndFetchById(id, { deleted: date })
+      .whereNull('deleted')
   }
 
   static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
@@ -587,6 +584,16 @@ class Source extends BaseModel {
     return await Note.query()
       .patch({ deleted: time })
       .where('sourceId', '=', id)
+  }
+
+  static async toReference (id /*: string */) /*: Promise<any> */ {
+    const date = new Date().toISOString()
+    return await Source.query().patchAndFetchById(id, {
+      referenced: date,
+      links: null,
+      resources: null,
+      readingOrder: null
+    })
   }
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {

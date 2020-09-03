@@ -145,6 +145,7 @@ class Library {
       .from('Source')
     builder.distinct('Source.id')
     builder.whereNull('Source.deleted')
+    builder.whereNull('Source.referenced')
     builder.where('Source.readerId', '=', readerId)
 
     this.applyFilters(builder, filters)
@@ -201,6 +202,7 @@ class Library {
           .from('Source')
         builder.distinct('Source.id')
         builder.whereNull('Source.deleted')
+        builder.whereNull('Source.referenced')
 
         this.applyFilters(builder, filters)
 

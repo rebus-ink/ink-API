@@ -50,10 +50,18 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.equal(body.document, 'doc123')
     await tap.ok(body.published)
     await tap.ok(body.updated)
+    // should include source information
+    await tap.ok(body.source)
+    await tap.equal(body.source.name, 'source name')
+    await tap.equal(body.source.type, 'Book')
+    await tap.ok(body.source.id)
+    await tap.ok(body.source.shortId)
+    await tap.ok(body.source.author)
+    await tap.ok(body.source.editor)
+    await tap.ok(body.source.keywords)
   })
 
   await tap.test('Get Note from id url', async () => {
@@ -70,7 +78,7 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.sourceId), sourceId)
+    await tap.ok(body.source)
     await tap.ok(body.published)
     await tap.ok(body.updated)
   })
@@ -130,7 +138,7 @@ const test = async app => {
   const notebook = await createNotebook(app, token)
   await addNoteToNotebook(app, token, noteId, notebook.shortId)
 
-  await tap.test('Get Note with Tag', async () => {
+  await tap.test('Get Note with Notebook', async () => {
     const res = await request(app)
       .get(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
@@ -173,6 +181,61 @@ const test = async app => {
     await tap.ok(Array.isArray(body.replies))
     await tap.equal(body.replies.length, 1)
     await tap.type(body.replies[0], 'string')
+  })
+
+  await tap.test('Get Note after source turned into reference', async () => {
+    const resDelete = await request(app)
+      .delete(`/sources/${sourceId}?reference=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resDelete.statusCode, 204)
+
+    const res = await request(app)
+      .get(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.ok(body.source)
+
+    // should still include source information
+    await tap.ok(body.source)
+    await tap.equal(body.source.name, 'source name')
+    await tap.equal(body.source.type, 'Book')
+    await tap.ok(body.source.id)
+    await tap.ok(body.source.shortId)
+    await tap.ok(body.source.author)
+    await tap.ok(body.source.editor)
+    await tap.ok(body.source.keywords)
+  })
+
+  await tap.test('Get Note after source is deleted', async () => {
+    const resDelete = await request(app)
+      .delete(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(resDelete.statusCode, 204)
+
+    const res = await request(app)
+      .get(`/notes/${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.statusCode, 200)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.type(body.id, 'string')
+    await tap.notOk(body.sourceId)
+    await tap.notOk(body.source)
   })
 
   await destroyDB(app)
