@@ -125,30 +125,10 @@ const test = async app => {
     await tap.equal(body.copyrightYear, 1977)
     await tap.equal(body.genre, 'vampire romance')
     await tap.equal(body.license, 'http://www.mylicense.com')
-    // should not have a position
-    await tap.notOk(body.position)
   })
 
-  await tap.test('Get Source with a position', async () => {
-    // create some read activity
-    await request(app)
-      .post(`/reader-${readerId}/activity`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(
-        JSON.stringify({
-          type: 'Read',
-          context: sourceUrl,
-          selector: {
-            type: 'XPathSelector',
-            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
-            property: 'first' // included for testing purposes
-          }
-        })
-      )
-
-    await request(app)
+  await tap.test('Get Source with a readActivity', async () => {
+    const activity1 = await request(app)
       .post(`/sources/${sourceId}/readActivity`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
@@ -163,7 +143,26 @@ const test = async app => {
         })
       )
 
-    // get source with position:
+    await tap.equal(activity1.statusCode, 201)
+
+    const activity2 = await request(app)
+      .post(`/sources/${sourceId}/readActivity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          selector: {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
+            property: 'last'
+          }
+        })
+      )
+    await tap.equal(activity1.statusCode, 201)
+    const activityId2 = activity2.body.id
+
+    // get source with readActivity:
     const res = await request(app)
       .get(`/sources/${sourceId}`)
       .set('Host', 'reader-api.test')
@@ -176,8 +175,8 @@ const test = async app => {
     await tap.type(body.id, 'string')
     await tap.equal(body.type, 'Book')
     await tap.equal(body.name, 'Source A')
-    await tap.type(body.position, 'object')
-    await tap.equal(body.position.property, 'last')
+    await tap.ok(body.lastReadActivity)
+    await tap.equal(body.lastReadActivity.id, activityId2)
   })
 
   await tap.test('Try to get Source that does not exist', async () => {

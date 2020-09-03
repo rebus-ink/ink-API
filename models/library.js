@@ -208,7 +208,7 @@ class Library {
 
         builder
           .withGraphFetched(
-            '[tags(selectTags, notDeleted), attributions(selectAttributions, notDeleted)]'
+            '[tags(selectTags, notDeleted), attributions(selectAttributions, notDeleted), readActivities(latestFirst)]'
           )
           .modifiers({
             selectAttributions (modifierBuilder) {
@@ -233,6 +233,9 @@ class Library {
                 'updated',
                 'Tag.json'
               )
+            },
+            latestFirst (modifierBuilder) {
+              modifierBuilder.orderBy('published', 'desc')
             }
           })
 
