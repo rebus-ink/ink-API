@@ -335,6 +335,7 @@ class Note extends BaseModel {
       note.relationsFrom = null
       note.relationsTo = null
     }
+    note.sourceId = null
     debug('note: ', note)
     return note
   }

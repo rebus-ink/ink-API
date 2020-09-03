@@ -68,9 +68,7 @@ module.exports = function (app) {
               JSON.stringify(
                 Object.assign(sourceJson, {
                   replies: source.replies
-                    ? source.replies
-                      .filter(note => !note.deleted)
-                      .map(note => note.asRef())
+                    ? source.replies.map(note => note.asRef())
                     : []
                 })
               )

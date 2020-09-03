@@ -50,7 +50,6 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.sourceId), sourceId)
     await tap.equal(body.document, 'doc123')
     await tap.ok(body.published)
     await tap.ok(body.updated)
@@ -79,7 +78,7 @@ const test = async app => {
     await tap.equal(body.body[0].motivation, 'test')
     await tap.equal(body.body[0].content, 'content goes here')
     await tap.equal(body.target.property1, 'target information')
-    await tap.equal(urlToId(body.sourceId), sourceId)
+    await tap.ok(body.source)
     await tap.ok(body.published)
     await tap.ok(body.updated)
   })
@@ -203,8 +202,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    await tap.ok(body.sourceId)
-    await tap.equal(urlToId(body.sourceId), sourceId)
+    await tap.ok(body.source)
 
     // should still include source information
     await tap.ok(body.source)
@@ -236,7 +234,7 @@ const test = async app => {
     const body = res.body
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
-    // await tap.notOk(body.sourceId) not working: for some reason, cannot update a foreign key to null
+    await tap.notOk(body.sourceId)
     await tap.notOk(body.source)
   })
 
