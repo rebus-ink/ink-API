@@ -11,7 +11,9 @@ const {
   addTagToNotebook,
   createTag,
   createNote,
-  createNoteContext
+  createNoteContext,
+  addSourceToCollection,
+  addNoteToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -57,7 +59,8 @@ const test = async app => {
   await addSourceToNotebook(app, token, source.shortId, notebook.shortId)
 
   const note = await createNote(app, token, {
-    body: { content: 'test!!', motivation: 'test' }
+    body: { content: 'test!!', motivation: 'test' },
+    sourceId: source.shortId
   })
   await addNoteToNotebook(app, token, note.shortId, notebook.shortId)
 
@@ -99,6 +102,26 @@ const test = async app => {
     await tap.equal(body.sources[0].shortId, source.shortId)
     await tap.equal(body.noteContexts.length, 1)
     await tap.equal(body.noteContexts[0].shortId, notebookNoteContext.shortId)
+  })
+
+  await addNoteToCollection(app, token, note.shortId, tag.id)
+  await addSourceToCollection(app, token, source.shortId, tag.id)
+
+  await tap.test('Get notebook with source tags, note tags...', async () => {
+    const res = await request(app)
+      .get(`/notebooks/${notebook.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.id)
+    // notes, tags, notebookTags, sources, noteContexts
+    await tap.equal(body.notes.length, 1)
+    await tap.equal(body.notes[0].tags.length, 1)
+    await tap.equal(body.sources.length, 1)
+    await tap.equal(body.sources[0].tags.length, 1)
   })
 
   await tap.test('Try to get a Notebook that does not exist', async () => {
