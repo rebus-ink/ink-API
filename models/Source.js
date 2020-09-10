@@ -529,21 +529,24 @@ class Source extends BaseModel {
     const source = await Source.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, replies(notDeleted), tags(notDeleted), attributions]'
+        '[reader, replies(notDeleted), tags(notDeleted), attributions, readActivities(latestFirst)]'
       )
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
+        },
+        latestFirst (builder) {
+          builder.orderBy('published', 'desc')
         }
       })
     debug('retrieved source: ', source)
     if (!source || source.deleted || source.referenced) return null
 
-    const latestReadActivity = await ReadActivity.getLatestReadActivity(id)
-    debug('latest readActivity: ', latestReadActivity)
-    if (latestReadActivity && latestReadActivity.selector) {
-      source.position = latestReadActivity.selector
+    if (source.readActivities) {
+      source.lastReadActivity = source.readActivities[0]
     }
+    source.readActivities = null
+
     if (source.readingOrder) source.readingOrder = source.readingOrder.data
     if (source.links) source.links = source.links.data
     if (source.resources) source.resources = source.resources.data

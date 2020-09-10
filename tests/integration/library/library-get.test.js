@@ -28,7 +28,7 @@ const test = async () => {
   })
 
   await tap.test('Get Library containing a source', async () => {
-    await createSource(app, token, {
+    const source1 = await createSource(app, token, {
       type: 'Book',
       name: 'Source A',
       author: ['John Smith'],
@@ -55,6 +55,40 @@ const test = async () => {
       resources: [{ url: 'value' }],
       json: { property: 'value' }
     })
+
+    const activity1 = await request(app)
+      .post(`/sources/${source1.shortId}/readActivity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          selector: {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
+            property: 'last'
+          }
+        })
+      )
+
+    await tap.equal(activity1.statusCode, 201)
+
+    const activity2 = await request(app)
+      .post(`/sources/${source1.shortId}/readActivity`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          selector: {
+            type: 'XPathSelector',
+            value: '/html/body/p[2]/table/tr[2]/td[3]/span',
+            property: 'last'
+          }
+        })
+      )
+    await tap.equal(activity2.statusCode, 201)
+    const activityId2 = activity2.body.id
 
     const res = await request(app)
       .get('/library')
@@ -89,6 +123,8 @@ const test = async () => {
     await tap.ok(source.resources)
     await tap.equal(source.encodingFormat, 'epub')
     await tap.equal(source.bookFormat, 'EBook')
+    await tap.ok(source.lastReadActivity)
+    await tap.equal(source.lastReadActivity.id, activityId2)
     // // documents should NOT include:
     await tap.notOk(source.readingOrder)
     await tap.notOk(source.contributor)

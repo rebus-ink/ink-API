@@ -195,6 +195,9 @@ module.exports = app => {
           debug('count: ', count)
           let reader = returnedReader
           let sources = reader.sources.map(source => {
+            if (source.readActivities) {
+              source.lastReadActivity = source.readActivities[0]
+            }
             return _.pick(source.toJSON(), [
               'id',
               'name',
@@ -210,7 +213,8 @@ module.exports = app => {
               'author',
               'editor',
               'bookFormat',
-              'inLanguage'
+              'inLanguage',
+              'lastReadActivity'
             ])
           })
           debug('sources after filtering out properties: ', sources)

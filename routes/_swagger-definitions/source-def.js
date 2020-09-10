@@ -183,9 +183,16 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
- *       position:
+ *       lastReadActivity:
  *         type: object
  *         readOnly: true
+ *         properties:
+ *           id:
+ *             type: string
+ *           selector:
+ *             type: object
+ *           json:
+ *             type: object
  *       json:
  *         type: object
  *       readerId:
@@ -279,6 +286,16 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
+ *       lastReadActivity:
+ *         type: object
+ *         readOnly: true
+ *         properties:
+ *           id:
+ *             type: string
+ *           selector:
+ *             type: object
+ *           json:
+ *             type: object
  *       published:
  *         type: string
  *         format: timestamp
