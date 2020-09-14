@@ -7,8 +7,10 @@ const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { checkOwnership } = require('../../utils/utils')
+const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:notebook-note-post')
+const { Source_Tag } = require('../../models/Source_Tag')
+const { Tag } = require('../../models/Tag')
 
 module.exports = function (app) {
   /**
@@ -109,6 +111,49 @@ module.exports = function (app) {
                   {
                     requestUrl: req.originalUrl,
                     requestBody: req.body
+                  }
+                )
+              )
+            } else {
+              return next(
+                boom.badRequest(err.message, {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                })
+              )
+            }
+          }
+
+          try {
+            let tags
+            if (body.tags) {
+              let newTags = body.tags.filter(tag => {
+                return !tag.id
+              })
+              if (newTags) {
+                newTags = await Tag.createMultipleTags(
+                  createdSource.readerId,
+                  newTags
+                )
+              }
+              tags = body.tags.filter(tag => !!tag.id).concat(newTags)
+              let tagIds = tags.map(tag => tag.id)
+              await Source_Tag.addMultipleTagsToSource(
+                urlToId(createdSource.id),
+                tagIds
+              )
+            }
+          } catch (err) {
+            if (err instanceof ValidationError) {
+              return next(
+                boom.badRequest(
+                  `Validation Error on Create Tags for a Source: ${
+                    err.message
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body,
+                    validation: err.data
                   }
                 )
               )

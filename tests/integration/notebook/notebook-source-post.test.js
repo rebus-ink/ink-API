@@ -4,7 +4,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNotebook
+  createNotebook,
+  createTag
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -50,6 +51,96 @@ const test = async app => {
       .type('application/ld+json')
 
     await tap.equal(resNotebook.body.sources.length, 1)
+  })
+
+  const tag1 = await createTag(app, token, { type: 'test', name: 'tagA' })
+  const tag2 = await createTag(app, token, { type: 'test', name: 'tagB' })
+
+  await tap.test('Create a source with existing tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, tag2]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and new tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and invalid tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { id: tag2.id + 'abc', name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 1)
   })
 
   await tap.test(
