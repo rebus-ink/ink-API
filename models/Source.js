@@ -11,6 +11,7 @@ const { libraryCacheUpdate } = require('../utils/cache')
 const languagesList = require('../utils/languages')
 const crypto = require('crypto')
 const { Source_Tag } = require('./Source_Tag')
+const { Notebook_Source } = require('./Notebook_Source')
 const debug = require('debug')('ink:models:Source')
 
 const metadataProps = [
@@ -522,6 +523,45 @@ class Source extends BaseModel {
     await libraryCacheUpdate(reader.id)
 
     return createdSource
+  }
+
+  static async createSourceInNotebook (
+    reader /*: any */,
+    notebookId /*: string */,
+    source /*: any */
+  ) {
+    debug('**createSourceInNotebook**')
+    debug('reader: ', reader)
+    debug('notebookId: ', notebookId)
+    debug('source: ', source)
+    const createdSource = await this.createSource(reader, source)
+    debug('created source: ', createdSource)
+    if (createdSource) {
+      try {
+        // $FlowFixMe
+        await Notebook_Source.addSourceToNotebook(
+          notebookId,
+          urlToId(createdSource.id)
+        )
+      } catch (err) {
+        debug('error when adding to notebook: ', err.message)
+        this.hardDelete(createdSource.id)
+        throw err
+      }
+    }
+
+    return createdSource
+  }
+
+  static async hardDelete (sourceId /*: ?string */) {
+    debug('**hardDelete**')
+    debug('sourceId: ', sourceId)
+    sourceId = urlToId(sourceId)
+    await Source.query()
+      .delete()
+      .where({
+        id: sourceId
+      })
   }
 
   static async byId (id /*: string */) /*: Promise<SourceType|null> */ {

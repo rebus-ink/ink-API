@@ -89,6 +89,7 @@ const notebookPubDeleteTests = require('./notebook/notebook-source-delete.test')
 const notebookNotePutTests = require('./notebook/notebook-note-put.test')
 const notebookNoteDeleteTests = require('./notebook/notebook-note-delete.test')
 const notebookNotePostTests = require('./notebook/notebook-note-post.test')
+const notebookSourcePostTests = require('./notebook/notebook-source-post.test')
 const notebookTagPutTests = require('./notebook/notebook-tag-put.test')
 const notebookTagDeleteTests = require('./notebook/notebook-tag-delete.test')
 const notebooksGetPaginateTests = require('./notebook/notebooks-get-paginate.test')
@@ -297,6 +298,7 @@ const allTests = async () => {
       await notebooksGetOrderByNameTests(app)
       await notebooksGetOrderByCreated(app)
       await notebooksGetOrderByDefaultTests(app)
+      await notebookSourcePostTests(app)
     } catch (err) {
       console.log('notebook integration test error: ', err)
       throw err

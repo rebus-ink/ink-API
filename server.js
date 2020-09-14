@@ -86,10 +86,13 @@ const notebookDeleteNoteRoute = require('./routes/notebooks/notebook-delete-note
 const notebookPostNoteRoute = require('./routes/notebooks/notebook-note-post') // POST /notebooks/:id/notes
 const notebookPutTagRoute = require('./routes/notebooks/notebook-put-tag') // PUT /notebooks/:id/tags/:tagId
 const notebookDeleteTagRoute = require('./routes/notebooks/notebook-delete-tag') // DELETE /notebooks/:id/tags/:tagId
+const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post')
 
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
+const notebookNotePost = require('./routes/notebooks/notebook-note-post')
+const notebookSourcePost = require('./routes/notebooks/notebook-source-post')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -290,6 +293,7 @@ notebookDeleteNoteRoute(app)
 notebookPostNoteRoute(app)
 notebookPutTagRoute(app)
 notebookDeleteTagRoute(app)
+notebookPostSourceRoute(app)
 hardDeleteRoute(app)
 metricsGetRoute(app)
 
