@@ -495,7 +495,7 @@ class Source extends BaseModel {
   static async createSource (
     reader /*: any */,
     source /*: any */
-  ) /*: Promise<SourceType|Error> */ {
+  ) /*: Promise<SourceType> */ {
     debug('**createSource**')
     debug('reader: ', reader)
     debug('incoming source: ', source)
