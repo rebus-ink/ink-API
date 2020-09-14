@@ -7,8 +7,10 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { checkOwnership } = require('../../utils/utils')
+const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:notebook-note-post')
+const { Note_Tag } = require('../../models/Note_Tag')
+const { Tag } = require('../../models/Tag')
 
 module.exports = function (app) {
   /**
@@ -90,6 +92,26 @@ module.exports = function (app) {
               notebookId,
               body
             )
+
+            let tags
+            if (body.tags) {
+              let newTags = body.tags.filter(tag => {
+                return !tag.id
+              })
+              if (newTags) {
+                newTags = await Tag.createMultipleTags(
+                  createdNote.readerId,
+                  newTags
+                )
+              }
+              tags = body.tags.filter(tag => !!tag.id).concat(newTags)
+              let tagIds = tags.map(tag => tag.id)
+              await Note_Tag.addMultipleTagsToNote(
+                urlToId(createdNote.id),
+                tagIds
+              )
+            }
+
             debug('created Note', createdNote)
           } catch (err) {
             if (err instanceof ValidationError) {
