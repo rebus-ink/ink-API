@@ -159,7 +159,7 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[body], notebookTags(notDeleted), noteContexts(notDeleted), tags(notDeleted), sources(notDeleted, notReferenced)]'
+        '[reader, notes(notDeleted).[body, tags(notDeleted), source(notDeleted)], notebookTags(notDeleted), noteContexts(notDeleted), tags(notDeleted), sources(notDeleted, notReferenced).[tags]]'
       )
       .modifiers({
         notDeleted (builder) {
