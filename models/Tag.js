@@ -83,7 +83,22 @@ class Tag extends BaseModel {
       return tag
     })
 
-    return await Tag.query().insert(tagArray)
+    try {
+      return await Tag.query().insert(tagArray)
+    } catch (err) {
+      // if inserting all the tags at once failed, do one at a time, ignoring errors
+      let createdTags = []
+      tagArray.forEach(async tag => {
+        try {
+          let createdTag = await this.createTag(readerId, tag)
+          createdTags.push(createdTag)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
+      return createdTags
+    }
   }
 
   async delete () /*: Promise<number> */ {

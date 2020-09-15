@@ -207,6 +207,39 @@ const test = async app => {
     await tap.equal(note.tags.length, 3)
   })
 
+  await tap.test(
+    'Create Note with existing and tag with invalid id',
+    async () => {
+      const res = await request(app)
+        .post('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            tags: [tag1, { name: 'invalidTag' }]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.tags)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const note = noteRes.body
+      await tap.ok(note.tags)
+      await tap.equal(note.tags.length, 1)
+    }
+  )
+
   await tap.test('Create Note with existing and invalid tags', async () => {
     const res = await request(app)
       .post('/notes')
@@ -306,7 +339,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 6)
+    await tap.equal(res.body.totalItems, 7)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -408,7 +441,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 6)
+      await tap.equal(res.body.totalItems, 7)
     }
   )
 

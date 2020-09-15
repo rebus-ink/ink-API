@@ -155,6 +155,42 @@ const test = async app => {
     await tap.equal(note.tags.length, 3)
   })
 
+  await tap.test(
+    'Create Note with existing tags and tags with invalid ids',
+    async () => {
+      const res = await request(app)
+        .post(`/notebooks/${notebookId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            tags: [
+              tag1,
+              { id: tag2.id + 'abc', type: 'stack', name: 'invalidTag' }
+            ]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.tags)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const note = noteRes.body
+      await tap.ok(note.tags)
+      await tap.equal(note.tags.length, 1)
+    }
+  )
+
   await tap.test('Create Note with existing and invalid tags', async () => {
     const res = await request(app)
       .post(`/notebooks/${notebookId}/notes`)
@@ -167,10 +203,7 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
-          tags: [
-            tag1,
-            { id: tag2.id + 'abc', type: 'stack', name: 'invalidTag' }
-          ]
+          tags: [tag1, { name: 'invalidTag' }]
         })
       )
 
