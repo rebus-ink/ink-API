@@ -17,18 +17,16 @@ const test = async app => {
   const notebook = await createNotebook(app, token)
   const notebookId = notebook.shortId
 
-  await tap.test('Create Note in Notebook', async () => {
+  await tap.test('Create Source in Notebook', async () => {
     const res = await request(app)
-      .post(`/notebooks/${notebookId}/notes`)
+      .post(`/notebooks/${notebookId}/sources`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
       .send(
         JSON.stringify({
-          body: {
-            content: 'this is the content of the note',
-            motivation: 'test'
-          },
+          name: 'source1',
+          type: 'Book',
           json: { property1: 'value1' }
         })
       )
@@ -38,35 +36,124 @@ const test = async app => {
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.json.property1, 'value1')
+    await tap.equal(body.name, 'source1')
+    await tap.equal(body.type, 'Book')
     await tap.ok(body.published)
-    await tap.ok(body.body)
-    await tap.ok(body.body[0].content)
-    await tap.equal(body.body[0].motivation, 'test')
 
     await tap.type(res.get('Location'), 'string')
-    await tap.equal(res.get('Location'), body.id)
+    await tap.equal(res.get('Location') + '/', body.id)
 
-    // note should show up in notebook
+    // source should show up in notebook
     const resNotebook = await request(app)
       .get(`/notebooks/${notebookId}`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
-    await tap.equal(resNotebook.body.notes.length, 1)
+    await tap.equal(resNotebook.body.sources.length, 1)
+  })
+
+  const tag1 = await createTag(app, token, { type: 'test', name: 'tagA' })
+  const tag2 = await createTag(app, token, { type: 'test', name: 'tagB' })
+
+  await tap.test('Create a source with existing tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, tag2]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and new tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 2)
+  })
+
+  await tap.test('Create a source with existing and invalid tags', async () => {
+    const res = await request(app)
+      .post(`/notebooks/${notebookId}/sources`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'Source Keyword',
+          type: 'Book',
+          tags: [tag1, { id: tag2.id + 'abc', name: 'tag3', type: 'stack' }]
+        })
+      )
+
+    await tap.equal(res.status, 201)
+    await tap.ok(res.body)
+    await tap.ok(res.body.shortId)
+
+    const resSource = await request(app)
+      .get(`/sources/${res.body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const body = resSource.body
+    await tap.ok(body.tags)
+    await tap.equal(body.tags.length, 1)
   })
 
   await tap.test(
-    'Try to create a Note in a Notebook without a body',
+    'Try to create a Source in a Notebook without a type',
     async () => {
       const res = await request(app)
-        .post(`/notebooks/${notebookId}/notes`)
+        .post(`/notebooks/${notebookId}/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            canonical: 'one'
+            name: 'source1'
           })
         )
 
@@ -76,132 +163,29 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Create Note Validation Error: body is a required property'
+        'Validation Error on Create Source: type: is a required property'
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}/notes`
+        `/notebooks/${notebookId}/sources`
       )
       await tap.type(error.details.requestBody, 'object')
-      await tap.equal(error.details.requestBody.canonical, 'one')
+      await tap.equal(error.details.requestBody.name, 'source1')
     }
   )
 
-  const tag1 = await createTag(app, token, { type: 'test', name: 'tagA' })
-  const tag2 = await createTag(app, token, { type: 'test', name: 'tagB' })
-
-  await tap.test('Create Note with existing tags', async () => {
-    const res = await request(app)
-      .post(`/notebooks/${notebookId}/notes`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(
-        JSON.stringify({
-          body: {
-            content: 'this is the content of the note',
-            motivation: 'test'
-          },
-          tags: [tag1, tag2]
-        })
-      )
-
-    const body = res.body
-    await tap.ok(body)
-    await tap.notOk(body.tags)
-
-    const noteRes = await request(app)
-      .get(`/notes/${body.shortId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    const note = noteRes.body
-    await tap.ok(note.tags)
-    await tap.equal(note.tags.length, 2)
-  })
-
-  await tap.test('Create Note with existing and new tags', async () => {
-    const res = await request(app)
-      .post(`/notebooks/${notebookId}/notes`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(
-        JSON.stringify({
-          body: {
-            content: 'this is the content of the note',
-            motivation: 'test'
-          },
-          tags: [
-            tag1,
-            { name: 'tag3', type: 'stack' },
-            { name: 'tag4', type: 'stack' }
-          ]
-        })
-      )
-
-    const body = res.body
-    await tap.notOk(body.tags)
-
-    const noteRes = await request(app)
-      .get(`/notes/${body.shortId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    const note = noteRes.body
-    await tap.ok(note.tags)
-    await tap.equal(note.tags.length, 3)
-  })
-
-  await tap.test('Create Note with existing and invalid tags', async () => {
-    const res = await request(app)
-      .post(`/notebooks/${notebookId}/notes`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-      .send(
-        JSON.stringify({
-          body: {
-            content: 'this is the content of the note',
-            motivation: 'test'
-          },
-          tags: [
-            tag1,
-            { id: tag2.id + 'abc', type: 'stack', name: 'invalidTag' }
-          ]
-        })
-      )
-
-    const body = res.body
-    await tap.notOk(body.tags)
-
-    const noteRes = await request(app)
-      .get(`/notes/${body.shortId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    const note = noteRes.body
-    await tap.ok(note.tags)
-    await tap.equal(note.tags.length, 1)
-  })
-
   await tap.test(
-    'Try to create a Note in a Notebook with an invalid json',
+    'Try to create a Source in a Notebook with an invalid json',
     async () => {
       const res = await request(app)
-        .post(`/notebooks/${notebookId}/notes`)
+        .post(`/notebooks/${notebookId}/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            body: {
-              content: 'testing!',
-              motivation: 'test'
-            },
+            name: 'source2',
+            type: 'Book',
             json: 'a string!'
           })
         )
@@ -212,11 +196,11 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create Note: json: should be object,null'
+        'Validation Error on Create Source: json: should be object,null'
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}/notes`
+        `/notebooks/${notebookId}/sources`
       )
       await tap.type(error.details.requestBody, 'object')
       await tap.equal(error.details.requestBody.json, 'a string!')
@@ -230,27 +214,25 @@ const test = async app => {
   )
 
   await tap.test(
-    'Try to create a Note for a Notebook that does not exist',
+    'Try to create a Source for a Notebook that does not exist',
     async () => {
-      const resNotesBefore = await request(app)
-        .get(`/notes`)
+      const resSourcesBefore = await request(app)
+        .get(`/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
 
-      const numberOfNotesBefore = resNotesBefore.body.items.length
+      const numberOfSourcesBefore = resSourcesBefore.body.items.length
 
       const res = await request(app)
-        .post(`/notebooks/${notebookId}abc/notes`)
+        .post(`/notebooks/${notebookId}abc/sources`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
         .send(
           JSON.stringify({
-            body: {
-              content: 'testing!',
-              motivation: 'test'
-            }
+            name: 'source2',
+            type: 'Book'
           })
         )
 
@@ -258,22 +240,22 @@ const test = async app => {
       const error = JSON.parse(res.text)
       await tap.equal(
         error.message,
-        `Create Note Error: No Notebook found with id: ${notebookId}abc`
+        `Create Source Error: No Notebook found with id: ${notebookId}abc`
       )
       await tap.equal(
         error.details.requestUrl,
-        `/notebooks/${notebookId}abc/notes`
+        `/notebooks/${notebookId}abc/sources`
       )
 
-      // note should note exist
+      // source should source exist
 
-      const resNotesAfter = await request(app)
-        .get(`/notes`)
+      const resSourcesAfter = await request(app)
+        .get(`/library`)
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
 
-      await tap.equal(resNotesAfter.body.items.length, numberOfNotesBefore)
+      await tap.equal(resSourcesAfter.body.items.length, numberOfSourcesBefore)
     }
   )
 

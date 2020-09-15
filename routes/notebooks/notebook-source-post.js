@@ -3,23 +3,23 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Note } = require('../../models/Note')
+const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:notebook-note-post')
-const { Note_Tag } = require('../../models/Note_Tag')
+const { Source_Tag } = require('../../models/Source_Tag')
 const { Tag } = require('../../models/Tag')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /notebooks/{notebookId}/notes:
+   * /notebooks/{notebookId}/sources:
    *   post:
    *     tags:
-   *       - notebook-note
-   *     description: Create a note and assign it to a Notebook
+   *       - notebook-source
+   *     description: Create a source and assign it to a Notebook
    *     security:
    *       - Bearer: []
    *     parameters:
@@ -32,14 +32,14 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/source'
    *     responses:
    *       201:
-   *         description: Successfully created Note and assigned it to Notebook
+   *         description: Successfully created Source and assigned it to Notebook
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/source'
    *       400:
    *         description: Validation error
    *       401:
@@ -47,11 +47,11 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: Notebook or Source not found
+   *         description: Notebook not found
    */
   app.use('/', router)
   router
-    .route('/notebooks/:notebookId/notes')
+    .route('/notebooks/:notebookId/sources')
     .post(jwtAuth, function (req, res, next) {
       const notebookId = req.params.notebookId
       debug('notebookId', notebookId)
@@ -85,39 +85,18 @@ module.exports = function (app) {
             )
           }
 
-          let createdNote
+          let createdSource
           try {
-            createdNote = await Note.createNoteInNotebook(
+            createdSource = await Source.createSourceInNotebook(
               reader,
               notebookId,
               body
             )
-
-            let tags
-            if (body.tags) {
-              let newTags = body.tags.filter(tag => {
-                return !tag.id
-              })
-              if (newTags) {
-                newTags = await Tag.createMultipleTags(
-                  createdNote.readerId,
-                  newTags
-                )
-              }
-              tags = body.tags.filter(tag => !!tag.id).concat(newTags)
-              let tagIds = tags.map(tag => tag.id)
-              await Note_Tag.addMultipleTagsToNote(
-                urlToId(createdNote.id),
-                tagIds
-              )
-            }
-
-            debug('created Note', createdNote)
           } catch (err) {
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
-                  `Validation Error on Create Note: ${err.message}`,
+                  `Validation Error on Create Source: ${err.message}`,
                   {
                     requestUrl: req.originalUrl,
                     requestBody: req.body,
@@ -125,22 +104,10 @@ module.exports = function (app) {
                   }
                 )
               )
-            } else if (err.message === 'no source') {
-              return next(
-                boom.notFound(
-                  `Create Note Error: No Source found with id: ${
-                    body.sourceId
-                  }`,
-                  {
-                    requestUrl: req.originalUrl,
-                    requestBody: req.body
-                  }
-                )
-              )
             } else if (err.message === 'no notebook') {
               return next(
                 boom.notFound(
-                  `Create Note Error: No Notebook found with id: ${notebookId}`,
+                  `Create Source Error: No Notebook found with id: ${notebookId}`,
                   {
                     requestUrl: req.originalUrl,
                     requestBody: req.body
@@ -157,9 +124,52 @@ module.exports = function (app) {
             }
           }
 
+          try {
+            let tags
+            if (body.tags) {
+              let newTags = body.tags.filter(tag => {
+                return !tag.id
+              })
+              if (newTags) {
+                newTags = await Tag.createMultipleTags(
+                  createdSource.readerId,
+                  newTags
+                )
+              }
+              tags = body.tags.filter(tag => !!tag.id).concat(newTags)
+              let tagIds = tags.map(tag => tag.id)
+              await Source_Tag.addMultipleTagsToSource(
+                urlToId(createdSource.id),
+                tagIds
+              )
+            }
+          } catch (err) {
+            if (err instanceof ValidationError) {
+              return next(
+                boom.badRequest(
+                  `Validation Error on Create Tags for a Source: ${
+                    err.message
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body,
+                    validation: err.data
+                  }
+                )
+              )
+            } else {
+              return next(
+                boom.badRequest(err.message, {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                })
+              )
+            }
+          }
+
           res.setHeader('Content-Type', 'application/ld+json')
-          res.setHeader('Location', createdNote.id)
-          res.status(201).end(JSON.stringify(createdNote.toJSON()))
+          res.setHeader('Location', createdSource.id)
+          res.status(201).end(JSON.stringify(createdSource.toJSON()))
         })
         .catch(err => {
           next(err)
