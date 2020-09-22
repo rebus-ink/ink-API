@@ -114,6 +114,38 @@ const test = async app => {
     await tap.equal(body.tags.length, 2)
   })
 
+  await tap.test(
+    'Create a source with existing tags and tags with invalid ids',
+    async () => {
+      const res = await request(app)
+        .post(`/notebooks/${notebookId}/sources`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            name: 'Source Keyword',
+            type: 'Book',
+            tags: [tag1, { id: tag2.id + 'abc', name: 'tag3', type: 'stack' }]
+          })
+        )
+
+      await tap.equal(res.status, 201)
+      await tap.ok(res.body)
+      await tap.ok(res.body.shortId)
+
+      const resSource = await request(app)
+        .get(`/sources/${res.body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const body = resSource.body
+      await tap.ok(body.tags)
+      await tap.equal(body.tags.length, 1)
+    }
+  )
+
   await tap.test('Create a source with existing and invalid tags', async () => {
     const res = await request(app)
       .post(`/notebooks/${notebookId}/sources`)
@@ -124,7 +156,7 @@ const test = async app => {
         JSON.stringify({
           name: 'Source Keyword',
           type: 'Book',
-          tags: [tag1, { id: tag2.id + 'abc', name: 'tag3', type: 'stack' }]
+          tags: [tag1, { name: 'tagA', type: 'test' }]
         })
       )
 
