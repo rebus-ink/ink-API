@@ -91,8 +91,6 @@ const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
-const notebookNotePost = require('./routes/notebooks/notebook-note-post')
-const notebookSourcePost = require('./routes/notebooks/notebook-source-post')
 
 const setupKnex = async skip_migrate => {
   let config
