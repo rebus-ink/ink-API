@@ -153,7 +153,7 @@ module.exports = function (app) {
           )
         }
 
-        await libraryCacheUpdate(reader.id)
+        await libraryCacheUpdate(reader.authId)
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedSource.toJSON()))

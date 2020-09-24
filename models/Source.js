@@ -520,7 +520,7 @@ class Source extends BaseModel {
 
     // exceptionally, doing this instead of in the routes because of the complexity of
     // the whole file upload thing.
-    await libraryCacheUpdate(reader.id)
+    await libraryCacheUpdate(reader.authId)
 
     return createdSource
   }

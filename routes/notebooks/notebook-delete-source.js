@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Source } = require('../../models/Notebook_Source')
 const debug = require('debug')('ink:routes:notebook-delete-source')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -75,6 +76,8 @@ module.exports = function (app) {
                 notebookId,
                 sourceId
               )
+              await libraryCacheUpdate(reader.authId)
+
               res.status(204).end()
             } catch (err) {
               debug('error: ', err.message)

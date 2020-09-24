@@ -4,7 +4,12 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createSource
+  createSource,
+  createTag,
+  addSourceToCollection,
+  createNotebook,
+  addSourceToNotebook,
+  createReadActivity
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 
@@ -145,259 +150,318 @@ const test = async () => {
     await tap.notOk(source.license)
   })
 
-  // if (process.env.REDIS_PASSWORD) {
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - not modified',
-  //     async () => {
-  //       time = new Date().getTime()
-  //       // with time at beginning - so it will be modified
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 304)
-  //       await tap.notOk(res.body)
-  //     }
-  //   )
+  if (process.env.REDIS_PASSWORD) {
+    await tap.test(
+      'Get Library with if-modified-since header - not modified',
+      async () => {
+        time = new Date().getTime()
+        // with time at beginning - so it will be modified
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 304)
+        await tap.notOk(res.body)
+      }
+    )
 
-  //   let collectionId
+    let tag = await createTag(app, token, { type: 'test', name: 'test' })
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after collection created',
-  //     async () => {
-  //       await createTag(app, token)
+    await tap.test(
+      'Get Library with if-modified-since header - after tag created',
+      async () => {
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 1)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
-  //       time = new Date().getTime()
-  //       collectionId = body.tags[0].id
-  //     }
-  //   )
+    await tap.test(
+      'Get Library with if-modified-since header - after tag updated',
+      async () => {
+        const updateRes = await request(app)
+          .put(`/tags/${tag.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              name: 'new name',
+              type: 'test',
+              id: tag.id,
+              readerId: tag.readerId
+            })
+          )
+        await tap.equal(updateRes.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after collection updated',
-  //     async () => {
-  //       await request(app)
-  //         .post(`${readerUrl}/activity`)
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .type('application/ld+json')
-  //         .send(
-  //           JSON.stringify({
-  //             type: 'Update',
-  //             object: {
-  //               id: collectionId,
-  //               name: 'new collection name'
-  //             }
-  //           })
-  //         )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 1)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
-  //       time = new Date().getTime()
-  //     }
-  //   )
+    let source = await createSource(app, token)
 
-  //   let source
+    await tap.test(
+      'Get Library with if-modified-since header - after source created',
+      async () => {
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after source created',
-  //     async () => {
-  //       source = await createSource(app, token)
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 2)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
+    await tap.test(
+      'Get Library with if-modified-since header - after source updated',
+      async () => {
+        const updateRes = await request(app)
+          .patch(`/sources/${source.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              abstract: 'new abstract!!'
+            })
+          )
+        await tap.equal(updateRes.statusCode, 200)
 
-  //       time = new Date().getTime()
-  //     }
-  //   )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after source updated',
-  //     async () => {
-  //       await request(app)
-  //         .post(`${readerUrl}/activity`)
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .type('application/ld+json')
-  //         .send(
-  //           JSON.stringify({
-  //             type: 'Update',
-  //             object: {
-  //               type: 'Source',
-  //               id: source.id,
-  //               abstract: 'new description!'
-  //             }
-  //           })
-  //         )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 2)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+    await tap.test(
+      'Get Library with if-modified-since header - after source added to collection',
+      async () => {
+        await addSourceToCollection(app, token, source.shortId, tag.id)
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
-  //       time = new Date().getTime()
-  //     }
-  //   )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after source added to collection',
-  //     async () => {
-  //       await addSourceToCollection(
-  //         app,
-  //         token,
-  //         readerId,
-  //         source.id,
-  //         collectionId
-  //       )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 2)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
+    await tap.test(
+      'Get Library with if-modified-since header - after source removed from collection',
+      async () => {
+        const deleteRes = await request(app)
+          .delete(`/sources/${source.shortId}/tags/${tag.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+        await tap.equal(deleteRes.statusCode, 204)
 
-  //       time = new Date().getTime()
-  //     }
-  //   )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after source removed from collection',
-  //     async () => {
-  //       await request(app)
-  //         .delete(
-  //           `/readers/${readerId}/sources/${urlToId(
-  //             source.id
-  //           )}/tags/${urlToId(collectionId)}`
-  //         )
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .type('application/ld+json')
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 2)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
+    await tap.test(
+      'Get Library with if-modified-since header - after source deleted',
+      async () => {
+        const deleteRes = await request(app)
+          .delete(`/sources/${source.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+        await tap.equal(deleteRes.statusCode, 204)
 
-  //       time = new Date().getTime()
-  //     }
-  //   )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after source deleted',
-  //     async () => {
-  //       await request(app)
-  //         .post(`${readerUrl}/activity`)
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .type('application/ld+json')
-  //         .send(
-  //           JSON.stringify({
-  //             type: 'Delete',
-  //             object: {
-  //               type: 'Source',
-  //               id: source.id
-  //             }
-  //           })
-  //         )
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 1)
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
-  //       await tap.equal(body.type, 'Collection')
+    await tap.test(
+      'Get Library with if-modified-since header - after tag deleted',
+      async () => {
+        const deleteRes = await request(app)
+          .delete(`/tags/${tag.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+        await tap.equal(deleteRes.statusCode, 204)
 
-  //       time = new Date().getTime()
-  //     }
-  //   )
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
 
-  //   await tap.test(
-  //     'Get Library with if-modified-since header - after collection deleted',
-  //     async () => {
-  //       await request(app)
-  //         .post(`${readerUrl}/activity`)
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .type('application/ld+json')
-  //         .send(
-  //           JSON.stringify({
-  //             type: 'Delete',
-  //             object: {
-  //               type: 'reader:Tag',
-  //               id: collectionId
-  //             }
-  //           })
-  //         )
+        const body = res.body
+        await tap.type(body, 'object')
 
-  //       const res = await request(app)
-  //         .get('/library')
-  //         .set('Host', 'reader-api.test')
-  //         .set('Authorization', `Bearer ${token}`)
-  //         .set('If-Modified-Since', time)
-  //         .type('application/ld+json')
-  //       await tap.equal(res.statusCode, 200)
+        time = new Date().getTime()
+      }
+    )
 
-  //       const body = res.body
-  //       await tap.type(body, 'object')
+    const notebook = await createNotebook(app, token, { name: 'notebook' })
 
-  //       time = new Date().getTime()
-  //     }
-  //   )
-  // }
+    await tap.test(
+      'Get Library with if-modified-since header - after source added to notebook',
+      async () => {
+        await addSourceToNotebook(app, token, source.shortId, notebook.shortId)
+
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after source removed from notebook',
+      async () => {
+        const deleteRes = await request(app)
+          .delete(`/notebooks/${notebook.shortId}/sources/${source.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+        await tap.equal(deleteRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after creating source in notebook',
+      async () => {
+        const createRes = await request(app)
+          .post(`/notebooks/${notebook.shortId}/sources`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(JSON.stringify({ name: 'source1', type: 'Book' }))
+        await tap.equal(createRes.statusCode, 201)
+
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after creating readActivity',
+      async () => {
+        await createReadActivity(app, token, source.shortId)
+
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+
+        time = new Date().getTime()
+      }
+    )
+  }
 
   await destroyDB(app)
 }
