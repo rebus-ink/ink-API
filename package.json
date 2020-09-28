@@ -83,6 +83,7 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "short-uuid": "^3.1.1",
+    "striptags": "^3.1.1",
     "swagger-jsdoc": "^3.2.9"
   },
   "standard": {

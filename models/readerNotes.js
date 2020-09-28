@@ -45,7 +45,7 @@ class ReaderNotes {
 
     if (filters.search) {
       query.where(
-        'NoteBody.content',
+        'NoteBody.formattedContent',
         'ilike',
         '%' + filters.search.toLowerCase() + '%'
       )
