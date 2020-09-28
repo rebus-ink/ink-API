@@ -115,8 +115,7 @@ module.exports = function (app) {
         }
 
         const finishedSource = createdSource.toJSON()
-
-        await libraryCacheUpdate(reader.id)
+        await libraryCacheUpdate(reader.authId)
         if (metricsQueue) {
           await metricsQueue.add({
             type: 'createSource',

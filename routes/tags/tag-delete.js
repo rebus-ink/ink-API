@@ -78,7 +78,7 @@ module.exports = function (app) {
           )
         }
 
-        await libraryCacheUpdate(reader.id)
+        await libraryCacheUpdate(reader.authId)
 
         res.status(204).end()
       })
