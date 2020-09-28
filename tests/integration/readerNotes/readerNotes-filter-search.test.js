@@ -151,6 +151,45 @@ const test = async app => {
     await tap.equal(res.body.items.length, 0)
   })
 
+  await tap.test('Search Note should ignore html tags', async () => {
+    const htmlNote1 = await createNoteSimplified({
+      body: {
+        motivation: 'highlighting',
+        content: 'background'
+      }
+    })
+    const htmlNote2 = await createNoteSimplified({
+      body: {
+        motivation: 'highlighting',
+        content: '<style background="something">abcdefg<br/>'
+      }
+    })
+
+    const res = await request(app)
+      .get(`/notes?search=background`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 200)
+    await tap.ok(res.body)
+    await tap.equal(res.body.totalItems, 1)
+    await tap.equal(res.body.items.length, 1)
+    await tap.equal(res.body.items[0].id, htmlNote1.id)
+
+    const res2 = await request(app)
+      .get(`/notes?search=abcdefg`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.equal(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+    await tap.equal(res2.body.items[0].id, htmlNote2.id)
+  })
+
   await destroyDB(app)
 }
 

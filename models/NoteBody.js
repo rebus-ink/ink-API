@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { Note } = require('./Note')
 const debug = require('debug')('ink:models:NoteBody')
+const striptags = require('striptags')
 
 /*::
 type NoteBodyType = {
@@ -41,6 +42,7 @@ class NoteBody extends BaseModel {
         id: { type: 'string' },
         noteId: { type: 'string' },
         content: { type: ['string', 'null'] },
+        formattedContent: { type: ['string', 'null'] },
         language: { type: ['string', 'null'] },
         motivation: { type: 'string' },
         readerId: { type: 'string' },
@@ -106,6 +108,7 @@ class NoteBody extends BaseModel {
       props.motivation = props.motivation.toLowerCase()
       props.noteId = noteId
       props.readerId = readerId
+      props.formattedContent = striptags(props.content)
       return props
     })
     debug('bodies to be inserted: ', bodies)
@@ -121,6 +124,7 @@ class NoteBody extends BaseModel {
     debug('**createNoteBody**')
     debug('noteBody: ', noteBody)
     debug('noteId: ', noteId, 'readerId: ', readerId)
+
     return await NoteBody.createMultipleNoteBodies([noteBody], noteId, readerId)
   }
 

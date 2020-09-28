@@ -257,7 +257,6 @@ class Note extends BaseModel {
           reader.id
         )
         createdNote.body = note.body
-        debug('added multiple bodies: ', createdNote.body)
       } else {
         await NoteBody.createNoteBody(
           note.body,
@@ -298,6 +297,7 @@ class Note extends BaseModel {
     originalNote.body = originalNote.body.map(body => {
       return {
         content: body.content,
+        formattedContent: body.formattedContent,
         motivation: body.motivation,
         language: body.language
       }
