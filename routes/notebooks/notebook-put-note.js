@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Note } = require('../../models/Notebook_Note')
 const debug = require('debug')('ink:routes:notebook-put-note')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -75,6 +76,7 @@ module.exports = function (app) {
 
           try {
             await Notebook_Note.addNoteToNotebook(notebookId, noteId)
+            await notesCacheUpdate(reader.authId)
             res.status(204).end()
           } catch (err) {
             debug('error: ', err.message)

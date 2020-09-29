@@ -9,7 +9,8 @@ const {
   createNoteContext,
   addNoteToContext,
   addNoteToCollection,
-  createTag
+  createTag,
+  createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
@@ -30,6 +31,8 @@ const test = async app => {
     )
     return await createNote(app, token, noteObj)
   }
+  const tag = await createTag(app, token, { type: 'test', name: 'some tag' })
+  const notebook = await createNotebook(app, token, { name: 'notebook1' })
 
   await tap.test('Get empty list of notes', async () => {
     const res = await request(app)
@@ -55,8 +58,8 @@ const test = async app => {
       body: { content: 'third', motivation: 'test' }
     })
 
-    const tag = await createTag(app, token, { name: 'test' })
-    await addNoteToCollection(app, token, note3.shortId, tag.id)
+    const tag2 = await createTag(app, token, { name: 'test' })
+    await addNoteToCollection(app, token, note3.shortId, tag2.id)
 
     const res = await request(app)
       .get('/notes')
@@ -155,6 +158,310 @@ const test = async app => {
     })
     await tap.equal(index, -1)
   })
+
+  if (process.env.REDIS_PASSWORD) {
+    await tap.test(
+      'Get Notes with if-modified-since header - not modified',
+      async () => {
+        time = new Date().getTime()
+        // with time at beginning - so it will be modified
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 304)
+        await tap.notOk(res.body)
+      }
+    )
+
+    // create, update, delete note
+    const newNote = await createNote(app, token)
+    const newNote2 = await createNote(app, token)
+    await tap.test(
+      'Get Library with if-modified-since header - after note created',
+      async () => {
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 6)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note updated',
+      async () => {
+        const updateRes = await request(app)
+          .put(`/notes/${newNote.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify(
+              Object.assign(newNote, {
+                body: { motivation: 'test', content: 'new content' }
+              })
+            )
+          )
+
+        await tap.equal(updateRes.statusCode, 200)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 6)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note assigned to tag',
+      async () => {
+        await addNoteToCollection(app, token, newNote.shortId, tag.id)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 6)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note removed from tag',
+      async () => {
+        const updateRes = await request(app)
+          .delete(`/notes/${newNote.shortId}/tags/${tag.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+        await tap.equal(updateRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 6)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note added to notebook',
+      async () => {
+        const updateRes = await request(app)
+          .put(`/notebooks/${notebook.shortId}/notes/${newNote.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+
+        await tap.equal(updateRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 6)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note created in notebook',
+      async () => {
+        const updateRes = await request(app)
+          .post(`/notebooks/${notebook.shortId}/notes`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              body: { motivation: 'highlighting', content: 'abc' }
+            })
+          )
+
+        await tap.equal(updateRes.statusCode, 201)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 7)
+        time = new Date().getTime()
+      }
+    )
+
+    let noteRelation
+    await tap.test(
+      'Get Library with if-modified-since header - after noteRelation is created',
+      async () => {
+        const createRes = await request(app)
+          .post(`/noteRelations`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              from: newNote2.shortId,
+              to: newNote.shortId,
+              type: 'test',
+              json: { property: 'value' }
+            })
+          )
+
+        await tap.equal(createRes.statusCode, 201)
+        noteRelation = createRes.body
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 7)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after noteRelation is updated',
+      async () => {
+        const updateRes = await request(app)
+          .put(`/noteRelations/${noteRelation.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              from: newNote2.shortId,
+              to: newNote.shortId,
+              type: 'test',
+              json: { property: 'value2' }
+            })
+          )
+
+        await tap.equal(updateRes.statusCode, 200)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 7)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after noteRelation is deleted',
+      async () => {
+        const updateRes = await request(app)
+          .delete(`/noteRelations/${noteRelation.id}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              from: newNote2.shortId,
+              to: newNote.shortId,
+              type: 'test',
+              json: { property: 'value2' }
+            })
+          )
+
+        await tap.equal(updateRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 7)
+        time = new Date().getTime()
+      }
+    )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after note removed from notebook',
+      async () => {
+        const updateRes = await request(app)
+          .delete(`/notebooks/${notebook.shortId}/notes/${newNote.shortId}`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+
+        await tap.equal(updateRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/notes')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+        await tap.equal(body.items.length, 7)
+        time = new Date().getTime()
+      }
+    )
+  }
 
   await destroyDB(app)
 }

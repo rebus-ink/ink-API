@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:note-put-tag')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -75,6 +76,7 @@ module.exports = function (app) {
 
           Note_Tag.addTagToNote(noteId, tagId)
             .then(async () => {
+              await notesCacheUpdate(reader.authId)
               res.status(204).end()
             })
             .catch(err => {

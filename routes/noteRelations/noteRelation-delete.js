@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { NoteRelation } = require('../../models/NoteRelation')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:noteRelation-delete')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -80,6 +81,7 @@ module.exports = function (app) {
           )
         }
 
+        await notesCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(204).end()
       })

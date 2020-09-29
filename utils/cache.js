@@ -5,6 +5,8 @@ const { urlToId } = require('./utils')
 // the cache is not used in pull requests because travis does not have access to the redis password
 let libraryCacheGet = async () => Promise.resolve()
 let libraryCacheUpdate = () => undefined
+let notesCacheGet = async () => Promise.resolve()
+let notesCacheUpdate = () => undefined
 let quitCache = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
@@ -34,9 +36,26 @@ if (process.env.REDIS_PASSWORD) {
     return await getAsync(`${readerId}-library`)
   }
 
+  notesCacheUpdate = async readerId => {
+    readerId = urlToId(readerId)
+    return await setASync(`${readerId}-notes`, new Date().getTime(), 'EX', 3600)
+  }
+
+  notesCacheGet = async (readerId, check) => {
+    if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
+    readerId = urlToId(readerId)
+    return await getAsync(`${readerId}-notes`)
+  }
+
   quitCache = () => {
     client.quit()
   }
 }
 
-module.exports = { libraryCacheUpdate, libraryCacheGet, quitCache }
+module.exports = {
+  libraryCacheUpdate,
+  libraryCacheGet,
+  quitCache,
+  notesCacheGet,
+  notesCacheUpdate
+}
