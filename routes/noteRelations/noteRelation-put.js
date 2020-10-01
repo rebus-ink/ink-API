@@ -9,6 +9,7 @@ const { ValidationError } = require('objection')
 const { NoteRelation } = require('../../models/NoteRelation')
 const { urlToId, checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:noteRelation-put')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -197,7 +198,7 @@ module.exports = function (app) {
             })
           )
         }
-
+        await notesCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedNoteRelation.toJSON()))
       })

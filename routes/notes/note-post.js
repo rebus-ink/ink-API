@@ -12,6 +12,7 @@ const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -126,6 +127,8 @@ module.exports = function (app) {
             readerId: createdNote.readerId
           })
         }
+
+        await notesCacheUpdate(reader.authId)
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', createdNote.id)

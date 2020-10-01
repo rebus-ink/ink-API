@@ -9,6 +9,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-batchUpdate')
+const { libraryCacheUpdate } = require('../../utils/cache')
 
 const batchUpdateSimpleProperties = [
   'type',
@@ -175,12 +176,14 @@ module.exports = function (app) {
                 index++
               }
               debug('multiple status', status)
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
                 .end(JSON.stringify({ status: status.concat(errors) }))
             } else {
               // if all went well...
+              await libraryCacheUpdate(reader.authId)
               debug('all went well, one status 204')
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -253,9 +256,11 @@ module.exports = function (app) {
             const result = await Source.batchUpdateAddArrayProperty(req.body)
             debug('result for add array property: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -273,9 +278,11 @@ module.exports = function (app) {
               !_.find(result, { status: 400 }) &&
               errors.length === 0
             ) {
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -295,9 +302,12 @@ module.exports = function (app) {
               !_.find(result, { status: 400 }) &&
               errors.length === 0
             ) {
+              await libraryCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
+              await libraryCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -353,9 +363,13 @@ module.exports = function (app) {
               )
               debug('result remove array property: ', result)
               if (!_.find(result, { status: 404 }) && errors.length === 0) {
+                await libraryCacheUpdate(reader.authId)
+
                 res.setHeader('Content-Type', 'application/ld+json')
                 res.status(204).end()
               } else {
+                await libraryCacheUpdate(reader.authId)
+
                 res.setHeader('Content-Type', 'application/ld+json')
                 res
                   .status(207)
@@ -389,9 +403,13 @@ module.exports = function (app) {
             const result = await Source.batchUpdateRemoveAttribution(req.body)
             debug('result for remove attribution: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
+              await libraryCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
+              await libraryCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -411,9 +429,13 @@ module.exports = function (app) {
               !_.find(result, { status: 400 }) &&
               errors.length === 0
             ) {
+              await libraryCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
+              await libraryCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)

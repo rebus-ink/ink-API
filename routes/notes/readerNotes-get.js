@@ -5,6 +5,7 @@ const { ReaderNotes } = require('../../models/readerNotes')
 const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
+const { notesCacheGet } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:readerNotes-get')
 
 module.exports = app => {
@@ -118,6 +119,11 @@ module.exports = app => {
    *         schema:
    *           type: boolean
    *         description: modifier for the orderBy query to reverse the order.
+   *       - in: header
+   *         name: If-Modified-Since
+   *         schema:
+   *           type: string
+   *         description: a timestamp of the last response
    *     security:
    *       - Bearer: []
    *     produces:
@@ -178,7 +184,22 @@ module.exports = app => {
         )
       }
       let returnedReader
-      ReaderNotes.getNotes(req.user, req.query.limit, req.skip, filters)
+      notesCacheGet(req.user, !!req.headers['if-modified-since'])
+        .then(value => {
+          if (
+            value &&
+            req.headers['if-modified-since'] &&
+            req.headers['if-modified-since'] > value
+          ) {
+            res.status(304)
+          }
+          return ReaderNotes.getNotes(
+            req.user,
+            req.query.limit,
+            req.skip,
+            filters
+          )
+        })
         .then(reader => {
           if (!reader || reader.deleted) {
             return next(

@@ -10,6 +10,7 @@ const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-put')
+const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -125,6 +126,7 @@ module.exports = function (app) {
           await Note_Tag.replaceTagsForNote(urlToId(updatedNote.id), tagIds)
         }
 
+        await notesCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedNote.toJSON()))
       })

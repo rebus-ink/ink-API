@@ -461,6 +461,39 @@ const test = async () => {
         time = new Date().getTime()
       }
     )
+
+    await tap.test(
+      'Get Library with if-modified-since header - after batch update',
+      async () => {
+        const updateRes = await request(app)
+          .patch(`/sources/batchUpdate`)
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .type('application/ld+json')
+          .send(
+            JSON.stringify({
+              sources: [source.shortId],
+              operation: 'replace',
+              property: 'type',
+              value: 'Article'
+            })
+          )
+        await tap.equal(updateRes.statusCode, 204)
+
+        const res = await request(app)
+          .get('/library')
+          .set('Host', 'reader-api.test')
+          .set('Authorization', `Bearer ${token}`)
+          .set('If-Modified-Since', time)
+          .type('application/ld+json')
+        await tap.equal(res.statusCode, 200)
+
+        const body = res.body
+        await tap.type(body, 'object')
+
+        time = new Date().getTime()
+      }
+    )
   }
 
   await destroyDB(app)
