@@ -12,7 +12,7 @@ const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
-const { notesCacheUpdate } = require('../../utils/cache')
+const { notesCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -115,6 +115,7 @@ module.exports = function (app) {
               createdNote.readerId,
               newTags
             )
+            await tagsCacheUpdate(reader.authId)
           }
           tags = body.tags.filter(tag => !!tag.id).concat(newTags)
           let tagIds = tags.map(tag => tag.id)

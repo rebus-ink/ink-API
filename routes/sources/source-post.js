@@ -7,7 +7,7 @@ const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const { libraryCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-post')
 const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
@@ -105,6 +105,7 @@ module.exports = function (app) {
               createdSource.readerId,
               newTags
             )
+            await tagsCacheUpdate(reader.authId)
           }
           tags = body.tags.filter(tag => !!tag.id).concat(newTags)
           let tagIds = tags.map(tag => tag.id)

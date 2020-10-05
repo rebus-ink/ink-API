@@ -5,6 +5,7 @@ const { Tag } = require('../../models/Tag')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
+const { tagsCacheGet } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:tags-get')
 
 module.exports = function (app) {
@@ -47,13 +48,25 @@ module.exports = function (app) {
               })
             )
           }
-          let tags = await Tag.byReaderId(urlToId(reader.id))
-          debug('tags retrieved: ', tags)
+          const cacheValue = await tagsCacheGet(
+            req.user,
+            !!req.headers['if-modified-since']
+          )
+          if (
+            cacheValue &&
+            req.headers['if-modified-since'] &&
+            req.headers['if-modified-since'] > cacheValue
+          ) {
+            res.status(304).end()
+          } else {
+            let tags = await Tag.byReaderId(urlToId(reader.id))
+            debug('tags retrieved: ', tags)
 
-          tags = tags.filter(tag => !tag.deleted).map(tag => tag.toJSON())
-          debug('tags after filtering: ', tags)
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.end(JSON.stringify(tags))
+            tags = tags.filter(tag => !tag.deleted).map(tag => tag.toJSON())
+            debug('tags after filtering: ', tags)
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.end(JSON.stringify(tags))
+          }
         })
         .catch(next)
     }
