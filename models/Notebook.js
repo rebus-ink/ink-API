@@ -172,6 +172,32 @@ class Notebook extends BaseModel {
       .whereNull('deleted')
   }
 
+  static async createMultipleNotebooks (
+    readerId /*: string */,
+    notebooks /*: Array<any> */
+  ) /*: Promise<any> */ {
+    const notebookArray = notebooks.map(notebook => {
+      return this._formatNotebook(notebook, readerId)
+    })
+
+    try {
+      return await Notebook.query().insert(notebookArray)
+    } catch (err) {
+      // if inserting all the notebooks at once failed, do one at a time, ignoring errors
+      let createdNotebooks = []
+      notebookArray.forEach(async notebook => {
+        try {
+          let createdNotebook = await this.createNotebook(readerId, notebook)
+          createdNotebooks.push(createdNotebook)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
+      return createdNotebooks
+    }
+  }
+
   static async applyFilters (query /*: any */, filters /*: any */) {
     debug('**applyFilters**')
     debug('filters: ', filters)

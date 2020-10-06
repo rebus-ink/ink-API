@@ -5,7 +5,8 @@ const {
   createUser,
   destroyDB,
   createSource,
-  createTag
+  createTag,
+  createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -142,6 +143,8 @@ const test = async app => {
     }
   )
 
+  // ------------------------------ WITH TAGS -----------------------
+
   await tap.test('Create Note with existing tags', async () => {
     const res = await request(app)
       .post('/notes')
@@ -273,6 +276,141 @@ const test = async app => {
     await tap.equal(note.tags.length, 1)
   })
 
+  // ------------------------------ WITH NOTEBOOKS -----------------------
+
+  const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+  const notebook2 = await createNotebook(app, token, { name: 'notebook2' })
+
+  await tap.test('Create Note with existing notebooks', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          },
+          notebooks: [notebook1, notebook2]
+        })
+      )
+
+    const body = res.body
+    await tap.ok(body)
+    await tap.notOk(body.notebooks)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const note = noteRes.body
+    await tap.ok(note.notebooks)
+    await tap.equal(note.notebooks.length, 2)
+  })
+
+  await tap.test('Create Note with existing and new notebooks', async () => {
+    const res = await request(app)
+      .post('/notes')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          },
+          notebooks: [notebook1, { name: 'notebook3' }, { name: 'notebook4' }]
+        })
+      )
+
+    const body = res.body
+    await tap.notOk(body.notebooks)
+
+    const noteRes = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const note = noteRes.body
+    await tap.ok(note.notebooks)
+    await tap.equal(note.notebooks.length, 3)
+  })
+
+  await tap.test(
+    'Create Note with existing and notebook with invalid id',
+    async () => {
+      const res = await request(app)
+        .post('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            notebooks: [notebook1, { id: notebook2.shortId + 'abc' }]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const note = noteRes.body
+      await tap.ok(note.notebooks)
+      await tap.equal(note.notebooks.length, 1)
+    }
+  )
+
+  await tap.test(
+    'Create Note with existing and invalid notebooks',
+    async () => {
+      const res = await request(app)
+        .post('/notes')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            notebooks: [
+              notebook1,
+              { status: 'test' } // missing name
+            ]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const note = noteRes.body
+      await tap.ok(note.notebooks)
+      await tap.equal(note.notebooks.length, 1)
+    }
+  )
+
   // ------------------------------------- VALIDATION ERRORS ------------------------------------
 
   await tap.test('Try to create a Note without a body', async () => {
@@ -339,7 +477,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 7)
+    await tap.equal(res.body.totalItems, 12)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -441,7 +579,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 7)
+      await tap.equal(res.body.totalItems, 12)
     }
   )
 

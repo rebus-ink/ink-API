@@ -12,7 +12,12 @@ const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
-const { notesCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
+const {
+  notesCacheUpdate,
+  tagsCacheUpdate /* notebooksCacheUpdate */
+} = require('../../utils/cache')
+const { Notebook } = require('../../models/Notebook')
+const { Notebook_Note } = require('../../models/Notebook_Note')
 
 module.exports = function (app) {
   /**
@@ -116,10 +121,33 @@ module.exports = function (app) {
               newTags
             )
             await tagsCacheUpdate(reader.authId)
+            // await notebooksCacheUpdate(reader.authId)
           }
           tags = body.tags.filter(tag => !!tag.id).concat(newTags)
           let tagIds = tags.map(tag => tag.id)
           await Note_Tag.addMultipleTagsToNote(urlToId(createdNote.id), tagIds)
+        }
+
+        let notebooks
+        if (body.notebooks) {
+          let newNotebooks = body.notebooks.filter(notebook => {
+            return !notebook.id
+          })
+          if (newNotebooks) {
+            newNotebooks = await Notebook.createMultipleNotebooks(
+              createdNote.readerId,
+              newNotebooks
+            )
+            // await notebooksCacheUpdate(reader.authId)
+          }
+          notebooks = body.notebooks
+            .filter(notebook => !!notebook.id)
+            .concat(newNotebooks)
+          let notebookIds = notebooks.map(notebook => notebook.id)
+          await Notebook_Note.addMultipleNotebooksToNote(
+            urlToId(createdNote.id),
+            notebookIds
+          )
         }
 
         if (metricsQueue) {

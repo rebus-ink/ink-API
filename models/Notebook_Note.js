@@ -50,6 +50,33 @@ class Notebook_Note extends BaseModel {
     }
   }
 
+  /**
+   * warning: does not throw errors
+   */
+  static async addMultipleNotebooksToNote (
+    noteId /*: string */,
+    notebooks /*: Array<string> */
+  ) {
+    const list = notebooks.map(notebook => {
+      return { noteId, notebookId: urlToId(notebook) }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Notebook_Note.query().insert(list)
+    } catch (err) {
+      // if inserting all at once failed, insert one at a time and ignore errors
+      list.forEach(async item => {
+        try {
+          await Notebook_Note.query().insert(item)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
+    }
+  }
+
   static async removeNoteFromNotebook (
     notebookId /*: string */,
     noteId /*: string */
