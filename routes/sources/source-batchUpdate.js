@@ -9,7 +9,10 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-batchUpdate')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 
 const batchUpdateSimpleProperties = [
   'type',
@@ -177,6 +180,8 @@ module.exports = function (app) {
               }
               debug('multiple status', status)
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -184,6 +189,8 @@ module.exports = function (app) {
             } else {
               // if all went well...
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               debug('all went well, one status 204')
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
@@ -257,10 +264,14 @@ module.exports = function (app) {
             debug('result for add array property: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -279,10 +290,14 @@ module.exports = function (app) {
               errors.length === 0
             ) {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)
@@ -303,10 +318,13 @@ module.exports = function (app) {
               errors.length === 0
             ) {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
 
               res.setHeader('Content-Type', 'application/ld+json')
               res
@@ -364,11 +382,13 @@ module.exports = function (app) {
               debug('result remove array property: ', result)
               if (!_.find(result, { status: 404 }) && errors.length === 0) {
                 await libraryCacheUpdate(reader.authId)
+                await notebooksCacheUpdate(reader.authId)
 
                 res.setHeader('Content-Type', 'application/ld+json')
                 res.status(204).end()
               } else {
                 await libraryCacheUpdate(reader.authId)
+                await notebooksCacheUpdate(reader.authId)
 
                 res.setHeader('Content-Type', 'application/ld+json')
                 res
@@ -404,11 +424,13 @@ module.exports = function (app) {
             debug('result for remove attribution: ', result)
             if (!_.find(result, { status: 404 }) && errors.length === 0) {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
 
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
 
               res.setHeader('Content-Type', 'application/ld+json')
               res
@@ -430,12 +452,13 @@ module.exports = function (app) {
               errors.length === 0
             ) {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
 
               res.setHeader('Content-Type', 'application/ld+json')
               res.status(204).end()
             } else {
               await libraryCacheUpdate(reader.authId)
-
+              await notebooksCacheUpdate(reader.authId)
               res.setHeader('Content-Type', 'application/ld+json')
               res
                 .status(207)

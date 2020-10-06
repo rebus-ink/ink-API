@@ -4,7 +4,10 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-put-tag')
@@ -77,6 +80,7 @@ module.exports = function (app) {
           Source_Tag.addTagToSource(sourceId, tagId)
             .then(async () => {
               await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
               res.status(204).end()
             })
             .catch(err => {

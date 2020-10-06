@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { Notebook } = require('../../models/Notebook')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:notebook-delete')
+const { notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -77,6 +78,7 @@ module.exports = function (app) {
           )
         }
 
+        await notebooksCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(204).end()
       })

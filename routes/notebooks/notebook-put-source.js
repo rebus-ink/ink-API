@@ -7,7 +7,10 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Source } = require('../../models/Notebook_Source')
 const debug = require('debug')('ink:routes:notebook-put-source')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -77,6 +80,7 @@ module.exports = function (app) {
           try {
             await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
             await libraryCacheUpdate(reader.authId)
+            await notebooksCacheUpdate(reader.authId)
             res.status(204).end()
           } catch (err) {
             debug('error', err.message)

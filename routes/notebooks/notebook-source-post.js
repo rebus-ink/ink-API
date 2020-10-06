@@ -11,6 +11,7 @@ const { checkOwnership, urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:notebook-note-post')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { Tag } = require('../../models/Tag')
+const { notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -166,7 +167,7 @@ module.exports = function (app) {
               )
             }
           }
-
+          await notebooksCacheUpdate(reader.authId)
           res.setHeader('Content-Type', 'application/ld+json')
           res.setHeader('Location', createdSource.id)
           res.status(201).end(JSON.stringify(createdSource.toJSON()))

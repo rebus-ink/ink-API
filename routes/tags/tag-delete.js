@@ -5,7 +5,7 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
-const { libraryCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
+const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:tag-delete')
 
@@ -80,6 +80,7 @@ module.exports = function (app) {
 
         await libraryCacheUpdate(reader.authId)
         await tagsCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
 
         res.status(204).end()
       })

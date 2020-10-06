@@ -7,7 +7,7 @@ const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
+const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:tag-post')
 
 module.exports = function (app) {
@@ -92,6 +92,7 @@ module.exports = function (app) {
 
         await tagsCacheUpdate(reader.authId)
         await libraryCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdTag.toJSON()))
       })

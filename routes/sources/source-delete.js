@@ -6,7 +6,10 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-delete')
 
 module.exports = function (app) {
@@ -88,6 +91,8 @@ module.exports = function (app) {
         }
 
         await libraryCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
+
         res.status(204).end()
       })
       .catch(err => {

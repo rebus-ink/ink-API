@@ -9,6 +9,7 @@ const { ValidationError } = require('objection')
 const { Notebook } = require('../../models/Notebook')
 const debug = require('debug')('ink:routes:notebook-post')
 const { metricsQueue } = require('../../utils/metrics')
+const { notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -94,6 +95,7 @@ module.exports = function (app) {
             readerId: createdNotebook.readerId
           })
         }
+        await notebooksCacheUpdate(reader.authId)
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(201).end(JSON.stringify(createdNotebook.toJSON()))

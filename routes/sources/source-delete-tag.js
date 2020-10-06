@@ -4,7 +4,10 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-delete-tag')
@@ -73,6 +76,7 @@ module.exports = function (app) {
 
             Source_Tag.removeTagFromSource(sourceId, tagId)
               .then(async () => {
+                await notebooksCacheUpdate(reader.authId)
                 await libraryCacheUpdate(reader.authId)
                 res.status(204).end()
               })

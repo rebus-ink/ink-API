@@ -6,7 +6,10 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-patch')
 const { Tag } = require('../../models/Tag')
@@ -154,6 +157,7 @@ module.exports = function (app) {
         }
 
         await libraryCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedSource.toJSON()))
