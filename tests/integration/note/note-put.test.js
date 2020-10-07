@@ -338,6 +338,36 @@ const test = async app => {
   )
 
   await tap.test(
+    'Update notebooks for a note - if no notebooks property, should not update notebooks',
+    async () => {
+      const newNote = Object.assign(note, {
+        json: { property: 'something' }
+      })
+
+      const res = await request(app)
+        .put(`/notes/${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify(newNote))
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const noteRes = await request(app)
+        .get(`/notes/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const noteBody = noteRes.body
+      await tap.ok(noteBody.notebooks)
+      await tap.equal(noteBody.notebooks.length, 1)
+    }
+  )
+
+  await tap.test(
     'Update notebookss for a note - empty array = delete existing tags',
     async () => {
       const newNote = Object.assign(note, {

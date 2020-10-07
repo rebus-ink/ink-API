@@ -146,6 +146,7 @@ module.exports = function (app) {
             urlToId(updatedNote.id),
             notebookIds
           )
+          // todo: add notebooks cache update
         }
 
         await notesCacheUpdate(reader.authId)
