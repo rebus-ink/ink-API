@@ -11,6 +11,8 @@ const { Note_Tag } = require('../../models/Note_Tag')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-put')
 const { notesCacheUpdate } = require('../../utils/cache')
+const { Notebook } = require('../../models/Notebook')
+const { Notebook_Note } = require('../../models/Notebook_Note')
 
 module.exports = function (app) {
   /**
@@ -124,6 +126,26 @@ module.exports = function (app) {
           let tags = req.body.tags.filter(tag => !!tag.id).concat(newTags)
           let tagIds = tags.map(tag => tag.id)
           await Note_Tag.replaceTagsForNote(urlToId(updatedNote.id), tagIds)
+        }
+
+        if (req.body.notebooks) {
+          let newNotebooks = req.body.notebooks.filter(notebook => {
+            return !notebook.id
+          })
+          if (newNotebooks.length) {
+            newNotebooks = await Notebook.createMultipleNotebooks(
+              updatedNote.readerId,
+              newNotebooks
+            )
+          }
+          let notebooks = req.body.notebooks
+            .filter(notebook => !!notebook.id)
+            .concat(newNotebooks)
+          let notebookIds = notebooks.map(notebook => urlToId(notebook.id))
+          await Notebook_Note.replaceNotebooksForNote(
+            urlToId(updatedNote.id),
+            notebookIds
+          )
         }
 
         await notesCacheUpdate(reader.authId)

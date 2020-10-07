@@ -50,6 +50,24 @@ class Notebook_Note extends BaseModel {
     }
   }
 
+  static async replaceNotebooksForNote (
+    noteId /*: string */,
+    notebooks /*: Array<string> */
+  ) /*: Promise<any> */ {
+    await this.deleteNotebooksOfNote(noteId)
+    return await this.addMultipleNotebooksToNote(noteId, notebooks)
+  }
+
+  static async deleteNotebooksOfNote (
+    noteId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!noteId) return new Error('no note')
+
+    return await Notebook_Note.query()
+      .delete()
+      .where({ noteId: urlToId(noteId) })
+  }
+
   /**
    * warning: does not throw errors
    */
