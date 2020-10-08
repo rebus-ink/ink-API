@@ -569,7 +569,7 @@ class Source extends BaseModel {
     const source = await Source.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, replies(notDeleted), tags(notDeleted), attributions, readActivities(latestFirst)]'
+        '[reader, replies(notDeleted), tags(notDeleted), attributions, readActivities(latestFirst), notebooks]'
       )
       .modifiers({
         notDeleted (builder) {

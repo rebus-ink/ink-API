@@ -52,6 +52,33 @@ class Notebook_Source extends BaseModel {
     }
   }
 
+  /**
+   * warning: does not throw errors
+   */
+  static async addMultipleNotebooksToSource (
+    sourceId /*: string */,
+    notebooks /*: Array<string> */
+  ) {
+    const list = notebooks.map(notebook => {
+      return { sourceId, notebookId: urlToId(notebook) }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Notebook_Source.query().insert(list)
+    } catch (err) {
+      // if inserting all at once failed, insert one at a time and ignore errors
+      list.forEach(async item => {
+        try {
+          await Notebook_Source.query().insert(item)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
+    }
+  }
+
   static async removeSourceFromNotebook (
     notebookId /*: string */,
     sourceId /*: string */

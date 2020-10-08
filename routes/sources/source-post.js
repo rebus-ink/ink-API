@@ -13,6 +13,8 @@ const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { urlToId } = require('../../utils/utils')
+const { Notebook } = require('../../models/Notebook')
+const { Notebook_Source } = require('../../models/Notebook_Source')
 
 module.exports = function (app) {
   /**
@@ -112,6 +114,28 @@ module.exports = function (app) {
           await Source_Tag.addMultipleTagsToSource(
             urlToId(createdSource.id),
             tagIds
+          )
+        }
+
+        let notebooks
+        if (body.notebooks) {
+          let newNotebooks = body.notebooks.filter(notebook => {
+            return !notebook.id
+          })
+          if (newNotebooks) {
+            newNotebooks = await Notebook.createMultipleNotebooks(
+              createdSource.readerId,
+              newNotebooks
+            )
+            // await notebooksCacheUpdate(reader.authId)
+          }
+          notebooks = body.notebooks
+            .filter(notebook => !!notebook.id)
+            .concat(newNotebooks)
+          let notebookIds = notebooks.map(notebook => notebook.id)
+          await Notebook_Source.addMultipleNotebooksToSource(
+            urlToId(createdSource.id),
+            notebookIds
           )
         }
 
