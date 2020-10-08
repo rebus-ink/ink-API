@@ -5,7 +5,8 @@ const {
   createUser,
   destroyDB,
   createSource,
-  createTag
+  createTag,
+  createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -383,6 +384,8 @@ const test = async app => {
     }
   )
 
+  // ------------------------------------ TAGS ------------------
+
   await tap.test('Update tags for a source - add tags', async () => {
     const res = await request(app)
       .patch(`/sources/${sourceId}`)
@@ -483,6 +486,152 @@ const test = async app => {
       await tap.equal(sourceBody.tags.length, 0)
     }
   )
+
+  const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+  const notebook2 = await createNotebook(app, token, { name: 'notebook2' })
+  const notebook3 = await createNotebook(app, token, { name: 'notebook3' })
+  // ---------------------------- NOTEBOOKS ----------------
+
+  await tap.test('Update notebooks for a note - add notebooks', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(JSON.stringify({ notebooks: [notebook1, notebook2] }))
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.notebooks)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const sourceBody = sourceRes.body
+    await tap.ok(sourceBody.notebooks)
+    await tap.equal(sourceBody.notebooks.length, 2)
+  })
+
+  await tap.test('Update tags for a source - replace notebooks', async () => {
+    const res = await request(app)
+      .patch(`/sources/${sourceId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          notebooks: [notebook2, notebook3, { name: 'notebook4' }]
+        })
+      )
+
+    await tap.equal(res.statusCode, 200)
+    const body = res.body
+    await tap.notOk(body.notebooks)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const sourceBody = sourceRes.body
+    await tap.ok(sourceBody.notebooks)
+    await tap.equal(sourceBody.notebooks.length, 3)
+  })
+
+  await tap.test(
+    'Update notebooks for a source - ignore invalid tags',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/${sourceId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            notebooks: [
+              notebook3,
+              { id: notebook2.id + 'abc', name: 'notebook3' }
+            ]
+          })
+        )
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const sourceBody = sourceRes.body
+      await tap.ok(sourceBody.notebooks)
+      await tap.equal(sourceBody.notebooks.length, 1)
+    }
+  )
+
+  await tap.test(
+    'Update notebooks for a source - if no notebooks property, should not update notebooks',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/${sourceId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            json: { property: 'something' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const sourceBody = sourceRes.body
+      await tap.ok(sourceBody.notebooks)
+      await tap.equal(sourceBody.notebooks.length, 1)
+    }
+  )
+
+  await tap.test(
+    'Update notebookss for a note - empty array = delete existing tags',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/${sourceId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ notebooks: [] }))
+
+      await tap.equal(res.statusCode, 200)
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const sourceBody = sourceRes.body
+      await tap.ok(sourceBody.notebooks)
+      await tap.equal(sourceBody.notebooks.length, 0)
+    }
+  )
+
+  // --------------------------------- VALIDATION ERROR------------------
 
   await tap.test('Try to update a Source to an invalid value', async () => {
     const res = await request(app)

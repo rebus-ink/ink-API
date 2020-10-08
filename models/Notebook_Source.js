@@ -52,6 +52,24 @@ class Notebook_Source extends BaseModel {
     }
   }
 
+  static async replaceNotebooksForSource (
+    sourceId /*: string */,
+    notebooks /*: Array<string> */
+  ) /*: Promise<any> */ {
+    await this.deleteNotebooksOfSource(sourceId)
+    return await this.addMultipleNotebooksToSource(sourceId, notebooks)
+  }
+
+  static async deleteNotebooksOfSource (
+    sourceId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!sourceId) return new Error('no source')
+
+    return await Notebook_Source.query()
+      .delete()
+      .where({ sourceId: urlToId(sourceId) })
+  }
+
   /**
    * warning: does not throw errors
    */

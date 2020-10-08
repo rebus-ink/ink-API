@@ -11,6 +11,8 @@ const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:source-patch')
 const { Tag } = require('../../models/Tag')
 const { Source_Tag } = require('../../models/Source_Tag')
+const { Notebook } = require('../../models/Notebook')
+const { Notebook_Source } = require('../../models/Notebook_Source')
 const { urlToId } = require('../../utils/utils')
 
 module.exports = function (app) {
@@ -151,6 +153,27 @@ module.exports = function (app) {
             urlToId(updatedSource.id),
             tagIds
           )
+        }
+
+        if (req.body.notebooks) {
+          let newNotebooks = req.body.notebooks.filter(notebook => {
+            return !notebook.id
+          })
+          if (newNotebooks.length) {
+            newNotebooks = await Notebook.createMultipleNotebooks(
+              updatedSource.readerId,
+              newNotebooks
+            )
+          }
+          let notebooks = req.body.notebooks
+            .filter(notebook => !!notebook.id)
+            .concat(newNotebooks)
+          let notebookIds = notebooks.map(notebook => urlToId(notebook.id))
+          await Notebook_Source.replaceNotebooksForSource(
+            urlToId(updatedSource.id),
+            notebookIds
+          )
+          // todo: add notebooks cache update
         }
 
         await libraryCacheUpdate(reader.authId)
