@@ -4,7 +4,8 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createTag
+  createTag,
+  createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -447,6 +448,133 @@ const test = async app => {
       const body = resSource.body
       await tap.ok(body.tags)
       await tap.equal(body.tags.length, 1)
+    }
+  )
+
+  // ------------------------------ WITH NOTEBOOKS -----------------------
+
+  const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+  const notebook2 = await createNotebook(app, token, { name: 'notebook2' })
+
+  await tap.test('Create Source with existing notebooks', async () => {
+    const res = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'source1',
+          type: 'Book',
+          notebooks: [notebook1, notebook2]
+        })
+      )
+
+    const body = res.body
+    await tap.ok(body)
+    await tap.notOk(body.notebooks)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source = sourceRes.body
+    await tap.ok(source.notebooks)
+    await tap.equal(source.notebooks.length, 2)
+  })
+
+  await tap.test('Create Source with existing and new notebooks', async () => {
+    const res = await request(app)
+      .post('/sources')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          name: 'source2',
+          type: 'Book',
+          notebooks: [notebook1, { name: 'notebook3' }, { name: 'notebook4' }]
+        })
+      )
+
+    const body = res.body
+    await tap.notOk(body.notebooks)
+
+    const sourceRes = await request(app)
+      .get(`/sources/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source = sourceRes.body
+    await tap.ok(source.notebooks)
+    await tap.equal(source.notebooks.length, 3)
+  })
+
+  await tap.test(
+    'Create Source with existing and notebook with invalid id',
+    async () => {
+      const res = await request(app)
+        .post('/sources')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            name: 'source3',
+            type: 'Book',
+            notebooks: [notebook1, { id: notebook2.shortId + 'abc' }]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const source = sourceRes.body
+      await tap.ok(source.notebooks)
+      await tap.equal(source.notebooks.length, 1)
+    }
+  )
+
+  await tap.test(
+    'Create Source with existing and invalid notebooks',
+    async () => {
+      const res = await request(app)
+        .post('/sources')
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            name: 'source4',
+            type: 'Book',
+            notebooks: [
+              notebook1,
+              { status: 'test' } // missing name
+            ]
+          })
+        )
+
+      const body = res.body
+      await tap.notOk(body.notebooks)
+
+      const sourceRes = await request(app)
+        .get(`/sources/${body.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const source = sourceRes.body
+      await tap.ok(source.notebooks)
+      await tap.equal(source.notebooks.length, 1)
     }
   )
 
