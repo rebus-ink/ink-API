@@ -100,6 +100,8 @@ const test = async app => {
     await tap.equal(body.notebookTags[0].id, notebookTag.id)
     await tap.equal(body.sources.length, 1)
     await tap.equal(body.sources[0].shortId, source.shortId)
+    await tap.ok(body.sources[0].author)
+    await tap.equal(body.sources[0].author.length, 1)
     await tap.equal(body.noteContexts.length, 1)
     await tap.equal(body.noteContexts[0].shortId, notebookNoteContext.shortId)
   })
