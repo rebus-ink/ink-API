@@ -9,6 +9,8 @@ let notesCacheGet = async () => Promise.resolve()
 let notesCacheUpdate = () => undefined
 let tagsCacheGet = async () => Promise.resolve()
 let tagsCacheUpdate = () => undefined
+let notebooksCacheUpdate = () => undefined
+let notebooksCacheGet = async () => Promise.resolve()
 let quitCache = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
@@ -57,6 +59,19 @@ if (process.env.REDIS_PASSWORD) {
     if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
     return await getAsync(`${readerId}-tags`)
   }
+  notebooksCacheUpdate = async readerId => {
+    return await setASync(
+      `${readerId}-notebooks`,
+      new Date().getTime(),
+      'EX',
+      3600
+    )
+  }
+
+  notebooksCacheGet = async (readerId, check) => {
+    if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
+    return await getAsync(`${readerId}-notebooks`)
+  }
 
   quitCache = () => {
     client.quit()
@@ -70,5 +85,7 @@ module.exports = {
   notesCacheGet,
   notesCacheUpdate,
   tagsCacheGet,
-  tagsCacheUpdate
+  tagsCacheUpdate,
+  notebooksCacheGet,
+  notebooksCacheUpdate
 }

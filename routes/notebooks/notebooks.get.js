@@ -7,6 +7,7 @@ const { urlToId } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
 const paginate = require('../_middleware/paginate')
 const debug = require('debug')('ink:routes:notebooks-get')
+const { notebooksCacheGet } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -98,32 +99,44 @@ module.exports = function (app) {
               })
             )
           }
-          let notebooks = await Notebook.byReader(
-            urlToId(reader.id),
-            req.query.limit,
-            req.skip,
-            filters
+          const cacheValue = await notebooksCacheGet(
+            req.user,
+            !!req.headers['if-modified-since']
           )
-          debug('notebooks retrieved: ', notebooks)
-
-          let count
-          if (notebooks.length < req.query.limit && notebooks.length > 0) {
-            count = notebooks.length + req.skip
-            debug('count calculated', count)
+          if (
+            cacheValue &&
+            req.headers['if-modified-since'] &&
+            req.headers['if-modified-since'] > cacheValue
+          ) {
+            res.status(304).end()
           } else {
-            count = await Notebook.count(urlToId(reader.id), filters)
-            debug('count retrieved from database', count)
-          }
+            let notebooks = await Notebook.byReader(
+              urlToId(reader.id),
+              req.query.limit,
+              req.skip,
+              filters
+            )
+            debug('notebooks retrieved: ', notebooks)
 
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.end(
-            JSON.stringify({
-              items: notebooks,
-              totalItems: count,
-              page: req.query.page,
-              pageSize: parseInt(req.query.limit)
-            })
-          )
+            let count
+            if (notebooks.length < req.query.limit && notebooks.length > 0) {
+              count = notebooks.length + req.skip
+              debug('count calculated', count)
+            } else {
+              count = await Notebook.count(urlToId(reader.id), filters)
+              debug('count retrieved from database', count)
+            }
+
+            res.setHeader('Content-Type', 'application/ld+json')
+            res.end(
+              JSON.stringify({
+                items: notebooks,
+                totalItems: count,
+                page: req.query.page,
+                pageSize: parseInt(req.query.limit)
+              })
+            )
+          }
         })
         .catch(next)
     }

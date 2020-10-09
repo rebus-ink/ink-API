@@ -9,6 +9,7 @@ const { ValidationError } = require('objection')
 const { urlToId, checkOwnership } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
 const debug = require('debug')('ink:routes:notebook-put')
+const { notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -114,6 +115,7 @@ module.exports = function (app) {
           )
         }
 
+        await notebooksCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedNotebook.toJSON()))
       })

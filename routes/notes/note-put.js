@@ -10,9 +10,9 @@ const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { ValidationError } = require('objection')
 const debug = require('debug')('ink:routes:note-put')
-const { notesCacheUpdate } = require('../../utils/cache')
 const { Notebook } = require('../../models/Notebook')
 const { Notebook_Note } = require('../../models/Notebook_Note')
+const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -150,6 +150,7 @@ module.exports = function (app) {
         }
 
         await notesCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(200).end(JSON.stringify(updatedNote.toJSON()))
       })

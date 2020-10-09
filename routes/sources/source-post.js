@@ -7,7 +7,7 @@ const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate, tagsCacheUpdate } = require('../../utils/cache')
+const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-post')
 const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
@@ -117,6 +117,8 @@ module.exports = function (app) {
 
         const finishedSource = createdSource.toJSON()
         await libraryCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
+
         if (metricsQueue) {
           await metricsQueue.add({
             type: 'createSource',

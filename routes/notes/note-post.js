@@ -12,12 +12,9 @@ const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
-const {
-  notesCacheUpdate,
-  tagsCacheUpdate /* notebooksCacheUpdate */
-} = require('../../utils/cache')
 const { Notebook } = require('../../models/Notebook')
 const { Notebook_Note } = require('../../models/Notebook_Note')
+const { notesCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -158,6 +155,7 @@ module.exports = function (app) {
         }
 
         await notesCacheUpdate(reader.authId)
+        await notebooksCacheUpdate(reader.authId)
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', createdNote.id)
