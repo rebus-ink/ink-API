@@ -78,6 +78,12 @@ const test = async app => {
   const sourceUrl = resCreateSource.id
   const sourceId = urlToId(sourceUrl)
 
+  const source2 = await createSource(app, token, {
+    name: 'test',
+    type: 'Book',
+    keywords: undefined
+  })
+
   const tag1 = await createTag(app, token, { name: 'tag1', type: 'stack' })
   const tag2 = await createTag(app, token, { name: 'tag2', type: 'stack' })
   const tag3 = await createTag(app, token, { name: 'tag3', type: 'stack' })
@@ -285,6 +291,28 @@ const test = async app => {
     await tap.equal(body.publisher[0].name, 'Sample Publisher2')
     await tap.equal(body.translator[0].name, 'Sample Translator2')
   })
+
+  await tap.test(
+    'Update a single metadata property in a source that did not have it',
+    async () => {
+      // const timestamp = new Date(2018, 01, 30).toISOString()
+      const res = await request(app)
+        .patch(`/sources/${source2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            isbn: '123'
+          })
+        )
+      await tap.equal(res.status, 200)
+      const body = res.body
+      await tap.equal(body.shortId, urlToId(body.id))
+      await tap.equal(body.name, 'test')
+      await tap.equal(body.isbn, '123')
+    }
+  )
 
   await tap.test(
     'Update a single metadata property by setting it to null',
