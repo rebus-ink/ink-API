@@ -295,7 +295,6 @@ const test = async app => {
   await tap.test(
     'Update a single metadata property in a source that did not have it',
     async () => {
-      // const timestamp = new Date(2018, 01, 30).toISOString()
       const res = await request(app)
         .patch(`/sources/${source2.shortId}`)
         .set('Host', 'reader-api.test')
