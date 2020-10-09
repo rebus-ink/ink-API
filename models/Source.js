@@ -1010,6 +1010,7 @@ class Source extends BaseModel {
     ) {
       modifications.metadata = _.omitBy(modifications.metadata, _.isUndefined)
       modifications.metadata = Object.assign(
+        {},
         source.metadata,
         modifications.metadata
       )
