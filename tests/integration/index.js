@@ -103,6 +103,7 @@ const notebooksGetOrderByDefaultTests = require('./notebook/notebooks-get-orderB
 
 const canvasPostTests = require('./canvas/canvas-post.test')
 const canvasPutTests = require('./canvas/canvas-put.test')
+const canvasDeleteTests = require('./canvas/canvas-delete.test')
 
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
@@ -312,6 +313,7 @@ const allTests = async () => {
     try {
       await canvasPostTests(app)
       await canvasPutTests(app)
+      await canvasDeleteTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
       throw err

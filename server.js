@@ -76,6 +76,7 @@ const outlinePatchNoteRoute = require('./routes/outlines/outline-patchNote') // 
 // canvas
 const canvasPostRoute = require('./routes/canvas/canvas-post')
 const canvasPutRoute = require('./routes/canvas/canvas-put')
+const canvasDeleteRoute = require('./routes/canvas/canvas-delete')
 
 // notebooks
 const notebookPostRoute = require('./routes/notebooks/notebook-post') // POST /notebooks
@@ -300,6 +301,7 @@ hardDeleteRoute(app)
 metricsGetRoute(app)
 canvasPostRoute(app)
 canvasPutRoute(app)
+canvasDeleteRoute(app)
 
 app.use(errorHandling)
 
