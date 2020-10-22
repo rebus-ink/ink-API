@@ -27,33 +27,33 @@ const test = async app => {
     await tap.equal(res.statusCode, 204)
 
     // getting deleted canvas should return 404 error
-    // const getres = await request(app)
-    //   .get(`/canvas/${canvas.shortId}`)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type('application/ld+json')
+    const getres = await request(app)
+      .get(`/canvas/${canvas.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-    // await tap.equal(getres.statusCode, 404)
-    // const error = JSON.parse(getres.text)
-    // await tap.equal(error.statusCode, 404)
-    // await tap.equal(error.error, 'Not Found')
-    // await tap.equal(
-    //   error.message,
-    //   `No Canvas found with id ${canvas.shortId}`
-    // )
-    // await tap.equal(error.details.requestUrl, `/canvas/${canvas.shortId}`)
+    await tap.equal(getres.statusCode, 404)
+    const error = JSON.parse(getres.text)
+    await tap.equal(error.statusCode, 404)
+    await tap.equal(error.error, 'Not Found')
+    await tap.equal(
+      error.message,
+      `Get Canvas Error: No Canvas found with id ${canvas.shortId}`
+    )
+    await tap.equal(error.details.requestUrl, `/canvas/${canvas.shortId}`)
 
     // canvas should no longer be in the reader list of canvas
-    // const canvasres = await request(app)
-    //   .get(`/canvas`)
-    //   .set('Host', 'reader-api.test')
-    //   .set('Authorization', `Bearer ${token}`)
-    //   .type('application/ld+json')
+    const canvasres = await request(app)
+      .get(`/canvas`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
 
-    // await tap.equal(canvasres.status, 200)
-    // const body = canvasres.body
-    // await tap.ok(Array.isArray(body))
-    // await tap.equal(body.items.length, 0)
+    await tap.equal(canvasres.status, 200)
+    const body = canvasres.body
+    await tap.ok(Array.isArray(body.items))
+    await tap.equal(body.items.length, 0)
   })
 
   await tap.test(
