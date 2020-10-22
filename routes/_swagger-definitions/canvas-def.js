@@ -27,6 +27,14 @@
  *       reader:
  *         $ref: '#/definitions/reader'
  *         readOnly: true
+ *       notebook:
+ *         $ref: '#/definitions/notebook'
+ *         readOnly: true
+ *       noteContexts:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/noteContext'
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: timestamp
@@ -40,6 +48,15 @@
  *       - notebookId
  *       - readerId
  *       - published
+ *
+ *   canvas-list:
+ *     properties:
+ *       totalItems:
+ *         type: integer
+ *       items:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/canvas'
  *
  *
  */
