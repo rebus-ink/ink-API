@@ -3,22 +3,12 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
-const { Source } = require('../../models/Source')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const {
-  libraryCacheUpdate,
-  tagsCacheUpdate,
-  notebooksCacheUpdate
-} = require('../../utils/cache')
-const debug = require('debug')('ink:routes:source-post')
+const debug = require('debug')('ink:routes:canvas-post')
 const { metricsQueue } = require('../../utils/metrics')
-const { Tag } = require('../../models/Tag')
-const { Source_Tag } = require('../../models/Source_Tag')
 const { urlToId } = require('../../utils/utils')
-const { Notebook } = require('../../models/Notebook')
-const { Notebook_Source } = require('../../models/Notebook_Source')
 const { Canvas } = require('../../models/Canvas')
 
 module.exports = function (app) {

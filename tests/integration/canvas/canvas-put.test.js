@@ -4,9 +4,6 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createSource,
-  createNote,
-  createTag,
   createCanvas,
   createNotebook
 } = require('../../utils/testUtils')

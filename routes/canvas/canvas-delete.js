@@ -6,7 +6,7 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Canvas } = require('../../models/Canvas')
-const debug = require('debug')('ink:routes:note-delete')
+const debug = require('debug')('ink:routes:canvas-delete')
 
 module.exports = function (app) {
   /**

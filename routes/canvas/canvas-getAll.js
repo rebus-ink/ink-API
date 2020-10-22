@@ -4,10 +4,7 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
-const { Notebook } = require('../../models/Notebook')
 const paginate = require('../_middleware/paginate')
-const debug = require('debug')('ink:routes:notebooks-get')
-const { notebooksCacheGet } = require('../../utils/cache')
 const { Canvas } = require('../../models/Canvas')
 
 module.exports = function (app) {

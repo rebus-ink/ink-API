@@ -1,23 +1,16 @@
 const request = require('supertest')
 const tap = require('tap')
-const { urlToId } = require('../../../utils/utils')
 const {
   getToken,
   createUser,
   destroyDB,
-  createSource,
-  addSourceToCollection,
   createCanvas,
-  createNotebook,
-  createNote
+  createNotebook
 } = require('../../utils/testUtils')
-const { Source } = require('../../../models/Source')
-const { Tag } = require('../../../models/Tag')
 
 const test = async app => {
   const token = getToken()
-  const readerCompleteUrl = await createUser(app, token)
-  const readerId = urlToId(readerCompleteUrl)
+  await createUser(app, token)
 
   const notebook = await createNotebook(app, token, { name: 'notebook' })
   const canvas = await createCanvas(app, token, {

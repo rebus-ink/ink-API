@@ -10,8 +10,6 @@ const {
   createCanvas
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
-const _ = require('lodash')
-const { toPairs } = require('lodash')
 
 const test = async app => {
   const token = getToken()

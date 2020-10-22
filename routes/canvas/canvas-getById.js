@@ -4,7 +4,6 @@ const passport = require('passport')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { Canvas } = require('../../models/Canvas')
-const debug = require('debug')('ink:routes:canvas-get')
 
 module.exports = app => {
   app.use('/', router)
