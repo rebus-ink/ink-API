@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
+const { Notebook } = require('./Notebook.js')
 const debug = require('debug')('ink:models:Canvas')
 
 class Canvas extends BaseModel {
@@ -42,6 +43,14 @@ class Canvas extends BaseModel {
         join: {
           from: 'Canvas.readerId',
           to: 'Reader.id'
+        }
+      },
+      notebook: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Notebook,
+        join: {
+          from: 'Canvas.notebookId',
+          to: 'Notebook.id'
         }
       },
       noteContexts: {
@@ -91,7 +100,7 @@ class Canvas extends BaseModel {
     debug('id: ', id)
     const canvas = await Canvas.query()
       .findById(id)
-      .withGraphFetched('[noteContexts(notDeleted)]')
+      .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
@@ -125,6 +134,19 @@ class Canvas extends BaseModel {
     debug('**delete**')
     debug('id: ', id)
     return await Canvas.query().deleteById(id)
+  }
+
+  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
+    debug('**byReader**')
+    return await Canvas.query()
+      .where('readerId', '=', id)
+      .whereNull('deleted')
+      .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
