@@ -178,6 +178,112 @@ const test = async () => {
     await tap.equal(source_tags[0].sourceId, source4.id)
   })
 
+  const source5 = await Source.query().insertAndFetch({
+    name: 'source5',
+    type: 'Article',
+    links: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example link'
+        }
+      ]
+    },
+    readingOrder: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example reading order object1'
+        },
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example reading order object2'
+        },
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example reading order object3'
+        }
+      ]
+    },
+    resources: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example resource'
+        }
+      ]
+    },
+    readerId: readerId,
+    referenced: timestamp25
+  })
+
+  const source6 = await Source.query().insertAndFetch({
+    name: 'source6',
+    type: 'Article',
+    readerId: readerId,
+    links: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example link'
+        }
+      ]
+    },
+    readingOrder: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example reading order object1'
+        },
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example reading order object2'
+        }
+      ]
+    },
+    resources: {
+      data: [
+        {
+          url: 'http://example.org/abc',
+          encodingFormat: 'text/html',
+          name: 'An example resource'
+        }
+      ]
+    },
+    referenced: timestampNow
+  })
+
+  await tap.test('Hard Delete', async () => {
+    const res = await request(app)
+      .delete('/hardDelete')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(res.status, 204)
+
+    const sources = await Source.query()
+    await tap.equal(sources.length, 4)
+    const source5Index = _.findIndex(sources, { name: 'source5' })
+    await tap.ok(sources[source5Index])
+    await tap.notOk(sources[source5Index].links)
+    await tap.notOk(sources[source5Index].resources)
+    await tap.notOk(sources[source5Index].readingOrder)
+    const source6Index = _.findIndex(sources, { name: 'source6' })
+    await tap.ok(sources[source6Index])
+    await tap.ok(sources[source6Index].links)
+    await tap.ok(sources[source6Index].resources)
+    await tap.ok(sources[source6Index].readingOrder)
+    await tap.ok(_.find(sources, { name: 'source6' }))
+  })
+
   await destroyDB(app)
 }
 
