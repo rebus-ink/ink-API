@@ -8,6 +8,7 @@ const {
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const { Note } = require('../../../models/Note')
 
 const test = async app => {
   const token = getToken()
@@ -25,6 +26,10 @@ const test = async app => {
   })
 
   noteId = urlToId(note.id)
+
+  const note2 = await createNote(app, token, {
+    body: { motivation: 'test' }
+  })
 
   await tap.test('Delete a Note', async () => {
     const res = await request(app)
@@ -85,7 +90,7 @@ const test = async app => {
         .type('application/ld+json')
 
       await tap.equal(res.statusCode, 200)
-      await tap.equal(res.body.items.length, 0)
+      await tap.equal(res.body.items.length, 1)
     }
   )
 
@@ -148,6 +153,45 @@ const test = async app => {
     )
     await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
     await tap.equal(error.details.requestBody.body.content, 'something')
+  })
+
+  await tap.test('Empty a note', async () => {
+    const before = await request(app)
+      .get(`/notes`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(before.body.items.length, 1)
+
+    const res = await request(app)
+      .delete(`/notes/${note2.shortId}?empty=true`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 204)
+
+    // should not be able to get the source
+    const after = await request(app)
+      .get(`/notes`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(after.body.items.length, 0)
+
+    const getres = await request(app)
+      .get(`/notes/${note2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(getres.statusCode, 404)
+
+    // but the note is not actually deleted, only marked as 'emptied'
+    const note = await Note.query().findById(note2.shortId)
+    await tap.ok(note)
+    await tap.ok(note.emptied)
+    await tap.notOk(note.deleted)
   })
 
   // // DELETE NOTES FOR SOURCE

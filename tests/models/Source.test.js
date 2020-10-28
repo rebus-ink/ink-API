@@ -525,10 +525,10 @@ const test = async app => {
     await tap.equal(res, 2)
 
     const note1 = await Note.byId(urlToId(createdNote1.id))
-    await tap.ok(note1.deleted)
+    await tap.notOk(note1)
 
     const note2 = await Note.byId(urlToId(createdNote2.id))
-    await tap.ok(note2.deleted)
+    await tap.notOk(note2)
   })
 
   await tap.test('Turn a Source into a reference', async () => {

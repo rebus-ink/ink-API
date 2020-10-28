@@ -226,14 +226,21 @@ const test = async app => {
 
     // make sure that the NoteBodies are deleted:
     const newNote = await Note.byId(urlToId(note2.id))
-    await tap.ok(newNote.body)
-    await tap.ok(newNote.body[0].deleted)
-    await tap.ok(newNote.body[1].deleted)
+    await tap.notOk(newNote)
   })
 
   await tap.test('Try to delete a note that does not exist', async () => {
     const res = await Note.delete('123')
     await tap.notOk(res)
+  })
+
+  await tap.test('Mark Note as emptied', async () => {
+    const res = await Note.empty(urlToId(noteWithSource.id))
+    await tap.ok(res.emptied)
+
+    // make sure that the NoteBodies are deleted:
+    const newNote = await Note.byId(urlToId(note2.id))
+    await tap.notOk(newNote)
   })
 
   // --------------------------------------------------------------------------------
