@@ -437,7 +437,7 @@ class Note extends BaseModel {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {
-      doc.updated = new Date().toISOString()
+      doc.updated = doc.published
     })
   }
 }

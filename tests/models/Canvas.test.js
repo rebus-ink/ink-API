@@ -32,7 +32,7 @@ const test = async app => {
         },
         readerId
       )
-      canvasId = canvas.id
+      canvasId = urlToId(canvas.id)
     } catch (err) {
       error = err
     }

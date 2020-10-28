@@ -5,6 +5,7 @@ const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
+const { Notebook } = require('./Notebook.js')
 const debug = require('debug')('ink:models:Canvas')
 
 class Canvas extends BaseModel {
@@ -44,6 +45,14 @@ class Canvas extends BaseModel {
           to: 'Reader.id'
         }
       },
+      notebook: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Notebook,
+        join: {
+          from: 'Canvas.notebookId',
+          to: 'Notebook.id'
+        }
+      },
       noteContexts: {
         relation: Model.HasManyRelation,
         modelClass: NoteContext,
@@ -72,7 +81,18 @@ class Canvas extends BaseModel {
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
     debug('canvas to add to database: ', props)
-    return await Canvas.query().insertAndFetch(props)
+    let result
+    try {
+      result = await Canvas.query().insertAndFetch(props)
+    } catch (err) {
+      if (err.constraint === 'canvas_notebookid_foreign') {
+        throw new Error(
+          `Canvas creation error: No Notebook found with id ${props.notebookId}`
+        )
+      }
+      throw err
+    }
+    return result
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
@@ -80,7 +100,7 @@ class Canvas extends BaseModel {
     debug('id: ', id)
     const canvas = await Canvas.query()
       .findById(id)
-      .withGraphFetched('[noteContexts(notDeleted)]')
+      .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
@@ -102,6 +122,11 @@ class Canvas extends BaseModel {
       'notebookId'
     ])
     debug('props passed to database: ', props)
+    if (props.notebookId === null) {
+      throw new Error(
+        'Validation Error on Update Canvas: notebookId is a required property'
+      )
+    }
     return await Canvas.query().updateAndFetchById(object.id, props)
   }
 
@@ -109,6 +134,27 @@ class Canvas extends BaseModel {
     debug('**delete**')
     debug('id: ', id)
     return await Canvas.query().deleteById(id)
+  }
+
+  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
+    debug('**byReader**')
+    return await Canvas.query()
+      .where('readerId', '=', id)
+      .whereNull('deleted')
+      .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
+  }
+
+  $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
+    const parent = super.$beforeInsert(queryOptions, context)
+    let doc = this
+    return Promise.resolve(parent).then(function () {
+      doc.updated = doc.published
+    })
   }
 
   $formatJson (json /*: any */) /*: any */ {

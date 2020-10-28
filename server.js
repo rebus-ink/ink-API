@@ -73,6 +73,12 @@ const outlineAddNoteRoute = require('./routes/outlines/outline-addNote') // POST
 const outlineDeleteNoteRoute = require('./routes/outlines/outline-deleteNote') // DELETE /outlines/:id/notes/:noteId
 const outlinePatchNoteRoute = require('./routes/outlines/outline-patchNote') // PATCH /outlines/:id/notes/:noteId
 
+// canvas
+const canvasPostRoute = require('./routes/canvas/canvas-post')
+const canvasPutRoute = require('./routes/canvas/canvas-put')
+const canvasDeleteRoute = require('./routes/canvas/canvas-delete')
+const canvasGetByIdRoute = require('./routes/canvas/canvas-getById')
+const canvasGetAllRoute = require('./routes/canvas/canvas-getAll')
 // notebooks
 const notebookPostRoute = require('./routes/notebooks/notebook-post') // POST /notebooks
 const notebookGetRoute = require('./routes/notebooks/notebook-get') // GET /notebooks/:id
@@ -294,6 +300,11 @@ notebookDeleteTagRoute(app)
 notebookPostSourceRoute(app)
 hardDeleteRoute(app)
 metricsGetRoute(app)
+canvasPostRoute(app)
+canvasPutRoute(app)
+canvasDeleteRoute(app)
+canvasGetByIdRoute(app)
+canvasGetAllRoute(app)
 
 app.use(errorHandling)
 
