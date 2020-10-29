@@ -540,9 +540,9 @@ const test = async app => {
 
     const result = await Source.toReference(sourceId2)
     await tap.ok(result.referenced)
-    await tap.notOk(result.links)
-    await tap.notOk(result.resources)
-    await tap.notOk(result.readingOrder)
+    // await tap.notOk(result.links)
+    // await tap.notOk(result.resources)
+    // await tap.notOk(result.readingOrder)
   })
 
   await tap.test('Get SourceIds By Collection', async () => {

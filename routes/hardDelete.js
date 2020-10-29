@@ -47,6 +47,15 @@ module.exports = function (app) {
         .delete()
         .where('deleted', '<', timestamp)
 
+      // referenced sources
+      await Source.query()
+        .where('referenced', '<', timestamp)
+        .patch({
+          links: null,
+          readingOrder: null,
+          resources: null
+        })
+
       res.status(204).end()
     } else {
       res.status(403)

@@ -632,10 +632,7 @@ class Source extends BaseModel {
   static async toReference (id /*: string */) /*: Promise<any> */ {
     const date = new Date().toISOString()
     return await Source.query().patchAndFetchById(id, {
-      referenced: date,
-      links: null,
-      resources: null,
-      readingOrder: null
+      referenced: date
     })
   }
 
