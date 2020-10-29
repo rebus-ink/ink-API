@@ -23,6 +23,11 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         required: true
+   *       - in: query
+   *         name: empty
+   *         schema:
+   *           type: boolean
+   *         description: flag a note as emptied. It will be replaced by an empty note
    *     security:
    *       - Bearer: []
    *     responses:
@@ -56,7 +61,13 @@ module.exports = function (app) {
           )
         }
 
-        const result = await Note.delete(noteId)
+        let result
+        if (req.query.empty) {
+          result = await Note.empty(noteId)
+        } else {
+          result = await Note.delete(noteId)
+        }
+
         debug('delete result: ', result)
         if (!result) {
           return next(

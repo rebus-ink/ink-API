@@ -56,7 +56,8 @@ class Note extends BaseModel {
         parentId: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' }
+        deleted: { type: 'string', format: 'date-time' },
+        emptied: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
       required: ['readerId']
@@ -327,6 +328,8 @@ class Note extends BaseModel {
           builder.select('id', 'name', 'type', 'metadata')
         }
       })
+      .whereNull('deleted')
+      .whereNull('emptied')
 
     if (!note) return undefined
 
@@ -356,6 +359,15 @@ class Note extends BaseModel {
 
     return await Note.query()
       .patchAndFetchById(id, { deleted: new Date().toISOString() })
+      .whereNull('deleted')
+  }
+
+  static async empty (id /*: string */) /*: Promise<NoteType|null> */ {
+    debug('**empty**')
+    debug('id: ', id)
+
+    return await Note.query()
+      .patchAndFetchById(id, { emptied: new Date().toISOString() })
       .whereNull('deleted')
   }
 
@@ -391,6 +403,7 @@ class Note extends BaseModel {
     let updatedNote = await Note.query()
       .updateAndFetchById(urlToId(note.id), modifications)
       .whereNull('deleted')
+      .whereNull('emptied')
     debug('updated note: ', updatedNote)
 
     // if note not found:
