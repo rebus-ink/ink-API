@@ -21,6 +21,22 @@ module.exports = function (app) {
       process.env.NODE_ENV === 'test' ||
       req.connection.remoteAddress === '10.0.0.1'
     ) {
+      // get list of deleted / referenced sources
+      const sourcesToDelete = await Source.query()
+        .where('deleted', '<', timestamp)
+        .orWhere('referenced', '<', timestamp)
+      const filesToDelete = sourcesToDelete.map(source => {
+        let storageId
+        if (source.json) {
+          storageId = source.json.storageId
+        }
+        return {
+          readerId: urlToId(source.readerId),
+          storageId
+        }
+      })
+      console.log(filesToDelete)
+
       await Source.query()
         .delete()
         .where('deleted', '<', timestamp)
