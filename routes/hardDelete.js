@@ -10,6 +10,7 @@ const { NoteRelation } = require('../models/NoteRelation')
 const { NoteBody } = require('../models/NoteBody')
 const { Attribution } = require('../models/Attribution')
 const { urlToId } = require('../utils/utils')
+const { Canvas } = require('../models/Canvas')
 
 const timestamp = new Date(Date.now() - 86400 * 1000).toISOString()
 
@@ -36,6 +37,9 @@ module.exports = function (app) {
         .delete()
         .where('deleted', '<', timestamp)
       await Notebook.query()
+        .delete()
+        .where('deleted', '<', timestamp)
+      await Canvas.query()
         .delete()
         .where('deleted', '<', timestamp)
       await NoteContext.query()

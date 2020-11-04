@@ -10,7 +10,8 @@ const {
   createTag,
   createNoteRelation,
   createNoteContext,
-  createNotebook
+  createNotebook,
+  createCanvas
 } = require('../../utils/testUtils')
 const { Reader } = require('../../../models/Reader')
 const { urlToId } = require('../../../utils/utils')
@@ -82,6 +83,14 @@ const test = async app => {
 
   const notebook1 = await createNotebook(app, token)
   const notebook2 = await createNotebook(app, token2)
+
+  // canvas
+  const canvas1 = await createCanvas(app, token, {
+    notebookId: notebook1.shortId
+  })
+  const canvas2 = await createCanvas(app, token2, {
+    notebookId: notebook2.shortId
+  })
 
   // ------------------------ SOURCE -------------------------------------
   await tap.test('Try to get source belonging to another reader', async () => {
@@ -742,6 +751,69 @@ const test = async app => {
       )
     }
   )
+
+  // ------------------------------------- CANVAS -----------------------
+
+  await tap.test(
+    'Try to update a Canvas belonging to another user',
+    async () => {
+      const res = await request(app)
+        .put(`/canvas/${canvas1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+        .send(JSON.stringify({ name: 'new name' }))
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Canvas ${canvas1.shortId} disallowed`
+      )
+      await tap.equal(error.details.requestUrl, `/canvas/${canvas1.shortId}`)
+    }
+  )
+
+  await tap.test(
+    'Try to delete a canvas belonging to another user',
+    async () => {
+      const res = await request(app)
+        .delete(`/canvas/${canvas1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token2}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Canvas ${canvas1.shortId} disallowed`
+      )
+      await tap.equal(error.details.requestUrl, `/canvas/${canvas1.shortId}`)
+    }
+  )
+
+  await tap.test('Try to get a Canvas belonging to another user', async () => {
+    const res = await request(app)
+      .get(`/canvas/${canvas1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token2}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(
+      error.message,
+      `Access to Canvas ${canvas1.shortId} disallowed`
+    )
+    await tap.equal(error.details.requestUrl, `/canvas/${canvas1.shortId}`)
+  })
 
   // ------------------------------------- OUTLINE -----------------------
 
