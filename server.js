@@ -12,6 +12,7 @@ const { Strategy, ExtractJwt } = require('passport-jwt')
 const cache = require('./utils/cache')
 const errorHandling = require('./routes/_middleware/error-handling')
 const { metricsQueue } = require('./utils/metrics')
+const { fileDeleteQueue } = require('./utils/file-delete')
 // Routes
 
 // Reader
@@ -224,6 +225,12 @@ app.terminate = async () => {
     await metricsQueue.clean(0, 'failed')
     await metricsQueue.empty()
     metricsQueue.close()
+  }
+  if (fileDeleteQueue) {
+    await fileDeleteQueue.clean(0)
+    await fileDeleteQueue.clean(0, 'failed')
+    await fileDeleteQueue.empty()
+    fileDeleteQueue.close()
   }
   // if (elasticsearchQueue) {
   //   await elasticsearchQueue.clean(0)

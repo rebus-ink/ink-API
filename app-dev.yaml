@@ -1,0 +1,50 @@
+# Copyright 2015-2016, Google, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+# gcloud app deploy app-dev.yaml --project thematic-cider-139815
+# 
+# [START app_yaml]
+runtime: nodejs12
+instance_class: F4
+service: ink-server-dev
+handlers:
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
+env_variables:
+  COOKIE_KEY: '98da3082780bfdd04937c8ad8cfa28decf92a3c6cb4a4c07310b0ceab54005a2c9aa41cad58186e72c14a863f36bda6f1b7a31531b622e41897dd9ce2815915b'
+  AUTH0_CLIENT_ID: '01CUPaM73j34ipwidKdNkMMzlqkg6RYM'
+  AUTH0_CLIENT_SECRET: 'cbK2eDknvvC2ep5rsOAvJBhnDiCXggYHEksnzm5A99Wyn-37M-UXwhzagaKcUzph'
+  AUTH0_DOMAIN: 'rebus.auth0.com'
+  NODE_ENV: 'production'
+  DEPLOY_STAGE: 'development'
+  POSTGRE_PASSWORD: 'nGiPKrtahszfC8hl'
+  POSTGRE_USER: 'postgres'
+  POSTGRE_DB: 'api_server_dev'
+  POSTGRE_INSTANCE: '/cloudsql/thematic-cider-139815:northamerica-northeast1:montreal-rebus'
+  DOMAIN: 'https://ink-server-dev-dot-thematic-cider-139815.appspot.com'
+  BASE: 'https://ink-server-dev-dot-thematic-cider-139815.appspot.com'
+  MAILGUN: 'key-297b22fa230409c448495ce0742a6c8a'
+  ISSUER: 'REBUS_READER'
+  AUDIENCE: 'REBUS_API'
+  SECRETORKEY: '9nf0NkrWHvVL0akOJx8ihxBWhITvDZDH7yElrCjGwKW1QbbcK0X3Yp8BTiiozGmCcBrWFa9Brpz08Ae4y0sj8naPp802ub9t2OtH2pMRAfjpL+UJPWUmz3D+9sa8GCVsmBo9E5oRDe7YMdFkkoQND61K5KSKgEbI4go6lDSFcZjDoW3wQvbNzImFq3IdxovJ8LNOYZ56xri86Om787IBGJau8YiF8p939Vzcr264psKRZFMTnJ+OcE/IQj0uvkhvfH5F1MICihBijh7ztqQEvfez5bAUQiZz0+w/jWcaIM3OUlR6Uosn0aTHFwOq2yY+tJ7534Fx7LgxPrq47MQc9w=='
+  REDIS_HOST: 'redis-10549.c91.us-east-1-3.ec2.cloud.redislabs.com'
+  REDIS_PORT: '10549'
+  REDIS_PASSWORD: 'VtkwVxaHbkO4tClWKMcj5R2DOiaRnMt3'
+beta_settings:
+  # The connection name of your instance, available by using
+  # 'gcloud beta sql instances describe [INSTANCE_NAME]' or from
+  # the Instance details page in the Google Cloud Platform Console.
+  cloud_sql_instances: 'thematic-cider-139815:northamerica-northeast1:montreal-rebus'
+# [END app_yaml]

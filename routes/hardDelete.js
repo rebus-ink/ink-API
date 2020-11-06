@@ -11,6 +11,7 @@ const { NoteBody } = require('../models/NoteBody')
 const { Attribution } = require('../models/Attribution')
 const { urlToId } = require('../utils/utils')
 const { Canvas } = require('../models/Canvas')
+const { fileDeleteQueue } = require('../utils/file-delete')
 
 const timestamp = new Date(Date.now() - 86400 * 1000).toISOString()
 
@@ -25,17 +26,16 @@ module.exports = function (app) {
       const sourcesToDelete = await Source.query()
         .where('deleted', '<', timestamp)
         .orWhere('referenced', '<', timestamp)
-      const filesToDelete = sourcesToDelete.map(source => {
+      sourcesToDelete.forEach(source => {
         let storageId
         if (source.json) {
           storageId = source.json.storageId
         }
-        return {
+        fileDeleteQueue.add({
           readerId: urlToId(source.readerId),
           storageId
-        }
+        })
       })
-      console.log(filesToDelete)
 
       await Source.query()
         .delete()
