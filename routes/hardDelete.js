@@ -33,7 +33,8 @@ module.exports = function (app) {
         }
         fileDeleteQueue.add({
           readerId: urlToId(source.readerId),
-          storageId
+          storageId,
+          bucket: process.env.GOOGLE_STORAGE_BUCKET
         })
       })
 

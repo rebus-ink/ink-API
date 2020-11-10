@@ -1,5 +1,3 @@
-const { urlToId } = require('./utils')
-const crypto = require('crypto')
 const Queue = require('bull')
 const request = require('request')
 require('dotenv').config()
@@ -15,8 +13,7 @@ if (process.env.REDIS_PASSWORD) {
   })
 
   fileDeleteQueue.process(async (job, done) => {
-    console.log(job.data)
-    const res = await request.post(
+    await request.post(
       'https://us-central1-thematic-cider-139815.cloudfunctions.net/file-delete',
       {
         body: JSON.stringify(job.data),
@@ -27,7 +24,6 @@ if (process.env.REDIS_PASSWORD) {
         done()
       }
     )
-    console.log('response:', res.body)
   })
 }
 

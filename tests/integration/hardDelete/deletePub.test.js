@@ -26,7 +26,7 @@ const test = async () => {
     type: 'Article',
     readerId: readerId,
     deleted: timestamp25,
-    json: { storageId: 'test123' }
+    json: { storageId: 'file123' }
   })
   const source2 = await Source.query().insertAndFetch({
     name: 'source2',
