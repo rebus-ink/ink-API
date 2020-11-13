@@ -219,7 +219,28 @@ const test = async () => {
       ]
     },
     readerId: readerId,
-    referenced: timestamp25
+    referenced: timestamp25,
+    datePublished: timestamp25,
+    numberOfPages: 100,
+    json: { property: 'value' },
+    abstract: 'abstract',
+    description: 'description',
+    wordCount: 500,
+    status: 1,
+    encodingFormat: 'epub',
+    metadata: {
+      keywords: ['one'],
+      url: 'www.url.com',
+      dateModified: '123',
+      bookFormat: 'format',
+      copyrightYear: 1999,
+      genre: 'horror',
+      license: 'license',
+      inLanguage: ['en'],
+      bookEdition: '1',
+      isbn: '1234',
+      inDirection: 'ltr'
+    }
   })
 
   const source6 = await Source.query().insertAndFetch({
@@ -276,6 +297,28 @@ const test = async () => {
     await tap.notOk(sources[source5Index].links)
     await tap.notOk(sources[source5Index].resources)
     await tap.notOk(sources[source5Index].readingOrder)
+    await tap.notOk(sources[source5Index].abstract)
+    await tap.notOk(sources[source5Index].description)
+    await tap.notOk(sources[source5Index].metadata.keywords)
+    await tap.notOk(sources[source5Index].metadata.url)
+    await tap.notOk(sources[source5Index].metadata.dateModified)
+    await tap.notOk(sources[source5Index].metadata.bookFormat)
+    await tap.notOk(sources[source5Index].metadata.copyrightYear)
+    await tap.notOk(sources[source5Index].metadata.genre)
+    await tap.notOk(sources[source5Index].metadata.license)
+    await tap.notOk(sources[source5Index].wordCount)
+    await tap.notOk(sources[source5Index].status)
+    await tap.notOk(sources[source5Index].encodingFormat)
+    await tap.notOk(sources[source5Index].metadata.inDirection)
+    await tap.ok(sources[source5Index].name)
+    await tap.ok(sources[source5Index].type)
+    await tap.ok(sources[source5Index].datePublished)
+    await tap.ok(sources[source5Index].metadata.inLanguage)
+    await tap.ok(sources[source5Index].metadata.bookEdition)
+    await tap.ok(sources[source5Index].metadata.isbn)
+    await tap.ok(sources[source5Index].numberOfPages)
+    await tap.ok(sources[source5Index].json)
+
     const source6Index = _.findIndex(sources, { name: 'source6' })
     await tap.ok(sources[source6Index])
     await tap.ok(sources[source6Index].links)

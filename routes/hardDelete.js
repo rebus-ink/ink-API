@@ -58,7 +58,20 @@ module.exports = function (app) {
         .patch({
           links: null,
           readingOrder: null,
-          resources: null
+          resources: null,
+          abstract: null,
+          description: null,
+          wordCount: null,
+          status: null,
+          encodingFormat: null,
+          'metadata:keywords': null,
+          'metadata:url': null,
+          'metadata:dateModified': null,
+          'metadata:bookFormat': null,
+          'metadata:copyrightYear': null,
+          'metadata:genre': null,
+          'metadata:license': null,
+          'metadata:inDirection': null
         })
       // emptied notes
       const emptiedNotes = await Note.query().where('emptied', '<', timestamp)
