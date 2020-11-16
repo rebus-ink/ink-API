@@ -188,10 +188,10 @@ const test = async app => {
     await tap.equal(getres.statusCode, 404)
 
     // but the note is not actually deleted, only marked as 'emptied'
-    const note = await Note.query().findById(note2.shortId)
-    await tap.ok(note)
-    await tap.ok(note.emptied)
-    await tap.notOk(note.deleted)
+    const noteAfter = await Note.query().findById(note2.shortId)
+    await tap.ok(noteAter)
+    await tap.ok(noteAfter.emptied)
+    await tap.notOk(noteAfter.deleted)
   })
 
   // // DELETE NOTES FOR SOURCE
