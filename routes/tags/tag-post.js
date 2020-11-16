@@ -7,8 +7,13 @@ const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  tagsCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const debug = require('debug')('ink:routes:tag-post')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -87,6 +92,20 @@ module.exports = function (app) {
                 requestBody: req.body
               })
             )
+          }
+        }
+
+        if (metricsQueue) {
+          if (createdTag.type === 'stack') {
+            await metricsQueue.add({
+              type: 'createStack',
+              readerId: createdTag.readerId
+            })
+          } else {
+            await metricsQueue.add({
+              type: 'createTag',
+              readerId: createdTag.readerId
+            })
           }
         }
 

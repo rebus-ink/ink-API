@@ -5,7 +5,10 @@ const request = require('request')
 require('dotenv').config()
 let metricsQueue
 
-if (process.env.REDIS_PASSWORD && process.env.NODE_ENV === 'production') {
+if (
+  process.env.REDIS_PASSWORD &&
+  (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'dev')
+) {
   metricsQueue = new Queue('metrics', {
     redis: {
       host: process.env.REDIS_HOST,
@@ -17,6 +20,7 @@ if (process.env.REDIS_PASSWORD && process.env.NODE_ENV === 'production') {
   metricsQueue.process(async (job, done) => {
     let metrics = {
       type: job.data.type,
+      env: process.env.NODE_ENV,
       user: crypto
         .createHash('sha256')
         .update(urlToId(job.data.readerId))

@@ -11,6 +11,7 @@ const {
   notebooksCacheUpdate
 } = require('../../utils/cache')
 const debug = require('debug')('ink:routes:source-delete')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -88,6 +89,13 @@ module.exports = function (app) {
               requestUrl: req.originalUrl
             })
           )
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'deleteSource',
+            readerId: urlToId(req.params.sourceId)
+          })
         }
 
         await libraryCacheUpdate(reader.authId)
