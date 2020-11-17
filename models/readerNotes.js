@@ -42,6 +42,9 @@ class ReaderNotes {
     if (filters.motivation) {
       query.where('NoteBody.motivation', '=', filters.motivation)
     }
+    if (filters.notMotivation) {
+      query.whereNot('NoteBody.motivation', '=', filters.notMotivation)
+    }
 
     if (filters.search) {
       query.where(
