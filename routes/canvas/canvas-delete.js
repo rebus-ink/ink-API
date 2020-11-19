@@ -7,7 +7,7 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Canvas } = require('../../models/Canvas')
 const debug = require('debug')('ink:routes:canvas-delete')
-
+const { metricsQueue } = require('../../utils/metrics')
 module.exports = function (app) {
   /**
    * @swagger
@@ -66,6 +66,13 @@ module.exports = function (app) {
               }
             )
           )
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'deleteCanvas',
+            readerId: urlToId(req.params.canvasId)
+          })
         }
 
         // await notebooksCacheUpdate(reader.authId)

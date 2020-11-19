@@ -5,9 +5,14 @@ const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
-const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  tagsCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:tag-delete')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -76,6 +81,13 @@ module.exports = function (app) {
               requestUrl: req.originalUrl
             })
           )
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'deleteTag',
+            readerId: urlToId(req.params.noteId)
+          })
         }
 
         await libraryCacheUpdate(reader.authId)

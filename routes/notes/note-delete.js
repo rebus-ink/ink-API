@@ -8,6 +8,7 @@ const { checkOwnership } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
 const debug = require('debug')('ink:routes:note-delete')
 const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -78,6 +79,13 @@ module.exports = function (app) {
               }
             )
           )
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'deleteNote',
+            readerId: urlToId(req.params.noteId)
+          })
         }
 
         await notesCacheUpdate(reader.authId)

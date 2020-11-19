@@ -7,6 +7,7 @@ const boom = require('@hapi/boom')
 const { NoteContext } = require('../../models/NoteContext')
 const { checkOwnership } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:noteContexts-delete')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -78,6 +79,13 @@ module.exports = function (app) {
               requestBody: req.body
             })
           )
+        }
+
+        if (metricsQueue) {
+          await metricsQueue.add({
+            type: 'deleteNoteContext',
+            readerId: urlToId(req.params.id)
+          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

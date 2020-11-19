@@ -5,6 +5,7 @@ const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const debug = require('debug')('ink:routes:reader-delete')
+const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -61,6 +62,13 @@ module.exports = function (app) {
       }
 
       await Reader.softDelete(req.params.id)
+
+      if (metricsQueue) {
+        await metricsQueue.add({
+          type: 'deleteReader',
+          readerId: urlToId(req.params.id)
+        })
+      }
 
       res.setHeader('Content-Type', 'application/ld+json')
       res.status(204)
