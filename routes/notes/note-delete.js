@@ -24,11 +24,6 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         required: true
-   *       - in: query
-   *         name: empty
-   *         schema:
-   *           type: boolean
-   *         description: flag a note as emptied. It will be replaced by an empty note
    *     security:
    *       - Bearer: []
    *     responses:

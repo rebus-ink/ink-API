@@ -87,8 +87,18 @@ class OutlineData extends BaseModel {
 
     object.readerId = readerId
 
-    await OutlineData.query().insert(object)
+    await OutlineData.query()
+      .update(object)
+      .where('noteId', '=', object.noteId)
     // catch duplicate error
+  }
+
+  static async delete (noteId /*: string */) /*: Promise<void> */ {
+    if (!noteId) throw new Error('no noteId')
+
+    await OutlineData.query()
+      .patch({ deleted: new Date().toISOString() })
+      .where('noteId', '=', noteId)
   }
 
   // static async deleteBodiesOfNote (noteId /*: string */) /*: Promise<number> */ {

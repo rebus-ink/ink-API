@@ -91,24 +91,24 @@ const test = async app => {
     await tap.equal(err.message, 'no readerId')
   })
 
-  await tap.test(
-    'Try to create Outline Data for a note that already has one',
-    async () => {
-      let err
-      try {
-        await OutlineData.create(readerId, { noteId: noteId1 })
-      } catch (e) {
-        err = e
-      }
-      await tap.ok(err)
-      await tap.equal(err.message, 'duplicate')
-    }
-  )
+  // await tap.test(
+  //   'Try to create Outline Data for a note that already has one',
+  //   async () => {
+  //     let err
+  //     try {
+  //       await OutlineData.create(readerId, { noteId: noteId1 })
+  //     } catch (e) {
+  //       err = e
+  //     }
+  //     await tap.ok(err)
+  //     await tap.equal(err.message, 'duplicate')
+  //   }
+  // )
 
   await tap.test('Update Outline Data', async () => {
     let err
     try {
-      await OutlineData.update({
+      await OutlineData.update(readerId, {
         noteId: noteId1,
         previous: noteId2,
         next: noteId5,
@@ -121,14 +121,13 @@ const test = async app => {
   })
 
   await tap.test('Delete Outline Data for Note', async () => {
-    const res = await OutlineData.delete(noteId1)
-
-    await tap.equal(res, 1)
-
-    // trying again with same note, should return 0
-    const res2 = await OutlineData.delete(noteId1)
-
-    await tap.equal(res2, 0)
+    let err
+    try {
+      await OutlineData.delete(readerId)
+    } catch (e) {
+      err = e
+    }
+    await tap.notOk(err)
   })
 
   await destroyDB(app)

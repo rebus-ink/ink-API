@@ -155,44 +155,6 @@ const test = async app => {
     await tap.equal(error.details.requestBody.body.content, 'something')
   })
 
-  await tap.test('Empty a note', async () => {
-    const before = await request(app)
-      .get(`/notes`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-    await tap.equal(before.body.items.length, 1)
-
-    const res = await request(app)
-      .delete(`/notes/${note2.shortId}?empty=true`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    await tap.equal(res.statusCode, 204)
-
-    // should not be able to get the source
-    const after = await request(app)
-      .get(`/notes`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-    await tap.equal(after.body.items.length, 0)
-
-    const getres = await request(app)
-      .get(`/notes/${note2.shortId}`)
-      .set('Host', 'reader-api.test')
-      .set('Authorization', `Bearer ${token}`)
-      .type('application/ld+json')
-
-    await tap.equal(getres.statusCode, 404)
-
-    // but the note is not actually deleted, only marked as 'emptied'
-    const noteAfter = await Note.query().findById(note2.shortId)
-    await tap.ok(noteAfter)
-    await tap.ok(noteAfter.emptied)
-    await tap.notOk(noteAfter.deleted)
-  })
 
   // // DELETE NOTES FOR SOURCE
   // await tap.test('Delete all Notes for a Source', async () => {

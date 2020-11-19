@@ -169,7 +169,6 @@ class ReaderNotes {
     let resultQuery = Note.query(Note.knex())
       .count()
       .whereNull('Note.deleted')
-      .whereNull('Note.emptied')
       .whereNull('Note.contextId')
       .andWhere('Note.readerId', '=', readerId)
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
@@ -261,7 +260,6 @@ class ReaderNotes {
           )
         })
         builder.whereNull('Note.deleted')
-        builder.whereNull('Note.emptied')
         builder.whereNull('Note.contextId')
         builder.leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
 

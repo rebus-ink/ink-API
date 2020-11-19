@@ -8,6 +8,7 @@ const crypto = require('crypto')
 const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
 const debug = require('debug')('ink:models:Note')
+const { OutlineData } = require('./OutlineData')
 
 /*::
 type NoteType = {
@@ -51,13 +52,9 @@ class Note extends BaseModel {
         json: { type: ['object', 'null'] },
         contextId: { type: ['string', 'null'] },
         original: { type: ['string', 'null'] },
-        previous: { type: ['string', 'null'] },
-        next: { type: ['string', 'null'] },
-        parentId: { type: ['string', 'null'] },
         updated: { type: 'string', format: 'date-time' },
         published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' },
-        emptied: { type: 'string', format: 'date-time' }
+        deleted: { type: 'string', format: 'date-time' }
       },
       additionalProperties: true,
       required: ['readerId']
@@ -160,10 +157,7 @@ class Note extends BaseModel {
       'json',
       'readerId',
       'document',
-      'contextId',
-      'previous',
-      'next',
-      'parentId'
+      'contextId'
     ])
     if (note.id) props.id = urlToId(note.id)
     debug('note formatted: ', props)
@@ -279,6 +273,16 @@ class Note extends BaseModel {
         .del()
       throw noteBodyError
     }
+
+    // create outline data
+    if (note.parentId || note.previous || note.next) {
+      await OutlineData.create(reader.id, {
+        noteId: urlToId(createdNote.id),
+        parentId: note.parentId,
+        previous: note.previous,
+        next: note.next
+      })
+    }
     debug('created note to return: ', createdNote)
     return createdNote
   }
@@ -329,7 +333,6 @@ class Note extends BaseModel {
         }
       })
       .whereNull('deleted')
-      .whereNull('emptied')
 
     if (!note) return undefined
 
@@ -359,15 +362,6 @@ class Note extends BaseModel {
 
     return await Note.query()
       .patchAndFetchById(id, { deleted: new Date().toISOString() })
-      .whereNull('deleted')
-  }
-
-  static async empty (id /*: string */) /*: Promise<NoteType|null> */ {
-    debug('**empty**')
-    debug('id: ', id)
-
-    return await Note.query()
-      .patchAndFetchById(id, { emptied: new Date().toISOString() })
       .whereNull('deleted')
   }
 
@@ -405,7 +399,6 @@ class Note extends BaseModel {
     let updatedNote = await Note.query()
       .updateAndFetchById(urlToId(note.id), modifications)
       .whereNull('deleted')
-      .whereNull('emptied')
     debug('updated note: ', updatedNote)
 
     // if note not found:

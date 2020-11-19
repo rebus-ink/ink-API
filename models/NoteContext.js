@@ -89,7 +89,6 @@ class NoteContext extends BaseModel {
         notDeleted (builder) {
           builder.whereNull('deleted')
         }
-        // should return emptied notes
       })
 
     if (noteContext) {

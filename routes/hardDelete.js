@@ -73,24 +73,6 @@ module.exports = function (app) {
           'metadata:license': null,
           'metadata:inDirection': null
         })
-      // emptied notes
-      const emptiedNotes = await Note.query().where('emptied', '<', timestamp)
-
-      const emptiedNotesIds = emptiedNotes.map(note => urlToId(note.id))
-
-      await NoteBody.query()
-        .delete()
-        .whereIn('noteId', emptiedNotesIds)
-
-      await Note.query()
-        .patch({
-          stylesheet: null,
-          canonical: null,
-          target: null,
-          document: null,
-          json: null
-        })
-        .whereIn('id', emptiedNotesIds)
 
       res.status(204).end()
     } else {
