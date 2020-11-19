@@ -516,6 +516,96 @@ const test = async app => {
     }
   )
 
+  await tap.test('Filter Notes by notebook and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?notebook=${notebook.shortId}&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+  })
+
+  await tap.test('Filter Notes by collection and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?stack=testCollection&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 2)
+    await tap.equal(res2.body.items.length, 2)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note3.shortId }))
+  })
+
+  await tap.test('Filter Notes by document and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?document=doc1&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 3)
+    await tap.equal(res2.body.items.length, 3)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note3.shortId }))
+  })
+
+  await tap.test('Filter Notes by source and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?source=${source2.shortId}&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 3)
+    await tap.equal(res2.body.items.length, 3)
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note3.shortId }))
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+  })
+
+  await tap.test('Filter Notes by search and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?search=something&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+    await tap.ok(_.find(res2.body.items, { shortId: note14.shortId }))
+  })
+
+  await tap.test('Filter Notes by colour and notMotivation', async () => {
+    const res2 = await request(app)
+      .get(`/notes?colour=colour1&notMotivation=test`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res2.status, 200)
+    await tap.ok(res2.body)
+    await tap.ok(res2.body.totalItems, 1)
+    await tap.equal(res2.body.items.length, 1)
+    await tap.ok(_.find(res2.body.items, { shortId: note5.shortId }))
+  })
+
   await destroyDB(app)
 }
 

@@ -46,6 +46,12 @@ module.exports = app => {
    *           type: string
    *         enum: ['test', 'bookmarking', 'commenting', 'describing', 'editing', 'highlighting', 'replying']
    *       - in: query
+   *         name: notMotivation
+   *         schema:
+   *           type: string
+   *         enum: ['test', 'bookmarking', 'commenting', 'describing', 'editing', 'highlighting', 'replying']
+   *         description: motivation to filter out. Should not be combined with the motivation filter.
+   *       - in: query
    *         name: search
    *         schema:
    *           type: string
@@ -152,6 +158,7 @@ module.exports = app => {
         source: req.query.source,
         document: req.query.document,
         motivation: req.query.motivation,
+        notMotivation: req.query.notMotivation,
         search: req.query.search,
         orderBy: req.query.orderBy,
         reverse: req.query.reverse,
