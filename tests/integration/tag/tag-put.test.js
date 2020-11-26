@@ -5,6 +5,7 @@ const {
   createUser,
   destroyDB,
   createSource,
+  createNotebook,
   createNote,
   createTag
 } = require('../../utils/testUtils')
@@ -27,6 +28,8 @@ const test = async app => {
 
   const source = await createSource(app, token)
 
+  const notebook = await createNotebook(app, token)
+
   // create Note for reader 1
   const note = await createNote(app, token, {
     sourceId: source.id,
@@ -38,7 +41,8 @@ const test = async app => {
   let stack = await createTag(app, token, {
     type: 'stack',
     name: 'mystack',
-    json: { property: 'value' }
+    json: { property: 'value' },
+    notebookId: notebook.shortId
   })
 
   await tap.test('Update a Tag name', async () => {
@@ -103,6 +107,7 @@ const test = async app => {
     await tap.ok(tagIndex2 !== -1)
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].name, 'newName')
+    await tap.equal(noteWithNewTag.tags[0].notebookId, notebook.shortId)
   })
 
   await tap.test('Update a Tag json', async () => {
@@ -140,6 +145,43 @@ const test = async app => {
     await tap.equal(libraryAfter.body.tags[tagIndex].json.property, 'value!!')
     await tap.equal(noteWithNewTag.tags.length, 1)
     await tap.equal(noteWithNewTag.tags[0].json.property, 'value!!')
+  })
+
+  await tap.test('Update a Tag notebookId to null', async () => {
+    // Update the tag
+    const res = await request(app)
+      .put(`/tags/${stack.id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify(
+          Object.assign(stack, {
+            notebookId: undefined
+          })
+        )
+      )
+
+    await tap.equal(res.statusCode, 200)
+    await tap.equal(res.body.json.property, 'value!!')
+    await tap.notOk(res.body.notebookId)
+    stack = res.body
+
+    // Get the library after the modifications
+    const libraryAfter = await request(app)
+      .get(`/library`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    // Get the note after the modifications
+    const noteWithNewTag = await Note.byId(urlToId(noteUrl))
+    await tap.equal(libraryAfter.body.tags.length, 14) // 9 flags + 4 colours + 1 created
+    const tagIndex = _.findIndex(libraryAfter.body.tags, { name: 'newName' })
+    await tap.ok(tagIndex !== -1)
+    await tap.equal(libraryAfter.body.tags[tagIndex].json.property, 'value!!')
+    await tap.equal(noteWithNewTag.tags.length, 1)
+    await tap.notOk(noteWithNewTag.tags[0].notebookId)
   })
 
   await tap.test('Try to update a Tag with invalid values', async () => {

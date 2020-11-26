@@ -12,6 +12,7 @@ const checkOwnership = (readerId, resourceId) => {
 }
 
 const urlToId = url => {
+  if (url === null) return null
   if (!url) return undefined
   if (!url.startsWith('http')) return url
   let path = parseurl(url).path.substring(1) // remove first '/'
