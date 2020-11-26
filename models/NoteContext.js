@@ -83,14 +83,13 @@ class NoteContext extends BaseModel {
     const noteContext = await NoteContext.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body]]'
+        '[reader, notes(notDeleted).[outlineData, relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body]]'
       )
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
         }
       })
-
     if (noteContext) {
       noteContext.notes.forEach((note, index) => {
         noteContext.notes[index].relations = _.concat(
@@ -101,8 +100,11 @@ class NoteContext extends BaseModel {
         noteContext.notes[index].relationsTo = null
       })
     }
-    debug('noteContext: ', noteContext)
-
+    if (noteContext) {
+      noteContext.notes.forEach(note => {
+        console.log(note.outlineData)
+      })
+    }
     return noteContext
   }
 

@@ -150,7 +150,6 @@ const test = async app => {
       await tap.equal(body.type, 'outline')
       await tap.ok(body.json)
       await tap.equal(body.json.property, 'value1')
-
       // notes
       await tap.equal(body.notes.length, 2)
       await tap.equal(body.notes[0].shortId, note3.shortId)

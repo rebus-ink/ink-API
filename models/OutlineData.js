@@ -4,8 +4,7 @@ const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { Note } = require('./Note')
-const debug = require('debug')('ink:models:NoteBody')
-const striptags = require('striptags')
+const { urlToId } = require('../utils/utils')
 
 /*::
 type OutlineDataType = {
@@ -86,11 +85,13 @@ class OutlineData extends BaseModel {
     if (!readerId) throw new Error('no readerId')
 
     object.readerId = readerId
-
-    await OutlineData.query()
-      .update(object)
-      .where('noteId', '=', object.noteId)
-    // catch duplicate error
+    try {
+      await OutlineData.query()
+        .patch(object)
+        .where('noteId', '=', urlToId(object.noteId))
+    } catch (err) {
+      console.log('error!!!', err)
+    }
   }
 
   static async delete (noteId /*: string */) /*: Promise<void> */ {

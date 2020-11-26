@@ -93,6 +93,14 @@ class Note extends BaseModel {
           to: 'NoteBody.noteId'
         }
       },
+      outlineData: {
+        relation: Model.HasOneRelation,
+        modelClass: OutlineData,
+        join: {
+          from: 'Note.id',
+          to: 'OutlineData.noteId'
+        }
+      },
       relationsTo: {
         relation: Model.HasManyRelation,
         modelClass: NoteRelation,
@@ -276,12 +284,20 @@ class Note extends BaseModel {
 
     // create outline data
     if (note.parentId || note.previous || note.next) {
-      await OutlineData.create(reader.id, {
-        noteId: urlToId(createdNote.id),
-        parentId: note.parentId,
-        previous: note.previous,
-        next: note.next
-      })
+      try {
+        if (!note.previous) note.previous = null
+        if (!note.next) note.next = null
+        if (!note.parentId) note.parentId = null
+
+        await OutlineData.create(reader.id, {
+          noteId: urlToId(createdNote.id),
+          parentId: note.parentId,
+          previous: note.previous,
+          next: note.next
+        })
+      } catch (err) {
+        console.log('create outlinedata error: ', err.message)
+      }
     }
     debug('created note to return: ', createdNote)
     return createdNote
@@ -428,6 +444,19 @@ class Note extends BaseModel {
     }
     debug('updated note after bodies: ', updatedNote)
 
+    if (note.parentId || note.previous || note.next) {
+      // console.log(note)
+      try {
+        await OutlineData.update(urlToId(note.readerId), {
+          noteId: urlToId(note.id),
+          parentId: note.parentId,
+          previous: note.previous,
+          next: note.next
+        })
+      } catch (err) {
+        console.log('update error: ', err)
+      }
+    }
     return updatedNote
   }
 

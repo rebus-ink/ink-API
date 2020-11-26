@@ -117,6 +117,9 @@ const test = async app => {
     } catch (e) {
       err = e
     }
+
+    const updatedData = await OutlineData.query().where('noteId', '=', noteId1)
+    await tap.equal(updatedData[0].next, noteId5)
     await tap.notOk(err)
   })
 
