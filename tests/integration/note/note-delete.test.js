@@ -189,7 +189,7 @@ const test = async app => {
 
     // but the note is not actually deleted, only marked as 'emptied'
     const noteAfter = await Note.query().findById(note2.shortId)
-    await tap.ok(noteAter)
+    await tap.ok(noteAfter)
     await tap.ok(noteAfter.emptied)
     await tap.notOk(noteAfter.deleted)
   })

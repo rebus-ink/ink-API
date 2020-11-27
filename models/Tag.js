@@ -140,6 +140,10 @@ class Tag extends BaseModel {
       'type',
       'notebookId'
     ])
+
+    // only notebookId can be deleted
+    if (modifications.notebookId === undefined) modifications.notebookId = null
+
     return await Tag.query().updateAndFetchById(urlToId(this.id), modifications)
   }
 

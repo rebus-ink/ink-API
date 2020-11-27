@@ -6,6 +6,7 @@ const {
   destroyDB,
   createSource,
   createNote,
+  createNoteContext,
   createTag,
   createNotebook
 } = require('../../utils/testUtils')
@@ -19,11 +20,15 @@ const test = async app => {
 
   const sourceId = urlToId(source.id)
 
+  const context = await createNoteContext(app, token)
+  const contextId = context.shortId
+
   const note = await createNote(app, token, {
     body: { content: 'test content', motivation: 'test' },
     sourceId,
     document: 'doc123',
     json: { property: 'value' },
+    contextId,
     canonical: '123'
   })
   const noteId = urlToId(note.id)
@@ -55,6 +60,7 @@ const test = async app => {
     // check that old properties are still there
     await tap.type(body.sourceId, 'string')
     await tap.equal(body.json.property, 'value')
+    await tap.equal(body.contextId, contextId)
   })
 
   await tap.test('Update the target of a Note', async () => {
@@ -115,7 +121,9 @@ const test = async app => {
     const newNote = Object.assign(note, {
       canonical: undefined,
       document: undefined,
-      stylesheet: undefined /* sourceId: undefined */
+      stylesheet: undefined,
+      sourceId: undefined,
+      contextId: undefined
     })
 
     const res = await request(app)
@@ -132,7 +140,8 @@ const test = async app => {
     await tap.notOk(body.canonical)
     await tap.notOk(body.stylesheet)
     await tap.notOk(body.document)
-    // await tap.notOk(body.sourceId)
+    await tap.notOk(body.sourceId)
+    await tap.notOk(body.contextId)
   })
 
   // ---------------------------- TAGS ----------------

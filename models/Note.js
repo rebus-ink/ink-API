@@ -383,7 +383,9 @@ class Note extends BaseModel {
       'document',
       'next',
       'parentId',
-      /* 'sourceId', */ 'json'
+      'sourceId',
+      'contextId',
+      'json'
     ]
     propsCanBeDeleted.forEach(prop => {
       if (note[prop] === undefined) {
