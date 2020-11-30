@@ -100,11 +100,7 @@ class NoteContext extends BaseModel {
         noteContext.notes[index].relationsTo = null
       })
     }
-    if (noteContext) {
-      noteContext.notes.forEach(note => {
-        console.log(note.outlineData)
-      })
-    }
+
     return noteContext
   }
 

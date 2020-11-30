@@ -243,10 +243,6 @@ class Note extends BaseModel {
         throw new Error('no source')
       } else if (err.constraint === 'note_contextid_foreign') {
         throw new Error('no context')
-      } else if (err.constraint === 'note_previous_foreign') {
-        throw new Error('no previous')
-      } else if (err.constraint === 'note_next_foreign') {
-        throw new Error('no next')
       }
       throw err
     }
@@ -284,19 +280,20 @@ class Note extends BaseModel {
 
     // create outline data
     if (note.parentId || note.previous || note.next) {
-      try {
-        if (!note.previous) note.previous = null
-        if (!note.next) note.next = null
-        if (!note.parentId) note.parentId = null
+      if (!note.previous) note.previous = null
+      if (!note.next) note.next = null
+      if (!note.parentId) note.parentId = null
 
-        await OutlineData.create(reader.id, {
-          noteId: urlToId(createdNote.id),
-          parentId: note.parentId,
-          previous: note.previous,
-          next: note.next
-        })
-      } catch (err) {
-        console.log('create outlinedata error: ', err.message)
+      const outlineData = await OutlineData.create(reader.id, {
+        noteId: urlToId(createdNote.id),
+        parentId: note.parentId,
+        previous: note.previous,
+        next: note.next
+      })
+      if (outlineData) {
+        createdNote.previous = outlineData.previous
+        createdNote.next = outlineData.next
+        createdNote.parentId = outlineData.next
       }
     }
     debug('created note to return: ', createdNote)
@@ -311,8 +308,13 @@ class Note extends BaseModel {
     debug('noteId: ', noteId, 'contextId: ', contextId)
     const originalNote = await Note.query()
       .findById(noteId)
-      .withGraphFetched('[body, reader, tags]')
+      .withGraphFetched('[body, reader, tags, outlineData]')
     if (!originalNote) throw new Error('no note')
+    if (originalNote.outlineData) {
+      originalNote.previous = originalNote.outlineData.previous
+      originalNote.next = originalNote.outlineData.next
+      originalNote.parentId = originalNote.outlineData.parentId
+    }
     originalNote.contextId = contextId
     originalNote.original = urlToId(originalNote.id)
     originalNote.body = originalNote.body.map(body => {
@@ -338,7 +340,7 @@ class Note extends BaseModel {
     const note = await Note.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body, notebooks, source(notDeleted, selectSource).attributions]'
+        '[reader, outlineData, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body, notebooks, source(notDeleted, selectSource).attributions]'
       )
       .modifiers({
         notDeleted (builder) {
@@ -351,6 +353,12 @@ class Note extends BaseModel {
       .whereNull('deleted')
 
     if (!note) return undefined
+
+    if (note.outlineData) {
+      note.previous = note.outlineData.previous
+      note.next = note.outlineData.next
+      note.parentId = note.outlineData.parentId
+    }
 
     if (note.relationsFrom || note.relationsTo) {
       note.relations = _.concat(note.relationsFrom, note.relationsTo)
@@ -445,14 +453,16 @@ class Note extends BaseModel {
     debug('updated note after bodies: ', updatedNote)
 
     if (note.parentId || note.previous || note.next) {
-      // console.log(note)
       try {
         await OutlineData.update(urlToId(note.readerId), {
           noteId: urlToId(note.id),
-          parentId: note.parentId,
-          previous: note.previous,
-          next: note.next
+          parentId: urlToId(note.parentId),
+          previous: urlToId(note.previous),
+          next: urlToId(note.next)
         })
+        updatedNote.parentId = urlToId(note.parentId)
+        updatedNote.previous = urlToId(note.previous)
+        updatedNote.next = urlToId(note.next)
       } catch (err) {
         console.log('update error: ', err)
       }

@@ -70,9 +70,20 @@ class OutlineData extends BaseModel {
     if (!object.noteId) throw new Error('no noteId')
     if (!readerId) throw new Error('no readerId')
 
-    object.readerId = readerId
-
-    await OutlineData.query().insert(object)
+    object.readerId = urlToId(readerId)
+    object.noteId = urlToId(object.noteId)
+    object.previous = urlToId(object.previous)
+    object.next = urlToId(object.next)
+    object.parentId = urlToId(object.parentId)
+    try {
+      return await OutlineData.query().insert(object)
+    } catch (err) {
+      if (err.constraint === 'outlinedata_previous_foreign') {
+        throw new Error('no previous')
+      } else if (err.constraint === 'outlinedata_next_foreign') {
+        throw new Error('no next')
+      }
+    }
     // catch duplicate error
   }
 
@@ -83,15 +94,15 @@ class OutlineData extends BaseModel {
     // validate
     if (!object.noteId) throw new Error('no noteId')
     if (!readerId) throw new Error('no readerId')
-
     object.readerId = readerId
-    try {
-      await OutlineData.query()
-        .patch(object)
-        .where('noteId', '=', urlToId(object.noteId))
-    } catch (err) {
-      console.log('error!!!', err)
-    }
+    // note: when the note is updated, the outline data might already exist, or it might not.
+
+    // delete old one if it exists
+    await OutlineData.query()
+      .delete()
+      .where('noteId', '=', object.noteId)
+    // create new one
+    await OutlineData.create(readerId, object)
   }
 
   static async delete (noteId /*: string */) /*: Promise<void> */ {
