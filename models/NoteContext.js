@@ -83,11 +83,14 @@ class NoteContext extends BaseModel {
     const noteContext = await NoteContext.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[outlineData, relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body]]'
+        '[reader, notes(notDeleted).[outlineData, relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body, tags, source(selectSource)]]'
       )
       .modifiers({
         notDeleted (builder) {
           builder.whereNull('deleted')
+        },
+        selectSource (builder) {
+          builder.select('name', 'id')
         }
       })
     if (noteContext) {
