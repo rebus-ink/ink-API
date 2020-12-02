@@ -4,12 +4,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNote,
   createCanvas,
-  createNotebook,
-  addNoteToNotebook
+  createNotebook
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   const token = getToken()
