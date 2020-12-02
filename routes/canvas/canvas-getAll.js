@@ -19,6 +19,12 @@ module.exports = function (app) {
    *       - Bearer: []
    *     produces:
    *       - application/json
+   *     parameters:
+   *       - in: query
+   *         name: notebook
+   *         schema:
+   *           type: string
+   *         description: shortId of the notebook to filter by
    *     responses:
    *       200:
    *         description: An array of canvas for the reader (based on the validation token)
@@ -46,9 +52,11 @@ module.exports = function (app) {
               })
             )
           }
+          let filters = {
+            notebook: req.query.notebook
+          }
 
-          let canvas = await Canvas.byReader(urlToId(reader.id))
-
+          let canvas = await Canvas.byReader(urlToId(reader.id), filters)
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(
             JSON.stringify({

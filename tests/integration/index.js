@@ -107,6 +107,7 @@ const canvasPutTests = require('./canvas/canvas-put.test')
 const canvasDeleteTests = require('./canvas/canvas-delete.test')
 const canvasGetByIdTests = require('./canvas/canvas-get-byId.test')
 const canvasGetAllTests = require('./canvas/canvas-getAll.test')
+const canvasFilterByNotebookTests = require('./canvas/canvas-filter-notebook.test')
 
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
@@ -320,6 +321,7 @@ const allTests = async () => {
       await canvasDeleteTests(app)
       await canvasGetByIdTests(app)
       await canvasGetAllTests(app)
+      await canvasFilterByNotebookTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
       throw err

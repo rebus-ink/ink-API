@@ -136,9 +136,24 @@ class Canvas extends BaseModel {
     return await Canvas.query().deleteById(id)
   }
 
-  static async byReader (id /*: string */) /*: Promise<Array<any>> */ {
+  static async applyFilters (query /*: any */, filters /*: any */) {
+    debug('**applyFilters**')
+    debug('filters: ', filters)
+
+    if (filters.notebook) {
+      query = query.where('notebookId', '=', urlToId(filters.notebook))
+    }
+
+    return await query
+  }
+
+  static async byReader (
+    id /*: string */,
+    filters /*: any */
+  ) /*: Promise<Array<any>> */ {
     debug('**byReader**')
-    return await Canvas.query()
+
+    let query = Canvas.query()
       .where('readerId', '=', id)
       .whereNull('deleted')
       .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
@@ -147,6 +162,10 @@ class Canvas extends BaseModel {
           builder.whereNull('deleted')
         }
       })
+
+    this.applyFilters(query, filters)
+
+    return await query
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
