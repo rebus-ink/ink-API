@@ -453,19 +453,15 @@ class Note extends BaseModel {
     debug('updated note after bodies: ', updatedNote)
 
     if (note.parentId || note.previous || note.next) {
-      try {
-        await OutlineData.update(urlToId(note.readerId), {
-          noteId: urlToId(note.id),
-          parentId: urlToId(note.parentId),
-          previous: urlToId(note.previous),
-          next: urlToId(note.next)
-        })
-        updatedNote.parentId = urlToId(note.parentId)
-        updatedNote.previous = urlToId(note.previous)
-        updatedNote.next = urlToId(note.next)
-      } catch (err) {
-        console.log('update error: ', err)
-      }
+      await OutlineData.update(urlToId(note.readerId), {
+        noteId: urlToId(note.id),
+        parentId: urlToId(note.parentId),
+        previous: urlToId(note.previous),
+        next: urlToId(note.next)
+      })
+      updatedNote.parentId = urlToId(note.parentId)
+      updatedNote.previous = urlToId(note.previous)
+      updatedNote.next = urlToId(note.next)
     }
     return updatedNote
   }

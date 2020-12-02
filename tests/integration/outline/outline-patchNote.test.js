@@ -355,6 +355,35 @@ const test = async app => {
   })
 
   await tap.test(
+    'Try to update with a previous that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/outlines/${outlineId}/notes/${note8.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            previous: note4.shortId + 'abc'
+          })
+        )
+
+      await tap.equal(res.status, 404)
+      const error = JSON.parse(res.text)
+      await tap.equal(
+        error.message,
+        `Update Note in Outline Error: No Note found with for previous property: ${
+          note4.shortId
+        }abc`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline.shortId}/notes/${note8.shortId}`
+      )
+    }
+  )
+
+  await tap.test(
     'Try to update a note that does not belong to the outline',
     async () => {
       const res = await request(app)

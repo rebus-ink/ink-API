@@ -75,6 +75,11 @@ class OutlineData extends BaseModel {
     object.previous = urlToId(object.previous)
     object.next = urlToId(object.next)
     object.parentId = urlToId(object.parentId)
+
+    if (object.previous === '') object.previous = null
+    if (object.next === '') object.next = null
+    if (object.parentId === '') object.parentId = null
+
     try {
       return await OutlineData.query().insert(object)
     } catch (err) {
