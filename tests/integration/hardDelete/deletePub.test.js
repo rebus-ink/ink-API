@@ -25,13 +25,15 @@ const test = async () => {
     name: 'source1',
     type: 'Article',
     readerId: readerId,
-    deleted: timestamp25
+    deleted: timestamp25,
+    json: { storageId: 'file123' }
   })
   const source2 = await Source.query().insertAndFetch({
     name: 'source2',
     type: 'Article',
     readerId: readerId,
-    deleted: timestamp25
+    deleted: timestamp25,
+    json: { storageId: '456' }
   })
 
   // not deleted

@@ -11,6 +11,7 @@ const { NoteBody } = require('../models/NoteBody')
 const { Attribution } = require('../models/Attribution')
 const { urlToId } = require('../utils/utils')
 const { Canvas } = require('../models/Canvas')
+const { fileDeleteQueue } = require('../utils/file-delete')
 
 const timestamp = new Date(Date.now() - 86400 * 1000).toISOString()
 
@@ -21,6 +22,22 @@ module.exports = function (app) {
       process.env.NODE_ENV === 'test' ||
       req.connection.remoteAddress === '10.0.0.1'
     ) {
+      // get list of deleted / referenced sources
+      const sourcesToDelete = await Source.query()
+        .where('deleted', '<', timestamp)
+        .orWhere('referenced', '<', timestamp)
+      sourcesToDelete.forEach(source => {
+        let storageId
+        if (source.json) {
+          storageId = source.json.storageId
+        }
+        fileDeleteQueue.add({
+          readerId: urlToId(source.readerId),
+          storageId,
+          bucket: process.env.GOOGLE_STORAGE_BUCKET
+        })
+      })
+
       await Source.query()
         .delete()
         .where('deleted', '<', timestamp)
