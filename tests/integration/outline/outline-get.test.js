@@ -6,8 +6,12 @@ const {
   destroyDB,
   createNoteContext,
   addNoteToContext,
+  createTag,
+  createSource,
+  addNoteToCollection,
   updateNote
 } = require('../../utils/testUtils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -39,9 +43,19 @@ const test = async app => {
     await tap.equal(body.notes.length, 0)
   })
 
-  // add notes to noteContext
-  let note1 = await addNoteToContext(app, token, outline1.shortId)
+  // add notes to noteContext, with source and tag
+  const source = await createSource(app, token, {
+    name: 'testSource',
+    type: 'Article'
+  })
+  let note1 = await addNoteToContext(app, token, outline1.shortId, {
+    sourceId: source.shortId,
+    body: { motivation: 'test' }
+  })
   let note2 = await addNoteToContext(app, token, outline1.shortId)
+
+  const tag = await createTag(app, token, { name: 'tag1', type: 'stack' })
+  await addNoteToCollection(app, token, note1.shortId, tag.id)
 
   await tap.test('Get outline with notes', async () => {
     const res = await request(app)
@@ -61,6 +75,12 @@ const test = async app => {
     // notes & noteRelations
     await tap.equal(body.notes.length, 2)
     await tap.ok(body.notes[0].body)
+    const bodyNote1 = _.find(body.notes, { id: note1.id })
+    await tap.ok(bodyNote1.tags)
+    await tap.equal(bodyNote1.tags.length, 1)
+    await tap.ok(bodyNote1.source)
+    await tap.equal(bodyNote1.source.name, 'testSource')
+    await tap.ok(bodyNote1.source.id)
   })
 
   /*
