@@ -223,7 +223,7 @@ const test = async () => {
       error = err
     }
     await tap.ok(error)
-    await tap.equal(error.message, 'circular linked list')
+    await tap.equal(error.message, 'circular')
   })
 }
 test()

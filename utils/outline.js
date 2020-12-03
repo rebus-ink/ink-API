@@ -19,7 +19,7 @@ const orderLinkedList = list => {
       }
       orderedList.push(next)
       if (orderedList.length > list.length) {
-        throw new Error('circular linked list')
+        throw new Error('circular')
       }
       current = next
     }

@@ -72,8 +72,30 @@ module.exports = app => {
               })
             )
           } else {
+            let nestedNotesList
+            try {
+              nestedNotesList = notesListToTree(noteContext.notes)
+            } catch (err) {
+              if (err.message === 'circular') {
+                return next(
+                  boom.badRequest('Error: outline contains a circular list', {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              } else {
+                return next(
+                  boom.badRequest(
+                    `Error: invalid outline structure: ${err.message} `,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              }
+            }
+
             const outline = Object.assign(noteContext.toJSON(), {
-              notes: notesListToTree(noteContext.notes)
+              notes: nestedNotesList
             })
             debug('updated outline: ', outline)
             res.setHeader('Content-Type', 'application/ld+json')
