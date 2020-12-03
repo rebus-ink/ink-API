@@ -19,12 +19,11 @@ const orderLinkedList = list => {
       }
       orderedList.push(next)
       if (orderedList.length > list.length) {
-        throw new Error('circular linked list')
+        throw new Error('circular')
       }
       current = next
     }
   })
-
   return orderedList
 }
 
@@ -32,10 +31,17 @@ const notesListToTree = notes => {
   if (notes.length === 0) return notes
   notes = notes.map(note => {
     note.shortId = urlToId(note.id)
+    if (note.outlineData) {
+      note.next = note.outlineData.next
+      note.previous = note.outlineData.previous
+      note.parentId = note.outlineData.parentId
+      note.outlineData = null
+    }
     return note
   })
 
   const orderedList = orderLinkedList(notes)
+
   if (orderedList.length !== notes.length) {
     throw new Error('Invalid linked list')
   }
@@ -45,7 +51,6 @@ const notesListToTree = notes => {
     dataField: null
     // throwIfOrphans: true
   })
-
   return tree
 }
 

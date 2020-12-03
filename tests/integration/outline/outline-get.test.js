@@ -150,7 +150,6 @@ const test = async app => {
       await tap.equal(body.type, 'outline')
       await tap.ok(body.json)
       await tap.equal(body.json.property, 'value1')
-
       // notes
       await tap.equal(body.notes.length, 2)
       await tap.equal(body.notes[0].shortId, note3.shortId)
@@ -176,6 +175,43 @@ const test = async app => {
       )
     }
   )
+
+  /*
+  3
+    9
+    1
+    5 // next: 9
+  6
+    7
+      8
+      4
+    2
+  */
+
+  note5 = await updateNote(
+    app,
+    token,
+    Object.assign(note5, {
+      parentId: note3.shortId,
+      previous: note1.shortId,
+      next: note9.shortId
+    })
+  )
+
+  await tap.test('Try to get invalid outline', async () => {
+    const res = await request(app)
+      .get(`/outlines/${outline1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 400)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 400)
+    await tap.equal(error.error, 'Bad Request')
+    await tap.equal(error.message, 'Error: outline contains a circular list')
+    await tap.equal(error.details.requestUrl, `/outlines/${outline1.shortId}`)
+  })
 
   await tap.test('Try to get an outline that does not exist', async () => {
     const res = await request(app)

@@ -116,6 +116,28 @@ module.exports = function (app) {
                   }
                 )
               )
+            } else if (err.message === 'no next') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Note found for next property: ${
+                    req.query.next
+                  }`,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
+            } else if (err.message === 'no previous') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Note found for previous property: ${
+                    req.query.previous
+                  }`,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
             }
           }
 

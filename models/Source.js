@@ -575,9 +575,6 @@ class Source extends BaseModel {
         notDeleted (builder) {
           builder.whereNull('deleted')
         },
-        notEmptied (builder) {
-          builder.whereNull('emptied')
-        },
         latestFirst (builder) {
           builder.orderBy('published', 'desc')
         }
