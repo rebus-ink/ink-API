@@ -89,7 +89,8 @@ module.exports = function (app) {
           try {
             copiedNote = await Note.copyToContext(
               req.query.source,
-              req.params.id
+              req.params.id,
+              req.body
             )
             debug('copied note: ', copiedNote)
           } catch (err) {

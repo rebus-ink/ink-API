@@ -401,6 +401,40 @@ const test = async app => {
   })
 
   await tap.test(
+    'Copy an existing note to the context with changes',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outlineId}/notes?source=${noteId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            previous: note2.shortId
+          })
+        )
+
+      await tap.equal(res.status, 201)
+      const body = res.body
+      await tap.ok(body.id)
+      await tap.equal(body.shortId, urlToId(body.id))
+      await tap.notEqual(body.shortId, noteId)
+      await tap.equal(urlToId(body.readerId), readerId)
+      await tap.equal(body.contextId, outlineId)
+      await tap.ok(body.published)
+      await tap.ok(body.body)
+      await tap.ok(body.body[0].content)
+      await tap.equal(body.body[0].content, 'to be copied')
+      await tap.equal(body.body[0].motivation, 'test')
+      await tap.equal(body.previous, note2.shortId)
+
+      await tap.type(res.get('Location'), 'string')
+      await tap.equal(res.get('Location'), body.id)
+      noteCopy = res.body
+    }
+  )
+
+  await tap.test(
     'Updating the copied Note should not affect the original',
     async () => {
       const res = await request(app)
