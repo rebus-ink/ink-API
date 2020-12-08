@@ -302,7 +302,8 @@ class Note extends BaseModel {
 
   static async copyToContext (
     noteId /*: string */,
-    contextId /*: string */
+    contextId /*: string */,
+    changes /*: any */
   ) /*: Promise<any> */ {
     debug('**copyToContext**')
     debug('noteId: ', noteId, 'contextId: ', contextId)
@@ -325,6 +326,8 @@ class Note extends BaseModel {
         language: body.language
       }
     })
+
+    Object.assign(originalNote, changes)
 
     const newNote = await Note.createNote(
       originalNote.reader,
