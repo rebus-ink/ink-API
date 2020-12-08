@@ -40,12 +40,7 @@
  *     required:
  *       - url
  *
- *   source:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
+ *   source-input:
  *       type:
  *         type: string
  *         enum: [
@@ -108,18 +103,10 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/annotation'
- *       replies:
- *         type: array
- *         items:
- *           type: string
- *           format: url
- *         readOnly: true
- *         description: url Ids for Notes that belong to this source
  *       tags:
  *         type: array
  *         items:
  *           $ref: '#/definitions/tag'
- *         readOnly: true
  *         description: tags assigned to this source
  *       abstract:
  *         type: string
@@ -170,7 +157,8 @@
  *             Will also accept a single string value.
  *       status:
  *         type: string
- *         enum: ['test']
+ *         enum: ['test', 'archived', 'active']
+ *         default: 'active'
  *       readingOrder:
  *         type: array
  *         items:
@@ -183,6 +171,27 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/link'
+ *       json:
+ *         type: object
+ *       required:
+ *         - name
+ *         - type
+ *
+ *   source:
+ *     allOf:
+ *       - $ref: '#/definitions/reader-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       replies:
+ *         type: array
+ *         items:
+ *           type: string
+ *           format: url
+ *         readOnly: true
+ *         description: url Ids for Notes that belong to this source
  *       lastReadActivity:
  *         type: object
  *         readOnly: true
@@ -193,8 +202,6 @@
  *             type: object
  *           json:
  *             type: object
- *       json:
- *         type: object
  *       readerId:
  *         type: string
  *         format: url

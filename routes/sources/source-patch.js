@@ -38,7 +38,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/source'
+   *             $ref: '#/definitions/source-input'
    *       description: body should only include fields to be updated
    *     responses:
    *       200:

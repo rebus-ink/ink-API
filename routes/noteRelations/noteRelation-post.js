@@ -25,7 +25,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/noteRelation'
+   *             $ref: '#/definitions/noteRelation-input'
    *     responses:
    *       201:
    *         description: Successfully created NoteRelation

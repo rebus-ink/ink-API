@@ -53,7 +53,6 @@
  *       type: string
  *       enum: ['outline']
  *
- *
  *   outline:
  *     allOf:
  *       - $ref: '#/definitions/outline-input'
@@ -81,6 +80,5 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/note-outline'
- *
  *
  */

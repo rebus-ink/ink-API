@@ -28,7 +28,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/reader'
+   *             $ref: '#/definitions/reader-input'
    *     responses:
    *       200:
    *         description: Updated

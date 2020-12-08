@@ -26,6 +26,8 @@
  *         format: url
  *       document:
  *         type: string
+ *       contextId:
+ *         type: string
  *       body:
  *         type: array
  *         items:
@@ -91,21 +93,28 @@
  *               type:
  *                 type: string
  *
- *   noteWithContext:
+ *   note-outline-input:
  *     allOf:
- *       - $ref: '#/definitions/note'
- *       - type: object
- *         properties:
- *           contextId:
- *             type: string
- *           previous:
- *             type: string
- *           next:
- *             type: string
+ *       - $ref: '#/definitions/note-input'
+ *     properties:
+ *       previous:
+ *         type: string
+ *       next:
+ *         type: string
+ *       parentId:
+ *         type: string
+ *
  *
  *   note-outline:
  *     allOf:
  *       - $ref: '#/definitions/note'
+ *     properties:
+ *       previous:
+ *         type: string
+ *       next:
+ *         type: string
+ *       parentId:
+ *         type: string
  *
  *   notes:
  *     properties:

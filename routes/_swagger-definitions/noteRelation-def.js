@@ -1,16 +1,8 @@
 /**
  * @swagger
  * definition:
- *   noteRelation:
+ *   noteRelation-input:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
- *       readerId:
- *         type: string
- *         format: url
- *         readOnly: true
  *       type:
  *         type: string
  *       from:
@@ -21,6 +13,25 @@
  *         format: url
  *       contextId:
  *         type: string
+ *       json:
+ *         type: object
+ *     required:
+ *       - from
+ *       - to
+ *       - type
+ *
+ *   noteRelation:
+ *     allOf:
+ *       - $ref: '#/definitions/noteRelation-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: date-time
@@ -29,13 +40,8 @@
  *         type: string
  *         format: date-time
  *         readOnly: true
- *       json:
- *         type: object
  *   required:
  *     - id
- *     - from
- *     - to
- *     - type
  *     - published
  *     - readerId
  *

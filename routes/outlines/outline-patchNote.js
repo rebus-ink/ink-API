@@ -34,7 +34,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/note-outline-input'
    *         description: should only include properties that are being updated
    *     responses:
    *       200:
@@ -42,7 +42,7 @@ module.exports = function (app) {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/note-outline'
    *       400:
    *         description: Validation error
    *       401:

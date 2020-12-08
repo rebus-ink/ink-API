@@ -35,14 +35,14 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/note-outline-input'
    *     responses:
    *       201:
    *         description: Successfully added Note to Context
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/note-outline'
    *       400:
    *         description: Validation error
    *       401:
