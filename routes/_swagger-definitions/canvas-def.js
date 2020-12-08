@@ -4,12 +4,8 @@
 /**
  * @swagger
  * definition:
- *   canvas:
+ *   canvas-input:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
  *       name:
  *         type: string
  *       description:
@@ -20,6 +16,16 @@
  *         type: object
  *       settings:
  *         type: object
+ *     required:
+ *       - notebookId
+ *   canvas:
+ *     allOf:
+ *       - $ref: '#/definitions/canvas-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       readerId:
  *         type: string
  *         format: url
@@ -45,7 +51,6 @@
  *         readOnly: true
  *     required:
  *       - id
- *       - notebookId
  *       - readerId
  *       - published
  *

@@ -13,16 +13,8 @@
  *     required:
  *       - motivation
  *
- *   note:
+ *   note-input:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
- *       readerId:
- *         type: string
- *         format: url
- *         readOnly: true
  *       canonical:
  *         type: string
  *       stylesheet:
@@ -46,6 +38,23 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/notebook'
+ *       json:
+ *         type: object
+ *     required:
+ *       - body
+ *
+ *   note:
+ *     allOf:
+ *       - $ref: '#/definitions/note-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: date-time
@@ -54,8 +63,10 @@
  *         type: string
  *         format: date-time
  *         readOnly: true
- *       json:
- *         type: object
+ *     required:
+ *       - id
+ *       - readerId
+ *       - published
  *
  *   noteWithPub:
  *     allOf:
@@ -91,6 +102,10 @@
  *             type: string
  *           next:
  *             type: string
+ *
+ *   note-outline:
+ *     allOf:
+ *       - $ref: '#/definitions/note'
  *
  *   notes:
  *     properties:

@@ -27,7 +27,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/canvas'
+   *             $ref: '#/definitions/canvas-input'
    *     security:
    *       - Bearer: []
    *     responses:
