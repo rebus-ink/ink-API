@@ -72,7 +72,7 @@ module.exports = function (app) {
             })
           )
         }
-
+        let createdNote
         // copy
         if (req.query.source) {
           debug('copying from source: ', req.query.source)
@@ -85,14 +85,13 @@ module.exports = function (app) {
             )
           }
 
-          let copiedNote
           try {
-            copiedNote = await Note.copyToContext(
+            createdNote = await Note.copyToContext(
               req.query.source,
               req.params.id,
               req.body
             )
-            debug('copied note: ', copiedNote)
+            debug('copied note: ', createdNote)
           } catch (err) {
             debug('err copying note: ', err.message)
             if (err.message === 'no context') {
@@ -141,100 +140,96 @@ module.exports = function (app) {
               )
             }
           }
-
-          res.setHeader('Content-Type', 'application/ld+json')
-          res.setHeader('Location', copiedNote.id)
-          res.status(201).end(JSON.stringify(copiedNote.toJSON()))
-        }
-
-        // create new note
-        const body = req.body
-        debug('creating new note with body: ', body)
-        if (typeof body !== 'object' || _.isEmpty(body)) {
-          return next(
-            boom.badRequest('Body must be a JSON object', {
-              requestUrl: req.originalUrl,
-              requestBody: req.body
-            })
-          )
-        }
-
-        body.contextId = req.params.id
-
-        let createdNote
-        try {
-          createdNote = await Note.createNote(reader, body)
-          debug('created Note: ', createdNote)
-        } catch (err) {
-          debug('error creating note: ', err.message)
-          if (err instanceof ValidationError) {
+        } else {
+          // create new note
+          const body = req.body
+          debug('creating new note with body: ', body)
+          if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
-              boom.badRequest(
-                `Validation Error on Add Note to Outline: ${err.message}`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body,
-                  validation: err.data
-                }
-              )
-            )
-          } else if (err.message === 'no source') {
-            return next(
-              boom.notFound(
-                `Add Note to Outline Error: No Source found with id: ${
-                  body.sourceId
-                }`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
-            )
-          } else if (err.message === 'no context') {
-            return next(
-              boom.notFound(
-                `Add Note to Outline Error: No Outline found with id: ${
-                  req.params.id
-                }`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
-            )
-          } else if (err.message === 'no previous') {
-            return next(
-              boom.notFound(
-                `Add Note to Outline Error: No Note found with for previous property: ${
-                  req.body.previous
-                }`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
-            )
-          } else if (err.message === 'no next') {
-            return next(
-              boom.notFound(
-                `Add Note to Outline Error: No Note found with for next property: ${
-                  req.body.next
-                }`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
-              )
-            )
-          } else {
-            return next(
-              boom.badRequest(err.message, {
+              boom.badRequest('Body must be a JSON object', {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
             )
           }
+
+          body.contextId = req.params.id
+
+          try {
+            createdNote = await Note.createNote(reader, body)
+            debug('created Note: ', createdNote)
+          } catch (err) {
+            debug('error creating note: ', err.message)
+            if (err instanceof ValidationError) {
+              return next(
+                boom.badRequest(
+                  `Validation Error on Add Note to Outline: ${err.message}`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body,
+                    validation: err.data
+                  }
+                )
+              )
+            } else if (err.message === 'no source') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Source found with id: ${
+                    body.sourceId
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            } else if (err.message === 'no context') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Outline found with id: ${
+                    req.params.id
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            } else if (err.message === 'no previous') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Note found with for previous property: ${
+                    req.body.previous
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            } else if (err.message === 'no next') {
+              return next(
+                boom.notFound(
+                  `Add Note to Outline Error: No Note found with for next property: ${
+                    req.body.next
+                  }`,
+                  {
+                    requestUrl: req.originalUrl,
+                    requestBody: req.body
+                  }
+                )
+              )
+            } else {
+              return next(
+                boom.badRequest(err.message, {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                })
+              )
+            }
+          }
         }
+
         // if createdNote.previous
         if (createdNote.previous) {
           debug('previous note', createdNote.previous)
