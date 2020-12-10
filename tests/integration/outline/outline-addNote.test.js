@@ -6,7 +6,9 @@ const {
   destroyDB,
   createSource,
   createNoteContext,
-  createNote
+  createNote,
+  createTag,
+  addNoteToCollection
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 const _ = require('lodash')
@@ -400,6 +402,31 @@ const test = async app => {
     noteCopy = res.body
   })
 
+  const tag1 = await createTag(app, token, { name: 'test1', type: 'stack' })
+  await addNoteToCollection(app, token, noteId, tag1.shortId)
+
+  await tap.test('Copy an existing note to the context with tags', async () => {
+    const res = await request(app)
+      .post(`/outlines/${outlineId}/notes?source=${noteId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 201)
+    const body = res.body
+    await tap.ok(body.id)
+    await tap.equal(body.shortId, urlToId(body.id))
+
+    const resNote = await request(app)
+      .get(`/notes/${body.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.ok(resNote.body)
+    await tap.ok(resNote.body.tags)
+    await tap.equal(resNote.body.tags.length, 1)
+  })
+
   await tap.test(
     'Copy an existing note to the context with changes',
     async () => {
@@ -431,6 +458,16 @@ const test = async app => {
       await tap.type(res.get('Location'), 'string')
       await tap.equal(res.get('Location'), body.id)
       noteCopy = res.body
+
+      // previous note should have a next property
+      const resNote = await request(app)
+        .get(`/notes/${note2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+      await tap.ok(resNote.body)
+      await tap.ok(resNote.body.next)
+      await tap.equal(resNote.body.next, body.shortId)
     }
   )
 

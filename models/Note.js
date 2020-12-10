@@ -9,6 +9,7 @@ const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
 const debug = require('debug')('ink:models:Note')
 const { OutlineData } = require('./OutlineData')
+const { Note_Tag } = require('./Note_Tag')
 
 /*::
 type NoteType = {
@@ -334,6 +335,10 @@ class Note extends BaseModel {
       _.omit(originalNote, ['published', 'updated', 'id'])
     )
     debug('new note: ', newNote)
+
+    // copy tag relations
+    if (newNote && newNote.id) { await Note_Tag.copyTagsFromAnotherNote(noteId, urlToId(newNote.id)) }
+
     return newNote
   }
 

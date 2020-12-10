@@ -132,6 +132,23 @@ class Note_Tag extends Model {
       .delete()
       .where({ tagId: urlToId(tagId) })
   }
+
+  static async copyTagsFromAnotherNote (
+    originalNoteId /*: string */,
+    newNoteId /*: string */
+  ) {
+    const listOfNote_Tags = await Note_Tag.query().where(
+      'noteId',
+      '=',
+      originalNoteId
+    )
+    if (listOfNote_Tags.length > 0) {
+      let list = listOfNote_Tags.map(note_tag => {
+        return { tagId: note_tag.tagId, noteId: newNoteId }
+      })
+      await Note_Tag.query().insert(list)
+    }
+  }
 }
 
 module.exports = { Note_Tag }
