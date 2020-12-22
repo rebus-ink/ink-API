@@ -13,16 +13,8 @@
  *     required:
  *       - motivation
  *
- *   note:
+ *   note-input:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
- *       readerId:
- *         type: string
- *         format: url
- *         readOnly: true
  *       canonical:
  *         type: string
  *       stylesheet:
@@ -33,6 +25,8 @@
  *         type: string
  *         format: url
  *       document:
+ *         type: string
+ *       contextId:
  *         type: string
  *       body:
  *         type: array
@@ -46,6 +40,23 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/notebook'
+ *       json:
+ *         type: object
+ *     required:
+ *       - body
+ *
+ *   note:
+ *     allOf:
+ *       - $ref: '#/definitions/note-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: date-time
@@ -54,8 +65,10 @@
  *         type: string
  *         format: date-time
  *         readOnly: true
- *       json:
- *         type: object
+ *     required:
+ *       - id
+ *       - readerId
+ *       - published
  *
  *   noteWithPub:
  *     allOf:
@@ -80,17 +93,28 @@
  *               type:
  *                 type: string
  *
- *   noteWithContext:
+ *   note-outline-input:
+ *     allOf:
+ *       - $ref: '#/definitions/note-input'
+ *     properties:
+ *       previous:
+ *         type: string
+ *       next:
+ *         type: string
+ *       parentId:
+ *         type: string
+ *
+ *
+ *   note-outline:
  *     allOf:
  *       - $ref: '#/definitions/note'
- *       - type: object
- *         properties:
- *           contextId:
- *             type: string
- *           previous:
- *             type: string
- *           next:
- *             type: string
+ *     properties:
+ *       previous:
+ *         type: string
+ *       next:
+ *         type: string
+ *       parentId:
+ *         type: string
  *
  *   notes:
  *     properties:

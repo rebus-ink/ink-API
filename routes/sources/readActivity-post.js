@@ -31,7 +31,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/readActivity'
+   *             $ref: '#/definitions/readActivity-input'
    *     responses:
    *       201:
    *         description: Successfully created readActivity

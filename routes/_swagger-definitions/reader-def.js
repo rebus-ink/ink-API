@@ -1,12 +1,7 @@
 /**
  * @swagger
  * definition:
- *   reader:
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
+ *   reader-input:
  *       name:
  *         type: string
  *       username:
@@ -25,6 +20,15 @@
  *         type: object
  *       json:
  *         type: object
+ *
+ *   reader:
+ *     allOf:
+ *       - $ref: '#/definitions/reader-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: date-time

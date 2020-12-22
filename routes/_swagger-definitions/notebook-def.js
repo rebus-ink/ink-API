@@ -1,16 +1,8 @@
 /**
  * @swagger
  * definition:
- *   notebook-ref:
+ *   notebook-input:
  *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
- *       readerId:
- *         type: string
- *         format: url
- *         readOnly: true
  *       name:
  *         type: string
  *       description:
@@ -21,6 +13,22 @@
  *         default: 'active'
  *       settings:
  *         type: object
+ *     required:
+ *       - name
+ *       - status
+ *
+ *   notebook-ref:
+ *     allOf:
+ *       - $ref: '#/definitions/notebook-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       tags:
  *         type: array
  *         items:
@@ -37,8 +45,6 @@
  *         readOnly: true
  *   required:
  *     - id
- *     - name
- *     - status
  *     - published
  *     - readerId
  *

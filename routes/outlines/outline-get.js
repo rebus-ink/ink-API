@@ -93,7 +93,6 @@ module.exports = app => {
                 )
               }
             }
-
             const outline = Object.assign(noteContext.toJSON(), {
               notes: nestedNotesList
             })
