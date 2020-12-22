@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:reader-delete')
 const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
@@ -39,7 +38,6 @@ module.exports = function (app) {
     '/readers/:id',
     passport.authenticate('jwt', { session: false }),
     async function (req, res, next) {
-      debug('reader id: ', req.params.id)
       const reader = await Reader.byAuthId(req.user)
 
       const exists = await Reader.checkIfExistsById(req.params.id)

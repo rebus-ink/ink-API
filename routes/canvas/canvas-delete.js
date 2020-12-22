@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Canvas } = require('../../models/Canvas')
-const debug = require('debug')('ink:routes:canvas-delete')
 const { metricsQueue } = require('../../utils/metrics')
 module.exports = function (app) {
   /**
@@ -37,7 +36,6 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/canvas/:canvasId').delete(jwtAuth, function (req, res, next) {
     const canvasId = req.params.canvasId
-    debug('canvasId: ', canvasId)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -56,7 +54,6 @@ module.exports = function (app) {
         }
 
         const result = await Canvas.delete(canvasId)
-        debug('delete result: ', result)
         if (!result) {
           return next(
             boom.notFound(

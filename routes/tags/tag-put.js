@@ -7,9 +7,12 @@ const { Tag } = require('../../models/Tag')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { libraryCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const {
+  libraryCacheUpdate,
+  tagsCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:tag-put')
 
 module.exports = function (app) {
   /**
@@ -51,10 +54,8 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/tags/:tagId').put(jwtAuth, function (req, res, next) {
     const tagId = req.params.tagId
-    debug('tagId: ', tagId)
     Tag.byId(tagId)
       .then(async tag => {
-        debug('tag retrieved: ', tag)
         if (!tag) {
           return next(
             boom.notFound(`Put Tag Error: No Tag found with id ${tagId}`, {
@@ -83,7 +84,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -97,9 +97,7 @@ module.exports = function (app) {
         let updatedTag
         try {
           updatedTag = await tag.update(body)
-          debug('updated tag: ', updatedTag)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

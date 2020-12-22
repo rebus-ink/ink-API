@@ -4,7 +4,6 @@ const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const { urlToId } = require('../../utils/utils')
 const crypto = require('crypto')
-const { NoteBody } = require('../../models/NoteBody')
 const { OutlineData } = require('../../models/OutlineData')
 
 const test = async app => {

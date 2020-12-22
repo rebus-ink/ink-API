@@ -1,7 +1,6 @@
 const { Source } = require('./Source')
 const { Attribution } = require('./Attribution')
 const { Reader } = require('./Reader')
-const debug = require('debug')('ink:models:library')
 const _ = require('lodash')
 
 class Library {
@@ -136,10 +135,6 @@ class Library {
   }
 
   static async getLibraryCount (readerId, filters) {
-    debug('**getLibraryCount**')
-    debug('readerId: ', readerId)
-    debug('filters: ', filters)
-
     let builder = Source.query(Source.knex())
       .select('Source.id')
       .from('Source')
@@ -160,10 +155,6 @@ class Library {
     offset /*: number */,
     filters /*: any */
   ) {
-    debug('**getLibrary**')
-    debug('readerAuthId: ', readerAuthId)
-    debug('limit: ', limit, 'offset: ', offset)
-    debug('filters: ', filters)
     offset = !offset ? 0 : offset
 
     const readers = await Reader.query(Reader.knex())

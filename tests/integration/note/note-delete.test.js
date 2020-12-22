@@ -8,7 +8,6 @@ const {
   createNote
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
-const { Note } = require('../../../models/Note')
 
 const test = async app => {
   const token = getToken()
@@ -27,7 +26,8 @@ const test = async app => {
 
   noteId = urlToId(note.id)
 
-  const note2 = await createNote(app, token, {
+  // note2
+  await createNote(app, token, {
     body: { motivation: 'test' }
   })
 
@@ -154,7 +154,6 @@ const test = async app => {
     await tap.equal(error.details.requestUrl, `/notes/${noteId}`)
     await tap.equal(error.details.requestBody.body.content, 'something')
   })
-
 
   // // DELETE NOTES FOR SOURCE
   // await tap.test('Delete all Notes for a Source', async () => {

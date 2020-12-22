@@ -180,7 +180,7 @@ const test = async () => {
     await tap.equal(source_tags[0].sourceId, source4.id)
   })
 
-  const source5 = await Source.query().insertAndFetch({
+  await Source.query().insertAndFetch({
     name: 'source5',
     type: 'Article',
     links: {
@@ -245,7 +245,7 @@ const test = async () => {
     }
   })
 
-  const source6 = await Source.query().insertAndFetch({
+  await Source.query().insertAndFetch({
     name: 'source6',
     type: 'Article',
     readerId: readerId,

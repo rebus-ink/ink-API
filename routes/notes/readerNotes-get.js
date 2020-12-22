@@ -6,7 +6,6 @@ const paginate = require('../_middleware/paginate')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const { notesCacheGet } = require('../../utils/cache')
-const debug = require('debug')('ink:routes:readerNotes-get')
 
 module.exports = app => {
   /**
@@ -172,7 +171,6 @@ module.exports = app => {
         updatedStart: req.query.updatedStart,
         updatedEnd: req.query.updatedEnd
       }
-      debug('filters: ', filters)
       if (
         (filters.publishedStart &&
           filters.publishedEnd &&
@@ -216,7 +214,6 @@ module.exports = app => {
             )
           } else {
             returnedReader = reader
-            debug('returned reader: ', returnedReader)
             const length = reader.replies.length
             if (filters.document) {
               return Promise.resolve(length)
@@ -228,7 +225,6 @@ module.exports = app => {
           }
         })
         .then(count => {
-          debug('count: ', count)
           let reader = returnedReader
           res.setHeader('Content-Type', 'application/ld+json')
           res.end(

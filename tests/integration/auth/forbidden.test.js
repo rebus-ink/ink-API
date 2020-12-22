@@ -88,7 +88,7 @@ const test = async app => {
   const canvas1 = await createCanvas(app, token, {
     notebookId: notebook1.shortId
   })
-  const canvas2 = await createCanvas(app, token2, {
+  await createCanvas(app, token2, {
     notebookId: notebook2.shortId
   })
 

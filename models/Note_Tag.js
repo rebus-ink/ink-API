@@ -1,7 +1,6 @@
 // @flow
 const { Model } = require('objection')
 const { urlToId } = require('../utils/utils')
-const debug = require('debug')('ink:models:Note_Tag')
 
 /*::
 type NoteTagType = {
@@ -24,11 +23,7 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: string */
   ) /*: Promise<any> */ {
-    debug('**addTagToNote**')
-    debug('noteId: ', noteId)
-    debug('tagId: ', tagId)
     if (!noteId) return new Error('no note')
-
     if (!tagId) return new Error('no tag')
 
     try {
@@ -37,7 +32,6 @@ class Note_Tag extends Model {
         tagId
       })
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'note_tag_tagid_foreign') {
         throw new Error('no tag')
       } else if (err.constraint === 'note_tag_noteid_foreign') {
@@ -81,16 +75,12 @@ class Note_Tag extends Model {
     noteId /*: string */,
     tagId /*: string */
   ) /*: Promise<NoteTagType|Error> */ {
-    debug('**removeTagFromNote**')
-    debug('noteId: ', noteId)
-    debug('tagId: ', tagId)
     const result = await Note_Tag.query()
       .delete()
       .where({
         noteId: noteId,
         tagId
       })
-    debug('result of query: ', result)
     if (result === 0) {
       throw new Error(
         `Delete Tag from Note Error: No relationship found between Note ${noteId} and Tag ${tagId}`
@@ -111,9 +101,6 @@ class Note_Tag extends Model {
   static async deleteNoteTagsOfNote (
     noteId /*: string */
   ) /*: Promise<number|Error> */ {
-    debug('**deleteNoteTagsOfNote**')
-    debug('noteId: ', noteId)
-
     if (!noteId) return new Error('no note')
 
     return await Note_Tag.query()
@@ -124,8 +111,6 @@ class Note_Tag extends Model {
   static async deleteNoteTagsOfTag (
     tagId /*: string */
   ) /*: Promise<number|Error> */ {
-    debug('**debugNoteTagsOfTag**')
-    debug('tagId: ', tagId)
     if (!tagId) return new Error('no tag')
 
     return await Note_Tag.query()

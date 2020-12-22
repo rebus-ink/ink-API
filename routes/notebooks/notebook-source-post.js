@@ -8,7 +8,6 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:notebook-note-post')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { Tag } = require('../../models/Tag')
 const { notebooksCacheUpdate } = require('../../utils/cache')
@@ -55,8 +54,7 @@ module.exports = function (app) {
     .route('/notebooks/:notebookId/sources')
     .post(jwtAuth, function (req, res, next) {
       const notebookId = req.params.notebookId
-      debug('notebookId', notebookId)
-      debug('request body: ', req.body)
+
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {

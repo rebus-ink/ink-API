@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Notebook_Tag } = require('../../models/Notebook_Tag')
-const debug = require('debug')('ink:routes:notebook-delete-tag')
 const { notebooksCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
@@ -46,7 +45,6 @@ module.exports = function (app) {
     .delete(jwtAuth, function (req, res, next) {
       const tagId = req.params.tagId
       const notebookId = req.params.notebookId
-      debug('tagId', tagId, 'notebookId', notebookId)
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -76,7 +74,6 @@ module.exports = function (app) {
               await notebooksCacheUpdate(reader.authId)
               res.status(204).end()
             } catch (err) {
-              debug('error: ', err.message)
               return next(
                 boom.notFound(err.message, {
                   requestUrl: req.originalUrl

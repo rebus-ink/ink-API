@@ -7,7 +7,6 @@ const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { urlToId, checkOwnership } = require('../../utils/utils')
 const { NoteContext } = require('../../models/NoteContext')
-const debug = require('debug')('ink:routes:outline-put')
 
 module.exports = function (app) {
   /**
@@ -42,7 +41,6 @@ module.exports = function (app) {
    */
   app.use('/', router)
   router.route('/outlines/:id').put(jwtAuth, function (req, res, next) {
-    debug('outline id: ', req.params.id)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -55,7 +53,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
         if (typeof body !== 'object') {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -90,9 +87,7 @@ module.exports = function (app) {
         let updatedOutline
         try {
           updatedOutline = await NoteContext.update(body)
-          debug('updated outline: ', updatedOutline)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -46,8 +46,6 @@ const test = async app => {
     type: 'Robot'
   }
 
-  let createdAttribution
-
   await tap.test('Create Attribution', async () => {
     let response = await Attribution.createAttribution(
       attributionObject,
@@ -57,7 +55,6 @@ const test = async app => {
     await tap.ok(response)
     await tap.ok(response instanceof Attribution)
     await tap.equal(response.readerId, createdReader.id)
-    createdAttribution = response
   })
 
   await tap.test('Create Attribution with string', async () => {
@@ -96,13 +93,6 @@ const test = async app => {
         `author attribution Validation Error: name is a required property`
       )
     }
-  })
-
-  await tap.test('Get attribution by Id', async () => {
-    let response = await Attribution.byId(createdAttribution.id)
-
-    await tap.ok(response)
-    await tap.ok(response instanceof Attribution)
   })
 
   await tap.test('Get all attributions by sourceId', async () => {

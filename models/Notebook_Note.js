@@ -1,7 +1,6 @@
 // @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
-const debug = require('debug')('ink:models:Notebook_Note')
 
 /*::
 type NotebookNoteType = {
@@ -24,8 +23,6 @@ class Notebook_Note extends BaseModel {
     notebookId /*: string */,
     noteId /*: string */
   ) /*: Promise<any> */ {
-    debug('**addNoteToNotebook**')
-    debug('notebookId: ', notebookId, 'noteId: ', noteId)
     if (!notebookId) throw new Error('no notebook')
     if (!noteId) throw new Error('no note')
     notebookId = urlToId(notebookId)
@@ -37,7 +34,6 @@ class Notebook_Note extends BaseModel {
         noteId
       })
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'notebook_note_noteid_foreign') {
         throw new Error('no note')
       } else if (err.constraint === 'notebook_note_notebookid_foreign') {
@@ -99,8 +95,6 @@ class Notebook_Note extends BaseModel {
     notebookId /*: string */,
     noteId /*: string */
   ) /*: Promise<NotebookNoteType|Error> */ {
-    debug('**removeNoteFromNotebook**')
-    debug('notebookId: ', notebookId, 'noteId: ', noteId)
     notebookId = urlToId(notebookId)
     noteId = urlToId(noteId)
 
@@ -110,7 +104,6 @@ class Notebook_Note extends BaseModel {
         notebookId,
         noteId
       })
-    debug('result: ', result)
     if (result === 0) {
       throw new Error(
         `Remove Note from Notebook Error: No Relation found between Notebook ${notebookId} and Note ${noteId}`

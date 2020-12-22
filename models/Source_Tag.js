@@ -1,7 +1,6 @@
 // @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
-const debug = require('debug')('ink:models:Source_Tag')
 
 /*::
 type SourceTagType = {
@@ -24,9 +23,6 @@ class Source_Tag extends BaseModel {
     sourceId /*: string */,
     tagId /*: string */
   ) /*: Promise<any> */ {
-    debug('**addTagToSource**')
-    debug('sourceId: ', sourceId)
-    debug('tagId: ', tagId)
     if (!sourceId) throw new Error('no source')
     if (!tagId) throw new Error('no tag')
 
@@ -36,7 +32,6 @@ class Source_Tag extends BaseModel {
         tagId
       })
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'source_tag_tagid_foreign') {
         throw new Error('no tag')
       } else if (err.constraint === 'source_tag_sourceid_foreign') {
@@ -53,16 +48,13 @@ class Source_Tag extends BaseModel {
     sourceId /*: string */,
     tagId /*: string */
   ) /*: Promise<SourceTagType|Error> */ {
-    debug('**removeTagFromSource**')
-    debug('sourceId: ', sourceId)
-    debug('tagId: ', tagId)
     const result = await Source_Tag.query()
       .delete()
       .where({
         sourceId: urlToId(sourceId),
         tagId
       })
-    debug('result: ', result)
+
     if (result === 0) {
       throw new Error(
         `Remove Tag from Source Error: No Relation found between Tag ${tagId} and Source ${sourceId}`
@@ -76,9 +68,6 @@ class Source_Tag extends BaseModel {
     sourceId /*: string */,
     tagId /*: string */
   ) /*: Promise<SourceTagType|Error> */ {
-    debug('**removeTagFromSourceNoError**')
-    debug('sourceId: ', sourceId)
-    debug('tagId: ', tagId)
     return await Source_Tag.query()
       .delete()
       .where({
@@ -90,8 +79,6 @@ class Source_Tag extends BaseModel {
   static async deleteSourceTagsOfSource (
     sourceId /*: string */
   ) /*: Promise<number|Error> */ {
-    debug('**deleteSourceTagsOfSource**')
-    debug('sourceId: ', sourceId)
     if (!sourceId) return new Error('no source')
 
     return await Source_Tag.query()
@@ -102,8 +89,6 @@ class Source_Tag extends BaseModel {
   static async deleteSourceTagsOfTag (
     tagId /*: string */
   ) /*: Promise<number|Error> */ {
-    debug('**deleteSourceTagsOfTag')
-    debug('tagId: ', tagId)
     if (!tagId) return new Error('no tag')
 
     return await Source_Tag.query()
@@ -115,9 +100,6 @@ class Source_Tag extends BaseModel {
     tagName /*: string */,
     readerId /*: string */
   ) /*: Promise<Array<string>> */ {
-    debug('**getIdsByCollection**')
-    debug('tagName: ', tagName)
-    debug('readerId: ', readerId)
     const res = await Source_Tag.query()
       .select('source_tag.sourceId')
       .leftJoin('Tag', 'source_tag.tagId', '=', 'Tag.id')

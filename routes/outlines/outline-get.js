@@ -5,7 +5,6 @@ const { NoteContext } = require('../../models/NoteContext')
 const utils = require('../../utils/utils')
 const { notesListToTree } = require('../../utils/outline')
 const boom = require('@hapi/boom')
-const debug = require('debug')('ink:routes:outline-get')
 
 module.exports = app => {
   app.use('/', router)
@@ -48,10 +47,8 @@ module.exports = app => {
     passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
-      debug('id: ', id)
       NoteContext.byId(id)
         .then(noteContext => {
-          debug('outline: ', noteContext)
           if (
             !noteContext ||
             noteContext.deleted ||
@@ -96,7 +93,6 @@ module.exports = app => {
             const outline = Object.assign(noteContext.toJSON(), {
               notes: nestedNotesList
             })
-            debug('updated outline: ', outline)
             res.setHeader('Content-Type', 'application/ld+json')
             res.end(JSON.stringify(outline))
           }

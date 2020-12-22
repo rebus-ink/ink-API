@@ -8,7 +8,6 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:noteContexts-addNote')
 
 module.exports = function (app) {
   /**
@@ -80,7 +79,6 @@ module.exports = function (app) {
 
           // copy
           if (req.query.source) {
-            debug('source: ', req.query.source)
             if (!checkOwnership(reader.id, req.query.source)) {
               return next(
                 boom.forbidden(
@@ -99,9 +97,7 @@ module.exports = function (app) {
                 req.query.source,
                 req.params.id
               )
-              debug('copied note: ', copiedNote)
             } catch (err) {
-              debug('error: ', err.message)
               if (err.message === 'no context') {
                 return next(
                   boom.notFound(
@@ -134,7 +130,6 @@ module.exports = function (app) {
 
           // create new note
           const body = req.body
-          debug('creating a new note: ', body)
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
               boom.badRequest('Body must be a JSON object', {
@@ -148,9 +143,7 @@ module.exports = function (app) {
           let createdNote
           try {
             createdNote = await Note.createNote(reader, body)
-            debug('created note: ', createdNote)
           } catch (err) {
-            debug('error: ', err.message)
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(

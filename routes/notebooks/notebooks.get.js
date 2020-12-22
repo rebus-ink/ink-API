@@ -6,7 +6,6 @@ const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
 const paginate = require('../_middleware/paginate')
-const debug = require('debug')('ink:routes:notebooks-get')
 const { notebooksCacheGet } = require('../../utils/cache')
 
 module.exports = function (app) {
@@ -86,7 +85,6 @@ module.exports = function (app) {
         orderBy: req.query.orderBy,
         reverse: req.query.reverse
       }
-      debug('filters', filters)
 
       Reader.byAuthId(req.user)
         .then(async reader => {
@@ -116,15 +114,12 @@ module.exports = function (app) {
               req.skip,
               filters
             )
-            debug('notebooks retrieved: ', notebooks)
 
             let count
             if (notebooks.length < req.query.limit && notebooks.length > 0) {
               count = notebooks.length + req.skip
-              debug('count calculated', count)
             } else {
               count = await Notebook.count(urlToId(reader.id), filters)
-              debug('count retrieved from database', count)
             }
 
             res.setHeader('Content-Type', 'application/ld+json')

@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership, urlToId } = require('../../utils/utils')
 const { ValidationError } = require('objection')
-const debug = require('debug')('ink:routes:canvas-put')
 const { Canvas } = require('../../models/Canvas')
 
 module.exports = function (app) {
@@ -69,13 +68,10 @@ module.exports = function (app) {
         }
         const canvas = Object.assign(req.body, { id: urlToId(canvasId) })
         canvas.readerId = reader.id
-        debug('update to be applied: ', canvas)
         let updatedCanvas
         try {
           updatedCanvas = await Canvas.update(canvas)
-          debug('canvas updated: ', updatedCanvas)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

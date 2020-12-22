@@ -7,7 +7,6 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteContext } = require('../../models/NoteContext')
-const debug = require('debug')('ink:routes:noteContexts-post')
 const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
@@ -53,7 +52,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -69,9 +67,7 @@ module.exports = function (app) {
             body,
             reader.id
           )
-          debug('created NoteContext: ', createdNoteContext)
         } catch (err) {
-          debug('error: ', err)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

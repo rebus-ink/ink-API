@@ -133,20 +133,6 @@ const test = async app => {
     }
   )
 
-  await tap.test('Reader asRef', async () => {
-    const refObject = createdReader.asRef()
-
-    await tap.type(refObject, 'object')
-    await tap.type(refObject.id, 'string')
-    await tap.equal(refObject.authId, undefined)
-
-    const refObject2 = createdReader2.asRef()
-    await tap.type(refObject2, 'object')
-    await tap.equal(refObject2.json, undefined)
-    await tap.equal(refObject2.preferences, undefined)
-    await tap.equal(refObject2.profile, undefined)
-  })
-
   let updatedTimestamp
   await tap.test('update Reader name', async () => {
     const updatedReader = await Reader.update(
