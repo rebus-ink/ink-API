@@ -7,14 +7,17 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const debug = require('debug')('ink:routes:note-post')
 const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
 const { Notebook } = require('../../models/Notebook')
 const { Notebook_Note } = require('../../models/Notebook_Note')
-const { notesCacheUpdate, tagsCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const {
+  notesCacheUpdate,
+  tagsCacheUpdate,
+  notebooksCacheUpdate
+} = require('../../utils/cache')
 
 module.exports = function (app) {
   /**
@@ -73,10 +76,8 @@ module.exports = function (app) {
         let createdNote
         try {
           createdNote = await Note.createNote(reader, body)
-          debug('created note: ', createdNote)
         } catch (err) {
           if (err instanceof ValidationError) {
-            debug('error: ', err.message)
             return next(
               boom.badRequest(
                 `Validation Error on Create Note: ${err.message}`,

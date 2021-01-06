@@ -9,7 +9,6 @@ const { Note } = require('../../models/Note')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { ValidationError } = require('objection')
-const debug = require('debug')('ink:routes:note-put')
 const { Notebook } = require('../../models/Notebook')
 const { Notebook_Note } = require('../../models/Notebook_Note')
 const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
@@ -54,7 +53,6 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/notes/:noteId').put(jwtAuth, function (req, res, next) {
     const noteId = req.params.noteId
-    debug('id of note to update: ', noteId)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -76,13 +74,10 @@ module.exports = function (app) {
 
         const note = Object.assign(req.body, { id: urlToId(noteId) })
         note.readerId = reader.id
-        debug('update to be applied: ', note)
         let updatedNote
         try {
           updatedNote = await Note.update(note)
-          debug('note updated: ', updatedNote)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -1,7 +1,6 @@
 // @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
-const debug = require('debug')('ink:models:Notebook_Tag')
 
 /*::
 type NotebookTagType = {
@@ -24,8 +23,6 @@ class Notebook_Tag extends BaseModel {
     notebookId /*: string */,
     tagId /*: string */
   ) /*: Promise<any> */ {
-    debug('**addTagToNotebook**')
-    debug('notebookId: ', notebookId, 'tagId: ', tagId)
     if (!notebookId) throw new Error('no notebook')
     if (!tagId) throw new Error('no tag')
     notebookId = urlToId(notebookId)
@@ -36,7 +33,6 @@ class Notebook_Tag extends BaseModel {
         tagId
       })
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'notebook_tag_tagid_foreign') {
         throw new Error('no tag')
       } else if (err.constraint === 'notebook_tag_notebookid_foreign') {
@@ -53,8 +49,6 @@ class Notebook_Tag extends BaseModel {
     notebookId /*: string */,
     tagId /*: string */
   ) /*: Promise<NotebookTagType|Error> */ {
-    debug('**removeTagFromNotebook**')
-    debug('notebookId: ', notebookId, 'tagId: ', tagId)
     notebookId = urlToId(notebookId)
 
     const result = await Notebook_Tag.query()
@@ -63,7 +57,6 @@ class Notebook_Tag extends BaseModel {
         notebookId,
         tagId
       })
-    debug('result: ', result)
     if (result === 0) {
       throw new Error(
         `Remove Tag from Notebook Error: No Relation found between Notebook ${notebookId} and Tag ${tagId}`

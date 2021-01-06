@@ -8,7 +8,6 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { ReadActivity } = require('../../models/ReadActivity')
 const { checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:readActivity-post')
 const { libraryCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
@@ -51,7 +50,6 @@ module.exports = function (app) {
     .route('/sources/:sourceId/readActivity')
     .post(jwtAuth, function (req, res, next) {
       const sourceId = req.params.sourceId
-      debug('sourceId: ', sourceId)
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
@@ -73,7 +71,6 @@ module.exports = function (app) {
           }
 
           const body = req.body
-          debug('request body: ', body)
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
               boom.badRequest(
@@ -93,9 +90,7 @@ module.exports = function (app) {
               sourceId,
               body
             )
-            debug('created ReadActivity: ', createdReadActivity)
           } catch (err) {
-            debug('error: ', err.message)
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(

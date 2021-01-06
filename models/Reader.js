@@ -10,7 +10,6 @@ const { urlToId } = require('../utils/utils')
 const { NoteContext } = require('./NoteContext')
 const { NoteBody } = require('./NoteBody')
 const { NoteRelation } = require('./NoteRelation')
-const debug = require('debug')('ink:models:Reader')
 const short = require('short-uuid')
 const translator = short()
 
@@ -95,7 +94,6 @@ class Reader extends BaseModel {
   }
 
   static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
-    debug('**byAuthId**')
     const readers = await Reader.query(Reader.knex()).where(
       'authId',
       '=',
@@ -108,9 +106,6 @@ class Reader extends BaseModel {
     id /*: string */,
     eager /*: string */
   ) /*: Promise<ReaderType> */ {
-    debug('**byId**')
-    debug('id: ', id)
-    debug('eager: ', eager)
     const qb = Reader.query(Reader.knex()).where('id', '=', id)
     const readers = await qb.withGraphFetched(eager)
     if (readers.length === 0 || readers[0].deleted) return null
@@ -120,8 +115,6 @@ class Reader extends BaseModel {
   static async checkIfExistsByAuthId (
     authId /*: string */
   ) /*: Promise<boolean> */ {
-    debug('**checkIfExistsByAuthId**')
-    debug('authId: ', authId)
     const readers = await Reader.query(Reader.knex()).where(
       'authId',
       '=',
@@ -130,13 +123,7 @@ class Reader extends BaseModel {
     return readers.length > 0
   }
 
-  /**
-   *
-   * Important: will return true if the Reader has been soft-deleted
-   */
   static async checkIfExistsById (id /*: string */) /*: Promise<boolean> */ {
-    debug('**checkIfExistsById**')
-    debug('id: ', id)
     const readers = await Reader.query(Reader.knex()).where('id', '=', id)
     return readers.length > 0 && !readers[0].deleted
   }
@@ -163,9 +150,6 @@ class Reader extends BaseModel {
     authId /*: string */,
     person /*: any */
   ) /*: Promise<ReaderType> */ {
-    debug('**createReader**')
-    debug('authId: ', authId)
-    debug('person: ', person)
     const props = _.pick(person, attributes)
     props.id = translator.new()
     props.authId = authId
@@ -175,7 +159,6 @@ class Reader extends BaseModel {
     let newReader = await Reader.query(Reader.knex())
       .insert(props)
       .returning('*')
-    debug('created reader: ', newReader)
 
     // create default Tags
     await Tag.createMultipleTags(newReader.id, [
@@ -240,9 +223,6 @@ class Reader extends BaseModel {
     id /*: string */,
     object /*: any */
   ) /*: Promise<ReaderType|null> */ {
-    debug('**update**')
-    debug('id: ', id)
-    debug('object: ', object)
     const modifications = _.pick(object, [
       'name',
       'preferences',
@@ -254,13 +234,10 @@ class Reader extends BaseModel {
       'role'
     ])
     this._validateReader(modifications)
-    debug('modifications: ', modifications)
     return await Reader.query().updateAndFetchById(urlToId(id), modifications)
   }
 
   static async softDelete (id /*: string */) /*: Promise<number> */ {
-    debug('**softDelete**')
-    debug('id: ', id)
     id = urlToId(id)
     const now = new Date().toISOString()
     await Source.query()
@@ -354,14 +331,6 @@ class Reader extends BaseModel {
     json.shortId = urlToId(json.id)
 
     return json
-  }
-
-  asRef () /*: {name: string, id: string, type: string} */ {
-    debug('**asRef**')
-    return {
-      id: this.id,
-      name: this.name
-    }
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {

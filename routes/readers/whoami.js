@@ -3,7 +3,6 @@ const router = express.Router()
 const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
-const debug = require('debug')('ink:routes:whoami')
 
 module.exports = app => {
   /**
@@ -36,7 +35,6 @@ module.exports = app => {
     function (req, res, next) {
       Reader.byAuthId(req.user)
         .then(reader => {
-          debug('retrieved reader: ', reader)
           if (!reader || reader.deleted) {
             return next(
               boom.notFound(`No reader found with this token`, {
@@ -44,9 +42,7 @@ module.exports = app => {
               })
             )
           } else {
-            debug(`Got reader ${JSON.stringify(reader)}`)
             res.setHeader('Content-Type', 'application/ld+json')
-            debug(`Setting location to ${reader.id}`)
             res.setHeader('Location', reader.id)
             res.end(JSON.stringify(reader.toJSON()))
           }

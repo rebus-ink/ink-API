@@ -6,7 +6,6 @@ const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const { tagsCacheGet } = require('../../utils/cache')
-const debug = require('debug')('ink:routes:tags-get')
 
 module.exports = function (app) {
   /**
@@ -60,10 +59,8 @@ module.exports = function (app) {
             res.status(304).end()
           } else {
             let tags = await Tag.byReaderId(urlToId(reader.id))
-            debug('tags retrieved: ', tags)
 
             tags = tags.filter(tag => !tag.deleted).map(tag => tag.toJSON())
-            debug('tags after filtering: ', tags)
             res.setHeader('Content-Type', 'application/ld+json')
             res.end(JSON.stringify(tags))
           }

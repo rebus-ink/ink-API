@@ -1,10 +1,7 @@
 // @flow
 'use strict'
-const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
-const { Note } = require('./Note')
-const debug = require('debug')('ink:models:NoteBody')
 const striptags = require('striptags')
 
 /*::
@@ -52,37 +49,12 @@ class NoteBody extends BaseModel {
       required: ['noteId', 'motivation', 'readerId']
     }
   }
-  static get relationMappings () /*: any */ {
-    const { Reader } = require('./Reader')
-    return {
-      reader: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Reader,
-        join: {
-          from: 'NoteBody.readerId',
-          to: 'Reader.id'
-        }
-      },
-      note: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Note,
-        join: {
-          from: 'NoteBody.noteId',
-          to: 'Note.id'
-        }
-      }
-    }
-  }
 
   static async createMultipleNoteBodies (
     noteBodies /*: any */,
     noteId /*: string */,
     readerId /*: string */
   ) /*: Promise<void> */ {
-    debug('**createMultipleNoteBodies**')
-    debug('noteBodies: ', noteBodies)
-    debug('noteId: ', noteId)
-    debug('readerId: ', readerId)
     // validate
     if (!noteBodies || !noteBodies[0]) throw new Error('no noteBody')
     if (!noteId) throw new Error('no noteId')
@@ -111,7 +83,6 @@ class NoteBody extends BaseModel {
       props.formattedContent = striptags(props.content)
       return props
     })
-    debug('bodies to be inserted: ', bodies)
 
     await NoteBody.query(NoteBody.knex()).insert(bodies)
   }
@@ -121,16 +92,10 @@ class NoteBody extends BaseModel {
     noteId /*: string */,
     readerId /*: string */
   ) /*: Promise<void> */ {
-    debug('**createNoteBody**')
-    debug('noteBody: ', noteBody)
-    debug('noteId: ', noteId, 'readerId: ', readerId)
-
     return await NoteBody.createMultipleNoteBodies([noteBody], noteId, readerId)
   }
 
   static async deleteBodiesOfNote (noteId /*: string */) /*: Promise<number> */ {
-    debug('**deleteBodiesOfNote**')
-    debug('noteId: ', noteId)
     return await NoteBody.query(NoteBody.knex())
       .where('noteId', '=', noteId)
       .del()
@@ -139,8 +104,6 @@ class NoteBody extends BaseModel {
   static async softDeleteBodiesOfNote (
     noteId /*: string */
   ) /*: Promise<void> */ {
-    debug('**softDeleteBodiesOfNote**')
-    debug('noteId: ', noteId)
     const date = new Date().toISOString()
 
     await NoteBody.query(NoteBody.knex())

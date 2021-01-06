@@ -8,7 +8,6 @@ const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { checkOwnership, urlToId } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:outline-addNote')
 
 module.exports = function (app) {
   /**
@@ -75,7 +74,6 @@ module.exports = function (app) {
         let createdNote
         // copy
         if (req.query.source) {
-          debug('copying from source: ', req.query.source)
           if (!checkOwnership(reader.id, req.query.source)) {
             return next(
               boom.forbidden(`Access to Note ${req.query.source} disallowed`, {
@@ -91,9 +89,7 @@ module.exports = function (app) {
               req.params.id,
               req.body
             )
-            debug('copied note: ', createdNote)
           } catch (err) {
-            debug('err copying note: ', err.message)
             if (err.message === 'no context') {
               return next(
                 boom.notFound(
@@ -143,7 +139,6 @@ module.exports = function (app) {
         } else {
           // create new note
           const body = req.body
-          debug('creating new note with body: ', body)
           if (typeof body !== 'object' || _.isEmpty(body)) {
             return next(
               boom.badRequest('Body must be a JSON object', {
@@ -157,9 +152,7 @@ module.exports = function (app) {
 
           try {
             createdNote = await Note.createNote(reader, body)
-            debug('created Note: ', createdNote)
           } catch (err) {
-            debug('error creating note: ', err.message)
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
@@ -232,7 +225,6 @@ module.exports = function (app) {
 
         // if createdNote.previous
         if (createdNote.previous) {
-          debug('previous note', createdNote.previous)
           const previousNote = await Note.byId(createdNote.previous)
           await Note.update(
             Object.assign(previousNote, { next: urlToId(createdNote.id) })
@@ -241,7 +233,6 @@ module.exports = function (app) {
 
         // if createdNote.next
         if (createdNote.next) {
-          debug('next note', createdNote.next)
           const nextNote = await Note.byId(createdNote.next)
           await Note.update(
             Object.assign(nextNote, { previous: urlToId(createdNote.id) })

@@ -5,7 +5,6 @@ const _ = require('lodash')
 const { Model, ValidationError } = require('objection')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
-const debug = require('debug')('ink:models:NoteRelation')
 
 class NoteRelation extends BaseModel {
   static get tableName () /*: string */ {
@@ -31,17 +30,8 @@ class NoteRelation extends BaseModel {
     }
   }
   static get relationMappings () /*: any */ {
-    const { Reader } = require('./Reader')
     const { Note } = require('./Note')
     return {
-      reader: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Reader,
-        join: {
-          from: 'NoteRelation.readerId',
-          to: 'Reader.id'
-        }
-      },
       toNote: {
         relation: Model.BelongsToOneRelation,
         modelClass: Note,
@@ -65,9 +55,6 @@ class NoteRelation extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    debug('**createNoteRelation**')
-    debug('object: ', object)
-    debug('readerId: ', readerId)
     const props = _.pick(object, ['from', 'to', 'type', 'json'])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
@@ -77,9 +64,7 @@ class NoteRelation extends BaseModel {
       createdNoteRel = await NoteRelation.query(
         NoteRelation.knex()
       ).insertAndFetch(props)
-      debug('created note relation: ', createdNoteRel)
     } catch (err) {
-      debug('error: ', err.message)
       if (!(err instanceof ValidationError)) {
         if (err.constraint === 'noterelation_from_foreign') {
           throw new Error('no from')
@@ -98,8 +83,6 @@ class NoteRelation extends BaseModel {
   }
 
   static async updateNoteRelation (object /*: any */) /*: Promise<any> */ {
-    debug('**updateNoteRelation**')
-    debug('object: ', object)
     const relationId = object.id
     const props = _.pick(object, [
       'from',
@@ -116,9 +99,7 @@ class NoteRelation extends BaseModel {
       updatedRel = await NoteRelation.query(NoteRelation.knex())
         .updateAndFetchById(relationId, props)
         .whereNull('deleted')
-      debug('updated relation: ', updatedRel)
     } catch (err) {
-      debug('error: ', err.message)
       if (!(err instanceof ValidationError)) {
         if (err.constraint === 'noterelation_from_foreign') {
           throw new Error('no from')
@@ -134,8 +115,6 @@ class NoteRelation extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
-    debug('**debug**')
-    debug('id: ', id)
     return await NoteRelation.query(NoteRelation.knex()).patchAndFetchById(id, {
       deleted: new Date().toISOString()
     })
@@ -144,8 +123,6 @@ class NoteRelation extends BaseModel {
   static async getRelationsForNote (
     noteId /*: string */
   ) /*: Promise<Array<any>> */ {
-    debug('**getRelationsForNote**')
-    debug('noteId: ', noteId)
     return await NoteRelation.query(NoteRelation.knex())
       .where('to', noteId)
       .orWhere('from', noteId)

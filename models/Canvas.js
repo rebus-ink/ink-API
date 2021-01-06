@@ -6,7 +6,6 @@ const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const { Notebook } = require('./Notebook.js')
-const debug = require('debug')('ink:models:Canvas')
 
 class Canvas extends BaseModel {
   static get tableName () /*: string */ {
@@ -68,9 +67,6 @@ class Canvas extends BaseModel {
     object /*: any */,
     readerId /*: string */
   ) /*: Promise<any> */ {
-    debug('**createCanvas**')
-    debug('incoming canvas object: ', object)
-    debug('readerId', readerId)
     const props = _.pick(object, [
       'name',
       'description',
@@ -80,7 +76,6 @@ class Canvas extends BaseModel {
     ])
     props.readerId = readerId
     props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-    debug('canvas to add to database: ', props)
     let result
     try {
       result = await Canvas.query().insertAndFetch(props)
@@ -96,8 +91,6 @@ class Canvas extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    debug('**byId**')
-    debug('id: ', id)
     const canvas = await Canvas.query()
       .findById(id)
       .withGraphFetched('[noteContexts(notDeleted), notebook, reader]')
@@ -106,13 +99,10 @@ class Canvas extends BaseModel {
           builder.whereNull('deleted')
         }
       })
-    debug('canvas retrieved: ', canvas)
     return canvas
   }
 
   static async update (object /*: any */) /*: Promise<any> */ {
-    debug('**update**')
-    debug('incoming object: ', object)
     const props = _.pick(object, [
       'readerId',
       'name',
@@ -121,7 +111,6 @@ class Canvas extends BaseModel {
       'settings',
       'notebookId'
     ])
-    debug('props passed to database: ', props)
     if (props.notebookId === null) {
       throw new Error(
         'Validation Error on Update Canvas: notebookId is a required property'
@@ -131,15 +120,10 @@ class Canvas extends BaseModel {
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
-    debug('**delete**')
-    debug('id: ', id)
     return await Canvas.query().deleteById(id)
   }
 
   static async applyFilters (query /*: any */, filters /*: any */) {
-    debug('**applyFilters**')
-    debug('filters: ', filters)
-
     if (filters.notebook) {
       query = query.where('notebookId', '=', urlToId(filters.notebook))
     }
@@ -151,8 +135,6 @@ class Canvas extends BaseModel {
     id /*: string */,
     filters /*: any */
   ) /*: Promise<Array<any>> */ {
-    debug('**byReader**')
-
     let query = Canvas.query()
       .where('readerId', '=', id)
       .whereNull('deleted')

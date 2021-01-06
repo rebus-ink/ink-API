@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const debug = require('debug')('ink:routes:canvas-post')
 const { metricsQueue } = require('../../utils/metrics')
 const { urlToId } = require('../../utils/utils')
 const { Canvas } = require('../../models/Canvas')
@@ -54,7 +53,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest(
@@ -70,7 +68,6 @@ module.exports = function (app) {
         try {
           createdCanvas = await Canvas.createCanvas(body, urlToId(reader.id))
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
-const debug = require('debug')('ink:routes:reader-post')
 const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
@@ -48,13 +47,10 @@ module.exports = function (app) {
           })
         )
       }
-      debug('request body: ', req.body)
       let createdReader
       try {
         createdReader = await Reader.createReader(req.user, req.body)
-        debug('created reader: ', createdReader)
       } catch (err) {
-        debug('error: ', err.message)
         if (err instanceof ValidationError) {
           return next(
             boom.badRequest(

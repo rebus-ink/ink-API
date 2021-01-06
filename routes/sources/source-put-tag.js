@@ -10,7 +10,6 @@ const {
 } = require('../../utils/cache')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:source-put-tag')
 
 module.exports = function (app) {
   /**
@@ -51,7 +50,6 @@ module.exports = function (app) {
     .put(jwtAuth, function (req, res, next) {
       const sourceId = req.params.sourceId
       const tagId = req.params.tagId
-      debug('sourceId: ', sourceId, 'tagId: ', tagId)
       Reader.byAuthId(req.user)
         .then(reader => {
           if (!reader || reader.deleted) {
@@ -84,7 +82,6 @@ module.exports = function (app) {
               res.status(204).end()
             })
             .catch(err => {
-              debug('error: ', err.message)
               if (err.message === 'no source') {
                 return next(
                   boom.notFound(

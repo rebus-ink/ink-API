@@ -12,7 +12,6 @@ const {
   tagsCacheUpdate,
   notebooksCacheUpdate
 } = require('../../utils/cache')
-const debug = require('debug')('ink:routes:source-post')
 const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Source_Tag } = require('../../models/Source_Tag')
@@ -63,7 +62,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest(
@@ -78,9 +76,7 @@ module.exports = function (app) {
         let createdSource
         try {
           createdSource = await Source.createSource(reader, body)
-          debug('createdSource: ', createdSource)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

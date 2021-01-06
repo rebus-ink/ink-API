@@ -8,7 +8,6 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { NoteRelation } = require('../../models/NoteRelation')
 const { urlToId, checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:noteRelation-put')
 const { notesCacheUpdate } = require('../../utils/cache')
 
 module.exports = function (app) {
@@ -56,8 +55,6 @@ module.exports = function (app) {
         }
 
         const body = req.body
-        debug('request body: ', body)
-        debug('id: ', req.params.id)
         if (typeof body !== 'object' || _.isEmpty(body)) {
           return next(
             boom.badRequest('Body must be a JSON object', {
@@ -130,13 +127,10 @@ module.exports = function (app) {
 
         body.id = req.params.id
         body.readerId = urlToId(reader.id)
-        debug('readerId: ', body.readerId)
         let updatedNoteRelation
         try {
           updatedNoteRelation = await NoteRelation.updateNoteRelation(body)
-          debug('updated Note Relation: ', updatedNoteRelation)
         } catch (err) {
-          debug('error: ', err.message)
           if (err instanceof ValidationError) {
             return next(
               boom.badRequest(

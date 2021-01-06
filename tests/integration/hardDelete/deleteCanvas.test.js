@@ -3,15 +3,9 @@ const tap = require('tap')
 const { getToken, createUser, destroyDB } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
-const { Note } = require('../../../models/Note')
 const { NoteContext } = require('../../../models/NoteContext')
-const { Tag } = require('../../../models/Tag')
 
 const { Notebook } = require('../../../models/Notebook')
-const { Notebook_Tag } = require('../../../models/Notebook_Tag')
-const { Notebook_Note } = require('../../../models/Notebook_Note')
-const { Notebook_Source } = require('../../../models/Notebook_Source')
-const { Source } = require('../../../models/Source')
 const { Canvas } = require('../../../models/Canvas')
 const _ = require('lodash')
 
@@ -90,14 +84,14 @@ const test = async () => {
   // create noteContexts
 
   // deleted canvas
-  const context1 = await NoteContext.query().insertAndFetch({
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook1.id),
     canvasId: urlToId(canvas1.id)
   })
 
-  const context2 = await NoteContext.query().insertAndFetch({
+  await NoteContext.query().insertAndFetch({
     type: 'test',
     readerId,
     notebookId: urlToId(notebook1.id),

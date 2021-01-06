@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { NoteContext } = require('../../models/NoteContext')
 const { checkOwnership } = require('../../utils/utils')
-const debug = require('debug')('ink:routes:noteContexts-delete')
 const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
@@ -62,9 +61,7 @@ module.exports = function (app) {
         let deleted
         try {
           deleted = await NoteContext.delete(req.params.id)
-          debug('deleted result: ', deleted)
         } catch (err) {
-          debug('error: ', err.message)
           return next(
             boom.badRequest(err.message, {
               requestUrl: req.originalUrl,

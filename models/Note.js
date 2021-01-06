@@ -7,7 +7,6 @@ const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
 const { NoteBody } = require('./NoteBody')
 const { Notebook_Note } = require('./Notebook_Note')
-const debug = require('debug')('ink:models:Note')
 const { OutlineData } = require('./OutlineData')
 const { Note_Tag } = require('./Note_Tag')
 
@@ -57,7 +56,6 @@ class Note extends BaseModel {
         published: { type: 'string', format: 'date-time' },
         deleted: { type: 'string', format: 'date-time' }
       },
-      additionalProperties: true,
       required: ['readerId']
     }
   }
@@ -156,8 +154,6 @@ class Note extends BaseModel {
   static async _formatIncomingNote (
     note /*: NoteType */
   ) /*: Promise<NoteType> */ {
-    debug('**_formatIncomingNote**')
-    debug('note: ', note)
     const props = _.pick(note, [
       'canonical',
       'stylesheet',
@@ -169,7 +165,6 @@ class Note extends BaseModel {
       'contextId'
     ])
     if (note.id) props.id = urlToId(note.id)
-    debug('note formatted: ', props)
     return props
   }
 
@@ -178,12 +173,7 @@ class Note extends BaseModel {
     notebookId /*: string */,
     note /*: any */
   ) {
-    debug('**createNoteInNotebook**')
-    debug('reader: ', reader)
-    debug('notebookId: ', notebookId)
-    debug('note: ', note)
     const createdNote = await this.createNote(reader, note)
-    debug('created note: ', createdNote)
     if (createdNote) {
       try {
         // $FlowFixMe
@@ -193,7 +183,7 @@ class Note extends BaseModel {
           urlToId(createdNote.id)
         )
       } catch (err) {
-        debug('error when adding to notebook: ', err.message)
+        // if fails to add note to notebook, delete note so that everything fails.
         this.hardDelete(createdNote.id)
         throw err
       }
@@ -202,14 +192,11 @@ class Note extends BaseModel {
     return createdNote
   }
 
-  static async hardDelete (noteId /*: ?string */) {
-    debug('**hardDelete**')
-    debug('noteId: ', noteId)
-    noteId = urlToId(noteId)
+  static async hardDelete (noteId /*: any */) {
     await Note.query()
       .delete()
       .where({
-        id: noteId
+        id: urlToId(noteId)
       })
   }
 
@@ -217,10 +204,6 @@ class Note extends BaseModel {
     reader /*: any */,
     note /*: any */
   ) /*: Promise<NoteType|Error> */ {
-    debug('**createNote**')
-    debug('incoming note: ', note)
-    debug('reader: ', reader)
-
     let props = await Note._formatIncomingNote(note)
 
     props.readerId = reader.id
@@ -237,9 +220,7 @@ class Note extends BaseModel {
 
     try {
       createdNote = await Note.query().insertAndFetch(props)
-      debug('created note: ', createdNote)
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'note_sourceid_foreign') {
         throw new Error('no source')
       } else if (err.constraint === 'note_contextid_foreign') {
@@ -264,10 +245,8 @@ class Note extends BaseModel {
           reader.id
         )
         createdNote.body = [note.body]
-        debug('added single body: ', createdNote.body)
       }
     } catch (err) {
-      debug('error: ', err.message)
       noteBodyError = err
     }
 
@@ -297,7 +276,6 @@ class Note extends BaseModel {
         createdNote.parentId = outlineData.next
       }
     }
-    debug('created note to return: ', createdNote)
     return createdNote
   }
 
@@ -306,8 +284,6 @@ class Note extends BaseModel {
     contextId /*: string */,
     changes /*: any */
   ) /*: Promise<any> */ {
-    debug('**copyToContext**')
-    debug('noteId: ', noteId, 'contextId: ', contextId)
     const originalNote = await Note.query()
       .findById(noteId)
       .withGraphFetched('[body, reader, tags, outlineData]')
@@ -334,17 +310,16 @@ class Note extends BaseModel {
       originalNote.reader,
       _.omit(originalNote, ['published', 'updated', 'id'])
     )
-    debug('new note: ', newNote)
 
     // copy tag relations
-    if (newNote && newNote.id) { await Note_Tag.copyTagsFromAnotherNote(noteId, urlToId(newNote.id)) }
+    if (newNote && newNote.id) {
+      await Note_Tag.copyTagsFromAnotherNote(noteId, urlToId(newNote.id))
+    }
 
     return newNote
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
-    debug('**byId**')
-    debug('id: ', id)
     const note = await Note.query()
       .findById(id)
       .withGraphFetched(
@@ -374,20 +349,11 @@ class Note extends BaseModel {
       note.relationsTo = null
     }
     note.sourceId = null
-    debug('note: ', note)
     return note
   }
 
-  asRef () /*: string */ {
-    debug('**asRef**')
-    return this.id
-  }
-
   static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
-    debug('**delete**')
-    debug('id: ', id)
     // Delete all Note_Tag associated with the note
-    const { Note_Tag } = require('./Note_Tag')
     await Note_Tag.deleteNoteTagsOfNote(id)
 
     await NoteBody.softDeleteBodiesOfNote(id)
@@ -399,8 +365,6 @@ class Note extends BaseModel {
 
   static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
     // replace undefined to null for properties that can be deleted by the user
-    debug('**update**')
-    debug('incoming note: ', note)
     const propsCanBeDeleted = [
       'canonical',
       'stylesheet',
@@ -431,7 +395,6 @@ class Note extends BaseModel {
     let updatedNote = await Note.query()
       .updateAndFetchById(urlToId(note.id), modifications)
       .whereNull('deleted')
-    debug('updated note: ', updatedNote)
 
     // if note not found:
     if (!updatedNote) return null
@@ -447,7 +410,6 @@ class Note extends BaseModel {
           )
         }
         updatedNote.body = note.body
-        debug('added multiple bodies: ', updatedNote.body)
       } else {
         await NoteBody.createNoteBody(
           note.body,
@@ -455,11 +417,10 @@ class Note extends BaseModel {
           note.readerId
         )
         updatedNote.body = [note.body]
-        debug('added single body: ', updatedNote.body)
       }
     }
-    debug('updated note after bodies: ', updatedNote)
 
+    // outline data
     if (note.parentId || note.previous || note.next) {
       await OutlineData.update(urlToId(note.readerId), {
         noteId: urlToId(note.id),
@@ -476,9 +437,7 @@ class Note extends BaseModel {
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
-    json.type = 'Note'
     json.shortId = urlToId(json.id)
-
     json = _.omitBy(json, _.isNil)
 
     return json

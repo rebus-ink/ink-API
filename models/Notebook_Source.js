@@ -1,7 +1,6 @@
 // @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
-const debug = require('debug')('ink:models:Notebook_Source')
 
 /*::
 type NotebookSourceType = {
@@ -24,8 +23,6 @@ class Notebook_Source extends BaseModel {
     notebookId /*: string */,
     sourceId /*: string */
   ) /*: Promise<any> */ {
-    debug('**addSourceToNotebook**')
-    debug('notebookId: ', notebookId, 'sourceId: ', sourceId)
     if (!notebookId) throw new Error('no notebook')
     if (!sourceId) throw new Error('no source')
     notebookId = urlToId(notebookId)
@@ -37,7 +34,6 @@ class Notebook_Source extends BaseModel {
         sourceId
       })
     } catch (err) {
-      debug('error: ', err.message)
       if (err.constraint === 'notebook_source_sourceid_foreign') {
         throw new Error('no source')
       } else if (err.constraint === 'notebook_source_notebookid_foreign') {
@@ -101,8 +97,6 @@ class Notebook_Source extends BaseModel {
     notebookId /*: string */,
     sourceId /*: string */
   ) /*: Promise<NotebookSourceType|Error> */ {
-    debug('**removeSourceFromNotebook**')
-    debug('notebookId: ', notebookId, 'sourceId: ', sourceId)
     notebookId = urlToId(notebookId)
     sourceId = urlToId(sourceId)
 
@@ -112,7 +106,6 @@ class Notebook_Source extends BaseModel {
         notebookId,
         sourceId
       })
-    debug('result: ', result)
     if (result === 0) {
       throw new Error(
         `Remove Source from Notebook Error: No Relation found between Notebook ${notebookId} and Source ${sourceId}`

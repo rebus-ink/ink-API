@@ -12,7 +12,6 @@ const languagesList = require('../utils/languages')
 const crypto = require('crypto')
 const { Source_Tag } = require('./Source_Tag')
 const { Notebook_Source } = require('./Notebook_Source')
-const debug = require('debug')('ink:models:Source')
 
 const metadataProps = [
   'inLanguage',
@@ -231,8 +230,6 @@ class Source extends BaseModel {
   }
 
   static _isValidLink (link /*: any */) /*: boolean */ {
-    debug('**_isValidLink**')
-    debug('link: ', link)
     if (_.isObject(link) && !link.url) {
       return false
     }
@@ -242,10 +239,7 @@ class Source extends BaseModel {
     return true
   }
 
-  // TODO: should not be static (wait until old deprecated code is removed)
   static _validateIncomingSource (source /*: any */) /*: any */ {
-    debug('**_validateIncomingSource**')
-    debug('incoming source: ', source)
     // check languages
     if (_.isString(source.inLanguage)) {
       source.inLanguage = [source.inLanguage]
@@ -400,15 +394,23 @@ class Source extends BaseModel {
     }
   }
 
-  // TODO: should not be static (wait until old deprecated code is removed)
+  static _formatResources (resources /*: Array<any> */) /*: Array<any> */ {
+    resources.forEach((link, i) => {
+      if (_.isString(link)) {
+        resources[i] = { url: link }
+      } else {
+        resources[i] = _.pick(link, linkProperties)
+      }
+    })
+    return resources
+  }
+
   static _formatIncomingSource (
     reader /*: any */,
     source /*: any */
   ) /*: any */ {
     // IMPORTANT: formating for the metadata property should be done here, before it is stored in a metadata object
-    debug('**_formatIncomingSource**')
-    debug('reader: ', reader)
-    debug('incoming source: ', source)
+
     // language
     if (_.isString(source.inLanguage)) {
       source.inLanguage = [source.inLanguage]
@@ -455,40 +457,18 @@ class Source extends BaseModel {
     }
 
     if (source.readingOrder) {
-      source.readingOrder.forEach((link, i) => {
-        if (_.isString(link)) {
-          source.readingOrder[i] = { url: link }
-        } else {
-          source.readingOrder[i] = _.pick(link, linkProperties)
-        }
-      })
-      source.readingOrder = { data: source.readingOrder }
+      source.readingOrder = { data: this._formatResources(source.readingOrder) }
     }
     if (source.links) {
-      source.links.forEach((link, i) => {
-        if (_.isString(link)) {
-          source.links[i] = { url: link }
-        } else {
-          source.links[i] = _.pick(link, linkProperties)
-        }
-      })
-      source.links = { data: source.links }
+      source.links = { data: this._formatResources(source.links) }
     }
     if (source.resources && _.isArray(source.resources)) {
-      source.resources.forEach((link, i) => {
-        if (_.isString(link)) {
-          source.resources[i] = { url: link }
-        } else {
-          source.resources[i] = _.pick(link, linkProperties)
-        }
-      })
-      source.resources = { data: source.resources }
+      source.resources = { data: this._formatResources(source.resources) }
     }
 
     if (source.status) {
       source.status = statusMap[source.status]
     }
-    debug('formatted source: ', source)
     return source
   }
 
@@ -496,10 +476,6 @@ class Source extends BaseModel {
     reader /*: any */,
     source /*: any */
   ) /*: Promise<SourceType> */ {
-    debug('**createSource**')
-    debug('reader: ', reader)
-    debug('incoming source: ', source)
-
     this._validateIncomingSource(source)
 
     const formattedSource = this._formatIncomingSource(reader, source)
@@ -530,12 +506,8 @@ class Source extends BaseModel {
     notebookId /*: string */,
     source /*: any */
   ) {
-    debug('**createSourceInNotebook**')
-    debug('reader: ', reader)
-    debug('notebookId: ', notebookId)
-    debug('source: ', source)
     const createdSource = await this.createSource(reader, source)
-    debug('created source: ', createdSource)
+
     if (createdSource) {
       try {
         // $FlowFixMe
@@ -544,7 +516,6 @@ class Source extends BaseModel {
           urlToId(createdSource.id)
         )
       } catch (err) {
-        debug('error when adding to notebook: ', err.message)
         this.hardDelete(createdSource.id)
         throw err
       }
@@ -554,8 +525,6 @@ class Source extends BaseModel {
   }
 
   static async hardDelete (sourceId /*: ?string */) {
-    debug('**hardDelete**')
-    debug('sourceId: ', sourceId)
     sourceId = urlToId(sourceId)
     await Source.query()
       .delete()
@@ -565,7 +534,6 @@ class Source extends BaseModel {
   }
 
   static async byId (id /*: string */) /*: Promise<SourceType|null> */ {
-    debug('**byId**')
     const source = await Source.query()
       .findById(id)
       .withGraphFetched(
@@ -579,7 +547,7 @@ class Source extends BaseModel {
           builder.orderBy('published', 'desc')
         }
       })
-    debug('retrieved source: ', source)
+
     if (!source || source.deleted || source.referenced) return null
 
     if (source.readActivities) {
@@ -590,30 +558,22 @@ class Source extends BaseModel {
     if (source.readingOrder) source.readingOrder = source.readingOrder.data
     if (source.links) source.links = source.links.data
     if (source.resources) source.resources = source.resources.data
-    debug('source to return: ', source)
+
     return source
   }
 
   static async checkIfExists (id /*: string */) /*: Promise<boolean> */ {
-    debug('**checkIfExists**')
-    debug('id: ', id)
-    const source = await Source.query().findById(id)
-    if (!source || source.deleted || source.referenced) {
-      return false
-    } else return true
+    const source = await Source.query()
+      .findById(id)
+      .whereNull('deleted')
+      .whereNull('referenced')
+    return !!source
   }
 
   static async delete (id /*: string */) /*: Promise<number|null> */ {
-    debug('**delete**')
-    debug('id: ', id)
-
     // Delete Source_Tag associated with source
     await Source_Tag.deleteSourceTagsOfSource(id)
 
-    // remove documents from elasticsearch index
-    // if (elasticsearchQueue) {
-    //   await elasticsearchQueue.add({ type: 'delete', sourceId: id })
-    // }
     const date = new Date().toISOString()
     return await Source.query()
       .patchAndFetchById(id, { deleted: date })
@@ -621,8 +581,6 @@ class Source extends BaseModel {
   }
 
   static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
-    debug('**deleteNotes**')
-    debug('id: ', id)
     const time = new Date().toISOString()
     return await Note.query()
       .patch({ deleted: time })
@@ -637,8 +595,6 @@ class Source extends BaseModel {
   }
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {
-    debug('**batchUpdate**')
-    debug('body: ', body)
     let modification = {}
     modification[body.property] = body.value
 
@@ -654,8 +610,6 @@ class Source extends BaseModel {
   static async batchUpdateAddArrayProperty (
     body /*: any */
   ) /*: Promise<any> */ {
-    debug('**batchUpdateAddArrayProperty**')
-    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query().findById(sourceId)
@@ -713,8 +667,6 @@ class Source extends BaseModel {
   static async batchUpdateRemoveArrayProperty (
     body /*: any */
   ) /*: Promise<any> */ {
-    debug('**batchUpdateRemoveArrayProperty**')
-    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query().findById(sourceId)
@@ -758,8 +710,6 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateAddAttribution (body /*: any */) /*: Promise<any> */ {
-    debug('**batchUpdateAddAttribution**')
-    debug('body: ', body)
     const result = []
 
     for (const sourceId of body.sources) {
@@ -823,8 +773,6 @@ class Source extends BaseModel {
   static async batchUpdateRemoveAttribution (
     body /*: any */
   ) /*: Promise<any> */ {
-    debug('**batchUpdateRemoveAttribution**')
-    debug('body: ', body)
     const result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -882,8 +830,6 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateAddTags (body /*: any */) /*: Promise<any> */ {
-    debug('**batchUpdateAddTags**')
-    debug('body: ', body)
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -941,8 +887,6 @@ class Source extends BaseModel {
   }
 
   static async batchUpdateRemoveTags (body /*: any */) /*: Promise<any> */ {
-    debug('**batchUpdateRemoveTags**')
-    debug('body: ', body)
     let result = []
     for (const sourceId of body.sources) {
       const source = await Source.query()
@@ -994,9 +938,6 @@ class Source extends BaseModel {
     source /*: any */,
     body /*: any */
   ) /*: Promise<SourceType|null> */ {
-    debug('**update**')
-    debug('source: ', source)
-    debug('body: ', body)
     const id = urlToId(source.id)
     Source._validateIncomingSource(body)
 

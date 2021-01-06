@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
-const debug = require('debug')('ink:routes:note-delete')
 const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
 const { metricsQueue } = require('../../utils/metrics')
 
@@ -39,7 +38,6 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/notes/:noteId').delete(jwtAuth, function (req, res, next) {
     const noteId = req.params.noteId
-    debug('noteId: ', noteId)
     Reader.byAuthId(req.user)
       .then(async reader => {
         if (!reader || reader.deleted) {
@@ -64,7 +62,6 @@ module.exports = function (app) {
           result = await Note.delete(noteId)
         }
 
-        debug('delete result: ', result)
         if (!result) {
           return next(
             boom.notFound(

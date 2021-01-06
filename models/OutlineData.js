@@ -1,9 +1,6 @@
 // @flow
 'use strict'
-const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
-const _ = require('lodash')
-const { Note } = require('./Note')
 const { urlToId } = require('../utils/utils')
 
 /*::
@@ -38,27 +35,6 @@ class OutlineData extends BaseModel {
       },
       additionalProperties: true,
       required: ['noteId', 'readerId']
-    }
-  }
-  static get relationMappings () /*: any */ {
-    const { Reader } = require('./Reader')
-    return {
-      reader: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Reader,
-        join: {
-          from: 'OutlineData.readerId',
-          to: 'Reader.id'
-        }
-      },
-      note: {
-        relation: Model.BelongsToOneRelation,
-        modelClass: Note,
-        join: {
-          from: 'OutlineData.noteId',
-          to: 'Note.id'
-        }
-      }
     }
   }
 
@@ -117,26 +93,6 @@ class OutlineData extends BaseModel {
       .patch({ deleted: new Date().toISOString() })
       .where('noteId', '=', noteId)
   }
-
-  // static async deleteBodiesOfNote (noteId /*: string */) /*: Promise<number> */ {
-  //   debug('**deleteBodiesOfNote**')
-  //   debug('noteId: ', noteId)
-  //   return await NoteBody.query(NoteBody.knex())
-  //     .where('noteId', '=', noteId)
-  //     .del()
-  // }
-
-  // static async softDeleteBodiesOfNote (
-  //   noteId /*: string */
-  // ) /*: Promise<void> */ {
-  //   debug('**softDeleteBodiesOfNote**')
-  //   debug('noteId: ', noteId)
-  //   const date = new Date().toISOString()
-
-  //   await NoteBody.query(NoteBody.knex())
-  //     .where('noteId', '=', noteId)
-  //     .patch({ deleted: date })
-  // }
 }
 
 module.exports = { OutlineData }

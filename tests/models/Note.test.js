@@ -213,13 +213,6 @@ const test = async app => {
     await tap.equal(response, undefined)
   })
 
-  await tap.test('Note as Ref', async () => {
-    const noteRef = note2.asRef()
-    await tap.ok(noteRef)
-    await tap.type(noteRef, 'string')
-    await tap.equal(noteRef, note2.id)
-  })
-
   await tap.test('Delete Note', async () => {
     const res = await Note.delete(urlToId(note2.id))
     await tap.ok(res.deleted)
