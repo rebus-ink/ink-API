@@ -69,7 +69,8 @@ const test = async app => {
         name: 'An example resource'
       }
     ],
-    json: { property: 'value' }
+    json: { property: 'value' },
+    citation: { default: '123' }
   }
 
   const resCreateSource = await createSource(app, token, sourceObject)
@@ -124,6 +125,8 @@ const test = async app => {
     await tap.equal(body.copyrightYear, 1977)
     await tap.equal(body.genre, 'vampire romance')
     await tap.equal(body.license, 'http://www.mylicense.com')
+    await tap.ok(body.citation)
+    await tap.equal(body.citation.default, '123')
   })
 
   await tap.test('Get Source with a readActivity', async () => {

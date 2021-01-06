@@ -123,7 +123,8 @@ const test = async app => {
           // creator: ['Sample Creator2'], // making sure that non-updated attributions are returned too!
           illustrator: ['Sample Illustrator2'],
           publisher: ['Sample Publisher2'],
-          translator: ['Sample Translator2']
+          translator: ['Sample Translator2'],
+          citation: { default: '123' }
         })
       )
     await tap.equal(res.status, 200)
@@ -160,6 +161,8 @@ const test = async app => {
     await tap.equal(body.illustrator[0].name, 'Sample Illustrator2')
     await tap.equal(body.publisher[0].name, 'Sample Publisher2')
     await tap.equal(body.translator[0].name, 'Sample Translator2')
+    await tap.ok(body.citation)
+    await tap.equal(body.citation.default, '123')
   })
 
   await tap.test('Update a single property', async () => {

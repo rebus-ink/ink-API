@@ -173,6 +173,8 @@
  *           $ref: '#/definitions/link'
  *       json:
  *         type: object
+ *       citation:
+ *         type: object
  *       required:
  *         - name
  *         - type
@@ -285,6 +287,8 @@
  *       status:
  *         type: string
  *         enum: ['test']
+ *       citation:
+ *         type: object
  *       resources:
  *         type: array
  *         items:

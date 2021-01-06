@@ -330,7 +330,7 @@ class Note extends BaseModel {
           builder.whereNull('deleted')
         },
         selectSource (builder) {
-          builder.select('id', 'name', 'type', 'metadata')
+          builder.select('id', 'name', 'type', 'metadata', 'citation')
         }
       })
       .whereNull('deleted')

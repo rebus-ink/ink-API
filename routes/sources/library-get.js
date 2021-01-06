@@ -210,7 +210,8 @@ module.exports = app => {
               'editor',
               'bookFormat',
               'inLanguage',
-              'lastReadActivity'
+              'lastReadActivity',
+              'citation'
             ])
           })
 

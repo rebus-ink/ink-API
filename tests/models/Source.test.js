@@ -53,6 +53,7 @@ const test = async app => {
     json: {
       property1: 'value1'
     },
+    citation: { default: 'something' },
     readingOrder: [
       {
         type: 'Link',
@@ -164,6 +165,8 @@ const test = async app => {
     await tap.equal(source.wordCount, 123)
     await tap.equal(source.status, 99) // not converted back to a string yet
     await tap.equal(source.description, 'description goes here')
+    await tap.ok(source.citation)
+    await tap.equal(source.citation.default, 'something')
 
     // attributions
     const attributions = source.attributions
@@ -245,6 +248,25 @@ const test = async app => {
     await tap.ok(newSource)
     await tap.ok(newSource instanceof Source)
     await tap.equal(newSource.json.property, sourceRetrieved.json.property)
+  })
+
+  await tap.test('Update source citation object', async () => {
+    const newSourceObj = {
+      citation: { default: 'something new' }
+    }
+
+    const newSource = await Source.update(source, newSourceObj)
+    await tap.notOk(newSource instanceof Error)
+
+    // Retrieve the Source that has just been updated
+    const sourceRetrieved = await Source.byId(urlToId(source.id))
+
+    await tap.ok(newSource)
+    await tap.ok(newSource instanceof Source)
+    await tap.equal(
+      newSource.citation.default,
+      sourceRetrieved.citation.default
+    )
   })
 
   await tap.test('Update source numberOfPages', async () => {
