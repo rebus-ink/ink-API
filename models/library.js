@@ -188,7 +188,8 @@ class Library {
             'Source.updated',
             'Source.deleted',
             'Source.resources',
-            'Source.links'
+            'Source.links',
+            'Source.citation'
           )
           .from('Source')
         builder.distinct('Source.id')

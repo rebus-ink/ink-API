@@ -58,7 +58,8 @@ const test = async () => {
       links: [{ url: 'value' }],
       readingOrder: [{ url: 'one' }, { url: 'two' }, { url: 'three' }],
       resources: [{ url: 'value' }],
-      json: { property: 'value' }
+      json: { property: 'value' },
+      citation: { default: '123' }
     })
 
     const activity1 = await request(app)
@@ -148,6 +149,8 @@ const test = async () => {
     await tap.notOk(source.copyrightYear)
     await tap.notOk(source.genre)
     await tap.notOk(source.license)
+    await tap.ok(source.citation)
+    await tap.equal(source.citation.default, '123')
   })
 
   if (process.env.REDIS_PASSWORD) {

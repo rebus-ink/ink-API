@@ -73,7 +73,8 @@ const test = async app => {
         name: 'An example resource'
       }
     ],
-    json: { property: 'value' }
+    json: { property: 'value' },
+    citation: { default: 'default citation' }
   }
 
   const tag1 = await createTag(app, token, { name: 'tag1' })
@@ -140,6 +141,8 @@ const test = async app => {
     await tap.equal(body.keywords[0], 'one')
     await tap.equal(body.keywords[1], 'two') // keywords converted to lowercase
     await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
+    await tap.ok(body.citation)
+    await tap.equal(body.citation.default, 'default citation')
 
     await tap.type(res.get('Location'), 'string')
     await tap.equal(res.get('Location'), body.id)
