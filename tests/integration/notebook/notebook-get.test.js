@@ -11,6 +11,7 @@ const {
   addTagToNotebook,
   createTag,
   createNote,
+  createCanvas,
   createNoteContext,
   addSourceToCollection,
   addNoteToCollection
@@ -108,6 +109,11 @@ const test = async app => {
 
   await addNoteToCollection(app, token, note.shortId, tag.id)
   await addSourceToCollection(app, token, source.shortId, tag.id)
+  await createCanvas(app, token, {
+    notebookId: notebook.shortId,
+    name: 'canvas1',
+    description: 'something'
+  })
 
   await tap.test('Get notebook with source tags, note tags...', async () => {
     const res = await request(app)
@@ -124,6 +130,7 @@ const test = async app => {
     await tap.equal(body.notes[0].tags.length, 1)
     await tap.equal(body.sources.length, 1)
     await tap.equal(body.sources[0].tags.length, 1)
+    await tap.equal(body.canvas.length, 1)
   })
 
   await tap.test('Try to get a Notebook that does not exist', async () => {
