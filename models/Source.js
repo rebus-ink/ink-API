@@ -436,6 +436,11 @@ class Source extends BaseModel {
       source.metadata = metadata
     }
 
+    // citation
+    if (_.isString(source.citation)) {
+      source.citation = { default: source.citation }
+    }
+
     source = _.pick(source, [
       'id',
       'name',

@@ -74,7 +74,7 @@ const test = async app => {
       }
     ],
     json: { property: 'value' },
-    citation: { default: 'default citation' }
+    citation: 'default citation'
   }
 
   const tag1 = await createTag(app, token, { name: 'tag1' })
