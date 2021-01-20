@@ -117,6 +117,8 @@ const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
 const hardDeleteCanvasTests = require('./hardDelete/deleteCanvas.test')
 // const metricsTest = require('./metrics.test')
 
+const collaboratorPostTests = require('./collaborator/collaborator-post.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -324,6 +326,15 @@ const allTests = async () => {
       await canvasFilterByNotebookTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
+      throw err
+    }
+  }
+
+  if (!test || test === 'collaborator') {
+    try {
+      await collaboratorPostTests(app)
+    } catch (err) {
+      console.log('collaborator integration tests error: ', err)
       throw err
     }
   }

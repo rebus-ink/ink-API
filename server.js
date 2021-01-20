@@ -95,6 +95,9 @@ const notebookPutTagRoute = require('./routes/notebooks/notebook-put-tag') // PU
 const notebookDeleteTagRoute = require('./routes/notebooks/notebook-delete-tag') // DELETE /notebooks/:id/tags/:tagId
 const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post')
 
+// collaborators
+const collaboratorPostRoute = require('./routes/collaborator/collaborator-post')
+
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
@@ -312,6 +315,7 @@ canvasPutRoute(app)
 canvasDeleteRoute(app)
 canvasGetByIdRoute(app)
 canvasGetAllRoute(app)
+collaboratorPostRoute(app)
 
 app.use(errorHandling)
 
