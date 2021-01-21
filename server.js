@@ -97,6 +97,7 @@ const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post
 
 // collaborators
 const collaboratorPostRoute = require('./routes/collaborator/collaborator-post')
+const collaboratorPutRoute = require('./routes/collaborator/collaborator-put')
 
 const hardDeleteRoute = require('./routes/hardDelete')
 
@@ -295,6 +296,8 @@ outlineDeleteNoteRoute(app)
 outlinePatchNoteRoute(app)
 readerPutRoute(app)
 readerDeleteRoute(app)
+collaboratorPostRoute(app)
+collaboratorPutRoute(app)
 notebookPostRoute(app)
 notebookGetRoute(app)
 notebooksGetRoute(app)
@@ -315,7 +318,6 @@ canvasPutRoute(app)
 canvasDeleteRoute(app)
 canvasGetByIdRoute(app)
 canvasGetAllRoute(app)
-collaboratorPostRoute(app)
 
 app.use(errorHandling)
 

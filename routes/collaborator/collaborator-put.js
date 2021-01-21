@@ -4,66 +4,72 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
-const _ = require('lodash')
+const { checkOwnership } = require('../../utils/utils')
 const { ValidationError } = require('objection')
-const { metricsQueue } = require('../../utils/metrics')
 const { Collaborator } = require('../../models/Collaborator')
 
 module.exports = function (app) {
   /**
    * @swagger
-   * /notebooks/{notebookId}/collaborators:
-   *   post:
+   * /notebooks/{notebookId}/collaborators/{collaboratorId}
+   *   put:
    *     tags:
    *       - collaborators
-   *     description: Create a Collaborator
-   *     security:
-   *       - Bearer: []
+   *     description: Update a collaborator
    *     parameters:
    *       - in: path
    *         name: notebookId
    *         schema:
    *           type: string
+   *         required: true
+   *       - in: path
+   *         name: collaboratorId
+   *         schema:
+   *           type: string
+   *         required: true
    *     requestBody:
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/definitions/collaborator-input'
+   *     security:
+   *       - Bearer: []
    *     responses:
-   *       201:
-   *         description: Successfully created Collaborator
+   *       200:
+   *         description: Successfully updated Collaborator
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/definitions/collaborator'
    *       400:
-   *         description: Validation error
+   *         description: 'Validation Error'
    *       401:
-   *         description: No Authentication
+   *         description: 'No Authentication'
    *       403:
-   *         description: 'Access to reader disallowed'
+   *         description: 'Access to Collaborator {collaboratorId} disallowed'
+   *       404:
+   *         description: No collaborator found with id {collaboratorId}
    */
   app.use('/', router)
   router
-    .route('/notebooks/:notebookId/collaborators')
-    .post(jwtAuth, function (req, res, next) {
-      const notebookId = req.params.notebookId
+    .route('/notebooks/:notebookId/collaborators/:collaboratorId')
+    .put(jwtAuth, function (req, res, next) {
+      const collaboratorId = req.params.collaboratorId
       Reader.byAuthId(req.user)
         .then(async reader => {
           if (!reader || reader.deleted) {
             return next(
-              boom.notFound(`No reader found with this token`, {
+              boom.notFound('No reader found with this token', {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
             )
           }
-
-          const body = req.body
-          if (typeof body !== 'object' || _.isEmpty(body)) {
+          // we assume that people will be updating their own collaborator object, not the owner of the notebook
+          if (!checkOwnership(reader.id, collaboratorId)) {
             return next(
-              boom.badRequest(
-                'Create Collaborator Error: Request body must be a JSON object',
+              boom.forbidden(
+                `Access to Collaborator ${collaboratorId} disallowed`,
                 {
                   requestUrl: req.originalUrl,
                   requestBody: req.body
@@ -71,18 +77,24 @@ module.exports = function (app) {
               )
             )
           }
-          let createdCollaborator
+          const body = req.body
+          body.id = collaboratorId
+
+          let updatedCollab
           try {
-            createdCollaborator = await Collaborator.create(body, notebookId)
+            updatedCollab = await Collaborator.update(
+              body,
+              req.params.notebookId
+            )
           } catch (err) {
             if (err instanceof ValidationError) {
               return next(
                 boom.badRequest(
-                  `Validation Error on Create Collaborator: ${err.message}`,
+                  `Validation Error on Update Collaborator: ${err.message}`,
                   {
-                    validation: err.data,
                     requestUrl: req.originalUrl,
-                    requestBody: req.body
+                    requestBody: req.body,
+                    validation: err.data
                   }
                 )
               )
@@ -95,17 +107,22 @@ module.exports = function (app) {
               )
             }
           }
-
-          if (metricsQueue) {
-            await metricsQueue.add({
-              type: 'createCollaborator',
-              readerId: createdCollaborator.readerId
-            })
+          if (!updatedCollab) {
+            return next(
+              boom.notFound(
+                `Put Collaborator Error: No Collaborator found with id ${collaboratorId}`,
+                {
+                  requestUrl: req.originalUrl,
+                  requestBody: req.body
+                }
+              )
+            )
           }
 
           res.setHeader('Content-Type', 'application/ld+json')
-          res.status(201).end(JSON.stringify(createdCollaborator))
+          res.status(200).end(JSON.stringify(updatedCollab.toJSON()))
         })
+
         .catch(err => {
           next(err)
         })

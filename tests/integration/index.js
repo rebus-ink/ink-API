@@ -118,6 +118,7 @@ const hardDeleteCanvasTests = require('./hardDelete/deleteCanvas.test')
 // const metricsTest = require('./metrics.test')
 
 const collaboratorPostTests = require('./collaborator/collaborator-post.test')
+const collaboratorPutTests = require('./collaborator/collaborator-put.test')
 
 const app = require('../../server').app
 
@@ -333,6 +334,7 @@ const allTests = async () => {
   if (!test || test === 'collaborator') {
     try {
       await collaboratorPostTests(app)
+      await collaboratorPutTests(app)
     } catch (err) {
       console.log('collaborator integration tests error: ', err)
       throw err

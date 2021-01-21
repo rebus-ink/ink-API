@@ -3,6 +3,7 @@
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
+const crypto = require('crypto')
 
 const statusMap = {
   pending: 1,
@@ -71,6 +72,9 @@ class Collaborator extends BaseModel {
 
     this._validateCollaborator(props)
     props = this._formatCollaborator(props)
+    props.id = `${urlToId(props.readerId)}-${crypto
+      .randomBytes(5)
+      .toString('hex')}`
 
     let result
     try {
@@ -108,7 +112,6 @@ class Collaborator extends BaseModel {
 
     this._validateCollaborator(props)
     props = this._formatCollaborator(props)
-
     return await Collaborator.query().updateAndFetchById(object.id, props)
   }
 
