@@ -98,10 +98,12 @@ const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post
 // collaborators
 const collaboratorPostRoute = require('./routes/collaborator/collaborator-post')
 const collaboratorPutRoute = require('./routes/collaborator/collaborator-put')
+const collaboratorDeleteRoute = require('./routes/collaborator/collaborator-delete')
 
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
+const collaboratorDelete = require('./routes/collaborator/collaborator-delete')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -298,6 +300,7 @@ readerPutRoute(app)
 readerDeleteRoute(app)
 collaboratorPostRoute(app)
 collaboratorPutRoute(app)
+collaboratorDeleteRoute(app)
 notebookPostRoute(app)
 notebookGetRoute(app)
 notebooksGetRoute(app)

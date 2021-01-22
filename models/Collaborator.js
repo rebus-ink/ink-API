@@ -112,7 +112,9 @@ class Collaborator extends BaseModel {
 
     this._validateCollaborator(props)
     props = this._formatCollaborator(props)
-    return await Collaborator.query().updateAndFetchById(object.id, props)
+    return await Collaborator.query()
+      .updateAndFetchById(object.id, props)
+      .whereNull('deleted')
   }
 
   static async delete (id /*: string */) /*: Promise<any> */ {
