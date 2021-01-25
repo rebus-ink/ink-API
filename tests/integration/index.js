@@ -1,5 +1,6 @@
 const forbiddedTests = require('./auth/forbidden.test')
 const unauthorizedTests = require('./auth/unauthorized.test')
+const collaborationAuthTests = require('./auth/collaboration-auth.test')
 
 const libraryGetTests = require('./library/library-get.test')
 const libraryPaginateTests = require('./library/library-paginate.test')
@@ -140,6 +141,7 @@ const allTests = async () => {
     try {
       await forbiddedTests(app)
       await unauthorizedTests(app)
+      await collaborationAuthTests(app)
     } catch (err) {
       console.log('authentication integration test error: ', err)
       throw err

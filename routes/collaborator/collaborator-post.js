@@ -8,6 +8,7 @@ const _ = require('lodash')
 const { ValidationError } = require('objection')
 const { metricsQueue } = require('../../utils/metrics')
 const { Collaborator } = require('../../models/Collaborator')
+const { checkOwnership } = require('../../utils/utils')
 
 module.exports = function (app) {
   /**
@@ -53,6 +54,16 @@ module.exports = function (app) {
           if (!reader || reader.deleted) {
             return next(
               boom.notFound(`No reader found with this token`, {
+                requestUrl: req.originalUrl,
+                requestBody: req.body
+              })
+            )
+          }
+
+          // for now, assume only owner of notebook can create collaborators
+          if (!checkOwnership(reader.id, notebookId)) {
+            return next(
+              boom.forbidden(`Access to notebook ${notebookId} disallowed`, {
                 requestUrl: req.originalUrl,
                 requestBody: req.body
               })
