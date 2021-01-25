@@ -11,7 +11,7 @@ const { Collaborator } = require('../../models/Collaborator')
 module.exports = function (app) {
   /**
    * @swagger
-   * /notebooks/{notebookId}/collaborators/{collaboratorId}
+   * /notebooks/{notebookId}/collaborators/{collaboratorId}:
    *   put:
    *     tags:
    *       - collaborators
