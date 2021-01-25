@@ -1,5 +1,6 @@
 const forbiddedTests = require('./auth/forbidden.test')
 const unauthorizedTests = require('./auth/unauthorized.test')
+const collaborationAuthTests = require('./auth/collaboration-auth.test')
 
 const libraryGetTests = require('./library/library-get.test')
 const libraryPaginateTests = require('./library/library-paginate.test')
@@ -117,6 +118,10 @@ const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
 const hardDeleteCanvasTests = require('./hardDelete/deleteCanvas.test')
 // const metricsTest = require('./metrics.test')
 
+const collaboratorPostTests = require('./collaborator/collaborator-post.test')
+const collaboratorPutTests = require('./collaborator/collaborator-put.test')
+const collaboratorDeleteTests = require('./collaborator/collaborator-delete.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -136,6 +141,7 @@ const allTests = async () => {
     try {
       await forbiddedTests(app)
       await unauthorizedTests(app)
+      await collaborationAuthTests(app)
     } catch (err) {
       console.log('authentication integration test error: ', err)
       throw err
@@ -324,6 +330,17 @@ const allTests = async () => {
       await canvasFilterByNotebookTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
+      throw err
+    }
+  }
+
+  if (!test || test === 'collaborator') {
+    try {
+      await collaboratorPostTests(app)
+      await collaboratorPutTests(app)
+      await collaboratorDeleteTests(app)
+    } catch (err) {
+      console.log('collaborator integration tests error: ', err)
       throw err
     }
   }

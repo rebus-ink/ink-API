@@ -95,6 +95,11 @@ const notebookPutTagRoute = require('./routes/notebooks/notebook-put-tag') // PU
 const notebookDeleteTagRoute = require('./routes/notebooks/notebook-delete-tag') // DELETE /notebooks/:id/tags/:tagId
 const notebookPostSourceRoute = require('./routes/notebooks/notebook-source-post')
 
+// collaborators
+const collaboratorPostRoute = require('./routes/collaborator/collaborator-post')
+const collaboratorPutRoute = require('./routes/collaborator/collaborator-put')
+const collaboratorDeleteRoute = require('./routes/collaborator/collaborator-delete')
+
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
@@ -292,6 +297,9 @@ outlineDeleteNoteRoute(app)
 outlinePatchNoteRoute(app)
 readerPutRoute(app)
 readerDeleteRoute(app)
+collaboratorPostRoute(app)
+collaboratorPutRoute(app)
+collaboratorDeleteRoute(app)
 notebookPostRoute(app)
 notebookGetRoute(app)
 notebooksGetRoute(app)

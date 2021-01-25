@@ -67,7 +67,6 @@ const test = async app => {
         urlToId(notebookId)
       )
     } catch (err) {
-      console.log(err)
       error = err
     }
     await tap.notOk(error)
