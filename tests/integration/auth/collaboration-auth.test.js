@@ -1,9 +1,7 @@
 const request = require('supertest')
 const tap = require('tap')
-const urlparse = require('url').parse
 const {
   getToken,
-  createUser,
   destroyDB,
   createReader,
   createCollaborator,
@@ -15,8 +13,6 @@ const {
   createNotebook,
   createCanvas
 } = require('../../utils/testUtils')
-const { Reader } = require('../../../models/Reader')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   // Create owner, collaborator and stranger
