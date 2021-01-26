@@ -4,6 +4,7 @@ const passport = require('passport')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 const { Notebook } = require('../../models/Notebook')
+const { Reader } = require('../../models/Reader')
 
 module.exports = app => {
   app.use('/', router)
@@ -47,7 +48,7 @@ module.exports = app => {
     function (req, res, next) {
       const id = req.params.id
       Notebook.byId(id)
-        .then(notebook => {
+        .then(async notebook => {
           if (!notebook || notebook.deleted) {
             return next(
               boom.notFound(
@@ -58,15 +59,22 @@ module.exports = app => {
               )
             )
           } else if (!utils.checkReader(req, notebook.reader)) {
-            return next(
-              boom.forbidden(`Access to Notebook ${id} disallowed`, {
-                requestUrl: req.originalUrl
-              })
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              notebook
             )
-          } else {
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.end(JSON.stringify(notebook.toJSON()))
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to Notebook ${id} disallowed`, {
+                  requestUrl: req.originalUrl
+                })
+              )
+            }
           }
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.end(JSON.stringify(notebook.toJSON()))
         })
         .catch(err => {
           next(err)

@@ -122,6 +122,8 @@ const collaboratorPostTests = require('./collaborator/collaborator-post.test')
 const collaboratorPutTests = require('./collaborator/collaborator-put.test')
 const collaboratorDeleteTests = require('./collaborator/collaborator-delete.test')
 
+const collaborationNotebookGetTests = require('./collaboration/collaboration-notebook-get.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -339,6 +341,15 @@ const allTests = async () => {
       await collaboratorPostTests(app)
       await collaboratorPutTests(app)
       await collaboratorDeleteTests(app)
+    } catch (err) {
+      console.log('collaborator integration tests error: ', err)
+      throw err
+    }
+  }
+
+  if (!test || test === 'collaboration') {
+    try {
+      await collaborationNotebookGetTests(app)
     } catch (err) {
       console.log('collaborator integration tests error: ', err)
       throw err
