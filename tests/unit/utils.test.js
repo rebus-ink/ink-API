@@ -25,6 +25,10 @@ const test = async () => {
       }
     ]
   }
+  const notebook2 = {
+    id: '123',
+    name: 'notebook2'
+  }
 
   await tap.test(
     'checkNotebookCollaboration should return the permission object',
@@ -53,5 +57,12 @@ const test = async () => {
       await tap.ok(_.isEmpty(result))
     }
   )
+
+  await tap.test('should work with an array of notebooks', async () => {
+    const result = checkNotebookCollaborator('11', [notebook, notebook2])
+    await tap.ok(result)
+    await tap.equal(result.read, true)
+    await tap.equal(result.comment, true)
+  })
 }
 test()

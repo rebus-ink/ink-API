@@ -34,6 +34,7 @@ class NoteContext extends BaseModel {
   static get relationMappings () /*: any */ {
     const { Reader } = require('./Reader')
     const { Note } = require('./Note')
+    const { Notebook } = require('./Notebook')
 
     return {
       reader: {
@@ -42,6 +43,14 @@ class NoteContext extends BaseModel {
         join: {
           from: 'NoteContext.readerId',
           to: 'Reader.id'
+        }
+      },
+      notebook: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Notebook,
+        join: {
+          from: 'NoteContext.notebookId',
+          to: 'Notebook.id'
         }
       },
       notes: {
@@ -76,7 +85,12 @@ class NoteContext extends BaseModel {
     const noteContext = await NoteContext.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[outlineData, relationsFrom(notDeleted).toNote(notDeleted).body, relationsTo(notDeleted).fromNote(notDeleted).body, body, tags, source(selectSource)]]'
+        `[reader, 
+          notebook(notDeleted).collaborators,
+          notes(notDeleted).[outlineData, 
+            relationsFrom(notDeleted).toNote(notDeleted).body, 
+            relationsTo(notDeleted).fromNote(notDeleted).body, 
+            body, tags, source(selectSource)]]`
       )
       .modifiers({
         notDeleted (builder) {

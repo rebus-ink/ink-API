@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { NoteContext } = require('../../models/NoteContext')
+const { Reader } = require('../../models/Reader')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 
@@ -47,7 +48,7 @@ module.exports = app => {
     function (req, res, next) {
       const id = req.params.id
       NoteContext.byId(id)
-        .then(noteContext => {
+        .then(async noteContext => {
           if (!noteContext || noteContext.deleted) {
             return next(
               boom.notFound(
@@ -58,15 +59,23 @@ module.exports = app => {
               )
             )
           } else if (!utils.checkReader(req, noteContext.reader)) {
-            return next(
-              boom.forbidden(`Access to NoteContext ${id} disallowed`, {
-                requestUrl: req.originalUrl
-              })
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              noteContext.notebook
             )
-          } else {
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.end(JSON.stringify(noteContext.toJSON()))
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to noteContext ${id} disallowed`, {
+                  requestUrl: req.originalUrl
+                })
+              )
+            }
           }
+
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.end(JSON.stringify(noteContext.toJSON()))
         })
         .catch(err => {
           console.log(err)

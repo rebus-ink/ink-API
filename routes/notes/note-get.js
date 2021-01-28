@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
+const { Reader } = require('../../models/Reader')
 const { Note } = require('../../models/Note')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
@@ -47,7 +48,7 @@ module.exports = app => {
     function (req, res, next) {
       const id = req.params.id
       Note.byId(id)
-        .then(note => {
+        .then(async note => {
           if (!note || note.deleted) {
             return next(
               boom.notFound(`Get Note Error: No Note found with id ${id}`, {
@@ -55,15 +56,23 @@ module.exports = app => {
               })
             )
           } else if (!utils.checkReader(req, note.reader)) {
-            return next(
-              boom.forbidden(`Access to note ${id} disallowed`, {
-                requestUrl: req.originalUrl
-              })
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              note.notebooks
             )
-          } else {
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.end(JSON.stringify(note.toJSON()))
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to note ${id} disallowed`, {
+                  requestUrl: req.originalUrl
+                })
+              )
+            }
           }
+
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.end(JSON.stringify(note.toJSON()))
         })
         .catch(next)
     }

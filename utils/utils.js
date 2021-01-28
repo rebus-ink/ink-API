@@ -12,13 +12,21 @@ const checkOwnership = (readerId, resourceId) => {
   return resourceId.startsWith(readerId)
 }
 
-const checkNotebookCollaborator = (readerId, notebook) => {
+const checkNotebookCollaborator = (readerId, notebooks) => {
+  if (!notebooks) return {}
+  if (!_.isArray(notebooks)) notebooks = [notebooks]
+
   readerId = urlToId(readerId)
-  const collaborator = _.find(notebook.collaborators, collab => {
-    return urlToId(collab.readerId) === readerId
+  let result = {}
+  notebooks.forEach(notebook => {
+    const collaborator = _.find(notebook.collaborators, collab => {
+      return urlToId(collab.readerId) === readerId
+    })
+    if (collaborator && collaborator.status === 2) {
+      result = collaborator.permission
+    }
   })
-  if (collaborator && collaborator.status === 2) return collaborator.permission
-  else return {}
+  return result
 }
 
 const urlToId = url => {

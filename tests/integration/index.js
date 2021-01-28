@@ -123,6 +123,9 @@ const collaboratorPutTests = require('./collaborator/collaborator-put.test')
 const collaboratorDeleteTests = require('./collaborator/collaborator-delete.test')
 
 const collaborationNotebookGetTests = require('./collaboration/collaboration-notebook-get.test')
+const collaborationSourceGetTests = require('./collaboration/collaboration-source-get.test')
+const collaborationNoteGetTests = require('./collaboration/collaboration-note-get.test')
+const collaborationNoteContextTests = require('./collaboration/collaboration-noteContext-get.test')
 
 const app = require('../../server').app
 
@@ -350,6 +353,9 @@ const allTests = async () => {
   if (!test || test === 'collaboration') {
     try {
       await collaborationNotebookGetTests(app)
+      await collaborationSourceGetTests(app)
+      await collaborationNoteGetTests(app)
+      await collaborationNoteContextTests(app)
     } catch (err) {
       console.log('collaborator integration tests error: ', err)
       throw err
