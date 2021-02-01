@@ -72,39 +72,38 @@ module.exports = app => {
             )
             if (!collaborator.read) {
               return next(
-                boom.forbidden(`Access to noteContext ${id} disallowed`, {
+                boom.forbidden(`Access to Outline ${id} disallowed`, {
                   requestUrl: req.originalUrl
                 })
               )
             }
-
-            let nestedNotesList
-            try {
-              nestedNotesList = notesListToTree(noteContext.notes)
-            } catch (err) {
-              if (err.message === 'circular') {
-                return next(
-                  boom.badRequest('Error: outline contains a circular list', {
-                    requestUrl: req.originalUrl
-                  })
-                )
-              } else {
-                return next(
-                  boom.badRequest(
-                    `Error: invalid outline structure: ${err.message} `,
-                    {
-                      requestUrl: req.originalUrl
-                    }
-                  )
-                )
-              }
-            }
-            const outline = Object.assign(noteContext.toJSON(), {
-              notes: nestedNotesList
-            })
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.end(JSON.stringify(outline))
           }
+          let nestedNotesList
+          try {
+            nestedNotesList = notesListToTree(noteContext.notes)
+          } catch (err) {
+            if (err.message === 'circular') {
+              return next(
+                boom.badRequest('Error: outline contains a circular list', {
+                  requestUrl: req.originalUrl
+                })
+              )
+            } else {
+              return next(
+                boom.badRequest(
+                  `Error: invalid outline structure: ${err.message} `,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
+            }
+          }
+          const outline = Object.assign(noteContext.toJSON(), {
+            notes: nestedNotesList
+          })
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.end(JSON.stringify(outline))
         })
         .catch(err => {
           next(err)

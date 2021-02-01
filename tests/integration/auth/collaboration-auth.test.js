@@ -6,6 +6,8 @@ const {
   createReader,
   createCollaborator,
   createSource,
+  addSourceToNotebook,
+  addNoteToNotebook,
   createNote,
   createTag,
   createNoteRelation,
@@ -38,6 +40,12 @@ const test = async app => {
       }
     }
   )
+
+  const source = await createSource(app, token)
+  await addSourceToNotebook(app, token, source.shortId, notebook.shortId)
+
+  const note = await createNote(app, token, { body: { motivation: 'test' } })
+  await addNoteToNotebook(app, token, note.shortId, notebook.shortId)
 
   await tap.test(
     'Try to create a collaborator in a notebook you do not own',
@@ -130,6 +138,66 @@ const test = async app => {
       }`
     )
   })
+
+  await tap.test('Try to get a notebook as a stranger', async () => {
+    const res = await request(app)
+      .get(`/notebooks/${notebook.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token3}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.statusCode, 403)
+    const error = JSON.parse(res.text)
+    await tap.equal(error.statusCode, 403)
+    await tap.equal(error.error, 'Forbidden')
+    await tap.equal(
+      error.message,
+      `Access to Notebook ${notebook.shortId} disallowed`
+    )
+    await tap.equal(error.details.requestUrl, `/notebooks/${notebook.shortId}`)
+  })
+
+  await tap.test(
+    'Try to get a note inside a notebook as a stranger',
+    async () => {
+      const res = await request(app)
+        .get(`/notes/${note.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to note ${note.shortId} disallowed`
+      )
+      await tap.equal(error.details.requestUrl, `/notes/${note.shortId}`)
+    }
+  )
+
+  await tap.test(
+    'Try to get a source inside a notebook as a stranger',
+    async () => {
+      const res = await request(app)
+        .get(`/sources/${source.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to source ${source.shortId} disallowed`
+      )
+      await tap.equal(error.details.requestUrl, `/sources/${source.shortId}`)
+    }
+  )
 
   await destroyDB(app)
 }

@@ -63,11 +63,21 @@ module.exports = app => {
               note.notebooks
             )
             if (!collaborator.read) {
-              return next(
-                boom.forbidden(`Access to note ${id} disallowed`, {
-                  requestUrl: req.originalUrl
-                })
-              )
+              // check if collaborator in the noteContext
+              let collaborator2
+              if (note.context) {
+                collaborator2 = utils.checkNotebookCollaborator(
+                  reader.id,
+                  note.context.notebook
+                )
+              }
+              if (!collaborator2 || !collaborator2.read) {
+                return next(
+                  boom.forbidden(`Access to note ${id} disallowed`, {
+                    requestUrl: req.originalUrl
+                  })
+                )
+              }
             }
           }
 

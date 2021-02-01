@@ -67,7 +67,7 @@ module.exports = app => {
             )
             if (!collaborator.read) {
               return next(
-                boom.forbidden(`Access to noteContext ${id} disallowed`, {
+                boom.forbidden(`Access to NoteContext ${id} disallowed`, {
                   requestUrl: req.originalUrl
                 })
               )

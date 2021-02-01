@@ -16,7 +16,8 @@ const {
   addSourceToCollection,
   addNoteToCollection,
   createCollaborator,
-  createReader
+  createReader,
+  addNoteToContext
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
 
@@ -88,6 +89,44 @@ const test = async app => {
       await tap.equal(res.status, 200)
       const body = res.body
       await tap.equal(body.type, 'outline')
+    }
+  )
+
+  const note1 = await addNoteToContext(app, token, context1.shortId, {
+    body: { motivation: 'test', content: 'abc' }
+  })
+
+  await tap.test(
+    'Accepted collaborator should be able to get a note within a noteContext',
+    async () => {
+      const res = await request(app)
+        .get(`/notes/${note1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 200)
+      const body = res.body
+      await tap.equal(body.body[0].content, 'abc')
+    }
+  )
+
+  const note2 = await addNoteToContext(app, token, outline1.shortId, {
+    body: { motivation: 'test', content: 'def' }
+  })
+
+  await tap.test(
+    'Accepted collaborator should be able to get a note within an outline',
+    async () => {
+      const res = await request(app)
+        .get(`/notes/${note2.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.status, 200)
+      const body = res.body
+      await tap.equal(body.body[0].content, 'def')
     }
   )
 
