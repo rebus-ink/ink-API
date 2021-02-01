@@ -9,17 +9,14 @@ const {
   addSourceToNotebook,
   addNoteToNotebook,
   createNote,
-  createTag,
-  createNoteRelation,
-  createNoteContext,
-  createNotebook,
-  createCanvas
+  createNotebook
 } = require('../../utils/testUtils')
 
 const test = async app => {
   // Create owner, collaborator and stranger
   const token = getToken()
-  const owner = await createReader(app, token)
+  // owner:
+  await createReader(app, token)
   const token2 = getToken()
   const collab = await createReader(app, token2)
   const token3 = getToken()

@@ -2,29 +2,18 @@ const request = require('supertest')
 const tap = require('tap')
 const {
   getToken,
-  createUser,
   destroyDB,
   createNotebook,
-  addSourceToNotebook,
-  createSource,
-  addNoteToNotebook,
-  addTagToNotebook,
-  createTag,
-  createNote,
-  createCanvas,
   createNoteContext,
-  addSourceToCollection,
-  addNoteToCollection,
   createCollaborator,
   createReader,
   addNoteToContext
 } = require('../../utils/testUtils')
-const { urlToId } = require('../../../utils/utils')
 
 const test = async app => {
   // owner, collab1, collab2
   const token = getToken()
-  const owner = await createReader(app, token)
+  await createReader(app, token)
   const token2 = getToken()
   const collab1 = await createReader(app, token2) // will be pending
   const token3 = getToken()
@@ -39,13 +28,13 @@ const test = async app => {
     }
   })
 
-  const collabObject1 = await createCollaborator(app, token, notebook.shortId, {
+  await createCollaborator(app, token, notebook.shortId, {
     readerId: collab1.shortId,
     status: 'pending',
     permission: { read: true }
   })
 
-  const collabObject2 = await createCollaborator(app, token, notebook.shortId, {
+  await createCollaborator(app, token, notebook.shortId, {
     readerId: collab2.shortId,
     status: 'accepted',
     permission: { read: true }
