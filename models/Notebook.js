@@ -42,6 +42,7 @@ class Notebook extends BaseModel {
     const { Tag } = require('./Tag')
     const { Source } = require('./Source')
     const { Canvas } = require('./Canvas')
+    const { Collaborator } = require('./Collaborator')
 
     return {
       reader: {
@@ -111,6 +112,14 @@ class Notebook extends BaseModel {
           },
           to: 'Note.id'
         }
+      },
+      collaborators: {
+        relation: Model.HasManyRelation,
+        modelClass: Collaborator,
+        join: {
+          from: 'Notebook.id',
+          to: 'Collaborator.notebookId'
+        }
       }
     }
   }
@@ -155,7 +164,7 @@ class Notebook extends BaseModel {
     return await Notebook.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, notes(notDeleted).[body, tags(notDeleted), source(notDeleted)], notebookTags(notDeleted), noteContexts(notDeleted), canvas(notDeleted), tags(notDeleted), sources(notDeleted, notReferenced).[tags, attributions]]'
+        '[reader, notes(notDeleted).[body, tags(notDeleted), source(notDeleted)], notebookTags(notDeleted), noteContexts(notDeleted), canvas(notDeleted), tags(notDeleted), collaborators(notDeleted).reader, sources(notDeleted, notReferenced).[tags, attributions]]'
       )
       .modifiers({
         notDeleted (builder) {

@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { Source } = require('../../models/Source')
+const { Reader } = require('../../models/Reader')
 const utils = require('../../utils/utils')
 const boom = require('@hapi/boom')
 
@@ -44,7 +45,7 @@ module.exports = function (app) {
     function (req, res, next) {
       const sourceId = req.params.sourceId
       Source.byId(sourceId)
-        .then(source => {
+        .then(async source => {
           if (!source || source.deleted) {
             return next(
               boom.notFound(`No Source found with id ${sourceId}`, {
@@ -52,25 +53,32 @@ module.exports = function (app) {
               })
             )
           } else if (!utils.checkReader(req, source.reader)) {
-            return next(
-              boom.forbidden(`Access to source ${sourceId} disallowed`, {
-                type: 'Source',
-                requestUrl: req.originalUrl
-              })
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              source.notebooks
             )
-          } else {
-            res.setHeader('Content-Type', 'application/ld+json')
-            const sourceJson = source.toJSON()
-            res.end(
-              JSON.stringify(
-                Object.assign(sourceJson, {
-                  replies: source.replies
-                    ? source.replies.map(note => note.id)
-                    : []
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to source ${sourceId} disallowed`, {
+                  requestUrl: req.originalUrl
                 })
               )
-            )
+            }
           }
+
+          res.setHeader('Content-Type', 'application/ld+json')
+          const sourceJson = source.toJSON()
+          res.end(
+            JSON.stringify(
+              Object.assign(sourceJson, {
+                replies: source.replies
+                  ? source.replies.map(note => note.id)
+                  : []
+              })
+            )
+          )
         })
         .catch(next)
     }

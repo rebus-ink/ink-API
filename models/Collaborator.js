@@ -1,5 +1,6 @@
 // @flow
 'use strict'
+const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
@@ -34,6 +35,21 @@ class Collaborator extends BaseModel {
         deleted: { type: ['string', 'null'], format: 'date-time' }
       },
       required: ['readerId', 'notebookId', 'permission', 'status']
+    }
+  }
+
+  static get relationMappings () /*: any */ {
+    const { Reader } = require('./Reader')
+
+    return {
+      reader: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Reader,
+        join: {
+          from: 'Collaborator.readerId',
+          to: 'Reader.id'
+        }
+      }
     }
   }
 

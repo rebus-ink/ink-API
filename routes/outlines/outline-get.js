@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 const { NoteContext } = require('../../models/NoteContext')
+const { Reader } = require('../../models/Reader')
 const utils = require('../../utils/utils')
 const { notesListToTree } = require('../../utils/outline')
 const boom = require('@hapi/boom')
@@ -48,7 +49,7 @@ module.exports = app => {
     function (req, res, next) {
       const id = req.params.id
       NoteContext.byId(id)
-        .then(noteContext => {
+        .then(async noteContext => {
           if (
             !noteContext ||
             noteContext.deleted ||
@@ -63,39 +64,46 @@ module.exports = app => {
               )
             )
           } else if (!utils.checkReader(req, noteContext.reader)) {
-            return next(
-              boom.forbidden(`Access to Outline ${id} disallowed`, {
-                requestUrl: req.originalUrl
-              })
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              noteContext.notebook
             )
-          } else {
-            let nestedNotesList
-            try {
-              nestedNotesList = notesListToTree(noteContext.notes)
-            } catch (err) {
-              if (err.message === 'circular') {
-                return next(
-                  boom.badRequest('Error: outline contains a circular list', {
-                    requestUrl: req.originalUrl
-                  })
-                )
-              } else {
-                return next(
-                  boom.badRequest(
-                    `Error: invalid outline structure: ${err.message} `,
-                    {
-                      requestUrl: req.originalUrl
-                    }
-                  )
-                )
-              }
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to Outline ${id} disallowed`, {
+                  requestUrl: req.originalUrl
+                })
+              )
             }
-            const outline = Object.assign(noteContext.toJSON(), {
-              notes: nestedNotesList
-            })
-            res.setHeader('Content-Type', 'application/ld+json')
-            res.end(JSON.stringify(outline))
           }
+          let nestedNotesList
+          try {
+            nestedNotesList = notesListToTree(noteContext.notes)
+          } catch (err) {
+            if (err.message === 'circular') {
+              return next(
+                boom.badRequest('Error: outline contains a circular list', {
+                  requestUrl: req.originalUrl
+                })
+              )
+            } else {
+              return next(
+                boom.badRequest(
+                  `Error: invalid outline structure: ${err.message} `,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
+            }
+          }
+          const outline = Object.assign(noteContext.toJSON(), {
+            notes: nestedNotesList
+          })
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.end(JSON.stringify(outline))
         })
         .catch(err => {
           next(err)

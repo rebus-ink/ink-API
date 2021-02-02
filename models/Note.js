@@ -323,7 +323,16 @@ class Note extends BaseModel {
     const note = await Note.query()
       .findById(id)
       .withGraphFetched(
-        '[reader, outlineData, tags(notDeleted), body, relationsFrom.toNote(notDeleted).body, relationsTo.fromNote(notDeleted).body, notebooks, source(notDeleted, selectSource).attributions]'
+        `[reader, 
+          outlineData, 
+          tags(notDeleted), 
+          body, 
+          relationsFrom.toNote(notDeleted).body, 
+          relationsTo.fromNote(notDeleted).body, 
+          notebooks(notDeleted).collaborators, 
+          source(notDeleted, selectSource).attributions,
+          context(notDeleted).notebook.collaborators
+        ]`
       )
       .modifiers({
         notDeleted (builder) {
