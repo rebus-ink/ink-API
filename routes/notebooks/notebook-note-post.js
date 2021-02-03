@@ -7,10 +7,15 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { checkOwnership, urlToId } = require('../../utils/utils')
+const {
+  checkOwnership,
+  urlToId,
+  checkNotebookCollaborator
+} = require('../../utils/utils')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { Tag } = require('../../models/Tag')
 const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
+const { Notebook } = require('../../models/Notebook')
 
 module.exports = function (app) {
   /**
@@ -66,11 +71,24 @@ module.exports = function (app) {
           }
 
           if (!checkOwnership(reader.id, notebookId)) {
-            return next(
-              boom.forbidden(`Access to Notebook ${notebookId} disallowed`, {
-                requestUrl: req.originalUrl
-              })
-            )
+            // if not owner, check if collaborator
+            const notebook = await Notebook.byId(notebookId)
+            if (notebook) {
+              const collaborator = checkNotebookCollaborator(
+                reader.id,
+                notebook
+              )
+              if (!collaborator.comment) {
+                return next(
+                  boom.forbidden(
+                    `Access to Notebook ${notebookId} disallowed`,
+                    {
+                      requestUrl: req.originalUrl
+                    }
+                  )
+                )
+              }
+            }
           }
 
           const body = req.body
