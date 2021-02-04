@@ -7,7 +7,11 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { checkOwnership } = require('../../utils/utils')
+const {
+  checkOwnership,
+  checkNotebookCollaborator
+} = require('../../utils/utils')
+const { NoteContext } = require('../../models/NoteContext')
 
 module.exports = function (app) {
   /**
@@ -66,15 +70,25 @@ module.exports = function (app) {
             )
           }
           if (!checkOwnership(reader.id, req.params.id)) {
-            return next(
-              boom.forbidden(
-                `Access to NoteContext ${req.params.id} disallowed`,
-                {
-                  requestUrl: req.originalUrl,
-                  requestBody: req.body
-                }
+            // if user is not owner, check if it is a collaborator
+            const noteContext = await NoteContext.byId(req.params.id)
+            let collaborator
+            if (noteContext.notebook && noteContext.notebook.collaborators) {
+              collaborator = checkNotebookCollaborator(
+                reader.id,
+                noteContext.notebook
               )
-            )
+            }
+            if (!collaborator || !collaborator.comment) {
+              return next(
+                boom.forbidden(
+                  `Access to NoteContext ${req.params.id} disallowed`,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
+            }
           }
 
           // copy

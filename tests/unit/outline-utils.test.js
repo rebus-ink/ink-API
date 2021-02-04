@@ -136,6 +136,121 @@ const test = async () => {
     await tap.equal(result[0].children[1].children[2].shortId, '8')
   })
 
+  // list with some free floating notes
+  /*
+  note1
+    note4
+    note2
+      note3
+  note5
+  ... note6, note7 not in tree
+  */
+  const listOfNotes2 = [
+    {
+      id: 'https://reader-api.test/notes/1',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      documentUrl:
+        'https://reader-api.test/sources/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55/path/1',
+      sourceId:
+        'https://reader-api.test/sources/q3WCuzFju4zaw3AAr3KBoU-2cf84b9e55',
+      published: '2020-02-28T13:55:40.345Z',
+      updated: '2020-02-28T13:55:40.345Z',
+      body: [{ content: 'note content 1', motivation: 'test' }],
+      shortId: '1',
+      next: '5'
+    },
+    {
+      id: 'https://reader-api.test/notes/2',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      published: '2020-02-28T13:55:40.334Z',
+      updated: '2020-02-28T13:55:40.334Z',
+      body: [{ content: 'note content 2', motivation: 'test' }],
+      type: 'Note',
+      shortId: '2',
+      parentId: '1',
+      previous: '4'
+    },
+    {
+      id: 'https://reader-api.test/notes/3',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      published: '2020-02-28T13:55:40.318Z',
+      updated: '2020-02-28T13:55:40.318Z',
+      body: [{ content: 'note content 3', motivation: 'test' }],
+      type: 'Note',
+      shortId: '3',
+      parentId: '2'
+    },
+    {
+      id: 'https://reader-api.test/notes/4',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      published: '2020-02-28T13:55:40.382Z',
+      updated: '2020-02-28T13:55:40.382Z',
+      body: [{ content: 'note content 4', motivation: 'test' }],
+      type: 'Note',
+      shortId: '4',
+      parentId: '1',
+      next: '2'
+    },
+    {
+      id: 'https://reader-api.test/notes/5',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      published: '2020-02-28T13:55:40.382Z',
+      updated: '2020-02-28T13:55:40.382Z',
+      body: [{ content: 'note content 5', motivation: 'test' }],
+      type: 'Note',
+      shortId: '5',
+      previous: '1'
+    },
+    {
+      id: 'https://reader-api.test/notes/6',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      published: '2020-02-28T13:55:40.382Z',
+      updated: '2020-02-28T13:55:40.382Z',
+      body: [{ content: 'note content 6', motivation: 'test' }],
+      type: 'Note',
+      shortId: '6'
+    },
+    {
+      id: 'https://reader-api.test/notes/7',
+      readerId: 'https://reader-api.test/readers/q3WCuzFju4zaw3AAr3KBoU',
+      target: { property: 'something' },
+      published: '2020-02-28T13:55:40.382Z',
+      updated: '2020-02-28T13:55:40.382Z',
+      body: [{ content: 'note content 7', motivation: 'test' }],
+      type: 'Note',
+      shortId: '7'
+    }
+  ]
+
+  await tap.test('should still work with free floating notes', async () => {
+    const result = notesListToTree(listOfNotes2)
+
+    // first level: 1, 5, 6, 7
+    await tap.equal(result.length, 4)
+    await tap.equal(result[0].shortId, '1')
+    await tap.equal(result[1].shortId, '5')
+    await tap.equal(result[2].shortId, '6')
+    await tap.equal(result[3].shortId, '7')
+    // 5, 6, 7 have no children
+    await tap.equal(result[1].children.length, 0)
+    await tap.equal(result[2].children.length, 0)
+    await tap.equal(result[3].children.length, 0)
+    // children of 1: 4, 2
+    await tap.equal(result[0].children.length, 2)
+    await tap.equal(result[0].children[0].shortId, '4')
+    await tap.equal(result[0].children[1].shortId, '2')
+    // children of 4: none
+    await tap.equal(result[0].children[0].children.length, 0)
+    // children of 2: 3
+    await tap.equal(result[0].children[1].children.length, 1)
+    await tap.equal(result[0].children[1].children[0].shortId, '3')
+  })
+
   const badList = [
     {
       id: 'https://reader-api.test/notes/2',

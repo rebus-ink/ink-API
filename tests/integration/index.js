@@ -127,6 +127,8 @@ const collaborationSourceGetTests = require('./collaboration/collaboration-sourc
 const collaborationNoteGetTests = require('./collaboration/collaboration-note-get.test')
 const collaborationNoteContextTests = require('./collaboration/collaboration-noteContext-get.test')
 const collaborationNotebookNotePostTests = require('./collaboration/collaboration-notebook-note-post.test')
+const collaborationNoteContextNotePostTests = require('./collaboration/collaboration-noteContext-note-post.test')
+const collaborationOutlineNotePostTests = require('./collaboration/collaboration-outline-note-post.test')
 
 const app = require('../../server').app
 
@@ -358,6 +360,8 @@ const allTests = async () => {
       await collaborationNoteGetTests(app)
       await collaborationNoteContextTests(app)
       await collaborationNotebookNotePostTests(app)
+      await collaborationNoteContextNotePostTests(app)
+      await collaborationOutlineNotePostTests(app)
     } catch (err) {
       console.log('collaborator integration tests error: ', err)
       throw err
