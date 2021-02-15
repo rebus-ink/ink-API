@@ -46,6 +46,12 @@ module.exports = function (app) {
    *           type: string
    *         description: colour found in the settings object
    *       - in: query
+   *         name: collaboration
+   *         schema:
+   *           type: boolean
+   *         default: false
+   *         description: if true, will also return the notebooks the reader is collaborating on
+   *       - in: query
    *         name: orderBy
    *         type: string
    *         enum: ['name', 'created', 'updated']
@@ -83,7 +89,8 @@ module.exports = function (app) {
         search: req.query.search,
         colour: req.query.colour,
         orderBy: req.query.orderBy,
-        reverse: req.query.reverse
+        reverse: req.query.reverse,
+        collaboration: req.query.collaboration
       }
 
       Reader.byAuthId(req.user)

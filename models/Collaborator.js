@@ -70,7 +70,7 @@ class Collaborator extends BaseModel {
 
   static _formatCollaborator (collaborator /*: any */) /*: any */ {
     collaborator.status = statusMap[collaborator.status]
-
+    collaborator.readerId = urlToId(collaborator.readerId)
     return collaborator
   }
 

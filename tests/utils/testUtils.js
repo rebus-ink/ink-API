@@ -370,7 +370,6 @@ const createCollaborator = async (app, token, notebookId, object) => {
     .set('Host', 'reader-api.test')
     .set('Authorization', `Bearer ${token}`)
     .send(object)
-
   return res.body
 }
 
