@@ -88,6 +88,9 @@ class Collaborator extends BaseModel {
 
     this._validateCollaborator(props)
     props = this._formatCollaborator(props)
+    props.id = `${urlToId(props.readerId)}-${crypto
+      .randomBytes(5)
+      .toString('hex')}`
 
     let result
     try {
