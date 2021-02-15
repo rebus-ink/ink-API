@@ -210,9 +210,13 @@ class Notebook extends BaseModel {
     if (filters.search) {
       query = query.where(nestedQuery => {
         nestedQuery
-          .where('name', 'ilike', '%' + filters.search.toLowerCase() + '%')
+          .where(
+            'Notebook.name',
+            'ilike',
+            '%' + filters.search.toLowerCase() + '%'
+          )
           .orWhere(
-            'description',
+            'Notebook.description',
             'ilike',
             '%' + filters.search.toLowerCase() + '%'
           )
@@ -221,11 +225,13 @@ class Notebook extends BaseModel {
 
     if (filters.status) {
       const status = statusMap[filters.status]
-      query = query.where('status', '=', status)
+      query = query.where('Notebook.status', '=', status)
     }
 
     if (filters.colour) {
-      query = query.whereJsonSupersetOf('settings', { colour: filters.colour })
+      query = query.whereJsonSupersetOf('Notebook.settings', {
+        colour: filters.colour
+      })
     }
 
     return await query
@@ -238,7 +244,7 @@ class Notebook extends BaseModel {
     filters /*: any */ = {}
   ) /*: Promise<Array<any>> */ {
     let query = Notebook.query()
-      .where('readerId', '=', id)
+      .where('Notebook.readerId', '=', id)
       .whereNull('deleted')
       .limit(limit)
       .offset(skip)
@@ -268,7 +274,21 @@ class Notebook extends BaseModel {
       }
     }
 
-    return await query
+    let result = await query
+    if (filters.collaboration) {
+      let collabQuery = Notebook.query()
+        .whereNull('Notebook.deleted')
+        .withGraphFetched('collaborators')
+        .where('Collaborator.readerId', '=', id)
+        .leftJoin('Collaborator', 'Collaborator.notebookId', '=', 'Notebook.id')
+        .andWhere('Collaborator.status', '=', 2)
+        .groupBy('Notebook.id')
+      collabQuery = this.applyFilters(collabQuery, filters)
+      let collabResult = await collabQuery
+      result = result.concat(collabResult)
+    }
+
+    return result
   }
 
   static async count (

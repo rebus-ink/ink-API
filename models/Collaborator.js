@@ -70,7 +70,7 @@ class Collaborator extends BaseModel {
 
   static _formatCollaborator (collaborator /*: any */) /*: any */ {
     collaborator.status = statusMap[collaborator.status]
-
+    collaborator.readerId = urlToId(collaborator.readerId)
     return collaborator
   }
 
@@ -88,9 +88,6 @@ class Collaborator extends BaseModel {
 
     this._validateCollaborator(props)
     props = this._formatCollaborator(props)
-    props.id = `${urlToId(props.readerId)}-${crypto
-      .randomBytes(5)
-      .toString('hex')}`
 
     let result
     try {
