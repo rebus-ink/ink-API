@@ -26,6 +26,8 @@ const test = async app => {
   const pendingCollab = await createReader(app, token4)
   const token5 = getToken()
   const noReadCollab = await createReader(app, token5)
+  const token6 = getToken()
+  const noCommentCollab = await createReader(app, token6)
 
   // create notebook and collab
   const notebook = await createNotebook(app, token, { name: 'my notebook' })
@@ -61,6 +63,15 @@ const test = async app => {
       comment: true
     }
   })
+  // no comment
+  await createCollaborator(app, token, notebook.shortId, {
+    readerId: noCommentCollab.shortId,
+    status: 'accepted',
+    permission: {
+      read: true,
+      comment: false
+    }
+  })
 
   const source = await createSource(app, token)
   await addSourceToNotebook(app, token, source.shortId, notebook.shortId)
@@ -87,6 +98,8 @@ const test = async app => {
     body: { motivation: 'test' },
     contextId: outline.shortId
   })
+
+  // ------------------- COLLABORATOR OBJECT -------------------------
 
   await tap.test(
     'Try to create a collaborator in a notebook you do not own',
@@ -180,6 +193,8 @@ const test = async app => {
     )
   })
 
+  // ----------------------------- NOTEBOOK ----------------------
+
   await tap.test('Try to get a notebook as a stranger', async () => {
     const res = await request(app)
       .get(`/notebooks/${notebook.shortId}`)
@@ -239,6 +254,8 @@ const test = async app => {
       )
     }
   )
+
+  // ----------------------------- NOTE IN NOTEBOOK ------------------
 
   await tap.test(
     'Try to get a note inside a notebook as a stranger',
@@ -303,6 +320,8 @@ const test = async app => {
     }
   )
 
+  // ---------------------------------- SOURCE --------------------
+
   await tap.test(
     'Try to get a source inside a notebook as a stranger',
     async () => {
@@ -365,6 +384,8 @@ const test = async app => {
       await tap.equal(error.details.requestUrl, `/sources/${source.shortId}`)
     }
   )
+
+  // ------------------------------ NOTECONTEXT ------------------
 
   await tap.test(
     'Try to get a noteContext inside a notebook as a stranger',
@@ -439,6 +460,8 @@ const test = async app => {
     }
   )
 
+  // ----------------------------- OUTLINE -------------------------
+
   await tap.test(
     'Try to get an outline inside a notebook as a stranger',
     async () => {
@@ -502,6 +525,8 @@ const test = async app => {
       await tap.equal(error.details.requestUrl, `/outlines/${outline.shortId}`)
     }
   )
+
+  // ---------------------------- NOTE IN NOTECONTEXT ----------------
 
   await tap.test(
     'Try to get a note inside a noteContext in a notebook as a stranger',
@@ -567,6 +592,8 @@ const test = async app => {
     }
   )
 
+  // -------------------------- NOTE IN OUTLINE ------------------------
+
   await tap.test(
     'Try to get a note inside an outline in a notebook as a stranger',
     async () => {
@@ -628,6 +655,273 @@ const test = async app => {
         `Access to note ${note2.shortId} disallowed`
       )
       await tap.equal(error.details.requestUrl, `/notes/${note2.shortId}`)
+    }
+  )
+
+  // --------------------------- CREATE NOTE IN NOTEBOOK --------------
+
+  await tap.test(
+    'Try to create a note inside a notebook as a stranger',
+    async () => {
+      const res = await request(app)
+        .post(`/notebooks/${notebook.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside a notebook as a pending collaborator',
+    async () => {
+      const res = await request(app)
+        .post(`/notebooks/${notebook.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token4}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside a notebook as a collaborator without comment permission',
+    async () => {
+      const res = await request(app)
+        .post(`/notebooks/${notebook.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token6}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Notebook ${notebook.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/notebooks/${notebook.shortId}/notes`
+      )
+    }
+  )
+
+  // -------------------------- POST NOTE IN CONTEXT ------------
+
+  await tap.test(
+    'Try to create a note inside a notecontext as a stranger',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${noteContext.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside a notecontext as a pending collaborator',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${noteContext.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token4}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside a notecontext as a collaborator without comment permission',
+    async () => {
+      const res = await request(app)
+        .post(`/noteContexts/${noteContext.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token6}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to NoteContext ${noteContext.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/noteContexts/${noteContext.shortId}/notes`
+      )
+    }
+  )
+
+  // -------------------------- POST NOTE IN OUTLINE ------------
+
+  await tap.test(
+    'Try to create a note inside an outline as a stranger',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token3}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside an outline as a pending collaborator',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token4}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline.shortId}/notes`
+      )
+    }
+  )
+
+  await tap.test(
+    'Try to create a note inside an outline as a collaborator without a comment permission',
+    async () => {
+      const res = await request(app)
+        .post(`/outlines/${outline.shortId}/notes`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token6}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            body: { motivation: 'test' }
+          })
+        )
+
+      await tap.equal(res.statusCode, 403)
+      const error = JSON.parse(res.text)
+      await tap.equal(error.statusCode, 403)
+      await tap.equal(error.error, 'Forbidden')
+      await tap.equal(
+        error.message,
+        `Access to Outline ${outline.shortId} disallowed`
+      )
+      await tap.equal(
+        error.details.requestUrl,
+        `/outlines/${outline.shortId}/notes`
+      )
     }
   )
 
