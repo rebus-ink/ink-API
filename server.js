@@ -322,7 +322,9 @@ canvasGetByIdRoute(app)
 canvasGetAllRoute(app)
 
 app.use(errorHandling)
-
+app.use((req, res) => {
+  res.sendStatus(404)
+})
 app.start = port => {
   app.listen(port, () => console.log('Listening'))
 }

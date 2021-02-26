@@ -2,6 +2,9 @@
 'use strict'
 const Model = require('objection').Model
 const { BaseModel } = require('./BaseModel.js')
+const { Notebook_Note } = require('./Notebook_Note')
+const { Notebook_Source } = require('./Notebook_Source')
+const { Notebook_Tag } = require('./Notebook_Tag')
 const _ = require('lodash')
 const { urlToId } = require('../utils/utils')
 const crypto = require('crypto')
@@ -318,6 +321,9 @@ class Notebook extends BaseModel {
   static async delete (id /*: string */) /*: Promise<any> */ {
     id = urlToId(id)
     const date = new Date().toISOString()
+    await Notebook_Note.deleteNoteOfNotebooks(id)
+    await Notebook_Source.deleteSourceOfNotebooks(id)
+    await Notebook_Tag.deleteTagOfNotebooks(id)
     return await Notebook.query()
       .patch({ deleted: date })
       .whereNull('deleted')
