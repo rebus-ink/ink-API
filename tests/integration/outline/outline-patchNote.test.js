@@ -6,7 +6,8 @@ const {
   createNote,
   destroyDB,
   createNoteContext,
-  addNoteToOutline
+  addNoteToOutline,
+  createOutline
 } = require('../../utils/testUtils')
 const _ = require('lodash')
 
@@ -77,6 +78,18 @@ const test = async app => {
    */
 
   const note10 = await createNote(app, token)
+
+  // different outline
+  const outline2 = await createOutline(app, token)
+
+  // linked list: 1 - 2 - 3 - 4 - 5
+  const note1a = await addNoteToOutline(app, token, outline2.shortId, {
+    canonical: '1a'
+  })
+  const note2a = await addNoteToOutline(app, token, outline2.shortId, {
+    canonical: '2a',
+    previous: note1a.shortId
+  })
 
   await tap.test('Update the content of a note', async () => {
     const res = await request(app)
@@ -440,6 +453,35 @@ const test = async app => {
       `/outlines/${outline.shortId}/notes/${note8.shortId}`
     )
     await tap.equal(error.details.requestBody.body.content, 123)
+  })
+
+  // debugging
+  await tap.test('Move second note to first position', async () => {
+    const res = await request(app)
+      .patch(`/outlines/${outline2.shortId}/notes/${note2a.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          previous: null,
+          next: note1a.shortId
+        })
+      )
+
+    await tap.equal(res.status, 200)
+    await tap.notOk(res.body.previous)
+    await tap.equal(res.body.next, note1a.shortId)
+
+    const resOutline = await request(app)
+      .get(`/outlines/${outline2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+    await tap.equal(resOutline.status, 200)
+    const notes = resOutline.body.notes
+    await tap.equal(notes[0].shortId, note2a.shortId)
+    await tap.equal(notes[1].shortId, note1a.shortId)
   })
 
   await destroyDB(app)
