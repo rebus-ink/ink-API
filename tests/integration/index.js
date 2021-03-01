@@ -384,12 +384,13 @@ const allTests = async () => {
     }
   }
 
-  // not real tests, just using it to see the results in the console
+  // //not real tests, just using it to see the results in the console
   // if (!test || test === 'metric') {
   //   await metricsTest(app)
   // }
-  // only needed for queues, which is only used for metrics.
+  // //only needed for queues, which is only used for metrics.
   // await sleep(60000)
+
   await app.knex.migrate.rollback()
   await app.terminate()
 }

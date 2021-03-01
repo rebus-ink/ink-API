@@ -19,6 +19,7 @@ module.exports = function (app) {
   app.use('/', router)
   router.route('/metrics').get(async function (req, res) {
     let [list] = await datastore.runQuery(metricsQuery)
+    let csv
     list = list.map(item => {
       return {
         type: item.type,
@@ -52,6 +53,64 @@ module.exports = function (app) {
       })
 
       list = newList
+    } else if (req.query.groupBy === 'date') {
+      const newList = {}
+      const keys = _.keys(list)
+      keys.forEach(key => {
+        // convert dates
+        let listWithDates = {}
+        listWithDates[key] = list[key].map(item => {
+          const date = new Date(item.date)
+          item.date = `${date.getFullYear()}-${date.getMonth() +
+            1}-${date.getDate()}`
+          return item
+        })
+        newList[key] = _.groupBy(listWithDates[key], 'date')
+        if (req.query.countOnly) {
+          const nestedKeys = _.keys(newList[key])
+          nestedKeys.forEach(date => {
+            newList[key][date] = newList[key][date].length
+          })
+        }
+      })
+
+      list = newList
+    } else if (req.query.groupBy === 'week') {
+      let newList = {}
+      const keys = _.keys(list)
+      keys.forEach(key => {
+        // convert dates
+        let listWithDates = {}
+        listWithDates[key] = list[key].map(item => {
+          const date = new Date(item.date)
+          const sundayDate = new Date(
+            date.setDate(date.getDate() - date.getDay())
+          )
+          item.date = `${sundayDate.getFullYear()}-${sundayDate.getMonth() +
+            1}-${sundayDate.getDate()}`
+          return item
+        })
+        newList[key] = _.groupBy(listWithDates[key], 'date')
+        if (req.query.countOnly) {
+          const nestedKeys = _.keys(newList[key])
+          nestedKeys.forEach(date => {
+            newList[key][date] = newList[key][date].length
+          })
+          if (req.query.format === 'csv') {
+            csv = `type,week,number`
+            let types = _.keys(newList)
+            types.forEach(type => {
+              let dates = _.keys(newList[type])
+              dates.forEach(date => {
+                csv = `${csv},
+                ${type},${date},${newList[type][date]}`
+              })
+            })
+          }
+        }
+      })
+
+      list = newList
     } else {
       if (req.query.countOnly) {
         const keys = _.keys(list)
@@ -61,6 +120,12 @@ module.exports = function (app) {
       }
     }
 
-    res.send(list)
+    if (csv) {
+      console.log(csv)
+      res.setHeader('Content-Type', 'text/csv')
+      res.send(csv)
+    } else {
+      res.send(list)
+    }
   })
 }
