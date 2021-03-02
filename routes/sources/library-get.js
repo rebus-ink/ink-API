@@ -211,7 +211,9 @@ module.exports = app => {
               'bookFormat',
               'inLanguage',
               'lastReadActivity',
-              'citation'
+              'citation',
+              'isPartOf',
+              'pagination'
             ])
           })
 

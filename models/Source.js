@@ -24,7 +24,9 @@ const metadataProps = [
   'copyrightYear',
   'genre',
   'license',
-  'inDirection'
+  'inDirection',
+  'pagination',
+  'isPartOf'
 ]
 
 const linkProperties = [
@@ -343,6 +345,37 @@ class Source extends BaseModel {
           }
         })
       }
+
+      // check pagination
+      if (source.pagination && !_.isString(source.pagination)) {
+        throw new Error(
+          'Source validation error: pagination should be a string'
+        )
+      }
+
+      if (source.isPartOf) {
+        if (source.isPartOf.title && !_.isString(source.isPartOf.title)) {
+          throw new Error(
+            'Source validation error: isPartOf.title should be a string'
+          )
+        }
+        if (
+          source.isPartOf.issueNumber &&
+          !_.isString(source.isPartOf.issueNumber)
+        ) {
+          throw new Error(
+            'Source validation error: isPartOf.issueNumber should be a string'
+          )
+        }
+        if (
+          source.isPartOf.volumeNumber &&
+          !_.isString(source.isPartOf.volumeNumber)
+        ) {
+          throw new Error(
+            'Source validation error: isPartOf.volumeNumber should be a string'
+          )
+        }
+      }
     }
 
     // check resources objects
@@ -477,6 +510,14 @@ class Source extends BaseModel {
     if (source.status) {
       source.status = statusMap[source.status]
     }
+
+    if (source.isPartOf && source.isPartOf.volumeNumber) {
+      source.isPartOf.volumeNumber = source.isPartOf.volumeNumber.toString()
+    }
+    if (source.isPartOf && source.isPartOf.issueNumber) {
+      source.isPartOf.issueNumber = source.isPartOf.issueNumber.toString()
+    }
+
     return source
   }
 

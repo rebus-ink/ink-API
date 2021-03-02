@@ -59,7 +59,13 @@ const test = async () => {
       readingOrder: [{ url: 'one' }, { url: 'two' }, { url: 'three' }],
       resources: [{ url: 'value' }],
       json: { property: 'value' },
-      citation: { default: '123' }
+      citation: { default: '123' },
+      pagination: '100-101',
+      isPartOf: {
+        title: 'journal of something',
+        issueNumber: '1',
+        volumeNumber: '2'
+      }
     })
 
     const activity1 = await request(app)
@@ -151,6 +157,11 @@ const test = async () => {
     await tap.notOk(source.license)
     await tap.ok(source.citation)
     await tap.equal(source.citation.default, '123')
+    await tap.equal(source.pagination, '100-101')
+    await tap.ok(source.isPartOf)
+    await tap.equal(source.isPartOf.title, 'journal of something')
+    await tap.equal(source.isPartOf.issueNumber, '1')
+    await tap.equal(source.isPartOf.volumeNumber, '2')
   })
 
   if (process.env.REDIS_PASSWORD) {
