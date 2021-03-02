@@ -364,7 +364,7 @@ class Note extends BaseModel {
   static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
     // Delete all Note_Tag associated with the note
     await Note_Tag.deleteNoteTagsOfNote(id)
-
+    await Notebook_Note.deleteNotebooksOfNote(id)
     await NoteBody.softDeleteBodiesOfNote(id)
 
     return await Note.query()

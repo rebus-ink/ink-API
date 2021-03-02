@@ -206,17 +206,17 @@ module.exports = function (app) {
           // if updatedNote.previous
           if (updatedNote.previous) {
             const previousNote = await Note.byId(updatedNote.previous)
-            await Note.update(
-              Object.assign(previousNote, { next: urlToId(updatedNote.id) })
-            )
+            const changes = { next: urlToId(updatedNote.id) }
+            if (previousNote.previous === urlToId(updatedNote.id)) { changes.previous = null }
+            await Note.update(Object.assign(previousNote, changes))
           }
 
           // if updatedNote.next
           if (updatedNote.next) {
             const nextNote = await Note.byId(updatedNote.next)
-            await Note.update(
-              Object.assign(nextNote, { previous: urlToId(updatedNote.id) })
-            )
+            const changes = { previous: urlToId(updatedNote.id) }
+            if (nextNote.next === urlToId(updatedNote.id)) changes.next = null
+            await Note.update(Object.assign(nextNote, changes))
           }
 
           res.setHeader('Content-Type', 'application/ld+json')

@@ -66,6 +66,16 @@ class Notebook_Tag extends BaseModel {
     }
   }
 
+  static async deleteTagOfNotebooks (
+    notebookId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!notebookId) return new Error('no notebook')
+
+    return await Notebook_Tag.query()
+      .delete()
+      .where({ notebookId: urlToId(notebookId) })
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this

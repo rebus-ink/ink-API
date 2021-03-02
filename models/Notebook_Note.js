@@ -64,6 +64,16 @@ class Notebook_Note extends BaseModel {
       .where({ noteId: urlToId(noteId) })
   }
 
+  static async deleteNoteOfNotebooks (
+    notebookId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!notebookId) return new Error('no notebook')
+
+    return await Notebook_Note.query()
+      .delete()
+      .where({ notebookId: urlToId(notebookId) })
+  }
+
   /**
    * warning: does not throw errors
    */

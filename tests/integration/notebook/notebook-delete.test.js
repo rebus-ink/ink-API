@@ -4,7 +4,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createNotebook
+  createNotebook,
+  addNoteToNotebook,
+  createNote
 } = require('../../utils/testUtils')
 
 const test = async app => {
@@ -12,6 +14,8 @@ const test = async app => {
   await createUser(app, token)
 
   const notebook = await createNotebook(app, token)
+  const note = await createNote(app, token)
+  await addNoteToNotebook(app, token, note.shortId, notebook.shortId)
 
   await tap.test('Delete a Notebook', async () => {
     const res = await request(app)
@@ -22,6 +26,19 @@ const test = async app => {
 
     await tap.equal(res.status, 204)
   })
+
+  await tap.test(
+    'Note should no longer belong to deleted notebook',
+    async () => {
+      const res = await request(app)
+        .get(`/notes/${note.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      await tap.equal(res.body.notebooks.length, 0)
+    }
+  )
 
   await tap.test(
     'Try to delete a Notebook that was already deleted',

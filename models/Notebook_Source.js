@@ -115,6 +115,16 @@ class Notebook_Source extends BaseModel {
     }
   }
 
+  static async deleteSourceOfNotebooks (
+    notebookId /*: string */
+  ) /*: Promise<number|Error> */ {
+    if (!notebookId) return new Error('no notebook')
+
+    return await Notebook_Source.query()
+      .delete()
+      .where({ notebookId: urlToId(notebookId) })
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
