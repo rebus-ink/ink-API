@@ -74,7 +74,14 @@ const test = async app => {
       }
     ],
     json: { property: 'value' },
-    citation: 'default citation'
+    citation: 'default citation',
+    pagination: '100-101',
+    isPartOf: {
+      title: 'journal of something',
+      datePublished: now,
+      issueNumber: '1',
+      volumeNumber: '2'
+    }
   }
 
   const tag1 = await createTag(app, token, { name: 'tag1' })
@@ -143,6 +150,12 @@ const test = async app => {
     await tap.equal(body.copyrightHolder[0].name, 'Joe Smith')
     await tap.ok(body.citation)
     await tap.equal(body.citation.default, 'default citation')
+    await tap.equal(body.pagination, '100-101')
+    await tap.ok(body.isPartOf)
+    await tap.equal(body.isPartOf.title, 'journal of something')
+    await tap.equal(body.isPartOf.issueNumber, '1')
+    await tap.equal(body.isPartOf.volumeNumber, '2')
+    await tap.ok(body.isPartOf.datePublished)
 
     await tap.type(res.get('Location'), 'string')
     await tap.equal(res.get('Location'), body.id)

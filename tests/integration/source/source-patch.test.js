@@ -71,7 +71,14 @@ const test = async app => {
         name: 'An example resource'
       }
     ],
-    json: { property: 'value' }
+    json: { property: 'value' },
+    pagination: '100-101',
+    isPartOf: {
+      title: 'journal of something',
+      datePublished: now,
+      issueNumber: '1',
+      volumeNumber: '2'
+    }
   }
 
   const resCreateSource = await createSource(app, token, sourceObject)
@@ -124,7 +131,13 @@ const test = async app => {
           illustrator: ['Sample Illustrator2'],
           publisher: ['Sample Publisher2'],
           translator: ['Sample Translator2'],
-          citation: { default: '123' }
+          citation: { default: '123' },
+          pagination: '100-102',
+          isPartOf: {
+            title: 'journal of something else',
+            issueNumber: '1a',
+            volumeNumber: '2a'
+          }
         })
       )
     await tap.equal(res.status, 200)
@@ -163,6 +176,11 @@ const test = async app => {
     await tap.equal(body.translator[0].name, 'Sample Translator2')
     await tap.ok(body.citation)
     await tap.equal(body.citation.default, '123')
+    await tap.equal(body.pagination, '100-102')
+    await tap.ok(body.isPartOf)
+    await tap.equal(body.isPartOf.title, 'journal of something else')
+    await tap.equal(body.isPartOf.issueNumber, '1a')
+    await tap.equal(body.isPartOf.volumeNumber, '2a')
   })
 
   await tap.test('Update a single property', async () => {

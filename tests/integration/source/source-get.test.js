@@ -70,7 +70,14 @@ const test = async app => {
       }
     ],
     json: { property: 'value' },
-    citation: { default: '123' }
+    citation: { default: '123' },
+    pagination: '100-101',
+    isPartOf: {
+      title: 'journal of something',
+      datePublished: now,
+      issueNumber: '1',
+      volumeNumber: '2'
+    }
   }
 
   const resCreateSource = await createSource(app, token, sourceObject)
@@ -127,6 +134,12 @@ const test = async app => {
     await tap.equal(body.license, 'http://www.mylicense.com')
     await tap.ok(body.citation)
     await tap.equal(body.citation.default, '123')
+    await tap.equal(body.pagination, '100-101')
+    await tap.ok(body.isPartOf)
+    await tap.equal(body.isPartOf.title, 'journal of something')
+    await tap.equal(body.isPartOf.issueNumber, '1')
+    await tap.equal(body.isPartOf.volumeNumber, '2')
+    await tap.ok(body.isPartOf.datePublished)
   })
 
   await tap.test('Get Source with a readActivity', async () => {
