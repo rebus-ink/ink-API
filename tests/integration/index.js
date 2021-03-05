@@ -117,6 +117,7 @@ const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
 const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
 const hardDeleteCanvasTests = require('./hardDelete/deleteCanvas.test')
 // const metricsTest = require('./metrics.test')
+const metadataTest = require('./metadata.test')
 
 const collaboratorPostTests = require('./collaborator/collaborator-post.test')
 const collaboratorPutTests = require('./collaborator/collaborator-put.test')
@@ -390,6 +391,10 @@ const allTests = async () => {
   // }
   // //only needed for queues, which is only used for metrics.
   // await sleep(60000)
+
+  if (test === 'metadata') {
+    // await metadataTest(app)
+  }
 
   await app.knex.migrate.rollback()
   await app.terminate()

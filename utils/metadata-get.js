@@ -73,7 +73,6 @@ const getMetadata = async (title, apis) => {
         } else if (result.end_page) {
           pagination = result.end_page.toString()
         }
-        console.log(result.journal.language)
 
         return {
           title: result.title,
@@ -102,21 +101,26 @@ const getMetadata = async (title, apis) => {
 
   if (apis.loc) {
     const locUrl = `https://www.loc.gov/search/?q=${title}&fo=json&sp=5`
-    const locResults = await axios.get(locUrl)
+    let locResults
+    try {
+      locResults = await axios.get(locUrl)
+    } catch (err) {
+      locResults = undefined
+    }
 
     let loc
-    if (locResults.data.results) {
+    if (locResults && locResults.data.results) {
       loc = locResults.data.results.map(result => {
         return {
           title: result.title,
           type: 'Article',
           keywords: result.keywords,
-          abstract: result.description[0],
+          abstract: result.description ? result.description[0] : null,
           isPartOf: {
-            title: result.partof[0],
+            title: result.partof ? result.partof[0] : null,
             datePublished: result.dates ? result.dates[0] : null
           },
-          inLanguage: result.language[0]
+          inLanguage: result.language
             ? ISO6391.getCode(result.language[0])
             : null
         }
@@ -126,7 +130,8 @@ const getMetadata = async (title, apis) => {
     results.loc = loc
   }
 
-  console.log(results)
+  // console.log(results)
+  return results
 }
 
 module.exports = { getMetadata }
