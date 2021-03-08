@@ -103,6 +103,7 @@ const collaboratorDeleteRoute = require('./routes/collaborator/collaborator-dele
 const hardDeleteRoute = require('./routes/hardDelete')
 
 const metricsGetRoute = require('./routes/metrics-get')
+const metadataGetRoute = require('./routes/metadata-get')
 
 const setupKnex = async skip_migrate => {
   let config
@@ -320,6 +321,7 @@ canvasPutRoute(app)
 canvasDeleteRoute(app)
 canvasGetByIdRoute(app)
 canvasGetAllRoute(app)
+metadataGetRoute(app)
 
 app.use(errorHandling)
 app.use((req, res) => {
