@@ -1,5 +1,5 @@
 const Queue = require('bull')
-const request = require('request')
+const axios = require('axios')
 require('dotenv').config()
 let fileDeleteQueue
 
@@ -13,17 +13,11 @@ if (process.env.REDIS_PASSWORD) {
   })
 
   fileDeleteQueue.process(async (job, done) => {
-    await request.post(
+    await axios.post(
       'https://us-central1-thematic-cider-139815.cloudfunctions.net/file-delete',
-      {
-        body: JSON.stringify(job.data),
-        headers: { 'content-type': 'application/json' }
-      },
-      async err => {
-        if (err) console.log(err)
-        done()
-      }
+      job.data
     )
+    done()
   })
 }
 

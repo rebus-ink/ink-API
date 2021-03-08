@@ -1,7 +1,7 @@
 const { urlToId } = require('./utils')
 const crypto = require('crypto')
 const Queue = require('bull')
-const request = require('request')
+const axios = require('axios')
 require('dotenv').config()
 let metricsQueue
 
@@ -27,17 +27,11 @@ if (
         .digest('hex')
     }
 
-    request.post(
+    await axios.post(
       'https://us-central1-thematic-cider-139815.cloudfunctions.net/metrics',
-      {
-        body: JSON.stringify(metrics),
-        headers: { 'content-type': 'application/json' }
-      },
-      async err => {
-        if (err) console.log(err)
-        done()
-      }
+      metrics
     )
+    done()
   })
 }
 
