@@ -80,8 +80,10 @@ const test = async app => {
       title: 'journal of something',
       datePublished: now,
       issueNumber: '1',
-      volumeNumber: '2'
-    }
+      volumeNumber: '2',
+      series: 'something something'
+    },
+    doi: 'doi'
   }
 
   const tag1 = await createTag(app, token, { name: 'tag1' })
@@ -156,6 +158,8 @@ const test = async app => {
     await tap.equal(body.isPartOf.issueNumber, '1')
     await tap.equal(body.isPartOf.volumeNumber, '2')
     await tap.ok(body.isPartOf.datePublished)
+    await tap.equal(body.isPartOf.series, 'something something')
+    await tap.equal(body.doi, 'doi')
 
     await tap.type(res.get('Location'), 'string')
     await tap.equal(res.get('Location'), body.id)

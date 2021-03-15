@@ -26,7 +26,8 @@ const metadataProps = [
   'license',
   'inDirection',
   'pagination',
-  'isPartOf'
+  'isPartOf',
+  'doi'
 ]
 
 const linkProperties = [

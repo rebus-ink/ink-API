@@ -76,8 +76,10 @@ const test = async app => {
       title: 'journal of something',
       datePublished: now,
       issueNumber: '1',
-      volumeNumber: '2'
-    }
+      volumeNumber: '2',
+      series: 'series1'
+    },
+    doi: 'doi1'
   }
 
   const resCreateSource = await createSource(app, token, sourceObject)
@@ -140,6 +142,8 @@ const test = async app => {
     await tap.equal(body.isPartOf.issueNumber, '1')
     await tap.equal(body.isPartOf.volumeNumber, '2')
     await tap.ok(body.isPartOf.datePublished)
+    await tap.equal(body.isPartOf.series, 'series1')
+    await tap.equal(body.doi, 'doi1')
   })
 
   await tap.test('Get Source with a readActivity', async () => {
