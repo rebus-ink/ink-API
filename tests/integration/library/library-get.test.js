@@ -64,7 +64,8 @@ const test = async () => {
       isPartOf: {
         title: 'journal of something',
         issueNumber: '1',
-        volumeNumber: '2'
+        volumeNumber: '2',
+        series: 'series1'
       }
     })
 
@@ -162,6 +163,7 @@ const test = async () => {
     await tap.equal(source.isPartOf.title, 'journal of something')
     await tap.equal(source.isPartOf.issueNumber, '1')
     await tap.equal(source.isPartOf.volumeNumber, '2')
+    await tap.equal(source.isPartOf.series, 'series1')
   })
 
   if (process.env.REDIS_PASSWORD) {
