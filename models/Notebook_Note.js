@@ -25,24 +25,56 @@ class Notebook_Note extends BaseModel {
   ) /*: Promise<any> */ {
     if (!notebookId) throw new Error('no notebook')
     if (!noteId) throw new Error('no note')
-    notebookId = urlToId(notebookId)
-    noteId = urlToId(noteId)
 
-    try {
-      return await Notebook_Note.query().insertAndFetch({
-        notebookId,
-        noteId
-      })
-    } catch (err) {
-      if (err.constraint === 'notebook_note_noteid_foreign') {
-        throw new Error('no note')
-      } else if (err.constraint === 'notebook_note_notebookid_foreign') {
-        throw new Error('no notebook')
-      } else if (err.constraint === 'notebook_note_noteid_notebookid_unique') {
-        throw new Error(
-          `Add Note to Notebook Error: Relationship already exists between Notebook ${notebookId} and Note ${noteId}`
-        )
+    if (noteId.indexOf(',') > -1) {
+      const notes = noteId.split(',')
+      await this.addMultipleNotesToNotebook(notebookId, notes)
+    } else {
+      notebookId = urlToId(notebookId)
+      noteId = urlToId(noteId)
+
+      try {
+        return await Notebook_Note.query().insertAndFetch({
+          notebookId,
+          noteId
+        })
+      } catch (err) {
+        if (err.constraint === 'notebook_note_noteid_foreign') {
+          throw new Error('no note')
+        } else if (err.constraint === 'notebook_note_notebookid_foreign') {
+          throw new Error('no notebook')
+        } else if (
+          err.constraint === 'notebook_note_noteid_notebookid_unique'
+        ) {
+          throw new Error(
+            `Add Note to Notebook Error: Relationship already exists between Notebook ${notebookId} and Note ${noteId}`
+          )
+        }
       }
+    }
+  }
+
+  static async addMultipleNotesToNotebook (
+    notebookId /*: string */,
+    notes /*: Array<string> */
+  ) /*: Promise<any> */ {
+    const list = notes.map(note => {
+      return { noteId: urlToId(note), notebookId }
+    })
+
+    // ignores errors - if errors encountered with first insert, insert one by one
+    try {
+      await Notebook_Note.query().insert(list)
+    } catch (err) {
+      // if inserting all at once failed, insert one at a time and ignore errors
+      list.forEach(async item => {
+        try {
+          await Notebook_Note.query().insert(item)
+        } catch (err2) {
+          // eslint-disable-next-line
+          return
+        }
+      })
     }
   }
 
