@@ -41,6 +41,33 @@ const test = async app => {
     await tap.equal(body.sources[0].shortId, sourceId)
   })
 
+  const source2 = await createSource(app, token)
+  const sourceId2 = source2.shortId
+  const source3 = await createSource(app, token)
+  const sourceId3 = source3.shortId
+
+  await tap.test('Assign Multiple Sources to Notebook', async () => {
+    const res = await request(app)
+      .put(`/notebooks/${notebookId}/sources/${sourceId2},${sourceId3}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 204)
+
+    // make sure the source is really attached to the notebook
+    const sourceres = await request(app)
+      .get(`/notebooks/${notebookId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(sourceres.status, 200)
+    const body = sourceres.body
+    await tap.ok(Array.isArray(body.sources))
+    await tap.equal(body.sources.length, 3)
+  })
+
   await tap.test('Try to assign Source to an invalid Notebook', async () => {
     const res = await request(app)
       .put(`/notebooks/${notebookId}abc/sources/${sourceId}`)
