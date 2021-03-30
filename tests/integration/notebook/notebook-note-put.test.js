@@ -42,6 +42,33 @@ const test = async app => {
     await tap.ok(body.notes[0].body)
   })
 
+  const note2 = await createNote(app, token)
+  const noteId2 = note2.shortId
+  const note3 = await createNote(app, token)
+  const noteId3 = note3.shortId
+
+  await tap.test('Assign Multiple notes to Notebook', async () => {
+    const res = await request(app)
+      .put(`/notebooks/${notebookId}/notes/${noteId2},${noteId3}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 204)
+
+    // make sure the note is really attached to the notebook
+    const pubres = await request(app)
+      .get(`/notebooks/${notebookId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(pubres.status, 200)
+    const body = pubres.body
+    await tap.ok(Array.isArray(body.notes))
+    await tap.equal(body.notes.length, 3)
+  })
+
   await tap.test('Try to assign Note to an invalid Notebook', async () => {
     const res = await request(app)
       .put(`/notebooks/${notebookId}abc/notes/${noteId}`)
