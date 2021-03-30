@@ -131,6 +131,25 @@ module.exports = function (app) {
         })
       }
 
+      if (req.body.property === 'notebooks') {
+        if (_.isString(req.body.value)) {
+          req.body.value = [req.body.value]
+        }
+        req.body.value.forEach(notebook => {
+          if (!checkOwnership(reader.id, urlToId(notebook))) {
+            req.body.sources.forEach(sourceId => {
+              errors.push({
+                id: sourceId,
+                status: 403,
+                message: `Access to notebook ${notebook} disallowed`,
+                value: notebook
+              })
+            })
+            req.body.value = req.body.value.filter(item => item !== notebook)
+          }
+        })
+      }
+
       switch (req.body.operation) {
         // ************************************** REPLACE *********************************
         case 'replace':
@@ -215,7 +234,8 @@ module.exports = function (app) {
           if (
             batchUpdateArrayProperties.indexOf(req.body.property) === -1 &&
             Source.attributionTypes.indexOf(req.body.property) === -1 &&
-            req.body.property !== 'tags'
+            req.body.property !== 'tags' &&
+            req.body.property !== 'notebooks'
           ) {
             return next(
               boom.badRequest(`Cannot add property ${req.body.property}`, {
@@ -293,11 +313,36 @@ module.exports = function (app) {
                 .status(207)
                 .end(JSON.stringify({ status: result.concat(errors) }))
             }
-          } else {
+          } else if (req.body.property === 'tags') {
             // TAGS
             // check ownership of tags. First check that they are strings?
 
             const result = await Source.batchUpdateAddTags(
+              req.body,
+              urlToId(reader.id)
+            )
+            if (
+              !_.find(result, { status: 404 }) &&
+              !_.find(result, { status: 400 }) &&
+              errors.length === 0
+            ) {
+              await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
+              res.setHeader('Content-Type', 'application/ld+json')
+              res.status(204).end()
+            } else {
+              await libraryCacheUpdate(reader.authId)
+              await notebooksCacheUpdate(reader.authId)
+
+              res.setHeader('Content-Type', 'application/ld+json')
+              res
+                .status(207)
+                .end(JSON.stringify({ status: result.concat(errors) }))
+            }
+          } else {
+            // notebooks
+            const result = await Source.batchUpdateAddNotebooks(
               req.body,
               urlToId(reader.id)
             )

@@ -6,7 +6,9 @@ const {
   destroyDB,
   createSource,
   createTag,
-  addSourceToCollection
+  createNotebook,
+  addSourceToCollection,
+  addSourceToNotebook
 } = require('../../utils/testUtils')
 const _ = require('lodash')
 
@@ -56,6 +58,22 @@ const test = async app => {
   await addSourceToCollection(app, token, source2.shortId, tag1.shortId)
 
   // source3: not tags
+
+  const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+  const notebook2 = await createNotebook(app, token, { name: 'notebook2' })
+  const notebook3 = await createNotebook(app, token, { name: 'notebook3' })
+  const notebook4 = await createNotebook(app, token, { name: 'notebook4' })
+  const notebook5 = await createNotebook(app, token, { name: 'notebook5' })
+
+  // source1: notebook 1, 2, 3
+  await addSourceToNotebook(app, token, source1.shortId, notebook1.shortId)
+  await addSourceToNotebook(app, token, source1.shortId, notebook2.shortId)
+  await addSourceToNotebook(app, token, source1.shortId, notebook3.shortId)
+
+  // source2: notebook1
+  await addSourceToNotebook(app, token, source2.shortId, notebook1.shortId)
+
+  // source3: not notebooks
 
   // ********************************** REPLACE ********************************
 
@@ -1775,6 +1793,323 @@ source3: tag4
         )
 
       await tap.equal(res.status, 204)
+    }
+  )
+
+  // ************************************************ ADD NOTEBOOKS ****************************************
+
+  await tap.test('Batch Update Sources - add a notebook', async () => {
+    const res = await request(app)
+      .patch(`/sources/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          sources: [source2.shortId, source3.shortId],
+          operation: 'add',
+          property: 'notebooks',
+          value: [notebook2.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getSource2 = await request(app)
+      .get(`/sources/${source2.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source2Notebooks = getSource2.body.notebooks
+    await tap.equal(source2Notebooks.length, 2)
+    await tap.ok(_.find(source2Notebooks, { name: 'notebook1' }))
+    await tap.ok(_.find(source2Notebooks, { name: 'notebook2' }))
+
+    const getSource3 = await request(app)
+      .get(`/sources/${source3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source3Body = getSource3.body
+    await tap.equal(source3Body.notebooks.length, 1)
+    await tap.equal(source3Body.notebooks[0].name, 'notebook2')
+  })
+
+  /*
+    before:
+    source1: notebook1, notebook2, notebook3
+    source2: notebook1, notebook2
+    source3: notebook2
+    */
+
+  await tap.test(
+    'Batch Update Sources - add a notebook that already exists',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            sources: [source1.shortId, source3.shortId],
+            operation: 'add',
+            property: 'notebooks',
+            value: [notebook3.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 204)
+      const getSource1 = await request(app)
+        .get(`/sources/${source1.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const source1Notebooks = getSource1.body.notebooks
+      await tap.equal(source1Notebooks.length, 3)
+      await tap.ok(_.find(source1Notebooks, { name: 'notebook1' }))
+      await tap.ok(_.find(source1Notebooks, { name: 'notebook2' }))
+      await tap.ok(_.find(source1Notebooks, { name: 'notebook3' }))
+
+      const getSource3 = await request(app)
+        .get(`/sources/${source3.shortId}`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+
+      const source3Notebooks = getSource3.body.notebooks
+      await tap.equal(source3Notebooks.length, 2)
+      await tap.ok(_.find(source3Notebooks, { name: 'notebook2' }))
+      await tap.ok(_.find(source3Notebooks, { name: 'notebook3' }))
+    }
+  )
+
+  /*
+  before:
+  source1: notebook1, notebook2, notebook3
+  source2: notebook1
+  source3: notebook2, notebook3
+  */
+
+  await tap.test('Batch Update Sources - add multiple notebooks', async () => {
+    const res = await request(app)
+      .patch(`/sources/batchUpdate`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          sources: [source1.shortId, source3.shortId],
+          operation: 'add',
+          property: 'notebooks',
+          value: [notebook4.shortId, notebook5.shortId]
+        })
+      )
+
+    await tap.equal(res.status, 204)
+
+    const getSource1 = await request(app)
+      .get(`/sources/${source1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source1Notebooks = getSource1.body.notebooks
+    await tap.equal(source1Notebooks.length, 5)
+    await tap.ok(_.find(source1Notebooks, { name: 'notebook1' }))
+    await tap.ok(_.find(source1Notebooks, { name: 'notebook2' }))
+    await tap.ok(_.find(source1Notebooks, { name: 'notebook3' }))
+    await tap.ok(_.find(source1Notebooks, { name: 'notebook4' }))
+    await tap.ok(_.find(source1Notebooks, { name: 'notebook5' }))
+
+    const getSource3 = await request(app)
+      .get(`/sources/${source3.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const source3Notebooks = getSource3.body.notebooks
+    await tap.equal(source3Notebooks.length, 4)
+    await tap.ok(_.find(source3Notebooks, { name: 'notebook2' }))
+    await tap.ok(_.find(source3Notebooks, { name: 'notebook3' }))
+    await tap.ok(_.find(source3Notebooks, { name: 'notebook4' }))
+    await tap.ok(_.find(source3Notebooks, { name: 'notebook5' }))
+  })
+
+  /*
+  before:
+  source1: notebooks 1, 2, 3, 4, 5
+  source2: notebook1
+  source3: notebooks 2, 3, 4, 5
+  */
+
+  await tap.test(
+    'Batch Update Sources - try to add a notebook that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            sources: [source1.shortId, source3.shortId],
+            operation: 'add',
+            property: 'notebooks',
+            value: [notebook4.shortId + 'abc']
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, source1.shortId)
+      await tap.equal(result[0].value, notebook4.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Notebook found with id ${notebook4.shortId}abc`
+      )
+
+      await tap.equal(result[1].status, 404)
+      await tap.equal(result[1].id, source3.shortId)
+      await tap.equal(result[1].value, notebook4.shortId + 'abc')
+      await tap.equal(
+        result[1].message,
+        `No Notebook found with id ${notebook4.shortId}abc`
+      )
+    }
+  )
+
+  /*
+  before:
+  source1: notebooks 1, 2, 3, 4, 5
+  source2: notebook1
+  source3: notebooks 2, 3, 4, 5
+  */
+
+  await tap.test(
+    'Batch Update Sources - try to add two notebooks: one that exists and one that does not',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            sources: [source2.shortId, source3.shortId],
+            operation: 'add',
+            property: 'notebooks',
+            value: [notebook4.shortId + 'abc', notebook5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 4)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, source2.shortId)
+      await tap.equal(result[0].value, notebook4.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Notebook found with id ${notebook4.shortId}abc`
+      )
+
+      await tap.equal(result[1].status, 204)
+      await tap.equal(result[1].id, source2.shortId)
+      await tap.equal(result[1].value, notebook5.shortId)
+
+      await tap.equal(result[2].status, 404)
+      await tap.equal(result[2].id, source3.shortId)
+      await tap.equal(result[2].value, notebook4.shortId + 'abc')
+      await tap.equal(
+        result[2].message,
+        `No Notebook found with id ${notebook4.shortId}abc`
+      )
+
+      await tap.equal(result[3].status, 204)
+      await tap.equal(result[3].id, source3.shortId)
+      await tap.equal(result[3].value, notebook5.shortId)
+    }
+  )
+
+  /*
+  before:
+  source1: notebooks 1, 2, 3, 4, 5
+  source2: notebooks 1, 5
+  source3: notebooks 2, 3, 4, 5
+  */
+
+  await tap.test(
+    'Batch Update Sources - try to add a notebook to a source that does not exist',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            sources: [source2.shortId + 'abc'],
+            operation: 'add',
+            property: 'notebooks',
+            value: [notebook5.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 1)
+      await tap.equal(result[0].status, 404)
+      await tap.equal(result[0].id, source2.shortId + 'abc')
+      await tap.equal(
+        result[0].message,
+        `No Source found with id ${source2.shortId}abc`
+      )
+    }
+  )
+
+  /*
+  before:
+  source1: notebooks 1, 2, 3, 4, 5
+  source2: notebooks 1, 5
+  source3: notebooks 2, 3, 4, 5
+  */
+
+  await tap.test(
+    'Batch Update Sources - try to add a notebook to a source that does not exist and one that does',
+    async () => {
+      const res = await request(app)
+        .patch(`/sources/batchUpdate`)
+        .set('Host', 'reader-api.test')
+        .set('Authorization', `Bearer ${token}`)
+        .type('application/ld+json')
+        .send(
+          JSON.stringify({
+            sources: [source2.shortId, source1.shortId + 'abc'],
+            operation: 'add',
+            property: 'notebooks',
+            value: [notebook2.shortId]
+          })
+        )
+
+      await tap.equal(res.status, 207)
+      const result = res.body.status
+      await tap.equal(result.length, 2)
+      await tap.equal(result[0].status, 204)
+      await tap.equal(result[0].id, source2.shortId)
+      await tap.equal(result[0].value, notebook2.shortId)
+
+      await tap.equal(result[1].status, 404)
+      await tap.equal(result[1].id, source1.shortId + 'abc')
+      await tap.equal(
+        result[1].message,
+        `No Source found with id ${source1.shortId}abc`
+      )
     }
   )
 

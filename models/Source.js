@@ -12,6 +12,7 @@ const languagesList = require('../utils/languages')
 const crypto = require('crypto')
 const { Source_Tag } = require('./Source_Tag')
 const { Notebook_Source } = require('./Notebook_Source')
+const domain = process.env.DOMAIN || ''
 
 const metadataProps = [
   'inLanguage',
@@ -976,6 +977,64 @@ class Source extends BaseModel {
                 value: tag,
                 message: err.message
               })
+            }
+          }
+        }
+      }
+    }
+    return result
+  }
+
+  static async batchUpdateAddNotebooks (body /*: any */) /*: Promise<any> */ {
+    let result = []
+    for (const sourceId of body.sources) {
+      const source = await Source.query()
+        .findById(sourceId)
+        .withGraphFetched('notebooks')
+      if (!source) {
+        result.push({
+          id: sourceId,
+          status: 404,
+          message: `No Source found with id ${sourceId}`
+        })
+      } else {
+        for (const notebook of body.value) {
+          // if notebook already exists
+          const urlId = `${domain}/notebooks/${urlToId(notebook)}`
+          if (
+            _.find(source.notebooks, {
+              id: urlId
+            })
+          ) {
+            result.push({
+              id: sourceId,
+              status: 204,
+              value: notebook
+            })
+          } else {
+            try {
+              await Notebook_Source.addSourceToNotebook(notebook, sourceId)
+              result.push({
+                id: sourceId,
+                status: 204,
+                value: notebook
+              })
+            } catch (err) {
+              if (err.message === 'no notebook') {
+                result.push({
+                  id: sourceId,
+                  status: 404,
+                  value: notebook,
+                  message: `No Notebook found with id ${notebook}`
+                })
+              } else {
+                result.push({
+                  id: sourceId,
+                  status: 400,
+                  value: notebook,
+                  message: err.message
+                })
+              }
             }
           }
         }
