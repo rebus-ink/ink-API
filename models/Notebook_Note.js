@@ -49,6 +49,8 @@ class Notebook_Note extends BaseModel {
           throw new Error(
             `Add Note to Notebook Error: Relationship already exists between Notebook ${notebookId} and Note ${noteId}`
           )
+        } else {
+          throw err
         }
       }
     }
@@ -72,7 +74,8 @@ class Notebook_Note extends BaseModel {
           await Notebook_Note.query().insert(item)
         } catch (err2) {
           // eslint-disable-next-line
-          return
+          console.log(err2)
+
         }
       })
     }
