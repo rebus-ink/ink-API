@@ -9,6 +9,7 @@ const {
   createNotebook
 } = require('../../utils/testUtils')
 const { urlToId } = require('../../../utils/utils')
+const _ = require('lodash')
 
 const test = async app => {
   const token = getToken()
@@ -280,6 +281,7 @@ const test = async app => {
 
   const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
   const notebook2 = await createNotebook(app, token, { name: 'notebook2' })
+  let notebook3Id
 
   await tap.test('Create Note with existing notebooks', async () => {
     const res = await request(app)
@@ -340,6 +342,9 @@ const test = async app => {
     const note = noteRes.body
     await tap.ok(note.notebooks)
     await tap.equal(note.notebooks.length, 3)
+
+    const notebook3 = _.find(note.notebooks, { name: 'notebook3' })
+    notebook3Id = notebook3.shortId
   })
 
   await tap.test(
@@ -410,6 +415,16 @@ const test = async app => {
       await tap.equal(note.notebooks.length, 1)
     }
   )
+
+  await tap.test('Created Notebooks can be deleted', async () => {
+    const res = await request(app)
+      .delete(`/notebooks/${notebook3Id}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    await tap.equal(res.status, 204)
+  })
 
   // ------------------------------------- VALIDATION ERRORS ------------------------------------
 

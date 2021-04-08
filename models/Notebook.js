@@ -188,7 +188,11 @@ class Notebook extends BaseModel {
     notebooks /*: Array<any> */
   ) /*: Promise<any> */ {
     const notebookArray = notebooks.map(notebook => {
-      return this._formatNotebook(notebook, readerId)
+      const formattedNotebook = this._formatNotebook(notebook, readerId)
+      formattedNotebook.id = `${urlToId(readerId)}-${crypto
+        .randomBytes(5)
+        .toString('hex')}`
+      return formattedNotebook
     })
 
     try {
