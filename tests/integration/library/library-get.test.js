@@ -103,6 +103,9 @@ const test = async () => {
     await tap.equal(activity2.statusCode, 201)
     const activityId2 = activity2.body.id
 
+    const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+    await addSourceToNotebook(app, token, source1.shortId, notebook1.shortId)
+
     const res = await request(app)
       .get('/library')
       .set('Host', 'reader-api.test')
@@ -164,6 +167,7 @@ const test = async () => {
     await tap.equal(source.isPartOf.issueNumber, '1')
     await tap.equal(source.isPartOf.volumeNumber, '2')
     await tap.equal(source.isPartOf.series, 'series1')
+    await tap.equal(source.notebooks.length, 1)
   })
 
   if (process.env.REDIS_PASSWORD) {
