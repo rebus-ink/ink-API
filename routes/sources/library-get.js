@@ -213,7 +213,8 @@ module.exports = app => {
               'lastReadActivity',
               'citation',
               'isPartOf',
-              'pagination'
+              'pagination',
+              'notebooks'
             ])
           })
 

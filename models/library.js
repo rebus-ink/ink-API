@@ -200,7 +200,7 @@ class Library {
 
         builder
           .withGraphFetched(
-            '[tags(selectTags, notDeleted), attributions(selectAttributions, notDeleted), readActivities(latestFirst)]'
+            '[tags(selectTags, notDeleted), notebooks(notDeleted), attributions(selectAttributions, notDeleted), readActivities(latestFirst)]'
           )
           .modifiers({
             selectAttributions (modifierBuilder) {
