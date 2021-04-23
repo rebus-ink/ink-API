@@ -146,37 +146,6 @@ class Reader extends BaseModel {
     }
   }
 
-  static async tempFix () /*: Promise<void> */ {
-    const readers = await Reader.query().withGraphFetched('tags')
-
-    let readersToFix = readers.filter(reader => {
-      if (!_.find(reader.tags, { type: 'colour' })) {
-        return reader
-      }
-    })
-    readersToFix = readersToFix.map(reader => urlToId(reader.id))
-    readersToFix.forEach(async reader => {
-      await Tag.createMultipleTags(reader, [
-        {
-          name: 'colour1',
-          type: 'colour'
-        },
-        {
-          name: 'colour2',
-          type: 'colour'
-        },
-        {
-          name: 'colour3',
-          type: 'colour'
-        },
-        {
-          name: 'colour4',
-          type: 'colour'
-        }
-      ])
-    })
-  }
-
   static async createReader (
     authId /*: string */,
     person /*: any */
