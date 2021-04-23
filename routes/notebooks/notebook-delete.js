@@ -47,17 +47,14 @@ module.exports = function (app) {
           )
         }
 
-        // TODO: un-comment
-        // if (!checkOwnership(reader.id, req.params.id)) {
-        //   return next(
-        //     boom.forbidden(`Access to Notebook ${req.params.id} disallowed`, {
-        //       requestUrl: req.originalUrl,
-        //       requestBody: req.body
-        //     })
-        //   )
-        // }
-
-        await Reader.tempFix()
+        if (!checkOwnership(reader.id, req.params.id)) {
+          return next(
+            boom.forbidden(`Access to Notebook ${req.params.id} disallowed`, {
+              requestUrl: req.originalUrl,
+              requestBody: req.body
+            })
+          )
+        }
 
         let deleted
         try {
