@@ -13,6 +13,7 @@ const { Note_Tag } = require('./Note_Tag')
 /*::
 type NoteType = {
   id?: string,
+  shortId?:string,
   readerId: string,
   canonical?: string,
   stylesheet?: Object,
@@ -152,7 +153,8 @@ class Note extends BaseModel {
   }
 
   static async _formatIncomingNote (
-    note /*: NoteType */
+    note /*: NoteType */,
+    allowId /*: boolean */
   ) /*: Promise<NoteType> */ {
     const props = _.pick(note, [
       'canonical',
@@ -164,6 +166,7 @@ class Note extends BaseModel {
       'document',
       'contextId'
     ])
+    if (allowId && note.shortId) props.id = note.shortId
     if (note.id) props.id = urlToId(note.id)
     return props
   }
@@ -173,7 +176,7 @@ class Note extends BaseModel {
     notebookId /*: string */,
     note /*: any */
   ) {
-    const createdNote = await this.createNote(reader, note)
+    const createdNote = await this.createNote(reader, note, true)
     if (createdNote) {
       try {
         // $FlowFixMe
@@ -202,12 +205,23 @@ class Note extends BaseModel {
 
   static async createNote (
     reader /*: any */,
-    note /*: any */
+    note /*: any */,
+    allowId /*: boolean */
   ) /*: Promise<NoteType|Error> */ {
-    let props = await Note._formatIncomingNote(note)
+    let props = await Note._formatIncomingNote(note, allowId)
 
+    if (
+      allowId &&
+      note.shortId &&
+      note.shortId.startsWith(urlToId(reader.id))
+    ) {
+      props.id = note.shortId
+    } else {
+      props.id = `${urlToId(reader.id)}-${crypto
+        .randomBytes(5)
+        .toString('hex')}`
+    }
     props.readerId = reader.id
-    props.id = `${urlToId(reader.id)}-${crypto.randomBytes(5).toString('hex')}`
 
     let createdNote
     let noteBodyError
@@ -303,12 +317,11 @@ class Note extends BaseModel {
         language: body.language
       }
     })
-
     Object.assign(originalNote, changes)
-
     const newNote = await Note.createNote(
       originalNote.reader,
-      _.omit(originalNote, ['published', 'updated', 'id'])
+      _.omit(originalNote, ['published', 'updated', 'id']),
+      true
     )
 
     // copy tag relations
@@ -391,7 +404,7 @@ class Note extends BaseModel {
         note[prop] = null
       }
     })
-    let modifications = await Note._formatIncomingNote(note)
+    let modifications = await Note._formatIncomingNote(note, false)
 
     await NoteBody.deleteBodiesOfNote(urlToId(note.id))
 
