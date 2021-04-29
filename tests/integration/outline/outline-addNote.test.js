@@ -1,5 +1,6 @@
 const request = require('supertest')
 const tap = require('tap')
+const crypto = require('crypto')
 const {
   getToken,
   createUser,
@@ -38,6 +39,8 @@ const test = async app => {
   let note1, note4, note5, note6
 
   await tap.test('Add to outline a Note with a single body', async () => {
+    const shortId = `${readerId}-${crypto.randomBytes(5).toString('hex')}`
+
     const res = await request(app)
       .post(`/outlines/${outlineId}/notes`)
       .set('Host', 'reader-api.test')
@@ -45,6 +48,7 @@ const test = async app => {
       .type('application/ld+json')
       .send(
         JSON.stringify({
+          shortId,
           body: {
             content: 'this is the content of the note',
             motivation: 'test'
@@ -56,6 +60,7 @@ const test = async app => {
     const body = res.body
     await tap.ok(body.id)
     await tap.equal(body.shortId, urlToId(body.id))
+    await tap.equal(body.shortId, shortId)
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.contextId, outlineId)
     await tap.equal(body.json.property1, 'value1')

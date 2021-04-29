@@ -166,7 +166,7 @@ module.exports = function (app) {
           body.contextId = req.params.id
 
           try {
-            createdNote = await Note.createNote(reader, body)
+            createdNote = await Note.createNote(reader, body, true)
           } catch (err) {
             if (err instanceof ValidationError) {
               return next(
