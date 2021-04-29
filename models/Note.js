@@ -166,7 +166,7 @@ class Note extends BaseModel {
       'document',
       'contextId'
     ])
-    if (allowId) props.id = note.shortId
+    if (allowId && note.shortId) props.id = note.shortId
     if (note.id) props.id = urlToId(note.id)
     return props
   }
@@ -216,7 +216,6 @@ class Note extends BaseModel {
       note.shortId.startsWith(urlToId(reader.id))
     ) {
       props.id = note.shortId
-      console.log(note.shortId)
     } else {
       props.id = `${urlToId(reader.id)}-${crypto
         .randomBytes(5)
@@ -318,13 +317,11 @@ class Note extends BaseModel {
         language: body.language
       }
     })
-
     Object.assign(originalNote, changes)
-
     const newNote = await Note.createNote(
       originalNote.reader,
       _.omit(originalNote, ['published', 'updated', 'id']),
-      false
+      true
     )
 
     // copy tag relations
