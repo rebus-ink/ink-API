@@ -68,6 +68,18 @@ class OutlineData extends BaseModel {
     // catch duplicate error
   }
 
+  static async partialUpdate (
+    noteId /*: string */,
+    changes /*: any */
+  ) /*: Promise<void> */ {
+    // validate
+    if (!noteId) throw new Error('no noteId')
+
+    await OutlineData.query()
+      .patch(changes)
+      .where('noteId', '=', noteId)
+  }
+
   static async update (
     readerId /*: string */,
     object /*: any */

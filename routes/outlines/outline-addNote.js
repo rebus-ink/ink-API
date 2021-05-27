@@ -86,6 +86,16 @@ module.exports = function (app) {
             )
           }
         }
+        if (_.isArray(req.body)) {
+          const notesCreated = await Note.createMultipleNotesInOutline(
+            req.body,
+            req.params.id,
+            reader
+          )
+          res.setHeader('Content-Type', 'application/ld+json')
+          res.status(201).end(JSON.stringify(notesCreated))
+        }
+
         let createdNote
         // copy
         if (req.query.source) {
