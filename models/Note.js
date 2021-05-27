@@ -164,7 +164,8 @@ class Note extends BaseModel {
       'json',
       'readerId',
       'document',
-      'contextId'
+      'contextId',
+      'original'
     ])
     if (allowId && note.shortId) props.id = note.shortId
     if (note.id) props.id = urlToId(note.id)
@@ -209,7 +210,6 @@ class Note extends BaseModel {
     allowId /*: boolean */
   ) /*: Promise<NoteType|Error> */ {
     let props = await Note._formatIncomingNote(note, allowId)
-
     if (
       allowId &&
       note.shortId &&
@@ -332,6 +332,77 @@ class Note extends BaseModel {
     return newNote
   }
 
+  static async createMultipleNotesInOutline (
+    notes /*: any */,
+    contextId /*: string */,
+    reader /*: any */
+  ) /*: Promise<any> */ {
+    let notesCreated = []
+    notes = notes.map(note => {
+      note.contextId = contextId
+      return note
+    })
+    // first, create notes without any outline data
+    for (const i in notes) {
+      let note = notes[i]
+      if (note.original) {
+        const noteCreated = await Note.copyToContext(note.original, contextId, {
+          shortId: note.shortId
+        })
+        notesCreated.push(noteCreated)
+      } else {
+        // $FlowFixMe
+        const noteCreated = await Note.createNote(
+          reader,
+          _.omit(note, ['parentId', 'next', 'previous']),
+          true
+        )
+        notesCreated.push(noteCreated)
+      }
+    }
+
+    // once they are all created, update them all with outline data
+    for (const i in notes) {
+      let note = notes[i]
+      if (note.parentId || note.next || note.previous) {
+        await OutlineData.update(urlToId(reader.id), {
+          noteId: note.shortId,
+          parentId: urlToId(note.parentId),
+          previous: urlToId(note.previous),
+          next: urlToId(note.next)
+        })
+
+        // not error checking for now. but adjusting the notes returned.
+        notesCreated = notesCreated.map(noteCreated => {
+          if (urlToId(noteCreated.id) === note.shortId) {
+            noteCreated.next = note.next
+            noteCreated.previous = note.previous
+            noteCreated.parentId = note.parentId
+          }
+
+          return noteCreated
+        })
+      }
+    }
+
+    // update other notes mentioned in the outline data
+    let notesToUpdate = notes.map(note => {
+      if (note.previous && !_.find(notes, { shortId: note.previous })) {
+        return { id: note.previous, changes: { next: note.shortId } }
+      }
+      if (note.next && !_.find(notes, { shortId: note.next })) {
+        return { id: note.next, changes: { previous: note.shortId } }
+      }
+    })
+    notesToUpdate = _.omitBy(notesToUpdate, _.isNil)
+    for (const i in notesToUpdate) {
+      let note = notesToUpdate[i]
+      await OutlineData.partialUpdate(note.id, note.changes)
+    }
+
+    return notesCreated
+  }
+
   static async byId (id /*: string */) /*: Promise<any> */ {
     const note = await Note.query()
       .findById(id)
@@ -406,14 +477,12 @@ class Note extends BaseModel {
     })
     let modifications = await Note._formatIncomingNote(note, false)
 
-    await NoteBody.deleteBodiesOfNote(urlToId(note.id))
-
+    await NoteBody.deleteBodiesOfNote(urlToId(note.id) || note.shortId)
     if (!note.body) {
       throw new Error(
         'Note Update Validation Error: body is a required property'
       )
     }
-
     let updatedNote = await Note.query()
       .updateAndFetchById(urlToId(note.id), modifications)
       .whereNull('deleted')
