@@ -1,5 +1,12 @@
 // const _ = require('lodash')
-const { Document, Paragraph, HeadingLevel, TextRun } = require('docx')
+const {
+  Document,
+  Paragraph,
+  HeadingLevel,
+  TextRun,
+  HyperlinkType
+} = require('docx')
+const { htmlToDocxObject } = require('../utils/htmlForDocx')
 
 const sampleOutline = {
   id: 'https://reader-api.test/noteContexts/qXHmtzDveXqGpvKxRbofTf-c39b1e4829',
@@ -94,7 +101,7 @@ const sampleOutline = {
           noteId:
             'https://reader-api.test/notes/qXHmtzDveXqGpvKxRbofTf-8b00e3cb73',
           content:
-            "This is a highlight from a source... .... .... making it longer. Why is copy paste not working? I want to copy from a lorem ipsum generator but it doesn't work for some reason. Grrrr. I hate this. So I will just keep typing crap in here. ",
+            "<p>This is a highlight from a <b>source</b>... .... .... making it <em>longer</em>. Why is copy paste not working? I want to copy from a lorem ipsum generator but it doesn't work for some reason. Grrrr. I hate this. So I will just keep typing crap in here. ",
           language: null,
           motivation: 'highlighting',
           readerId: 'https://reader-api.test/readers/qXHmtzDveXqGpvKxRbofTf',
@@ -108,7 +115,7 @@ const sampleOutline = {
           noteId:
             'https://reader-api.test/notes/qXHmtzDveXqGpvKxRbofTf-8b00e3cb73',
           content:
-            'this is a comment on the previous highlight. Once again, typing in some random stuff to make it longer. Blah blah blah. This is boring.',
+            '<p><b>this is a comment on the <em>previous</em> highlight. </b>Once again, typing in some random stuff to make it longer. Blah blah blah. This is boring.</p><ul><li>list item 1</li><li>item 2</li></ul>',
           language: null,
           motivation: 'commenting',
           readerId: 'https://reader-api.test/readers/qXHmtzDveXqGpvKxRbofTf',
@@ -158,7 +165,7 @@ const sampleOutline = {
           noteId:
             'https://reader-api.test/notes/qXHmtzDveXqGpvKxRbofTf-46e1caefbf',
           content:
-            'this is a highlight without a comment.... another random typing. Making this quote longer. Not sure how paragraphs work. Will there be html tags? because that could change things. Fun fun. I will have to keep the formatting somehow. ',
+            'this is a highlight without a comment link to <a href="http://www.google.ca"><b>google</b></a>.... another random typing. Making this quote longer. Not sure how paragraphs work. Will there be html tags? because that could change things. Fun fun. I will have to keep the formatting somehow. ',
           language: null,
           motivation: 'highlighting',
           readerId: 'https://reader-api.test/readers/qXHmtzDveXqGpvKxRbofTf',
@@ -208,7 +215,7 @@ const sampleOutline = {
           noteId:
             'https://reader-api.test/notes/qXHmtzDveXqGpvKxRbofTf-ba10bcc1bd',
           content:
-            "this is a comment on a source without a highlight.... ... ... making this a longer comment because it is fun. Or is it? Yeah, I'm sure it is. So I will keep typing and typing and typing. Ok, done now. Or am I? Yes, yes I am.",
+            "this is a comment on a source without a highlight....<blockquote>but here is a blockquote, just for fun. with some <b>bold</b> and <em>italics</em> to make it prettier</blockquote> ... ... making this a longer comment because it is fun. Or is it? Yeah, I'm sure it is. So I will keep typing and typing and typing. Ok, done now. Or am I? Yes, yes I am.",
           language: null,
           motivation: 'commenting',
           readerId: 'https://reader-api.test/readers/qXHmtzDveXqGpvKxRbofTf',
@@ -325,140 +332,105 @@ const sampleOutline = {
   shortId: 'qXHmtzDveXqGpvKxRbofTf-c39b1e4829'
 }
 
-const titleStyle = {
-  id: 'title',
-  name: 'Title',
-  basedOn: 'Normal',
-  next: 'Normal',
-  run: {
-    size: 18,
-    bold: true
-  }
-}
-
-const headingStyle = {
-  id: 'Heading1',
-  name: 'Heading 1',
-  basedOn: 'Normal',
-  quickFormat: true,
-  run: {
-    size: 24,
-    bold: true
-  }
-}
-
-const highlightStyle = {
-  id: 'highlight',
-  name: 'Highlight',
-  basedOn: 'Normal',
-  next: 'Normal',
-  run: {
-    size: 10
-  },
-  paragraph: {
-    indent: {
-      left: 500,
-      right: 500
-    }
-  }
-}
-
-const commentStyle = {
-  id: 'comment',
-  name: 'Comment',
-  basedOn: 'Normal',
-  quickFormat: true,
-  font: {
-    size: 22
-  }
-}
-
-const referenceStyle = {
-  id: 'reference',
-  name: 'Reference',
-  basedOn: 'Normal',
-  next: 'Normal',
-  run: {
-    size: 10
-  }
+const extractChildren = (children, fontSize) => {
+  return children.map(child => {
+    return new TextRun({
+      text: child.text,
+      bold: child.bold,
+      italics: child.italics,
+      size: fontSize
+    })
+  })
 }
 
 const outlineToDocx = outline => {
   outline = sampleOutline
 
+  // Title
   const children = []
   if (outline.name) {
     children.push(
       new Paragraph({
         text: outline.name,
-        heading: HeadingLevel.HEADING_1
+        heading: HeadingLevel.TITLE
       })
     )
   }
 
   outline.notes.forEach(note => {
+    // Headers
     if (note.json && note.json.type === 'header') {
       children.push(
         new Paragraph({
           text: note.body[0].content,
-          heading: HeadingLevel.HEADING_2
+          heading: HeadingLevel.HEADING_1
         })
       )
     } else {
       note.body.forEach(body => {
-        if (body.motivation === 'commenting') {
-          children.push(
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: body.content,
-                  font: 'Calibri',
-                  size: 24
-                })
-              ]
-            })
-          )
-        } else if (body.motivation === 'highlighting') {
-          children.push(
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `"${body.content}"`,
-                  font: 'Calibri',
-                  size: 20
-                })
-              ],
-              indent: {
-                left: 300,
-                right: 300
-              }
-            })
-          )
+        let paragraphs = htmlToDocxObject(body.content)
+        let fontSize = 24
+        if (body.motivation === 'highlighting') {
+          fontSize = 20
+        }
+
+        paragraphs.forEach(paragraph => {
+          if (paragraph.paragraphType === 'bullet') {
+            children.push(
+              new Paragraph({
+                children: extractChildren(paragraph.sections, fontSize),
+                bullet: {
+                  level: 1
+                }
+              })
+            )
+          } else if (
+            paragraph.paragraphType === 'quote' ||
+            body.motivation === 'highlighting'
+          ) {
+            children.push(
+              new Paragraph({
+                children: extractChildren(paragraph.sections, fontSize),
+                indent: {
+                  left: 300,
+                  right: 300
+                }
+              })
+            )
+          } else {
+            children.push(
+              new Paragraph({
+                children: extractChildren(paragraph.sections, fontSize)
+              })
+            )
+          }
+        })
+
+        if (note.source) {
+          if (body.motivation === 'highlighting' || note.body.length === 1) {
+            children.push(
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `-- ${note.source.name}`,
+                    font: 'Calibri',
+                    size: 18
+                  })
+                ],
+                indent: {
+                  left: 300
+                }
+              })
+            )
+          }
         }
       })
-      if (note.source) {
-        children.push(
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `-- ${note.source.name}`,
-                font: 'Calibri',
-                size: 18
-              })
-            ],
-            indent: {
-              left: 300
-            }
-          })
-        )
-      }
+
       children.push(new Paragraph({ text: '' }))
     }
   })
-
   const outlineDoc = new Document({
     title: outline.name,
-    styles: [headingStyle, commentStyle],
     sections: [
       {
         children: children
