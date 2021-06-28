@@ -1,3 +1,7 @@
+June 28, 2021
+
+* outline docx route added
+
 May 31, 2021
 
 * Adding multiple notes to an outline (with or without shortId)
