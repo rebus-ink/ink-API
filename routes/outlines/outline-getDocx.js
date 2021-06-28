@@ -44,7 +44,7 @@ module.exports = app => {
 
   router.get(
     '/outlines/:id/docx',
-    // passport.authenticate('jwt', { session: false }),
+    passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
       NoteContext.byId(id)
