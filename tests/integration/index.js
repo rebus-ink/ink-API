@@ -81,6 +81,7 @@ const outlineAddNoteTests = require('./outline/outline-addNote.test')
 const outlineDeleteNoteTests = require('./outline/outline-deleteNote.test')
 const outlinePatchNoteTests = require('./outline/outline-patchNote.test')
 const outlineAddNoteMultipleTests = require('./outline/outline-addNoteMultiple.test')
+const outlineGetDocxTests = require('./outline/outline-getDocx.test')
 
 const notebookPostTests = require('./notebook/notebook-post.test')
 const notebookGetTests = require('./notebook/notebook-get.test')
@@ -297,6 +298,7 @@ const allTests = async () => {
       await outlineDeleteNoteTests(app)
       await outlinePatchNoteTests(app)
       await outlineAddNoteMultipleTests(app)
+      await outlineGetDocxTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
       throw err

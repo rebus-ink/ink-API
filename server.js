@@ -73,6 +73,7 @@ const outlinePutRoute = require('./routes/outlines/outline-put') // PUT /outline
 const outlineAddNoteRoute = require('./routes/outlines/outline-addNote') // POST /outlines/:id/notes
 const outlineDeleteNoteRoute = require('./routes/outlines/outline-deleteNote') // DELETE /outlines/:id/notes/:noteId
 const outlinePatchNoteRoute = require('./routes/outlines/outline-patchNote') // PATCH /outlines/:id/notes/:noteId
+const outlineGetDocxRoute = require('./routes/outlines/outline-getDocx')
 
 // canvas
 const canvasPostRoute = require('./routes/canvas/canvas-post')
@@ -289,6 +290,7 @@ noteContextPutRoute(app)
 noteContextDeleteRoute(app)
 noteContextAddNoteRoute(app)
 noteContextGetRoute(app)
+outlineGetDocxRoute(app)
 outlineGetRoute(app)
 outlinePostRoute(app)
 outlineDeleteRoute(app)
