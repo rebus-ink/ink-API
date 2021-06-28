@@ -49,63 +49,66 @@ module.exports = app => {
       const id = req.params.id
       NoteContext.byId(id)
         .then(async noteContext => {
-          // if (
-          //   !noteContext ||
-          //   noteContext.deleted ||
-          //   noteContext.type !== 'outline'
-          // ) {
-          //   return next(
-          //     boom.notFound(
-          //       `Get outline Error: No Outline found with id ${id}`,
-          //       {
-          //         requestUrl: req.originalUrl
-          //       }
-          //     )
-          //   )
-          // } else if (!utils.checkReader(req, noteContext.reader)) {
-          //   // if user is not owner, check if it is a collaborator
-          //   const reader = await Reader.byAuthId(req.user)
-          //   const collaborator = utils.checkNotebookCollaborator(
-          //     reader.id,
-          //     noteContext.notebook
-          //   )
-          //   if (!collaborator.read) {
-          //     return next(
-          //       boom.forbidden(`Access to Outline ${id} disallowed`, {
-          //         requestUrl: req.originalUrl
-          //       })
-          //     )
-          //   }
-          // }
-          // let nestedNotesList
-          // try {
-          //   nestedNotesList = notesListToTree(noteContext.notes)
-          // } catch (err) {
-          //   if (err.message === 'circular') {
-          //     return next(
-          //       boom.badRequest('Error: outline contains a circular list', {
-          //         requestUrl: req.originalUrl
-          //       })
-          //     )
-          //   } else {
-          //     return next(
-          //       boom.badRequest(
-          //         `Error: invalid outline structure: ${err.message} `,
-          //         {
-          //           requestUrl: req.originalUrl
-          //         }
-          //       )
-          //     )
-          //   }
-          // }
-          const outline = outlineToDocx(noteContext)
+          if (
+            !noteContext ||
+            noteContext.deleted ||
+            noteContext.type !== 'outline'
+          ) {
+            return next(
+              boom.notFound(
+                `Get outline Error: No Outline found with id ${id}`,
+                {
+                  requestUrl: req.originalUrl
+                }
+              )
+            )
+          } else if (!utils.checkReader(req, noteContext.reader)) {
+            // if user is not owner, check if it is a collaborator
+            const reader = await Reader.byAuthId(req.user)
+            const collaborator = utils.checkNotebookCollaborator(
+              reader.id,
+              noteContext.notebook
+            )
+            if (!collaborator.read) {
+              return next(
+                boom.forbidden(`Access to Outline ${id} disallowed`, {
+                  requestUrl: req.originalUrl
+                })
+              )
+            }
+          }
+          let nestedNotesList
+          try {
+            nestedNotesList = notesListToTree(noteContext.notes)
+          } catch (err) {
+            if (err.message === 'circular') {
+              return next(
+                boom.badRequest('Error: outline contains a circular list', {
+                  requestUrl: req.originalUrl
+                })
+              )
+            } else {
+              return next(
+                boom.badRequest(
+                  `Error: invalid outline structure: ${err.message} `,
+                  {
+                    requestUrl: req.originalUrl
+                  }
+                )
+              )
+            }
+          }
+          const outline = outlineToDocx(nestedNotesList)
           const b64string = await Packer.toBase64String(outline)
 
           res.set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           )
-          res.set('Content-Disposition', 'attachment; filename=MyOutline.docx')
+          res.set(
+            'Content-Disposition',
+            `attachment; filename=${noteContext.name}.docx`
+          )
           res.send(Buffer.from(b64string, 'base64'))
         })
         .catch(err => {

@@ -4,7 +4,7 @@ const {
   Paragraph,
   HeadingLevel,
   TextRun,
-  HyperlinkType
+  ExternalHyperlink
 } = require('docx')
 const { htmlToDocxObject } = require('../utils/htmlForDocx')
 
@@ -334,12 +334,25 @@ const sampleOutline = {
 
 const extractChildren = (children, fontSize) => {
   return children.map(child => {
-    return new TextRun({
-      text: child.text,
-      bold: child.bold,
-      italics: child.italics,
-      size: fontSize
-    })
+    if (child.link) {
+      return new ExternalHyperlink({
+        child: new TextRun({
+          text: child.text,
+          bold: child.bold,
+          italics: child.italics,
+          size: fontSize,
+          underline: { type: 'single' }
+        }),
+        link: child.link
+      })
+    } else {
+      return new TextRun({
+        text: child.text,
+        bold: child.bold,
+        italics: child.italics,
+        size: fontSize
+      })
+    }
   })
 }
 
