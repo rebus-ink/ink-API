@@ -357,8 +357,6 @@ const extractChildren = (children, fontSize) => {
 }
 
 const outlineToDocx = outline => {
-  outline = sampleOutline
-
   // Title
   const children = []
   if (outline.name) {

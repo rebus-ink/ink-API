@@ -1,3 +1,7 @@
+June 29, 2021
+
+* fixed outline to return buffer
+
 June 28, 2021
 
 * outline docx route added

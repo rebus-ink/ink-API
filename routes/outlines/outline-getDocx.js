@@ -98,18 +98,21 @@ module.exports = app => {
               )
             }
           }
-          const outline = outlineToDocx(nestedNotesList)
-          const b64string = await Packer.toBase64String(outline)
+          noteContext.notes = nestedNotesList
+          const outline = outlineToDocx(noteContext)
 
+          const buffer = await Packer.toBuffer(outline)
           res.set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           )
           res.set(
             'Content-Disposition',
-            `attachment; filename=${noteContext.name}.docx`
+            `attachment; filename=${
+              noteContext ? noteContext.name : 'outline'
+            }.docx`
           )
-          res.send(Buffer.from(b64string, 'base64'))
+          res.send(buffer)
         })
         .catch(err => {
           next(err)

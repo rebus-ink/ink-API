@@ -6,9 +6,7 @@ const {
   destroyDB,
   createNoteContext,
   addNoteToContext,
-  createTag,
   createSource,
-  addNoteToCollection,
   updateNote
 } = require('../../utils/testUtils')
 const _ = require('lodash')
@@ -30,8 +28,8 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-
     await tap.equal(res.status, 200)
+    await tap.ok(res.text)
   })
 
   // add notes to noteContext, with source and tag
@@ -50,7 +48,6 @@ const test = async app => {
       type: 'header'
     }
   })
-  console.log('note1?????', note1)
 
   // note with highlight and comment
   let note2 = await addNoteToContext(app, token, outline1.shortId, {
@@ -133,16 +130,15 @@ const test = async app => {
     })
   )
 
-  await tap.test('Get outline with notes', async () => {
+  await tap.test('Get outline doc with notes', async () => {
     const res = await request(app)
-      .get(`/outlines/${outline1.shortId}`)
+      .get(`/outlines/${outline1.shortId}/docx`)
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
 
     await tap.equal(res.status, 200)
-    const body = res.body
-    console.log(JSON.stringify(body.notes[0]))
+    await tap.ok(res.text)
   })
 
   await destroyDB(app)
