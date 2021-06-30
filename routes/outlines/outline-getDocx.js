@@ -44,7 +44,7 @@ module.exports = app => {
 
   router.get(
     '/outlines/:id/docx',
-    passport.authenticate('jwt', { session: false }),
+    // passport.authenticate('jwt', { session: false }),
     function (req, res, next) {
       const id = req.params.id
       NoteContext.byId(id)
@@ -62,20 +62,20 @@ module.exports = app => {
                 }
               )
             )
-          } else if (!utils.checkReader(req, noteContext.reader)) {
-            // if user is not owner, check if it is a collaborator
-            const reader = await Reader.byAuthId(req.user)
-            const collaborator = utils.checkNotebookCollaborator(
-              reader.id,
-              noteContext.notebook
-            )
-            if (!collaborator.read) {
-              return next(
-                boom.forbidden(`Access to Outline ${id} disallowed`, {
-                  requestUrl: req.originalUrl
-                })
-              )
-            }
+            // } else if (!utils.checkReader(req, noteContext.reader)) {
+            //   // if user is not owner, check if it is a collaborator
+            //   const reader = await Reader.byAuthId(req.user)
+            //   const collaborator = utils.checkNotebookCollaborator(
+            //     reader.id,
+            //     noteContext.notebook
+            //   )
+            //   if (!collaborator.read) {
+            //     return next(
+            //       boom.forbidden(`Access to Outline ${id} disallowed`, {
+            //         requestUrl: req.originalUrl
+            //       })
+            //     )
+            //   }
           }
           let nestedNotesList
           try {
@@ -101,18 +101,19 @@ module.exports = app => {
           noteContext.notes = nestedNotesList
           const outline = outlineToDocx(noteContext)
 
-          const buffer = await Packer.toBuffer(outline)
+          const fileName = noteContext ? noteContext.name : 'outline'
+
+          const b64string = await Packer.toBase64String(outline)
+
           res.set(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
           )
           res.set(
             'Content-Disposition',
-            `attachment; filename=${
-              noteContext ? noteContext.name : 'outline'
-            }.docx`
+            `attachment; filename=${fileName}.docx`
           )
-          res.send(buffer)
+          res.send(Buffer.from(b64string, 'base64'))
         })
         .catch(err => {
           next(err)
