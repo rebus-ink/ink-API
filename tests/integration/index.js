@@ -290,14 +290,14 @@ const allTests = async () => {
 
   if (!test || test === 'outline') {
     try {
-      await outlineGetTests(app)
-      await outlinePostTests(app)
-      await outlineDeleteTests(app)
-      await outlinePutTests(app)
-      await outlineAddNoteTests(app)
-      await outlineDeleteNoteTests(app)
-      await outlinePatchNoteTests(app)
-      await outlineAddNoteMultipleTests(app)
+      // await outlineGetTests(app)
+      // await outlinePostTests(app)
+      // await outlineDeleteTests(app)
+      // await outlinePutTests(app)
+      // await outlineAddNoteTests(app)
+      // await outlineDeleteNoteTests(app)
+      // await outlinePatchNoteTests(app)
+      // await outlineAddNoteMultipleTests(app)
       await outlineGetDocxTests(app)
     } catch (err) {
       console.log('outline integration tests error: ', err)
