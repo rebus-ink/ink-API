@@ -6,6 +6,7 @@ const {
   TextRun,
   ExternalHyperlink
 } = require('docx')
+const _ = require('lodash')
 const { htmlToDocxObject } = require('../utils/htmlForDocx')
 
 const sampleOutline = {
@@ -177,7 +178,7 @@ const sampleOutline = {
       ],
       tags: [],
       source: {
-        name: 'testSource',
+        name: 'testSource2',
         id:
           'https://reader-api.test/sources/qXHmtzDveXqGpvKxRbofTf-29a107f8e4/',
         shortId: 'qXHmtzDveXqGpvKxRbofTf-29a107f8e4'
@@ -356,6 +357,8 @@ const extractChildren = (children, fontSize) => {
   })
 }
 
+let sources = []
+
 const outlineToDocx = outline => {
   // Title
   const children = []
@@ -369,6 +372,8 @@ const outlineToDocx = outline => {
   }
 
   outline.notes.forEach(note => {
+    // save source
+    if (note.source) sources.push(note.source)
     // Headers
     if (note.json && note.json.type === 'header') {
       children.push(
@@ -423,7 +428,7 @@ const outlineToDocx = outline => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `-- ${note.source.name}`,
+                    text: `(${note.source.name})`,
                     font: 'Calibri',
                     size: 18
                   })
@@ -440,6 +445,28 @@ const outlineToDocx = outline => {
       children.push(new Paragraph({ text: '' }))
     }
   })
+
+  if (sources.length) {
+    sources = sources.map(source => source.name)
+    sources = _.uniq(sources)
+    children.push(
+      new Paragraph({
+        text: 'Source List',
+        heading: HeadingLevel.HEADING_1
+      })
+    )
+    sources.forEach(source => {
+      children.push(
+        new Paragraph({
+          text: source,
+          bullet: {
+            level: 1
+          }
+        })
+      )
+    })
+  }
+
   const outlineDoc = new Document({
     title: outline.name,
     sections: [
