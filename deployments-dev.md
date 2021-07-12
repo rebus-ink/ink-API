@@ -1,3 +1,11 @@
+July 12, 2021
+
+* added source list to docx
+
+July ??, 2021
+
+* docx (was released earlier. forgot to update here)
+
 June 29, 2021
 
 * fixed outline to return buffer
