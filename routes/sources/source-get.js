@@ -70,15 +70,7 @@ module.exports = function (app) {
 
           res.setHeader('Content-Type', 'application/ld+json')
           const sourceJson = source.toJSON()
-          res.end(
-            JSON.stringify(
-              Object.assign(sourceJson, {
-                replies: source.replies
-                  ? source.replies.map(note => note.id)
-                  : []
-              })
-            )
-          )
+          res.end(JSON.stringify(sourceJson))
         })
         .catch(next)
     }

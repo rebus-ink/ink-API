@@ -180,7 +180,6 @@ const test = async app => {
     const body = res.body
     await tap.ok(Array.isArray(body.replies))
     await tap.equal(body.replies.length, 1)
-    await tap.type(body.replies[0], 'string')
   })
 
   await tap.test('Get Note after source turned into reference', async () => {
