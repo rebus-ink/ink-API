@@ -1,4 +1,6 @@
-July 20,
+July 20, 2021
+
+* return source with whole notes
 
 July 12, 2021
 
