@@ -1,3 +1,7 @@
+July 20, 2021
+
+* return source with whole notes
+
 July 12, 2021
 
 * added source list to docx
