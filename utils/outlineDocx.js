@@ -369,6 +369,11 @@ const outlineToDocx = outline => {
         heading: HeadingLevel.TITLE
       })
     )
+    children.push(
+      new Paragraph({
+        text: ''
+      })
+    )
   }
 
   outline.notes.forEach(note => {
@@ -380,6 +385,11 @@ const outlineToDocx = outline => {
         new Paragraph({
           text: note.body[0].content,
           heading: HeadingLevel.HEADING_1
+        })
+      )
+      children.push(
+        new Paragraph({
+          text: ''
         })
       )
     } else {
@@ -443,6 +453,11 @@ const outlineToDocx = outline => {
       })
 
       children.push(new Paragraph({ text: '' }))
+      children.push(
+        new Paragraph({
+          text: '---'
+        })
+      )
     }
   })
 
