@@ -1,3 +1,7 @@
+July 22, 2021
+
+* better editing to docx
+
 July 20, 2021
 
 * return source with whole notes
