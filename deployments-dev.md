@@ -1,3 +1,7 @@
+Sept 3, 2021
+
+* moving a note to a notebook now moves the corresponding source too
+
 July 22, 2021
 
 * better editing to docx
