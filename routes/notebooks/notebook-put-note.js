@@ -74,6 +74,7 @@ module.exports = function (app) {
 
           try {
             await Notebook_Note.addNoteToNotebook(notebookId, noteId)
+            await Notebook_Note.updateSource(notebookId, noteId)
             await notesCacheUpdate(reader.authId)
             await notebooksCacheUpdate(reader.authId)
             res.status(204).end()

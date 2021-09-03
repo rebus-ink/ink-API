@@ -1,6 +1,7 @@
 // @flow
 const { BaseModel } = require('./BaseModel')
 const { urlToId } = require('../utils/utils')
+const _ = require('lodash')
 
 /*::
 type NotebookNoteType = {
@@ -17,6 +18,27 @@ class Notebook_Note extends BaseModel {
 
   static get idColumn () {
     return ['notebookId', 'noteId']
+  }
+
+  static async updateSource (notebookId /*: string */, noteId /*: string */) {
+    // don't know why I have to import those here and not for the whole file.
+    const { Note } = require('./Note')
+    const { Notebook_Source } = require('./Notebook_Source')
+
+    // single note
+    if (noteId.indexOf(',') === -1) {
+      const note = await Note.byId(noteId)
+      if (note.source) {
+        const sourceId = urlToId(note.source.id)
+        await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
+      }
+    } else {
+      const noteIds = noteId.split(',')
+      const notes = await Note.byIds(noteIds)
+      const sources = notes.map(note => note.sourceId)
+      const sourceIds = _.uniq(sources)
+      await Notebook_Source.addMultipleSourcesToNotebook(notebookId, sourceIds)
+    }
   }
 
   static async addNoteToNotebook (
@@ -75,7 +97,6 @@ class Notebook_Note extends BaseModel {
         } catch (err2) {
           // eslint-disable-next-line
           console.log(err2)
-
         }
       })
     }

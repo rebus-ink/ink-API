@@ -445,6 +445,16 @@ class Note extends BaseModel {
     return note
   }
 
+  static async byIds (ids /*: Array<string> */) /*: Promise<any> */ {
+    const notes = await Note.query()
+      .findByIds(ids)
+      .whereNull('deleted')
+
+    if (!notes) return undefined
+
+    return notes
+  }
+
   static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
     // Delete all Note_Tag associated with the note
     await Note_Tag.deleteNoteTagsOfNote(id)
