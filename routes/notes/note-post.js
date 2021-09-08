@@ -146,6 +146,12 @@ module.exports = function (app) {
             urlToId(createdNote.id),
             notebookIds
           )
+          if (notebooks.length) {
+            await Notebook_Note.updateSource(
+              notebookIds.join(),
+              urlToId(createdNote.id)
+            )
+          }
         }
 
         if (metricsQueue) {
