@@ -1,6 +1,7 @@
 Sept 8, 2021
 
 * moving a note to a notebook using the put/notes/:id endpoint will also move the corresponding source
+* same but with post/notes
 
 Sept 3, 2021
 

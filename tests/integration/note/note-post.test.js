@@ -295,6 +295,7 @@ const test = async app => {
             content: 'this is the content of the note',
             motivation: 'test'
           },
+          sourceId,
           notebooks: [notebook1, notebook2]
         })
       )
@@ -312,6 +313,16 @@ const test = async app => {
     const note = noteRes.body
     await tap.ok(note.notebooks)
     await tap.equal(note.notebooks.length, 2)
+
+    const notebookRes = await request(app)
+      .get(`/notebooks/${notebook1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const notebookBody = notebookRes.body
+    await tap.equal(notebookBody.notes.length, 1)
+    await tap.equal(notebookBody.sources.length, 1)
   })
 
   await tap.test('Create Note with existing and new notebooks', async () => {
