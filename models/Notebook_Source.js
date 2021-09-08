@@ -105,7 +105,6 @@ class Notebook_Source extends BaseModel {
     const list = notebooks.map(notebook => {
       return { sourceId, notebookId: urlToId(notebook) }
     })
-
     // ignores errors - if errors encountered with first insert, insert one by one
     try {
       await Notebook_Source.query().insert(list)

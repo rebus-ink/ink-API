@@ -141,6 +141,13 @@ module.exports = function (app) {
             urlToId(updatedNote.id),
             notebookIds
           )
+          if (notebooks.length) {
+            await Notebook_Note.updateSource(
+              notebookIds.join(),
+              urlToId(updatedNote.id)
+            )
+          }
+
           // todo: add notebooks cache update
         }
 

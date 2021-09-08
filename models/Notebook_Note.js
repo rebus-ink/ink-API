@@ -24,13 +24,22 @@ class Notebook_Note extends BaseModel {
     // don't know why I have to import those here and not for the whole file.
     const { Note } = require('./Note')
     const { Notebook_Source } = require('./Notebook_Source')
-
     // single note
-    if (noteId.indexOf(',') === -1) {
+    if (noteId.indexOf(',') === -1 && notebookId.indexOf(',') === -1) {
       const note = await Note.byId(noteId)
-      if (note.source) {
+      if (note && note.source) {
         const sourceId = urlToId(note.source.id)
         await Notebook_Source.addSourceToNotebook(notebookId, sourceId)
+      }
+    } else if (notebookId.indexOf(',') > -1) {
+      const notebookIds = notebookId.split(',')
+      const note = await Note.byId(noteId)
+      if (note && note.source) {
+        const sourceId = urlToId(note.source.id)
+        await Notebook_Source.addMultipleNotebooksToSource(
+          sourceId,
+          notebookIds
+        )
       }
     } else {
       const noteIds = noteId.split(',')

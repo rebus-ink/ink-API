@@ -264,9 +264,9 @@ const test = async app => {
 
   await tap.test('Update tags for a note - add notebooks', async () => {
     const newNote = Object.assign(note, {
-      notebooks: [notebook1, notebook2]
+      notebooks: [notebook1, notebook2],
+      sourceId
     })
-
     const res = await request(app)
       .put(`/notes/${noteId}`)
       .set('Host', 'reader-api.test')
@@ -287,6 +287,16 @@ const test = async app => {
     const noteBody = noteRes.body
     await tap.ok(noteBody.notebooks)
     await tap.equal(noteBody.notebooks.length, 2)
+
+    const notebookRes = await request(app)
+      .get(`/notebooks/${notebook1.shortId}`)
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+
+    const notebooksBody = notebookRes.body
+    await tap.equal(notebooksBody.notes.length, 1)
+    await tap.equal(notebooksBody.sources.length, 1)
   })
 
   await tap.test('Update tags for a note - replace notebooks', async () => {
