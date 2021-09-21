@@ -28,7 +28,8 @@ const test = async app => {
     body: { motivation: 'test', content: 'content goes here' },
     target: { property1: 'target information' },
     sourceId,
-    document: 'doc123'
+    document: 'doc123',
+    json: { pages: '1-2' }
   })
   const noteId = urlToId(note.id)
 
@@ -53,6 +54,8 @@ const test = async app => {
     await tap.equal(body.document, 'doc123')
     await tap.ok(body.published)
     await tap.ok(body.updated)
+    await tap.ok(body.json)
+    await tap.equal(body.json.pages, '1-2')
     // should include source information
     await tap.ok(body.source)
     await tap.equal(body.source.name, 'source name')

@@ -57,6 +57,8 @@
  *         type: string
  *         format: url
  *         readOnly: true
+ *       json:
+ *         type: object
  *       published:
  *         type: string
  *         format: date-time
