@@ -1,3 +1,7 @@
+Sept 21, 2021
+
+* notes returned by the notes library now include json property
+
 Sept 8, 2021
 
 * moving a note to a notebook using the put/notes/:id endpoint will also move the corresponding source
