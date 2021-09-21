@@ -49,13 +49,16 @@ const test = async app => {
   await tap.test('Get all notes for a Reader', async () => {
     // create more notes
     await createNoteSimplified({
-      body: { content: 'first', motivation: 'test' }
+      body: { content: 'first', motivation: 'test' },
+      json: { pages: '1-2' }
     })
     await createNoteSimplified({
-      body: { content: 'second', motivation: 'test' }
+      body: { content: 'second', motivation: 'test' },
+      json: { pages: '1-2' }
     })
     const note3 = await createNoteSimplified({
-      body: { content: 'third', motivation: 'test' }
+      body: { content: 'third', motivation: 'test' },
+      json: { pages: '1-2' }
     })
 
     const tag2 = await createTag(app, token, { name: 'test' })
@@ -76,6 +79,7 @@ const test = async app => {
     await tap.ok(firstItem.body[0].content)
     await tap.equal(firstItem.body[0].motivation, 'test')
     await tap.ok(firstItem.sourceId)
+    await tap.ok(firstItem.json)
     // notes should include source information
     await tap.ok(firstItem.source)
     await tap.type(firstItem.source.name, 'string')

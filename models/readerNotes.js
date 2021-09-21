@@ -236,7 +236,8 @@ class ReaderNotes {
             'Note.target',
             'Note.published',
             'Note.updated',
-            'Note.sourceId'
+            'Note.sourceId',
+            'Note.json'
           )
           .from('Note')
         builder.distinct('Note.id')
