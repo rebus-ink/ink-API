@@ -40,7 +40,7 @@ const sampleOutline = {
       stylesheet: null,
       target: { property: 'something' },
       metadata: null,
-      json: { type: 'header' },
+      json: { type: 'header', pages: '123' },
       documentUrl: null,
       document: null,
       sourceId: null,
@@ -451,7 +451,9 @@ const outlineToDocx = outline => {
           }
         }
       })
-
+      if (note.json && note.json.pages) {
+        children.push(new Paragraph({ text: `p.${note.json.pages}` }))
+      }
       children.push(new Paragraph({ text: '' }))
       children.push(
         new Paragraph({

@@ -1,3 +1,7 @@
+Sept 23, 2021
+
+* outline docx including page numbers
+
 Sept 21, 2021
 
 * notes returned by the notes library now include json property
