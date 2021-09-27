@@ -1,3 +1,17 @@
+Deployment Sept 27, 2021
+
+* outline docx including page numbers
+* notes returned by the notes library now include json property
+* moving a note to a notebook using the put/notes/:id endpoint will also move the corresponding source
+* same but with post/notes
+* moving a note to a notebook now moves the corresponding source too
+* better editing to docx
+* return source with whole notes
+* added source list to docx
+* docx (was released earlier. forgot to update here)
+* fixed outline to return buffer
+* outline docx route added
+
 Deployment June 17, 2021
 
 * Adding multiple notes to an outline (with or without shortId)
