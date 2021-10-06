@@ -106,6 +106,9 @@ const hardDeleteRoute = require('./routes/hardDelete')
 const metricsGetRoute = require('./routes/metrics-get')
 const metadataGetRoute = require('./routes/metadata-get')
 
+// search
+const searchRoute = require('./routes/search-post')
+
 const setupKnex = async skip_migrate => {
   let config
 
@@ -324,6 +327,7 @@ canvasDeleteRoute(app)
 canvasGetByIdRoute(app)
 canvasGetAllRoute(app)
 metadataGetRoute(app)
+searchRoute(app)
 
 app.use(errorHandling)
 app.use((req, res) => {

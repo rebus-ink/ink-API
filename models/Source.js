@@ -1106,6 +1106,34 @@ class Source extends BaseModel {
     return updatedSource
   }
 
+  static async search (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) {
+    search = search.toLowerCase()
+    const result = await Source.query()
+      .select(
+        'Source.id',
+        'Source.name',
+        'Source.description',
+        'Source.abstract',
+        'Source.metadata'
+      )
+      .withGraphFetched('attributions')
+      .leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
+      .where('Source.readerId', '=', urlToId(user))
+      .whereNull('Source.deleted')
+      .where('Source.name', 'ilike', `%${search}%`)
+      .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
+      .orWhere('Source.abstract', 'ilike', `%${search}%`)
+      .orWhere('Source.description', 'ilike', `%${search}%`)
+      .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
+      .distinct('Source.id')
+
+    return result
+  }
+
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)
     let doc = this
