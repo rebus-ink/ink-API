@@ -215,19 +215,33 @@ class Notebook extends BaseModel {
 
   static async applyFilters (query /*: any */, filters /*: any */) {
     if (filters.search) {
-      query = query.where(nestedQuery => {
-        nestedQuery
-          .where(
-            'Notebook.name',
-            'ilike',
-            '%' + filters.search.toLowerCase() + '%'
-          )
-          .orWhere(
-            'Notebook.description',
-            'ilike',
-            '%' + filters.search.toLowerCase() + '%'
-          )
-      })
+      if (filters.name !== false && filters.description !== false) {
+        query = query.where(nestedQuery => {
+          nestedQuery
+            .where(
+              'Notebook.name',
+              'ilike',
+              '%' + filters.search.toLowerCase() + '%'
+            )
+            .orWhere(
+              'Notebook.description',
+              'ilike',
+              '%' + filters.search.toLowerCase() + '%'
+            )
+        })
+      } else if (filters.name) {
+        query = query.where(
+          'Notebook.name',
+          'ilike',
+          '%' + filters.search.toLowerCase() + '%'
+        )
+      } else if (filters.description) {
+        query = query.where(
+          'Notebook.description',
+          'ilike',
+          '%' + filters.search.toLowerCase() + '%'
+        )
+      }
     }
 
     if (filters.status) {
@@ -250,12 +264,16 @@ class Notebook extends BaseModel {
     skip /*: number */ = 0,
     filters /*: any */ = {}
   ) /*: Promise<Array<any>> */ {
+    id = urlToId(id)
     let query = Notebook.query()
       .where('Notebook.readerId', '=', id)
       .whereNull('deleted')
       .limit(limit)
       .offset(skip)
       .withGraphFetched('tags')
+
+    // catch special case in advanced search:
+    if (filters.name === false && filters.description === false) return []
 
     // filters
     this.applyFilters(query, filters)
@@ -302,10 +320,12 @@ class Notebook extends BaseModel {
     id /*: string */,
     filters /*: any */
   ) /*: Promise<number> */ {
+    id = urlToId(id)
     let query = Notebook.query()
       .where('readerId', '=', id)
       .whereNull('deleted')
-
+    // catch special case in advanced search:
+    if (filters.name === false && filters.description === false) return 0
     this.applyFilters(query, filters)
 
     const result = await query

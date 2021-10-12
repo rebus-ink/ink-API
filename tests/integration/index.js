@@ -134,6 +134,11 @@ const collaborationNoteContextNotePostTests = require('./collaboration/collabora
 const collaborationOutlineNotePostTests = require('./collaboration/collaboration-outline-note-post.test')
 const collaborationNotebooksGetTests = require('./collaboration/collaboration-notebooks-get.test')
 
+const searchTests = require('./search/search.test')
+const searchSourcesTests = require('./search/search-sources.test')
+const searchNotesTests = require('./search/search-notes.test')
+const searchNotebooksTests = require('./search/search-notebooks.test')
+
 const app = require('../../server').app
 
 require('dotenv').config()
@@ -373,6 +378,13 @@ const allTests = async () => {
       console.log('collaborator integration tests error: ', err)
       throw err
     }
+  }
+
+  if (!test || test === 'search') {
+    await searchTests(app)
+    await searchSourcesTests(app)
+    await searchNotesTests(app)
+    await searchNotebooksTests(app)
   }
 
   if (!test || test === 'delete') {

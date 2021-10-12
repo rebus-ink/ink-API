@@ -536,6 +536,78 @@ class Note extends BaseModel {
     return updatedNote
   }
 
+  static async applyFilters (
+    query /*: any */,
+    filters /*: any */,
+    search /*: string */
+  ) {
+    if (filters) {
+      let firstUsed = false
+
+      if (filters.highlights) {
+        query.where('NoteBody.motivation', '=', 'highlighting')
+        firstUsed = true
+      }
+
+      if (filters.comments) {
+        if (firstUsed) query.orWhere('NoteBody.motivation', '=', 'commenting')
+        else query.where('NoteBody.motivation', '=', 'commenting')
+      }
+    }
+  }
+
+  static async searchCount (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) {
+    search = search.toLowerCase()
+
+    const query = Note.query()
+      .select('Note.id')
+      .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
+      .where('Note.readerId', '=', urlToId(user))
+      .whereNull('Note.deleted')
+      .whereNull('Note.original')
+      .whereNot('NoteBody.motivation', '=', 'bookmarking')
+      .where('NoteBody.formattedContent', 'ilike', '%' + search + '%')
+      .distinct('Note.id')
+
+    this.applyFilters(query, options, search)
+
+    const result = await query
+
+    return result.length
+  }
+
+  static async search (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) {
+    search = search.toLowerCase()
+    let limit = options && options.limit ? options.limit : 50
+    let page = options && options.page ? options.page : 1
+    let offset = page * limit - limit
+
+    const query = Note.query()
+      .select('Note.id', 'Note.json')
+      .withGraphFetched('body')
+      .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
+      .where('Note.readerId', '=', urlToId(user))
+      .whereNull('Note.deleted')
+      .whereNull('Note.original')
+      .whereNot('NoteBody.motivation', '=', 'bookmarking')
+      .where('NoteBody.formattedContent', 'ilike', '%' + search + '%')
+      .distinct('Note.id')
+      .limit(limit)
+      .offset(offset)
+
+    this.applyFilters(query, options, search)
+
+    return await query
+  }
+
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)
     json.shortId = urlToId(json.id)
