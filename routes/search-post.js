@@ -3,6 +3,8 @@ const router = express.Router()
 const passport = require('passport')
 const { Library } = require('../models/library')
 const { Source } = require('../models/Source')
+const { Note } = require('../models/Note')
+const { Notebook } = require('../models/Notebook')
 const { Reader } = require('../models/Reader')
 
 const boom = require('@hapi/boom')
@@ -45,8 +47,56 @@ module.exports = app => {
       let result = {}
 
       if (req.body.includeSources) {
-        const sources = await Source.search(reader.id, req.body.search)
-        result.sources = { items: sources }
+        let sources = await Source.search(
+          reader.id,
+          req.body.search,
+          req.body.sources
+        )
+        sources = sources.map(source => source.toJSON())
+        const totalItems = await Source.searchCount(
+          reader.id,
+          req.body.search,
+          req.body.sources
+        )
+        result.sources = { items: sources, totalItems }
+      }
+
+      if (req.body.includeNotes) {
+        const notes = await Note.search(
+          reader.id,
+          req.body.search,
+          req.body.notes
+        )
+        const totalItems = await Note.searchCount(
+          reader.id,
+          req.body.search,
+          req.body.notes
+        )
+        result.notes = { items: notes, totalItems }
+      }
+
+      if (req.body.includeNotebooks) {
+        let options = req.body.notebooks
+        let limit = options && options.limit ? options.limit : 50
+        let page = options && options.page ? options.page : 1
+        let offset = page * limit - limit
+        // default
+        let filters = {
+          search: req.body.search,
+          name: true,
+          description: true
+        }
+        if (req.body.notebooks && req.body.notebooks.name === false) { filters.name = false }
+        if (req.body.notebooks && req.body.notebooks.description === false) { filters.description = false }
+
+        const notebooks = await Notebook.byReader(
+          reader.id,
+          limit,
+          offset,
+          filters
+        )
+        const totalItems = await Notebook.count(reader.id, filters)
+        result.notebooks = { items: notebooks, totalItems }
       }
 
       res.send(result)

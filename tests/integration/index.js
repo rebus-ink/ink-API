@@ -134,7 +134,10 @@ const collaborationNoteContextNotePostTests = require('./collaboration/collabora
 const collaborationOutlineNotePostTests = require('./collaboration/collaboration-outline-note-post.test')
 const collaborationNotebooksGetTests = require('./collaboration/collaboration-notebooks-get.test')
 
-const searchGetTests = require('./search/search-get.test')
+const searchTests = require('./search/search.test')
+const searchSourcesTests = require('./search/search-sources.test')
+const searchNotesTests = require('./search/search-notes.test')
+const searchNotebooksTests = require('./search/search-notebooks.test')
 
 const app = require('../../server').app
 
@@ -378,7 +381,10 @@ const allTests = async () => {
   }
 
   if (!test || test === 'search') {
-    await searchGetTests(app)
+    await searchTests(app)
+    await searchSourcesTests(app)
+    await searchNotesTests(app)
+    await searchNotebooksTests(app)
   }
 
   if (!test || test === 'delete') {

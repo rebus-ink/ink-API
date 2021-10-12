@@ -1106,13 +1106,113 @@ class Source extends BaseModel {
     return updatedSource
   }
 
+  static async applyFilters (
+    query /*: any */,
+    filters /*: any */,
+    search /*: string */
+  ) {
+    // the annoying thing is, the first query has to be .where and the rest .orWhere
+    // so we need to figure out which one is the first. fun.
+    let firstUsed = false
+
+    if (filters.name) {
+      query.where('Source.name', 'ilike', `%${search}%`)
+      firstUsed = true
+    }
+
+    if (filters.attributions) {
+      query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
+      if (firstUsed) {
+        query.orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
+      } else {
+        query.where('Attribution.normalizedName', 'ilike', `%${search}%`)
+        firstUsed = true
+      }
+    }
+
+    if (filters.description) {
+      if (firstUsed) {
+        query.orWhere('Source.description', 'ilike', `%${search}%`)
+      } else {
+        query.where('Source.description', 'ilike', `%${search}%`)
+        firstUsed = true
+      }
+    }
+
+    if (filters.abstract) {
+      if (firstUsed) {
+        query.orWhere('Source.abstract', 'ilike', `%${search}%`)
+      } else {
+        query.where('Source.abstract', 'ilike', `%${search}%`)
+        firstUsed = true
+      }
+    }
+
+    if (filters.keywords) {
+      if (firstUsed) {
+        query.orWhereJsonSupersetOf('Source.metadata:keywords', [search])
+      } else {
+        query.whereJsonSupersetOf('Source.metadata:keywords', [search])
+        firstUsed = true
+      }
+    }
+  }
+
+  static async searchCount (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) {
+    // set defaults
+    let filters = {
+      name: true,
+      description: true,
+      abstract: true,
+      attributions: true,
+      keywords: true
+    }
+
+    if (options) {
+      filters = Object.assign(filters, options)
+    }
+
+    const query = Source.query()
+      .select('Source.id')
+      .from('Source')
+      .where('Source.readerId', '=', urlToId(user))
+      .whereNull('Source.deleted')
+      .distinct('Source.id')
+
+    this.applyFilters(query, filters, search)
+
+    let result = await query
+    return result.length
+  }
+
   static async search (
     user /*: string */,
     search /*: string */,
     options /*: any */
   ) {
     search = search.toLowerCase()
-    const result = await Source.query()
+    let limit = options && options.limit ? options.limit : 50
+    let page = options && options.page ? options.page : 1
+    let offset = page * limit - limit
+
+    // set defaults
+    let filters = {
+      name: true,
+      description: true,
+      abstract: true,
+      attributions: true,
+      keywords: true
+    }
+
+    if (options) {
+      filters = Object.assign(filters, options)
+    }
+
+    const query = Source.query()
       .select(
         'Source.id',
         'Source.name',
@@ -1121,17 +1221,15 @@ class Source extends BaseModel {
         'Source.metadata'
       )
       .withGraphFetched('attributions')
-      .leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
       .where('Source.readerId', '=', urlToId(user))
       .whereNull('Source.deleted')
-      .where('Source.name', 'ilike', `%${search}%`)
-      .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
-      .orWhere('Source.abstract', 'ilike', `%${search}%`)
-      .orWhere('Source.description', 'ilike', `%${search}%`)
-      .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
       .distinct('Source.id')
+      .limit(limit)
+      .offset(offset)
 
-    return result
+    this.applyFilters(query, filters, search)
+
+    return await query
   }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
