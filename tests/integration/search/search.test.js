@@ -13,6 +13,7 @@ const {
   createReadActivity
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
+const { urlToId } = require('../../../utils/utils')
 
 const test = async () => {
   const token = getToken()
@@ -53,6 +54,8 @@ const test = async () => {
 
   const source1 = await createSource(app, token, { name: 'target is here' })
   const note1 = await createNote(app, token, {
+    target: { property: 'value' },
+    sourceId: source1.shortId,
     body: { motivation: 'highlighting', content: 'target is in content' }
   })
   const notebook1 = await createNotebook(app, token, {
@@ -83,7 +86,11 @@ const test = async () => {
     await tap.equal(body.notes.totalItems, 1)
     await tap.ok(Array.isArray(body.notes.items))
     await tap.equal(body.notes.items.length, 1)
-    await tap.equal(body.notes.items[0].shortId, note1.shortId)
+    let noteRes = body.notes.items[0]
+    await tap.equal(noteRes.shortId, note1.shortId)
+    await tap.ok(noteRes.target)
+    await tap.equal(urlToId(noteRes.sourceId), source1.shortId)
+    await tap.ok(noteRes.source)
 
     await tap.ok(body.sources)
     await tap.type(body.sources.totalItems, 'number')
