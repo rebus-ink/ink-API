@@ -564,7 +564,7 @@ class Note extends BaseModel {
     search = search.toLowerCase()
 
     const query = Note.query()
-      .select('Note.id', 'Note.target', 'Note.json')
+      .select('Note.id')
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
       .where('Note.readerId', '=', urlToId(user))
       .whereNull('Note.deleted')
@@ -591,8 +591,9 @@ class Note extends BaseModel {
     let offset = page * limit - limit
 
     const query = Note.query()
-      .select('Note.id', 'Note.json')
+      .select('Note.id', 'Note.json', 'Note.target', 'Note.sourceId')
       .withGraphFetched('body')
+      .withGraphFetched('source')
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
       .where('Note.readerId', '=', urlToId(user))
       .whereNull('Note.deleted')
