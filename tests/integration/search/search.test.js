@@ -10,7 +10,8 @@ const {
   addSourceToCollection,
   createNotebook,
   addSourceToNotebook,
-  createReadActivity
+  createReadActivity,
+  addNoteToCollection
 } = require('../../utils/testUtils')
 const app = require('../../../server').app
 const { urlToId } = require('../../../utils/utils')
@@ -52,12 +53,17 @@ const test = async () => {
     await tap.ok(Array.isArray(body.notebooks.items))
   })
 
-  const source1 = await createSource(app, token, { name: 'target is here' })
+  const tag1 = await createTag(app, token)
+  const source1 = await createSource(app, token, {
+    name: 'target is here'
+  })
+  await addSourceToCollection(app, token, source1.shortId, tag1.shortId)
   const note1 = await createNote(app, token, {
     target: { property: 'value' },
     sourceId: source1.shortId,
     body: { motivation: 'highlighting', content: 'target is in content' }
   })
+  await addNoteToCollection(app, token, note1.shortId, tag1.shortId)
   const notebook1 = await createNotebook(app, token, {
     name: 'target notebook'
   })
@@ -91,6 +97,7 @@ const test = async () => {
     await tap.ok(noteRes.target)
     await tap.equal(urlToId(noteRes.sourceId), source1.shortId)
     await tap.ok(noteRes.source)
+    await tap.ok(noteRes.tags.length)
 
     await tap.ok(body.sources)
     await tap.type(body.sources.totalItems, 'number')
@@ -98,6 +105,7 @@ const test = async () => {
     await tap.ok(Array.isArray(body.sources.items))
     await tap.equal(body.sources.items.length, 1)
     await tap.equal(body.sources.items[0].shortId, source1.shortId)
+    await tap.ok(body.sources.items[0].tags.length)
 
     await tap.ok(body.notebooks)
     await tap.type(body.notebooks.totalItems, 'number')

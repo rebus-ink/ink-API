@@ -1220,7 +1220,7 @@ class Source extends BaseModel {
         'Source.abstract',
         'Source.metadata'
       )
-      .withGraphFetched('attributions')
+      .withGraphFetched('[attributions, tags]')
       .where('Source.readerId', '=', urlToId(user))
       .whereNull('Source.deleted')
       .distinct('Source.id')
