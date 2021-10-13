@@ -592,8 +592,7 @@ class Note extends BaseModel {
 
     const query = Note.query()
       .select('Note.id', 'Note.json', 'Note.target', 'Note.sourceId')
-      .withGraphFetched('body')
-      .withGraphFetched('source')
+      .withGraphFetched('[body, source, tags]')
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
       .where('Note.readerId', '=', urlToId(user))
       .whereNull('Note.deleted')
