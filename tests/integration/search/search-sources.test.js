@@ -15,7 +15,8 @@ const test = async () => {
 
   const source0 = await createSource(app, token)
   const source1 = await createSource(app, token, {
-    name: 'title contains TarGet and stuff'
+    name: 'title contains TarGet and stuff',
+    type: 'Drawing'
   })
   const source2 = await createSource(app, token, {
     name: 'boring name',
@@ -69,6 +70,40 @@ const test = async () => {
     await tap.equal(isIncluded(body.sources.items, source3), true)
     await tap.equal(isIncluded(body.sources.items, source4), true)
     await tap.equal(isIncluded(body.sources.items, source5), true)
+  })
+
+  await tap.test('Search sources, filter by type', async () => {
+    const res = await request(app)
+      .post('/search')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          search: 'target',
+          includeNotes: false,
+          includeSources: true,
+          sources: {
+            type: 'Drawing'
+          },
+          includeNotebooks: false
+        })
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.sources)
+    await tap.type(body.sources.totalItems, 'number')
+    await tap.equal(body.sources.totalItems, 1)
+    console.log(body.sources.items)
+    await tap.ok(Array.isArray(body.sources.items))
+    await tap.equal(body.sources.items.length, 1)
+    await tap.equal(isIncluded(body.sources.items, source0), false)
+    await tap.equal(isIncluded(body.sources.items, source1), true)
+    await tap.equal(isIncluded(body.sources.items, source2), false)
+    await tap.equal(isIncluded(body.sources.items, source3), false)
+    await tap.equal(isIncluded(body.sources.items, source4), false)
+    await tap.equal(isIncluded(body.sources.items, source5), false)
   })
 
   await tap.test('Search sources, omit description and abstract', async () => {
