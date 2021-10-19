@@ -1,6 +1,7 @@
 Oct 19, 2021
 
 * added filter by source type to advanced search
+* filter sources and notes by notebook in advanced search
 
 Oct 12, 2021
 

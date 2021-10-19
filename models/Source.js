@@ -1112,11 +1112,23 @@ class Source extends BaseModel {
     search /*: string */
   ) {
     query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
-
+    query.leftJoin(
+      'notebook_source',
+      'notebook_source.sourceId',
+      '=',
+      'Source.id'
+    )
+    query.leftJoin('Notebook', 'notebook_source.notebookId', '=', 'Notebook.id')
     // filters (AND)
+    let firstFilterUsed = false
+    if (filters.types) {
+      query.whereIn('Source.type', filters.types)
+      firstFilterUsed = true
+    }
 
-    if (filters.type) {
-      query.where('Source.type', '=', filters.type)
+    if (filters.notebook) {
+      if (firstFilterUsed) query.andWhere('Notebook.id', '=', filters.notebook)
+      else query.where('Notebook.id', '=', filters.notebook)
     }
 
     // properties (OR)
@@ -1245,7 +1257,8 @@ class Source extends BaseModel {
         'Source.description',
         'Source.abstract',
         'Source.metadata',
-        'Source.type'
+        'Source.type',
+        'Source.updated'
       )
       .withGraphFetched('[attributions(notDeleted), tags(notDeleted)]')
       .modifiers({
@@ -1258,6 +1271,7 @@ class Source extends BaseModel {
       .distinct('Source.id')
       .limit(limit)
       .offset(offset)
+      .orderBy('Source.updated', 'desc')
 
     this.applyFilters(query, filters, search)
 
