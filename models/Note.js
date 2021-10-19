@@ -545,13 +545,13 @@ class Note extends BaseModel {
       let firstUsed = false
 
       if (filters.highlights) {
-        query.where('NoteBody.motivation', '=', 'highlighting')
+        query.andWhere('NoteBody.motivation', '=', 'highlighting')
         firstUsed = true
       }
 
       if (filters.comments) {
         if (firstUsed) query.orWhere('NoteBody.motivation', '=', 'commenting')
-        else query.where('NoteBody.motivation', '=', 'commenting')
+        else query.andWhere('NoteBody.motivation', '=', 'commenting')
       }
     }
   }
@@ -570,7 +570,7 @@ class Note extends BaseModel {
       .whereNull('Note.deleted')
       .whereNull('Note.original')
       .whereNot('NoteBody.motivation', '=', 'bookmarking')
-      .where('NoteBody.formattedContent', 'ilike', '%' + search + '%')
+      .andWhere('NoteBody.formattedContent', 'ilike', '%' + search + '%')
       .distinct('Note.id')
 
     this.applyFilters(query, options, search)
