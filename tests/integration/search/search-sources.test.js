@@ -4,7 +4,9 @@ const {
   getToken,
   createUser,
   destroyDB,
-  createSource
+  createSource,
+  createNotebook,
+  addSourceToNotebook
 } = require('../../utils/testUtils')
 const _ = require('lodash')
 const app = require('../../../server').app
@@ -20,6 +22,7 @@ const test = async () => {
   })
   const source2 = await createSource(app, token, {
     name: 'boring name',
+    type: 'Poster',
     description: 'description contains target and stuff'
   })
   const source3 = await createSource(app, token, {
@@ -34,6 +37,12 @@ const test = async () => {
     name: 'boring source',
     author: 'Dr. Target et al.'
   })
+
+  // notebook
+  const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
+  await addSourceToNotebook(app, token, source2.shortId, notebook1.shortId)
+  await addSourceToNotebook(app, token, source4.shortId, notebook1.shortId)
+  await addSourceToNotebook(app, token, source0.shortId, notebook1.shortId)
 
   const isIncluded = function (collection, source) {
     return _.findIndex(collection, item => item.shortId === source.shortId) > -1
@@ -84,7 +93,7 @@ const test = async () => {
           includeNotes: false,
           includeSources: true,
           sources: {
-            type: 'Drawing'
+            types: ['Drawing']
           },
           includeNotebooks: false
         })
@@ -95,12 +104,111 @@ const test = async () => {
     await tap.ok(body.sources)
     await tap.type(body.sources.totalItems, 'number')
     await tap.equal(body.sources.totalItems, 1)
-    console.log(body.sources.items)
     await tap.ok(Array.isArray(body.sources.items))
     await tap.equal(body.sources.items.length, 1)
     await tap.equal(isIncluded(body.sources.items, source0), false)
     await tap.equal(isIncluded(body.sources.items, source1), true)
     await tap.equal(isIncluded(body.sources.items, source2), false)
+    await tap.equal(isIncluded(body.sources.items, source3), false)
+    await tap.equal(isIncluded(body.sources.items, source4), false)
+    await tap.equal(isIncluded(body.sources.items, source5), false)
+  })
+
+  await tap.test('Search sources, filter by multiple types', async () => {
+    const res = await request(app)
+      .post('/search')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          search: 'target',
+          includeNotes: false,
+          includeSources: true,
+          sources: {
+            types: ['Drawing', 'Poster']
+          },
+          includeNotebooks: false
+        })
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.sources)
+    await tap.type(body.sources.totalItems, 'number')
+    await tap.equal(body.sources.totalItems, 2)
+    await tap.ok(Array.isArray(body.sources.items))
+    await tap.equal(body.sources.items.length, 2)
+    await tap.equal(isIncluded(body.sources.items, source0), false)
+    await tap.equal(isIncluded(body.sources.items, source1), true)
+    await tap.equal(isIncluded(body.sources.items, source2), true)
+    await tap.equal(isIncluded(body.sources.items, source3), false)
+    await tap.equal(isIncluded(body.sources.items, source4), false)
+    await tap.equal(isIncluded(body.sources.items, source5), false)
+  })
+
+  await tap.test('Search sources, filter by notebook', async () => {
+    const res = await request(app)
+      .post('/search')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          search: 'target',
+          includeNotes: false,
+          includeSources: true,
+          sources: {
+            notebook: notebook1.shortId
+          },
+          includeNotebooks: false
+        })
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.sources)
+    await tap.type(body.sources.totalItems, 'number')
+    await tap.equal(body.sources.totalItems, 2)
+    await tap.ok(Array.isArray(body.sources.items))
+    await tap.equal(body.sources.items.length, 2)
+    await tap.equal(isIncluded(body.sources.items, source0), false)
+    await tap.equal(isIncluded(body.sources.items, source1), false)
+    await tap.equal(isIncluded(body.sources.items, source2), true)
+    await tap.equal(isIncluded(body.sources.items, source3), false)
+    await tap.equal(isIncluded(body.sources.items, source4), true)
+    await tap.equal(isIncluded(body.sources.items, source5), false)
+  })
+
+  await tap.test('Search sources, filter by notebook and type', async () => {
+    const res = await request(app)
+      .post('/search')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          search: 'target',
+          includeNotes: false,
+          includeSources: true,
+          sources: {
+            notebook: notebook1.shortId,
+            types: ['Poster']
+          },
+          includeNotebooks: false
+        })
+      )
+
+    await tap.equal(res.status, 200)
+    const body = res.body
+    await tap.ok(body.sources)
+    await tap.type(body.sources.totalItems, 'number')
+    await tap.equal(body.sources.totalItems, 1)
+    await tap.ok(Array.isArray(body.sources.items))
+    await tap.equal(body.sources.items.length, 1)
+    await tap.equal(isIncluded(body.sources.items, source0), false)
+    await tap.equal(isIncluded(body.sources.items, source1), false)
+    await tap.equal(isIncluded(body.sources.items, source2), true)
     await tap.equal(isIncluded(body.sources.items, source3), false)
     await tap.equal(isIncluded(body.sources.items, source4), false)
     await tap.equal(isIncluded(body.sources.items, source5), false)

@@ -541,19 +541,31 @@ class Note extends BaseModel {
     filters /*: any */,
     search /*: string */
   ) {
+    query.leftJoin('notebook_note', 'notebook_note.noteId', '=', 'Note.id')
+    query.leftJoin('Notebook', 'notebook_note.notebookId', '=', 'Notebook.id')
+    let firstUsed = false
+
     if (filters) {
       query = query.andWhere(nestedQuery => {
-        let firstUsed = false
-
         if (filters.highlights) {
           nestedQuery.where('NoteBody.motivation', '=', 'highlighting')
           firstUsed = true
         }
 
         if (filters.comments) {
-          if (firstUsed) { nestedQuery.orWhere('NoteBody.motivation', '=', 'commenting') } else nestedQuery.where('NoteBody.motivation', '=', 'commenting')
+          if (firstUsed) {
+            nestedQuery.orWhere('NoteBody.motivation', '=', 'commenting')
+          } else {
+            nestedQuery.where('NoteBody.motivation', '=', 'commenting')
+            firstUsed = true
+          }
         }
       })
+
+      if (filters.notebook) {
+        if (firstUsed) query.andWhere('Notebook.id', '=', filters.notebook)
+        else query.where('Notebook.id', '=', filters.notebook)
+      }
     }
   }
 
@@ -592,7 +604,13 @@ class Note extends BaseModel {
     let offset = page * limit - limit
 
     const query = Note.query()
-      .select('Note.id', 'Note.json', 'Note.target', 'Note.sourceId')
+      .select(
+        'Note.id',
+        'Note.json',
+        'Note.target',
+        'Note.sourceId',
+        'Note.updated'
+      )
       .withGraphFetched('[body, source, tags]')
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
       .where('Note.readerId', '=', urlToId(user))
@@ -603,6 +621,7 @@ class Note extends BaseModel {
       .distinct('Note.id')
       .limit(limit)
       .offset(offset)
+      .orderBy('Note.updated', 'desc')
 
     this.applyFilters(query, options, search)
 
