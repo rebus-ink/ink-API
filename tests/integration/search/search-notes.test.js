@@ -22,6 +22,34 @@ const test = async () => {
     body: { motivation: 'commenting', content: 'taRGet in content' }
   })
 
+  await tap.test('Search notes for highlights and comments', async () => {
+    const res = await request(app)
+      .post('/search')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          search: 'target',
+          includeNotes: true,
+          notes: {
+            highlights: true,
+            comments: true
+          }
+        })
+      )
+
+    await tap.equal(res.status, 200)
+
+    const body = res.body
+    await tap.type(body, 'object')
+    await tap.ok(body.notes)
+    await tap.type(body.notes.totalItems, 'number')
+    await tap.equal(body.notes.totalItems, 2)
+    await tap.ok(Array.isArray(body.notes.items))
+    await tap.equal(body.notes.items.length, 2)
+  })
+
   await tap.test('Search notes for only highlights', async () => {
     const res = await request(app)
       .post('/search')

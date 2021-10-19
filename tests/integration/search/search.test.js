@@ -57,15 +57,24 @@ const test = async () => {
   const source1 = await createSource(app, token, {
     name: 'target is here'
   })
+  const source2 = await createSource(app, token, {
+    name: 'not in search results'
+  })
   await addSourceToCollection(app, token, source1.shortId, tag1.shortId)
   const note1 = await createNote(app, token, {
     target: { property: 'value' },
     sourceId: source1.shortId,
     body: { motivation: 'highlighting', content: 'target is in content' }
   })
+  const note2 = await createNote(app, token, {
+    body: { motivation: 'highlighting', content: 'not in search results' }
+  })
   await addNoteToCollection(app, token, note1.shortId, tag1.shortId)
   const notebook1 = await createNotebook(app, token, {
     name: 'target notebook'
+  })
+  const notebook2 = await createNotebook(app, token, {
+    name: 'not in search results'
   })
 
   await tap.test('Search collections with things', async () => {
