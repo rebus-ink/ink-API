@@ -592,7 +592,17 @@ class Note extends BaseModel {
 
     const query = Note.query()
       .select('Note.id', 'Note.json', 'Note.target', 'Note.sourceId')
-      .withGraphFetched('[body, source, tags]')
+      .withGraphFetched(
+        '[body, source(notDeleted, selectSource), tags(notDeleted)]'
+      )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        },
+        selectSource (builder) {
+          builder.select('id', 'name', 'type', 'metadata', 'citation')
+        }
+      })
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
       .where('Note.readerId', '=', urlToId(user))
       .whereNull('Note.deleted')

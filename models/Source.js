@@ -1111,51 +1111,77 @@ class Source extends BaseModel {
     filters /*: any */,
     search /*: string */
   ) {
+    query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
+
+    // filters (AND)
+
+    if (filters.type) {
+      query.where('Source.type', '=', filters.type)
+    }
+
+    // properties (OR)
+
     // the annoying thing is, the first query has to be .where and the rest .orWhere
     // so we need to figure out which one is the first. fun.
-    let firstUsed = false
 
-    if (filters.name) {
-      query.where('Source.name', 'ilike', `%${search}%`)
-      firstUsed = true
-    }
+    query.andWhere(nestedQuery => {
+      let firstUsed = false
 
-    if (filters.attributions) {
-      query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
-      if (firstUsed) {
-        query.orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
-      } else {
-        query.where('Attribution.normalizedName', 'ilike', `%${search}%`)
-        firstUsed = true
+      if (filters.name) {
+        if (firstUsed) {
+          nestedQuery.where('Source.name', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.andWhere('Source.name', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
       }
-    }
 
-    if (filters.description) {
-      if (firstUsed) {
-        query.orWhere('Source.description', 'ilike', `%${search}%`)
-      } else {
-        query.where('Source.description', 'ilike', `%${search}%`)
-        firstUsed = true
+      if (filters.attributions) {
+        if (firstUsed) {
+          nestedQuery.orWhere(
+            'Attribution.normalizedName',
+            'ilike',
+            `%${search}%`
+          )
+        } else {
+          nestedQuery.where(
+            'Attribution.normalizedName',
+            'ilike',
+            `%${search}%`
+          )
+          firstUsed = true
+        }
       }
-    }
 
-    if (filters.abstract) {
-      if (firstUsed) {
-        query.orWhere('Source.abstract', 'ilike', `%${search}%`)
-      } else {
-        query.where('Source.abstract', 'ilike', `%${search}%`)
-        firstUsed = true
+      if (filters.description) {
+        if (firstUsed) {
+          nestedQuery.orWhere('Source.description', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.where('Source.description', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
       }
-    }
 
-    if (filters.keywords) {
-      if (firstUsed) {
-        query.orWhereJsonSupersetOf('Source.metadata:keywords', [search])
-      } else {
-        query.whereJsonSupersetOf('Source.metadata:keywords', [search])
-        firstUsed = true
+      if (filters.abstract) {
+        if (firstUsed) {
+          nestedQuery.orWhere('Source.abstract', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.where('Source.abstract', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
       }
-    }
+
+      if (filters.keywords) {
+        if (firstUsed) {
+          nestedQuery.orWhereJsonSupersetOf('Source.metadata:keywords', [
+            search
+          ])
+        } else {
+          nestedQuery.whereJsonSupersetOf('Source.metadata:keywords', [search])
+          firstUsed = true
+        }
+      }
+    })
   }
 
   static async searchCount (
@@ -1218,9 +1244,15 @@ class Source extends BaseModel {
         'Source.name',
         'Source.description',
         'Source.abstract',
-        'Source.metadata'
+        'Source.metadata',
+        'Source.type'
       )
-      .withGraphFetched('[attributions, tags]')
+      .withGraphFetched('[attributions(notDeleted), tags(notDeleted)]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
       .where('Source.readerId', '=', urlToId(user))
       .whereNull('Source.deleted')
       .distinct('Source.id')
