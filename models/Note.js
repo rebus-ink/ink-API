@@ -542,17 +542,18 @@ class Note extends BaseModel {
     search /*: string */
   ) {
     if (filters) {
-      let firstUsed = false
+      query = query.andWhere(nestedQuery => {
+        let firstUsed = false
 
-      if (filters.highlights) {
-        query.andWhere('NoteBody.motivation', '=', 'highlighting')
-        firstUsed = true
-      }
+        if (filters.highlights) {
+          nestedQuery.where('NoteBody.motivation', '=', 'highlighting')
+          firstUsed = true
+        }
 
-      if (filters.comments) {
-        if (firstUsed) query.orWhere('NoteBody.motivation', '=', 'commenting')
-        else query.andWhere('NoteBody.motivation', '=', 'commenting')
-      }
+        if (filters.comments) {
+          if (firstUsed) { nestedQuery.orWhere('NoteBody.motivation', '=', 'commenting') } else nestedQuery.where('NoteBody.motivation', '=', 'commenting')
+        }
+      })
     }
   }
 
