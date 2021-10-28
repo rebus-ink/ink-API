@@ -163,17 +163,19 @@ class ReaderNotes {
     // note: not applied with filters.document
 
     let resultQuery = Note.query(Note.knex())
-      .count()
+      .select('Note.id')
+      .from('Note')
       .whereNull('Note.deleted')
       .whereNull('Note.contextId')
       .andWhere('Note.readerId', '=', readerId)
       .leftJoin('NoteBody', 'NoteBody.noteId', '=', 'Note.id')
+      .distinct('Note.id')
 
     this.applyFilters(resultQuery, filters)
 
     const result = await resultQuery
 
-    return result[0].count
+    return result.length
   }
 
   static async getNotes (
