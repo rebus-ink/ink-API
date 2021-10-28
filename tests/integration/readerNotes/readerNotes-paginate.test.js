@@ -22,7 +22,7 @@ const test = async app => {
 
   const createNoteSimplified = async object => {
     const noteObj = Object.assign(
-      { sourceId, body: { motivation: 'test' } },
+      { sourceId, body: [{ motivation: 'test' }, { motivation: 'test' }] },
       object
     )
     return await createNote(app, token, noteObj)
