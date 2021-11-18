@@ -1,3 +1,10 @@
+Deployment Nov 18, 2021
+
+* fixed bug in pagination where it was counting the number of note bodies instead of the number of notes
+* added filter by source type to advanced search
+* filter sources and notes by notebook in advanced search
+* advanced search
+
 Deployment Sept 27, 2021
 
 * outline docx including page numbers
