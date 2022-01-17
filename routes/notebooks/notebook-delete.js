@@ -19,11 +19,6 @@ module.exports = function (app) {
    *     description: Delete a notebook
    *     security:
    *       - Bearer: []
-   *     requestBody:
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/definitions/notebook'
    *     responses:
    *       204:
    *         description: Successfully deleted Notebook

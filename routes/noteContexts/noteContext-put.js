@@ -23,14 +23,14 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/noteContext'
+   *             $ref: '#/definitions/noteContext-input'
    *     responses:
    *       200:
    *         description: Successfully updated NoteContext
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/noteContext'
+   *               $ref: '#/definitions/noteContext-return'
    *       400:
    *         description: Validation error
    *       401:

@@ -31,7 +31,7 @@ module.exports = function (app) {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/notebook'
+   *               $ref: '#/definitions/notebook-return'
    *       400:
    *         description: Validation error
    *       401:

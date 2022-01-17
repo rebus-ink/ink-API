@@ -31,7 +31,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/note-input'
    *     security:
    *       - Bearer: []
    *     responses:
@@ -40,7 +40,7 @@ module.exports = function (app) {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/note-basic-return'
    *       400:
    *         description: 'Validation Error'
    *       401:

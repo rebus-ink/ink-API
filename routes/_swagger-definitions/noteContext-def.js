@@ -7,14 +7,8 @@
  *         type: string
  *       description:
  *         type: string
-
  *       json:
  *         type: object
- *   required:
- *     - id
- *     - type
- *     - published
- *     - readerId
  *
  *   noteContext-input:
  *     allOf:
@@ -22,8 +16,14 @@
  *     properties:
  *       type:
  *         type: string
+ *       canvasId:
+ *         type: string
+ *       notebookId:
+ *         type: string
+ *    required:
+ *      - type
  *
- *   noteContext:
+ *   noteContext-return:
  *     allOf:
  *       - $ref: '#/definitions/noteContext-input'
  *     properties:
@@ -31,12 +31,13 @@
  *         type: string
  *         format: url
  *         readOnly: true
+ *       shortId:
+ *         type: string
+ *         readOnly: true
  *       readerId:
  *         type: string
  *         format: url
  *         readOnly: true
- *       type:
- *         type: string
  *       published:
  *         type: string
  *         format: date-time
@@ -45,6 +46,19 @@
  *         type: string
  *         format: date-time
  *         readOnly: true
+ *
+ *   noteContext:
+ *     allOf:
+ *       - $ref: '#/definitions/noteContext-return'
+ *     properties:
+ *       reader:
+ *         $ref: '#/definitions/reader'
+ *         readOnly: true
+ *       notebook:
+ *         $ref: '#/definitions/notebook-with-collaborators'
+ *         readOnly: true
+ *       notes:
+ *         $ref: '#/definitions/note-for-noteContext'
  *
  *   outline-input:
  *     allOf:

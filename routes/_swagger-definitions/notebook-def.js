@@ -17,7 +17,7 @@
  *       - name
  *       - status
  *
- *   notebook-ref:
+ *   notebook-return:
  *     allOf:
  *       - $ref: '#/definitions/notebook-input'
  *     properties:
@@ -25,16 +25,13 @@
  *         type: string
  *         format: url
  *         readOnly: true
+ *       shortId:
+ *         type: string
+ *         readOnly: true
  *       readerId:
  *         type: string
  *         format: url
  *         readOnly: true
- *       tags:
- *         type: array
- *         items:
- *           $ref: '#/definitions/tag'
- *         readOnly: true
- *         description: tags assigned to this notebook
  *       published:
  *         type: string
  *         format: date-time
@@ -47,6 +44,27 @@
  *     - id
  *     - published
  *     - readerId
+ *
+ *   notebook-with-collaborator:
+ *     allOf:
+ *       - $ref: '#/defintions/notebook-return'
+ *     properties:
+ *       collaborators:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/collaborator'
+ *         description: collaborators to this notebook
+ *
+ *   notebook-ref:
+ *     allOf:
+ *       - $ref: '#/definitions/notebook-return'
+ *     properties:
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *         readOnly: true
+ *         description: tags assigned to this notebook
  *
  *   notebook:
  *     allOf:
@@ -61,13 +79,13 @@
  *       sources:
  *         type: array
  *         items:
- *           $ref: '#/definitions/source'
+ *           $ref: '#/definitions/sourceInNotebook'
  *         readOnly: true
  *         description: sources assigned to the notebook
  *       notes:
  *         type: array
  *         items:
- *           $ref: '#/definitions/note'
+ *           $ref: '#/definitions/noteWithPub'
  *         readOnly: true
  *         description: notes assigned to the notebook
  *       noteContexts:
@@ -76,6 +94,17 @@
  *           $ref: '#/definitions/noteContext'
  *         readOnly: true
  *         description: noteContexts that belong to this notebook
+ *       canvas:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/canvas'
+ *         readOnly: true
+ *         description: canvas that belong to this notebook
+ *       collaborators:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/collaborator'
+ *         description: collaborators to this notebook
  *
  *   notebook-list:
  *     properties:

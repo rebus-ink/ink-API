@@ -24,6 +24,9 @@
  *         type: string
  *         format: url
  *         readOnly: true
+ *       reader:
+ *         $ref: '#/definitions/reader'
+ *         readOnly: true
  *       notebookId:
  *         type: string
  *         format: url
