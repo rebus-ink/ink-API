@@ -37,7 +37,7 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/note-input'
    *     responses:
    *       201:
    *         description: Successfully created Note and assigned it to Notebook

@@ -13,7 +13,7 @@
  *     required:
  *       - motivation
  *
- *   note-input:
+ *   note-basic:
  *     properties:
  *       canonical:
  *         type: string
@@ -21,9 +21,6 @@
  *         type: object
  *       target:
  *         type: object
- *       sourceId:
- *         type: string
- *         format: url
  *       document:
  *         type: string
  *       contextId:
@@ -32,22 +29,13 @@
  *         type: array
  *         items:
  *           $ref: '#/definitions/noteBody'
- *       tags:
- *         type: array
- *         items:
- *           $ref: '#/definitions/tag'
- *       notebooks:
- *         type: array
- *         items:
- *           $ref: '#/definitions/notebook'
  *       json:
  *         type: object
  *     required:
  *       - body
  *
- *   note:
- *     allOf:
- *       - $ref: '#/definitions/note-input'
+ *   note-basic-return:
+ *     allOf: '#/definitions/note-basic'
  *     properties:
  *       id:
  *         type: string
@@ -57,8 +45,81 @@
  *         type: string
  *         format: url
  *         readOnly: true
- *       json:
+ *       original:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       published:
+ *         type: string
+ *         format: date-time
+ *         readOnly: true
+ *       updated:
+ *         type: string
+ *         format: date-time
+ *         readOnly: true
+ *
+ *   note-input:
+ *     allOf: '#/definitions/note-basic'
+ *     properties:
+ *       sourceId:
+ *         type: string
+ *         format: url
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *       notebooks:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/notebook'
+ *
+ *
+ *   note-for-noteContext:
+ *     allOf: '#/definitions/note-basic'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       shortId:
+ *         type: string
+ *         readOnly: true
+ *       outlineData:
  *         type: object
+ *         properties:
+ *           previous:
+ *             type: string
+ *           next:
+ *             type: string
+ *           parentId:
+ *             type: string
+ *       relations:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             toNote:
+ *               $ref: '#/definitions/note-basic-return'
+ *             fromNote:
+ *               $ref: '#/definitions/note-basic-return'
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *       sources:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               format: url
+ *             name:
+ *               type: string
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
  *       published:
  *         type: string
  *         format: date-time
@@ -71,10 +132,63 @@
  *       - id
  *       - readerId
  *       - published
+ *       - shortId
+ *
+ *   note:
+ *     allOf:
+ *       - $ref: '#/definitions/note-basic-return'
+ *     properties:
+ *       reader:
+ *         $ref: '#/definitions/reader'
+ *         readOnly: true
+ *       previous:
+ *         type: string
+ *         description: used for Outlines
+ *       next:
+ *         type: string
+ *         description: used for Outlines
+ *       parentId:
+ *         type: string
+ *         description: used for Outlines
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tags'
+ *       relations:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             toNote:
+ *               $ref: '#/definitions/note-basic-return'
+ *             fromNote:
+ *               $ref: '#/definitions/note-basic-return'
+ *       notebook:
+ *         $ref: '#/definitions/notebook-with-collaborator'
+ *       source:
+ *         type: object
+ *         properties:
+ *           id:
+ *             type: string
+ *             format: url
+ *           name:
+ *             type: string
+ *           type:
+ *             type: string
+ *           metadata:
+ *             type: object
+ *           citation:
+ *             type: string
+ *           attributions:
+ *             type: array
+ *             items:
+ *               $ref: '#/definitions/attribution'
+ *        context:
+ *          $ref: '#/definitions/noteContext'
  *
  *   noteWithPub:
  *     allOf:
- *       - $ref: '#/definitions/note'
+ *       - $ref: '#/definitions/note-basic-return'
  *       - type: object
  *         properties:
  *           source:
@@ -87,13 +201,15 @@
  *               author:
  *                 type: array
  *                 items:
- *                   $ref: '#/definitions/annotation'
+ *                   $ref: '#/definitions/attribution'
  *               editor:
  *                 type: array
  *                 items:
- *                   $ref: '#/definitions/annotation'
+ *                   $ref: '#/definitions/attribution'
  *               type:
  *                 type: string
+ *
+ *
  *
  *   note-outline-input:
  *     allOf:
@@ -101,10 +217,13 @@
  *     properties:
  *       previous:
  *         type: string
+ *         description: used for Outlines
  *       next:
  *         type: string
+ *         description: used for Outlines
  *       parentId:
  *         type: string
+ *         description: used for Outlines
  *
  *
  *   note-outline:

@@ -18,11 +18,6 @@ module.exports = function (app) {
    *     description: Delete a noteContext
    *     security:
    *       - Bearer: []
-   *     requestBody:
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/definitions/noteContext'
    *     responses:
    *       204:
    *         description: Successfully deleted NoteContext

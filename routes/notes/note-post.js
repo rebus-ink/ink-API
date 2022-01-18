@@ -33,14 +33,14 @@ module.exports = function (app) {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/definitions/note'
+   *             $ref: '#/definitions/note-input'
    *     responses:
    *       201:
    *         description: Successfully created Note
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/note'
+   *               $ref: '#/definitions/note-basic-return'
    *       400:
    *         description: Validation error
    *       401:

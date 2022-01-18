@@ -1,12 +1,12 @@
 // DEFINITIONS for
-// annotation
+// attribution
 // link
 // source
 
 /**
  * @swagger
  * definition:
- *   annotation:
+ *   attribution:
  *     type: object
  *     properties:
  *       name:
@@ -16,7 +16,7 @@
  *         enum: ['Person', 'Organization']
  *     required:
  *       - name
- *     description: annotation fields will also accept a single string for name. Also possible to have a single annotation instead of an array.
+ *     description: attribution fields will also accept a single string for name. Also possible to have a single attribution instead of an array.
  *
  *   link:
  *     properties:
@@ -74,35 +74,35 @@
  *       author:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       editor:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       creator:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       contributor:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       illustrator:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       publisher:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       translator:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       copyrightHolder:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       tags:
  *         type: array
  *         items:
@@ -179,9 +179,35 @@
  *         - name
  *         - type
  *
+ *   sourceInNotebook:
+ *     allOf:
+ *       - $ref: '#/definitions/source-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
+ *       updated:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
+ *     required:
+ *       - id
+ *       - name
+ *       - readerId
+ *       - published
+ *
  *   source:
  *     allOf:
- *       - $ref: '#/definitions/reader-input'
+ *       - $ref: '#/definitions/source-input'
  *     properties:
  *       id:
  *         type: string
@@ -190,10 +216,8 @@
  *       replies:
  *         type: array
  *         items:
- *           type: string
- *           format: url
+ *           $ref: '#/definitions/note-basic-return'
  *         readOnly: true
- *         description: url Ids for Notes that belong to this source
  *       lastReadActivity:
  *         type: object
  *         readOnly: true
@@ -265,11 +289,11 @@
  *       author:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       editor:
  *         type: array
  *         items:
- *           $ref: '#/definitions/annotation'
+ *           $ref: '#/definitions/attribution'
  *       datePublished:
  *         type: string
  *         format: timestamp
