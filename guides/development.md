@@ -12,15 +12,20 @@ files in the root of the application (source these from a team member):
 1. Google Service Account Key: `keyfile.json`
 2. Environment Variables: `.env`. Update `GOOGLE_APPLICATION_CREDENTIALS` to point to the correct path.
 
+Set up a PostreSQL database (this command may vary based on your setup):
+
+    $ createdb ink_test -U postgres
+
 Install the Node modules:
 
     $ npm install
 
-## Running the Server
+Run migrations:
 
-To start the dev-server (which uses `nodemon` to automatically restart):
+    $ npx knex migrate:latest
 
-    $ npm run dev-server
+WARNING: Please see `tests/models/index.js` on instructions for running migrations. This file
+requires a temporary modification.
 
 ## Testing
 
@@ -36,7 +41,13 @@ Individual test suites:
 | Database model tests       | `npm run test-models`      |                                                                                                                                                                                                                                       |
 | Integration (routes) tests | `npm run test-integration` | You can also run more specific integration tests by doing: npm run test-integration --test={category}. Valid categories are 'library', 'note', 'source', 'reader', 'readerNotes', 'notebook', 'noteContext', 'noteRelation' and 'tag' |
 
-## Listing
+## Running the Server
+
+To start the dev-server (which uses `nodemon` to automatically restart):
+
+    $ npm run dev-server
+
+## Linting
 
 To run eslint (only select rules are applied) and check flow types:
 

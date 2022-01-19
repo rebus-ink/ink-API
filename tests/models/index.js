@@ -26,7 +26,7 @@ require('dotenv').config()
 // sudo -u postgres psql -c "create database ink_test;"
 // knex migrate:latest
 
-// note: after new migration, remove 'true' from app.initialize and comment out rollback. Run models test once.
+// NOTE: after new migration, remove 'true' from app.initialize and comment out rollback. Run models test once.
 
 const allTests = async () => {
   await app.initialize(true)
