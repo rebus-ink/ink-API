@@ -18,10 +18,6 @@ Install the Node modules:
 
 ## Running the Server
 
-Run the server:
-
-    $ npm start
-
 To start the dev-server (which uses `nodemon` to automatically restart):
 
     $ npm run dev-server
