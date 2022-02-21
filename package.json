@@ -30,9 +30,12 @@
   },
   "homepage": "https://github.com/RebusFoundation/reader-api#readme",
   "devDependencies": {
+    "@commitlint/cli": "^7.1.2",
     "@commitlint/config-conventional": "^7.1.2",
     "api2html": "^0.2.1",
     "eslint": "^7.16.0",
+    "flow-bin": "^0.80.0",
+    "flow-coverage-report": "^0.6.1",
     "husky": "^1.0.0-rc.14",
     "jsonwebtoken": "^8.3.0",
     "knex-cleaner": "^1.3.0",
