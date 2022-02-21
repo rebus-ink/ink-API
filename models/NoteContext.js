@@ -64,6 +64,33 @@ class NoteContext extends BaseModel {
     }
   }
 
+  static async applyFilters (query /*: any */, filters /*: any */) {
+    if (filters.notebook) {
+      query = query.where('notebookId', '=', urlToId(filters.notebook))
+    }
+
+    return await query
+  }
+
+  static async byReader (
+    id /*: string */,
+    filters /*: any */
+  ) /*: Promise<Array<any>> */ {
+    let query = NoteContext.query()
+      .where('readerId', '=', id)
+      .whereNull('deleted')
+      .withGraphFetched('[notebook, reader]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
+
+    this.applyFilters(query, filters)
+
+    return await query
+  }
+
   static async createNoteContext (
     object /*: any */,
     readerId /*: string */

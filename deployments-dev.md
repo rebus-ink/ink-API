@@ -1,3 +1,8 @@
+Feb 21, 2022
+* fixed documentation
+* removed unused packages
+* added get /noteContexts route
+
 Oct 28, 2021
 
 * fixed bug in pagination where it was counting the number of note bodies instead of the number of notes

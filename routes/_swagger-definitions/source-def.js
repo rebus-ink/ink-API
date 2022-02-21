@@ -14,6 +14,10 @@
  *       type:
  *         type: string
  *         enum: ['Person', 'Organization']
+ *       json:
+ *         type: object
+ *       isContributor:
+ *         type: boolean
  *     required:
  *       - name
  *     description: attribution fields will also accept a single string for name. Also possible to have a single attribution instead of an array.
@@ -40,7 +44,7 @@
  *     required:
  *       - url
  *
- *   source-input:
+ *   source-basic:
  *       type:
  *         type: string
  *         enum: [
@@ -178,6 +182,65 @@
  *       required:
  *         - name
  *         - type
+ *
+ *   sourceInNotebook:
+ *     allOf:
+ *       - $ref: '#/definitions/source-input'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
+ *       updated:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
+ *     required:
+ *       - id
+ *       - name
+ *       - readerId
+ *       - published
+ * 
+ *   source-input:
+ *     allOf:
+ *       - $ref: '#/definitions/source-basic'
+ *       tags:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/tag'
+ *         description: tags assigned to this source
+ * 
+ *   source-return:
+ *     allOf:
+ *       - $ref: '#/definitions/source-basic'
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       shortId:
+ *         type: string
+ *         readOnly: true
+ *       readerId:
+ *         type: string
+ *         format: url
+ *         readOnly: true
+ *       published:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
+ *       updated:
+ *         type: string
+ *         format: timestamp
+ *         readOnly: true
  *
  *   sourceInNotebook:
  *     allOf:

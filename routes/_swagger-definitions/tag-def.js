@@ -13,6 +13,9 @@
  *         readOnly: true
  *       name:
  *         type: string
+ *       notebookId:
+ *         type: string
+ *         format: url
  *       type:
  *         type: string
  *       json:
