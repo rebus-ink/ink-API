@@ -72,6 +72,7 @@ const noteContextPutTests = require('./noteContext/noteContext-put.test')
 const noteContextDeleteTests = require('./noteContext/noteContext-delete.test')
 const noteContextAddNoteTests = require('./noteContext/noteContext-addNote.test')
 const noteContextGetTests = require('./noteContext/noteContext-get.test')
+const noteContextsGetTests = require('./noteContext/noteContexts.get.test')
 
 const outlineGetTests = require('./outline/outline-get.test')
 const outlinePostTests = require('./outline/outline-post.test')
@@ -287,6 +288,7 @@ const allTests = async () => {
       await noteContextDeleteTests(app)
       await noteContextAddNoteTests(app)
       await noteContextGetTests(app)
+      await noteContextsGetTests(app)
     } catch (err) {
       console.log('noteContext integration tests error: ', err)
       throw err

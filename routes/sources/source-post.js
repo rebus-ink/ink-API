@@ -40,7 +40,7 @@ module.exports = function (app) {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/definitions/source'
+   *               $ref: '#/definitions/source-return'
    *       400:
    *         description: Validation error
    *       401:

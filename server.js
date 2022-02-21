@@ -64,6 +64,7 @@ const noteContextPutRoute = require('./routes/noteContexts/noteContext-put') // 
 const noteContextDeleteRoute = require('./routes/noteContexts/noteContext-delete') // DELETE /noteContexts/:id
 const noteContextAddNoteRoute = require('./routes/noteContexts/noteContext-addNote') // POST /noteContexts/:id/notes
 const noteContextGetRoute = require('./routes/noteContexts/noteContext-get') // GET /noteContexts/:id
+const noteContextsGetRoute = require('./routes/noteContexts/noteContexts-get')
 
 // outlines
 const outlineGetRoute = require('./routes/outlines/outline-get') // GET /outlines/:id
@@ -293,6 +294,7 @@ noteContextPutRoute(app)
 noteContextDeleteRoute(app)
 noteContextAddNoteRoute(app)
 noteContextGetRoute(app)
+noteContextsGetRoute(app)
 outlineGetDocxRoute(app)
 outlineGetRoute(app)
 outlinePostRoute(app)
