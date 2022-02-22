@@ -1,4 +1,9 @@
+Feb 22, 2022
+
+* removed canvas
+
 Feb 21, 2022
+
 * fixed documentation
 * removed unused packages
 * added get /noteContexts route

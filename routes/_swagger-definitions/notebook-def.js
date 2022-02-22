@@ -94,12 +94,6 @@
  *           $ref: '#/definitions/noteContext'
  *         readOnly: true
  *         description: noteContexts that belong to this notebook
- *       canvas:
- *         type: array
- *         items:
- *           $ref: '#/definitions/canvas'
- *         readOnly: true
- *         description: canvas that belong to this notebook
  *       collaborators:
  *         type: array
  *         items:
