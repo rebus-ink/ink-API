@@ -16,8 +16,6 @@
  *     properties:
  *       type:
  *         type: string
- *       canvasId:
- *         type: string
  *       notebookId:
  *         type: string
  *    required:

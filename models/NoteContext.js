@@ -24,7 +24,6 @@ class NoteContext extends BaseModel {
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
         notebookId: { type: ['string', 'null'] },
-        canvasId: { type: 'string' },
         published: { type: 'string', format: 'date-time' },
         updated: { type: 'string', format: 'date-time' }
       },
@@ -99,7 +98,6 @@ class NoteContext extends BaseModel {
       'type',
       'name',
       'description',
-      'canvasId',
       'json',
       'notebookId'
     ])
@@ -155,8 +153,7 @@ class NoteContext extends BaseModel {
       'name',
       'description',
       'json',
-      'notebookId',
-      'canvasId'
+      'notebookId'
     ])
 
     return await NoteContext.query(NoteContext.knex()).updateAndFetchById(

@@ -106,19 +106,11 @@ const notebooksGetOrderByNameTests = require('./notebook/notebooks-get-orderBy-n
 const notebooksGetOrderByCreated = require('./notebook/notebooks-get-orderBy-created.test')
 const notebooksGetOrderByDefaultTests = require('./notebook/notebooks-get-orderBy-default.test')
 
-const canvasPostTests = require('./canvas/canvas-post.test')
-const canvasPutTests = require('./canvas/canvas-put.test')
-const canvasDeleteTests = require('./canvas/canvas-delete.test')
-const canvasGetByIdTests = require('./canvas/canvas-get-byId.test')
-const canvasGetAllTests = require('./canvas/canvas-getAll.test')
-const canvasFilterByNotebookTests = require('./canvas/canvas-filter-notebook.test')
-
 const hardDeletePubTests = require('./hardDelete/deletePub.test')
 const hardDeleteNoteTests = require('./hardDelete/deleteNote.test')
 const hardDeleteNotebookTests = require('./hardDelete/deleteNotebook.test')
 const hardDeleteTagTests = require('./hardDelete/deleteTag.test')
 const hardDeleteReaderTests = require('./hardDelete/deleteReader.test')
-const hardDeleteCanvasTests = require('./hardDelete/deleteCanvas.test')
 // const metricsTest = require('./metrics.test')
 const metadataTest = require('./metadata.test')
 
@@ -341,20 +333,6 @@ const allTests = async () => {
     }
   }
 
-  if (!test || test === 'canvas') {
-    try {
-      await canvasPostTests(app)
-      await canvasPutTests(app)
-      await canvasDeleteTests(app)
-      await canvasGetByIdTests(app)
-      await canvasGetAllTests(app)
-      await canvasFilterByNotebookTests(app)
-    } catch (err) {
-      console.log('outline integration tests error: ', err)
-      throw err
-    }
-  }
-
   if (!test || test === 'collaborator') {
     try {
       await collaboratorPostTests(app)
@@ -396,7 +374,6 @@ const allTests = async () => {
       await hardDeleteNotebookTests(app)
       await hardDeleteTagTests(app)
       await hardDeleteReaderTests(app)
-      await hardDeleteCanvasTests(app)
     } catch (err) {
       console.log('hard delete integration test error: ', err)
       throw err

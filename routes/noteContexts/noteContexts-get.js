@@ -5,7 +5,6 @@ const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
 const paginate = require('../_middleware/paginate')
-const { Canvas } = require('../../models/Canvas')
 const { NoteContext } = require('../../models/NoteContext')
 
 module.exports = function (app) {

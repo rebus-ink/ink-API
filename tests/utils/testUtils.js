@@ -354,16 +354,6 @@ const createNotebook = async (app, token, object) => {
   return res.body
 }
 
-const createCanvas = async (app, token, object) => {
-  const res = await request(app)
-    .post('/canvas')
-    .set('Host', 'reader-api.test')
-    .set('Authorization', `Bearer ${token}`)
-    .send(object)
-
-  return res.body
-}
-
 const createCollaborator = async (app, token, notebookId, object) => {
   const res = await request(app)
     .post(`/notebooks/${notebookId}/collaborators`)
@@ -394,6 +384,5 @@ module.exports = {
   addSourceToNotebook,
   addNoteToNotebook,
   addTagToNotebook,
-  createCanvas,
   createCollaborator
 }

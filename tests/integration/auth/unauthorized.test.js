@@ -328,40 +328,6 @@ const test = async app => {
     await tap.equal(res.statusCode, 401)
   })
 
-  // -------------------------------------CANVAS --------------------------------
-
-  await tap.test('POST Canvas without authentication', async () => {
-    const res = await request(app)
-      .post('/canvas')
-      .set('Host', 'reader-api.test')
-      .type('application/ld+json')
-    await tap.equal(res.statusCode, 401)
-  })
-
-  await tap.test('PUT Canvas without authentication', async () => {
-    const res = await request(app)
-      .put('/canvas/123')
-      .set('Host', 'reader-api.test')
-      .type('application/ld+json')
-    await tap.equal(res.statusCode, 401)
-  })
-
-  await tap.test('Delete Canvas without authentication', async () => {
-    const res = await request(app)
-      .delete('/canvas/123')
-      .set('Host', 'reader-api.test')
-      .type('application/ld+json')
-    await tap.equal(res.statusCode, 401)
-  })
-
-  await tap.test('Get a Canvas without authentication', async () => {
-    const res = await request(app)
-      .get('/canvas/123')
-      .set('Host', 'reader-api.test')
-      .type('application/ld+json')
-    await tap.equal(res.statusCode, 401)
-  })
-
   // -------------------------------------OUTLINE --------------------------------
 
   await tap.test('POST Outline without authentication', async () => {

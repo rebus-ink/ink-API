@@ -503,7 +503,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 12)
+    await tap.equal(res.body.totalItems, 11)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -605,7 +605,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 12)
+      await tap.equal(res.body.totalItems, 11)
     }
   )
 

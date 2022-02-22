@@ -51,8 +51,6 @@ const test = async app => {
     await tap.type(body.notebookId, 'string')
     await tap.equal(body.permission.read, true)
     await tap.equal(urlToId(body.readerId), reader2.shortId)
-
-    canvas = body
   })
 
   await tap.test('Update the permission of a collaborator', async () => {
@@ -81,8 +79,6 @@ const test = async app => {
     await tap.equal(body.permission.read, true)
     await tap.equal(body.status, 'accepted')
     await tap.equal(urlToId(body.readerId), reader2.shortId)
-
-    canvas = body
   })
 
   // // ----------------------------------- VALIDATION ERRORS --------------

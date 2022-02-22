@@ -47,12 +47,6 @@ class BaseModel extends Model {
       !json.id.startsWith(process.env.DOMAIN)
     ) {
       json.id = `${domain}/notebooks/${json.id}`
-    } else if (
-      type === 'canvas' &&
-      json.id &&
-      !json.id.startsWith(process.env.DOMAIN)
-    ) {
-      json.id = `${domain}/canvas/${json.id}`
     }
     if (json.readerId && !json.readerId.startsWith(process.env.DOMAIN)) {
       json.readerId = `${domain}/readers/${json.readerId}`
@@ -124,8 +118,7 @@ class BaseModel extends Model {
       'Note',
       'ReadActivity',
       'NoteContext',
-      'Notebook',
-      'Canvas'
+      'Notebook'
     ]
 
     if (_.indexOf(tables, this.constructor.name) > -1) {
