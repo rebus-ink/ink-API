@@ -82,11 +82,6 @@
       "test/*"
     ]
   },
-  "husky": {
-    "hooks": {
-      "commitmsg": "commitlint -E GIT_PARAMS"
-    }
-  },
   "lint-staged": {
     "linters": {
       "**/*.{js,md}": [
