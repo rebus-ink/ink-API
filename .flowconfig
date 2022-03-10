@@ -2,6 +2,7 @@
 .*/build/.*
 .*/.cache/.*
 .*/nyc/.*
+.*/node_modules/.*
 [include]
 
 [libs]
