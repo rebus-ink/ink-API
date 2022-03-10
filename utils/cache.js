@@ -15,18 +15,18 @@ let quitCache = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
   const client = redis.createClient({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD
+    url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${
+      process.env.REDIS_PORT
+    }`
   })
 
-  const { promisify } = require('util')
-  const getAsync = promisify(client.get).bind(client)
-  const setASync = promisify(client.set).bind(client)
+  connectClient = async () => {
+    await client.connect()
+  }
 
   libraryCacheUpdate = async readerId => {
     readerId = urlToId(readerId)
-    return await setASync(
+    return await client.set(
       `${readerId}-library`,
       new Date().getTime(),
       'EX',
@@ -37,30 +37,40 @@ if (process.env.REDIS_PASSWORD) {
   libraryCacheGet = async (readerId, check) => {
     if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
     readerId = urlToId(readerId)
-    return await getAsync(`${readerId}-library`)
+    return await client.get(`${readerId}-library`)
   }
 
   notesCacheUpdate = async readerId => {
     readerId = urlToId(readerId)
-    return await setASync(`${readerId}-notes`, new Date().getTime(), 'EX', 3600)
+    return await client.set(
+      `${readerId}-notes`,
+      new Date().getTime(),
+      'EX',
+      3600
+    )
   }
 
   notesCacheGet = async (readerId, check) => {
     if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
     readerId = urlToId(readerId)
-    return await getAsync(`${readerId}-notes`)
+    return await client.get(`${readerId}-notes`)
   }
 
   tagsCacheUpdate = async readerId => {
-    return await setASync(`${readerId}-tags`, new Date().getTime(), 'EX', 3600)
+    return await client.set(
+      `${readerId}-tags`,
+      new Date().getTime(),
+      'EX',
+      3600
+    )
   }
 
   tagsCacheGet = async (readerId, check) => {
     if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
-    return await getAsync(`${readerId}-tags`)
+    return await client.get(`${readerId}-tags`)
   }
   notebooksCacheUpdate = async readerId => {
-    return await setASync(
+    return await client.set(
       `${readerId}-notebooks`,
       new Date().getTime(),
       'EX',
@@ -70,7 +80,7 @@ if (process.env.REDIS_PASSWORD) {
 
   notebooksCacheGet = async (readerId, check) => {
     if (!check) return undefined // so we can skip when the 'if-modified-since' header is not used'
-    return await getAsync(`${readerId}-notebooks`)
+    return await client.get(`${readerId}-notebooks`)
   }
 
   quitCache = () => {
@@ -87,5 +97,6 @@ module.exports = {
   tagsCacheGet,
   tagsCacheUpdate,
   notebooksCacheGet,
-  notebooksCacheUpdate
+  notebooksCacheUpdate,
+  connectClient
 }

@@ -80,9 +80,9 @@ class Reader extends BaseModel {
         status: {
           type: ['string', 'null']
         },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' },
+        published: { type: 'string' },
+        updated: { type: 'string' },
+        deleted: { type: 'string' },
         json: {
           type: ['object', 'null'],
           additionalProperties: true

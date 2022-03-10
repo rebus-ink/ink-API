@@ -69,7 +69,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create NoteRelation: from: is a required property'
+        "Validation Error on Create NoteRelation: from: must have required property 'from'"
       )
       await tap.equal(error.details.requestUrl, `/noteRelations`)
       await tap.type(error.details.requestBody, 'object')
@@ -98,7 +98,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create NoteRelation: to: is a required property'
+        "Validation Error on Create NoteRelation: to: must have required property 'to'"
       )
       await tap.equal(error.details.requestUrl, `/noteRelations`)
       await tap.type(error.details.requestBody, 'object')
@@ -127,7 +127,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create NoteRelation: type: is a required property'
+        "Validation Error on Create NoteRelation: type: must have required property 'type'"
       )
       await tap.equal(error.details.requestUrl, `/noteRelations`)
       await tap.type(error.details.requestBody, 'object')

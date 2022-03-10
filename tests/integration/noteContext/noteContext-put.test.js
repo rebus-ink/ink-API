@@ -90,7 +90,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteContext: type: should be string'
+      'Validation Error on Update NoteContext: type: must be string'
     )
     await tap.equal(
       error.details.requestUrl,

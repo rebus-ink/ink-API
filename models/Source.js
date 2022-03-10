@@ -143,13 +143,13 @@ class Source extends BaseModel {
         abstract: { type: ['string', 'null'] },
         description: { type: ['string', 'null'] },
         editor: { type: ['array', 'null'] },
-        datePublished: { type: ['string', 'null'], format: 'date-time' },
+        datePublished: { type: ['string', 'null'] },
         inLanguage: { type: ['array', 'null'] },
         keywords: { type: ['array', 'null'] },
-        url: { type: ['string', 'null'], format: 'url' },
-        dateModified: { type: ['string', 'null'], format: 'date-time' },
+        url: { type: ['string', 'null'] },
+        dateModified: { type: ['string', 'null'] },
         bookEdition: { type: ['string', 'null'] },
-        bookFormat: { type: ['string ', 'null'] },
+        bookFormat: { type: ['string', 'null'] },
         isbn: { type: ['string', 'null'] },
         copyrightYear: { type: ['integer', 'null'] },
         genre: { type: ['string', 'null'] },
@@ -163,10 +163,10 @@ class Source extends BaseModel {
         links: { type: ['object', 'null'] },
         json: { type: ['object', 'null'] },
         citation: { type: ['object', 'null'] },
-        updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' },
-        referenced: { type: 'string', format: 'date-time' }
+        updated: { type: 'string' },
+        published: { type: 'string' },
+        deleted: { type: 'string' },
+        referenced: { type: 'string' }
       },
       required: ['name', 'readerId', 'type']
     }
@@ -533,9 +533,7 @@ class Source extends BaseModel {
     formattedSource.id = `${urlToId(reader.id)}-${crypto
       .randomBytes(5)
       .toString('hex')}`
-    let createdSource = await Source.query(Source.knex()).insertAndFetch(
-      formattedSource
-    )
+    let createdSource = await Source.query().insertAndFetch(formattedSource)
 
     // create attributions
     const attributions = await Attribution.createAttributionsForSource(

@@ -18,8 +18,8 @@
  *         type: string
  *       notebookId:
  *         type: string
- *    required:
- *      - type
+ *     required:
+ *       - type
  *
  *   noteContext-return:
  *     allOf:

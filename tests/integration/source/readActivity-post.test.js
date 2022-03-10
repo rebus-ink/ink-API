@@ -89,7 +89,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation error on create ReadActivity: selector: is a required property'
+        "Validation error on create ReadActivity: selector: must have required property 'selector'"
       )
       await tap.equal(
         error.details.requestUrl,

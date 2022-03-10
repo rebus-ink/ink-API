@@ -225,7 +225,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Batch Update Source: encodingFormat: should be string,null'
+        'Validation Error on Batch Update Source: encodingFormat: must be string,null'
       )
       await tap.equal(error.details.requestUrl, `/sources/batchUpdate`)
       await tap.type(error.details.requestBody, 'object')

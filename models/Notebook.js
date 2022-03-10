@@ -32,8 +32,8 @@ class Notebook extends BaseModel {
         status: { type: 'number' }, // should have a default value?
         settings: { type: ['object', 'null'] },
         readerId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' }
       },
       required: ['name', 'readerId', 'status']
     }

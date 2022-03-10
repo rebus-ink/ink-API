@@ -68,7 +68,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      'Validation Error on Create Tag: name: is a required property'
+      "Validation Error on Create Tag: name: must have required property 'name'"
     )
     await tap.equal(error.details.requestUrl, '/tags')
     await tap.equal(error.details.requestBody.json.property, 'value')

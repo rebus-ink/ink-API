@@ -34,7 +34,7 @@ class ReadActivity extends BaseModel {
         json: { type: 'object' },
         readerId: { type: 'string' },
         sourceId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string' }
       },
       required: ['readerId', 'sourceId', 'selector']
     }

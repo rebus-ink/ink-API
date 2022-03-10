@@ -183,8 +183,8 @@
  *             type: array
  *             items:
  *               $ref: '#/definitions/attribution'
- *        context:
- *          $ref: '#/definitions/noteContext'
+ *         context:
+ *           $ref: '#/definitions/noteContext'
  *
  *   noteWithPub:
  *     allOf:

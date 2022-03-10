@@ -43,7 +43,7 @@ class Note extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        readerId: { type: 'string ' },
+        readerId: { type: 'string' },
         canonical: { type: ['string', 'null'] },
         stylesheet: { type: ['object', 'null'] },
         target: { type: ['object', 'null'] },
@@ -53,9 +53,9 @@ class Note extends BaseModel {
         json: { type: ['object', 'null'] },
         contextId: { type: ['string', 'null'] },
         original: { type: ['string', 'null'] },
-        updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' }
+        updated: { type: 'string' },
+        published: { type: 'string' },
+        deleted: { type: 'string' }
       },
       required: ['readerId']
     }

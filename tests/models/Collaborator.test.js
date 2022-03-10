@@ -135,7 +135,10 @@ const test = async app => {
       }
       await tap.ok(error)
       await tap.ok(error instanceof ValidationError)
-      await tap.equal(error.message, 'readerId: is a required property')
+      await tap.equal(
+        error.message,
+        "readerId: must have required property 'readerId'"
+      )
     }
   )
 
@@ -178,7 +181,10 @@ const test = async app => {
       }
       await tap.ok(error)
       await tap.ok(error instanceof ValidationError)
-      await tap.equal(error.message, 'permission: is a required property')
+      await tap.equal(
+        error.message,
+        "permission: must have required property 'permission'"
+      )
     }
   )
 

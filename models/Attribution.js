@@ -41,13 +41,13 @@ class Attribution extends BaseModel {
       properties: {
         id: { type: 'string' },
         role: { type: 'string' },
-        name: { type: 'string ' },
+        name: { type: 'string' },
         normalizedName: { type: 'string' },
         type: { type: 'string' },
         readerId: { type: 'string' },
         isContributor: { type: 'boolean' },
         sourceId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string' }
       },
       required: ['role', 'name', 'normalizedName', 'readerId', 'sourceId']
     }
@@ -154,7 +154,10 @@ class Attribution extends BaseModel {
         })
       }
     })
-    await Attribution.query(Attribution.knex()).insert(attributions)
+
+    if (attributions.length) {
+      await Attribution.query().insert(attributions)
+    }
     return returnedAttributions
   }
 

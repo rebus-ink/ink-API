@@ -74,7 +74,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Create Notebook: name: is a required property'
+      "Validation Error on Create Notebook: name: must have required property 'name'"
     )
     await tap.equal(error.details.requestUrl, `/notebooks`)
     await tap.type(error.details.requestBody, 'object')
@@ -99,7 +99,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Create Notebook: name: should be string'
+      'Validation Error on Create Notebook: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/notebooks`)
     await tap.type(error.details.requestBody, 'object')

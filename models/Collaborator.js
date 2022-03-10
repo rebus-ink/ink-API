@@ -30,9 +30,9 @@ class Collaborator extends BaseModel {
         readerId: { type: 'string' },
         notebookId: { type: 'string' },
         status: { type: 'number' },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' },
-        deleted: { type: ['string', 'null'], format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' },
+        deleted: { type: ['string', 'null'] }
       },
       required: ['readerId', 'notebookId', 'permission', 'status']
     }

@@ -619,7 +619,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Create Source: name: is a required property'
+      "Validation Error on Create Source: name: must have required property 'name'"
     )
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.name[0].keyword, 'required')
@@ -658,7 +658,7 @@ const test = async app => {
     )
     await tap.equal(
       error.message,
-      'Validation Error on Create Source: type: is a required property'
+      "Validation Error on Create Source: type: must have required property 'type'"
     )
     await tap.equal(error.details.requestUrl, '/sources')
     await tap.type(error.details.requestBody, 'object')
@@ -685,10 +685,10 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.type(error.details.validation, 'object')
     await tap.equal(error.details.validation.json[0].keyword, 'type')
-    await tap.equal(error.details.validation.json[0].params.type, 'object,null')
+    // await tap.equal(error.details.validation.json[0].params.type, ['object','null'])
     await tap.equal(
       error.message,
-      'Validation Error on Create Source: json: should be object,null'
+      'Validation Error on Create Source: json: must be object,null'
     )
     await tap.equal(error.details.requestUrl, '/sources')
     await tap.type(error.details.requestBody, 'object')

@@ -109,7 +109,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: from: should be string'
+      'Validation Error on Update NoteRelation: from: must be string'
     )
     await tap.equal(
       error.details.requestUrl,
@@ -135,7 +135,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: to: should be string'
+      'Validation Error on Update NoteRelation: to: must be string'
     )
     await tap.equal(
       error.details.requestUrl,
@@ -167,7 +167,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: type: should be string'
+      'Validation Error on Update NoteRelation: type: must be string'
     )
     await tap.equal(
       error.details.requestUrl,

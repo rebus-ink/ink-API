@@ -36,9 +36,9 @@ class Tag extends BaseModel {
         json: { type: 'object' },
         readerId: { type: 'string' },
         notebookId: { type: ['string', 'null'] },
-        updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' }
+        updated: { type: 'string' },
+        published: { type: 'string' },
+        deleted: { type: 'string' }
       },
       additionalProperties: true,
       required: ['type', 'readerId', 'name']

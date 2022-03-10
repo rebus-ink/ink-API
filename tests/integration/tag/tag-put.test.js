@@ -202,7 +202,7 @@ const test = async app => {
     const error = JSON.parse(res.text)
     await tap.equal(
       error.message,
-      'Validation Error on Update Tag: name: should be string'
+      'Validation Error on Update Tag: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/tags/${stack.id}`)
     await tap.equal(error.details.requestBody.name.shouldNotBe, 'an object')

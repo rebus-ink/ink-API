@@ -150,7 +150,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update Notebook: name: should be string'
+      'Validation Error on Update Notebook: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/notebooks/${notebook.shortId}`)
     await tap.type(error.details.requestBody, 'object')
@@ -173,7 +173,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update Notebook: name: should be string'
+      'Validation Error on Update Notebook: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/notebooks/${notebook.shortId}`)
     await tap.type(error.details.requestBody, 'object')

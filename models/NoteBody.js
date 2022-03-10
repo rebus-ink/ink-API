@@ -43,7 +43,7 @@ class NoteBody extends BaseModel {
         language: { type: ['string', 'null'] },
         motivation: { type: 'string' },
         readerId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string' }
       },
       additionalProperties: true,
       required: ['noteId', 'motivation', 'readerId']

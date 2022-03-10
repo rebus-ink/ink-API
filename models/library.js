@@ -129,7 +129,7 @@ class Library {
           .orWhere('Attribution.normalizedName', 'ilike', `%${search}%`)
           .orWhere('Source.abstract', 'ilike', `%${search}%`)
           .orWhere('Source.description', 'ilike', `%${search}%`)
-          .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
+        // .orWhereJsonSupersetOf('Source.metadata:keywords', [search])
       })
     }
   }

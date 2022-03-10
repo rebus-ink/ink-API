@@ -101,7 +101,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      `Validation Error on Update Collaborator: permission: should be object`
+      `Validation Error on Update Collaborator: permission: must be object`
     )
     await tap.equal(
       error.details.requestUrl,

@@ -36,12 +36,15 @@ const allTests = async () => {
 
   await sourceTests(app)
   // await attributionTests(app) // skipped for now. need to fix create attribution tests
+
   await readerTests(app)
   await noteTests(app)
   await noteBodyTests(app)
   await tagTests(app)
   await readActivityTests(app)
+
   // await noteContextTests(app)
+
   await noteRelationTests(app)
   await notebookTests(app)
   await notebookTagTests(app)
