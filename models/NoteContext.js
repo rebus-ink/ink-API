@@ -63,7 +63,7 @@ class NoteContext extends BaseModel {
     }
   }
 
-  static async applyFilters (query /*: any */, filters /*: any */) {
+  static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.notebook) {
       query = query.where('notebookId', '=', urlToId(filters.notebook))
     }

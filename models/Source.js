@@ -554,7 +554,7 @@ class Source extends BaseModel {
     reader /*: any */,
     notebookId /*: string */,
     source /*: any */
-  ) {
+  ) /*:any */ {
     const createdSource = await this.createSource(reader, source)
 
     if (createdSource) {
@@ -1198,7 +1198,7 @@ class Source extends BaseModel {
     user /*: string */,
     search /*: string */,
     options /*: any */
-  ) {
+  ) /*:any */ {
     // set defaults
     let filters = {
       name: true,
@@ -1229,7 +1229,7 @@ class Source extends BaseModel {
     user /*: string */,
     search /*: string */,
     options /*: any */
-  ) {
+  ) /*:any */ {
     search = search.toLowerCase()
     let limit = options && options.limit ? options.limit : 50
     let page = options && options.page ? options.page : 1

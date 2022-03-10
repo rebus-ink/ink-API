@@ -103,7 +103,7 @@ class Attribution extends BaseModel {
     attribution /*: any */,
     sourceId /*: string */,
     readerId /*: string */
-  ) {
+  ) /*: any */ {
     if (!_.isString(attribution) && !_.isObject(attribution)) {
       throw new Error(
         `${role} attribution validation error: attribution should be either an attribution object or a string`
@@ -205,7 +205,7 @@ class Attribution extends BaseModel {
       .del()
   }
 
-  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) /*:any */ {
     const parent = super.$beforeUpdate(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {

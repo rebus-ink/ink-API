@@ -204,7 +204,7 @@ class Notebook extends BaseModel {
     }
   }
 
-  static async applyFilters (query /*: any */, filters /*: any */) {
+  static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.search) {
       if (filters.name !== false && filters.description !== false) {
         query = query.where(nestedQuery => {
