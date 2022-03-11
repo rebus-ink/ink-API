@@ -20,10 +20,6 @@ if (process.env.REDIS_PASSWORD) {
     }`
   })
 
-  connectClient = async () => {
-    await client.connect()
-  }
-
   libraryCacheUpdate = async readerId => {
     readerId = urlToId(readerId)
     return await client.set(
@@ -97,6 +93,5 @@ module.exports = {
   tagsCacheGet,
   tagsCacheUpdate,
   notebooksCacheGet,
-  notebooksCacheUpdate,
-  connectClient
+  notebooksCacheUpdate
 }
