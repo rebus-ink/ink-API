@@ -42,7 +42,7 @@
     "lint-staged": "^12.3.5",
     "nodemon": "^2.0.15",
     "prettier-standard": "^16.4.1",
-    "standard": "^11.0.1",
+    "standard": "^16.0.4",
     "supertest": "^3.3.0",
     "tap": "^14.10.5"
   },
