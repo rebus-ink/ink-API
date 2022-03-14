@@ -81,7 +81,7 @@ const test = async app => {
     await tap.equal(storedCollab.permission.comment, false)
     await tap.ok(storedCollab.published)
     await tap.ok(storedCollab.updated)
-    await tap.notEqual(storedCollab.published, storedCollab.updated)
+    await tap.not(storedCollab.published, storedCollab.updated)
     await tap.notOk(storedCollab.deleted)
   })
 

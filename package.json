@@ -13,7 +13,7 @@
     "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/unit/*.test.js",
     "test": "npm run test-integration && npm run test-models && npm run test-unit",
     "start": "node index.js",
-    "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon --delay 500 dev.js",
+    "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint . && npm run flow-check",
     "flow": "flow",
     "flow-check": "npm run flow check",
@@ -43,8 +43,8 @@
     "nodemon": "^2.0.15",
     "prettier-standard": "^16.4.1",
     "standard": "^16.0.4",
-    "supertest": "^3.3.0",
-    "tap": "^14.10.5"
+    "supertest": "^6.2.2",
+    "tap": "^16.0.0"
   },
   "dependencies": {
     "@google-cloud/datastore": "^6.6.2",
@@ -80,8 +80,7 @@
   "nodemonConfig": {
     "ignore": [
       "test/*"
-    ],
-    "delay": 2500
+    ]
   },
   "lint-staged": {
     "linters": {

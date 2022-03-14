@@ -111,11 +111,11 @@ const test = async app => {
     await tap.equal(body.relations.length, 2)
     let index1 = _.findIndex(body.relations, { from: noteId })
     let index2 = _.findIndex(body.relations, { to: note3.shortId })
-    await tap.notEqual(index1, -1)
+    await tap.not(index1, -1)
     await tap.ok(body.relations[index1].fromNote)
     await tap.equal(body.relations[index1].fromNote.shortId, noteId)
 
-    await tap.notEqual(index2, -1)
+    await tap.not(index2, -1)
     await tap.ok(body.relations[index2].toNote)
     await tap.equal(body.relations[index2].toNote.shortId, note3.shortId)
     await tap.ok(body.relations[index2].toNote.body)

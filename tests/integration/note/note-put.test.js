@@ -56,7 +56,7 @@ const test = async app => {
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.type(body.body[0].content, 'string')
     await tap.equal(body.body[0].content, 'new content')
-    await tap.notEqual(body.published, body.updated)
+    await tap.not(body.published, body.updated)
     // check that old properties are still there
     await tap.type(body.sourceId, 'string')
     await tap.equal(body.json.property, 'value')

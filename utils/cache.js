@@ -14,11 +14,17 @@ let notebooksCacheGet = async () => Promise.resolve()
 let quitCache = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
-  const client = redis.createClient({
-    url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${
-      process.env.REDIS_PORT
-    }`
-  })
+
+  let client
+
+  connectClient = async () => {
+    client = await redis.createClient({
+      url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${
+        process.env.REDIS_PORT
+      }`
+    })
+    await client.connect()
+  }
 
   libraryCacheUpdate = async readerId => {
     readerId = urlToId(readerId)
@@ -93,5 +99,6 @@ module.exports = {
   tagsCacheGet,
   tagsCacheUpdate,
   notebooksCacheGet,
-  notebooksCacheUpdate
+  notebooksCacheUpdate,
+  connectClient
 }

@@ -97,20 +97,20 @@ const test = async app => {
     const hit3 = body.hits.hits[2]._source
     const hit4 = body.hits.hits[3]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit4.sourceId}-${hit4.documentPath}`),
       -1
     )
@@ -143,15 +143,15 @@ const test = async app => {
     const hit3 = body.hits.hits[2]._source
     const hit4 = body.hits.hits[3]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
@@ -188,16 +188,16 @@ const test = async app => {
     const hit2 = body.hits.hits[1]._source
     const hit3 = body.hits.hits[2]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
@@ -227,11 +227,11 @@ const test = async app => {
     const hit1 = body.hits.hits[0]._source
     const hit2 = body.hits.hits[1]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
@@ -260,16 +260,16 @@ const test = async app => {
     const hit2 = body.hits.hits[1]._source
     const hit3 = body.hits.hits[2]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )
@@ -305,15 +305,15 @@ const test = async app => {
     const hit2 = body.hits.hits[1]._source
     const hit3 = body.hits.hits[2]._source
 
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit1.sourceId}-${hit1.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit2.sourceId}-${hit2.documentPath}`),
       -1
     )
-    await tap.notEqual(
+    await tap.not(
       expectedDocuments.indexOf(`${hit3.sourceId}-${hit3.documentPath}`),
       -1
     )

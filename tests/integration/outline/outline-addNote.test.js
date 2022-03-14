@@ -393,7 +393,7 @@ const test = async app => {
     const body = res.body
     await tap.ok(body.id)
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.notEqual(body.shortId, noteId)
+    await tap.not(body.shortId, noteId)
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.contextId, outlineId)
     await tap.ok(body.published)
@@ -450,7 +450,7 @@ const test = async app => {
       const body = res.body
       await tap.ok(body.id)
       await tap.equal(body.shortId, urlToId(body.id))
-      await tap.notEqual(body.shortId, noteId)
+      await tap.not(body.shortId, noteId)
       await tap.equal(urlToId(body.readerId), readerId)
       await tap.equal(body.contextId, outlineId)
       await tap.ok(body.published)
@@ -497,7 +497,7 @@ const test = async app => {
       await tap.ok(body.id)
       await tap.equal(body.shortId, urlToId(body.id))
       await tap.equal(body.shortId, shortId)
-      await tap.notEqual(body.shortId, noteId)
+      await tap.not(body.shortId, noteId)
       await tap.equal(urlToId(body.readerId), readerId)
       await tap.equal(body.contextId, outlineId)
       await tap.ok(body.published)

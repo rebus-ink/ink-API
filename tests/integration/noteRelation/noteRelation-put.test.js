@@ -49,7 +49,7 @@ const test = async app => {
     await tap.equal(body.from, noteId1)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.equal(body.json.property, 'value')
     noteRelation = body
   })
@@ -70,7 +70,7 @@ const test = async app => {
     await tap.equal(body.to, noteId2)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.equal(body.json.property, 'value')
     noteRelation = body
   })
@@ -90,7 +90,7 @@ const test = async app => {
     await tap.equal(body.from, noteId3)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.notOk(body.json)
     noteRelation = body
   })
