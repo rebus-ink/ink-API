@@ -11,11 +11,11 @@ type SourceTagType = {
 */
 
 class Source_Tag extends BaseModel {
-  static get tableName () {
+  static get tableName () /*:string */ {
     return 'source_tag'
   }
 
-  static get idColumn () {
+  static get idColumn () /*:Array<string> */ {
     return ['sourceId', 'tagId']
   }
 

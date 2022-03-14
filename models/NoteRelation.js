@@ -23,8 +23,8 @@ class NoteRelation extends BaseModel {
         type: { type: 'string' },
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' }
       },
       required: ['from', 'to', 'type', 'readerId']
     }

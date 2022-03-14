@@ -11,11 +11,11 @@ type NoteTagType = {
 */
 
 class Note_Tag extends Model {
-  static get tableName () {
+  static get tableName () /*:string */ {
     return 'note_tag'
   }
 
-  static get idColumn () {
+  static get idColumn () /*:Array<string> */ {
     return ['noteId', 'tagId']
   }
 

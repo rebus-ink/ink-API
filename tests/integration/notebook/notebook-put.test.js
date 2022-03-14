@@ -31,7 +31,7 @@ const test = async app => {
     await tap.equal(urlToId(body.readerId), readerId)
     await tap.equal(body.name, 'new name')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
 
     notebook = res.body
   })
@@ -55,7 +55,7 @@ const test = async app => {
     await tap.equal(body.name, 'new name')
     await tap.equal(body.description, 'new description')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
 
     notebook = res.body
   })
@@ -78,7 +78,7 @@ const test = async app => {
     await tap.equal(body.description, 'new description')
     await tap.equal(body.status, 'archived')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
 
     notebook = res.body
   })
@@ -103,7 +103,7 @@ const test = async app => {
     await tap.equal(body.description, 'new description')
     await tap.equal(body.settings.property1, 'value1')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
 
     notebook = res.body
   })
@@ -129,7 +129,7 @@ const test = async app => {
     await tap.notOk(body.description)
     await tap.notOk(body.settings)
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
 
     notebook = res.body
   })
@@ -150,7 +150,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update Notebook: name: should be string'
+      'Validation Error on Update Notebook: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/notebooks/${notebook.shortId}`)
     await tap.type(error.details.requestBody, 'object')
@@ -173,7 +173,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update Notebook: name: should be string'
+      'Validation Error on Update Notebook: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/notebooks/${notebook.shortId}`)
     await tap.type(error.details.requestBody, 'object')

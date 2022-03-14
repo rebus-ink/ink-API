@@ -49,7 +49,7 @@ const test = async app => {
     await tap.equal(body.from, noteId1)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.equal(body.json.property, 'value')
     noteRelation = body
   })
@@ -70,7 +70,7 @@ const test = async app => {
     await tap.equal(body.to, noteId2)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.equal(body.json.property, 'value')
     noteRelation = body
   })
@@ -90,7 +90,7 @@ const test = async app => {
     await tap.equal(body.from, noteId3)
     await tap.equal(body.type, 'test2')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
     await tap.notOk(body.json)
     noteRelation = body
   })
@@ -109,7 +109,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: from: should be string'
+      'Validation Error on Update NoteRelation: from: must be string'
     )
     await tap.equal(
       error.details.requestUrl,
@@ -135,7 +135,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: to: should be string'
+      'Validation Error on Update NoteRelation: to: must be string'
     )
     await tap.equal(
       error.details.requestUrl,
@@ -167,7 +167,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Update NoteRelation: type: should be string'
+      'Validation Error on Update NoteRelation: type: must be string'
     )
     await tap.equal(
       error.details.requestUrl,

@@ -35,6 +35,7 @@ const test = async app => {
 
   // create source and tag for reader 1
   const source = await createSource(app, token)
+  console.log(source)
   const sourceId = urlToId(source.id)
 
   const tag = await createTag(app, token)

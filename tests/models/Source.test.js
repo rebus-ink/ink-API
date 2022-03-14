@@ -590,8 +590,8 @@ const test = async app => {
     )
     await tap.ok(_.isArray(sourceIdsResponse))
     await tap.equal(sourceIdsResponse.length, 2)
-    await tap.notEqual(sourceIdsResponse.indexOf(urlToId(sourceId2)), -1)
-    await tap.notEqual(sourceIdsResponse.indexOf(urlToId(sourceId3)), -1)
+    await tap.not(sourceIdsResponse.indexOf(urlToId(sourceId2)), -1)
+    await tap.not(sourceIdsResponse.indexOf(urlToId(sourceId3)), -1)
   })
 
   await destroyDB(app)

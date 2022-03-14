@@ -46,7 +46,7 @@ const test = async app => {
     await tap.type(body.id, 'string')
     await tap.equal(body.shortId, urlToId(body.id))
     await tap.equal(body.status, 'accepted')
-    await tap.notEqual(body.published, body.updated)
+    await tap.not(body.published, body.updated)
     // check that old properties are still there
     await tap.type(body.notebookId, 'string')
     await tap.equal(body.permission.read, true)
@@ -72,7 +72,7 @@ const test = async app => {
     await tap.type(body, 'object')
     await tap.type(body.id, 'string')
     await tap.equal(body.shortId, urlToId(body.id))
-    await tap.notEqual(body.published, body.updated)
+    await tap.not(body.published, body.updated)
     await tap.equal(body.permission.comment, false)
     // check that old properties are still there
     await tap.type(body.notebookId, 'string')
@@ -101,7 +101,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      `Validation Error on Update Collaborator: permission: should be object`
+      `Validation Error on Update Collaborator: permission: must be object`
     )
     await tap.equal(
       error.details.requestUrl,

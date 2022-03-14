@@ -96,7 +96,7 @@ class BaseModel extends Model {
     })
   }
 
-  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) /*:any */ {
     const parent = super.$beforeUpdate(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {

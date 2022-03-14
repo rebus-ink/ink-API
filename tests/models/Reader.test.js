@@ -143,7 +143,7 @@ const test = async app => {
     await tap.notOk(updatedReader.preferences)
     await tap.notOk(updatedReader.profile)
     await tap.notOk(updatedReader.json)
-    await tap.notEqual(updatedReader.published, updatedReader.updated)
+    await tap.not(updatedReader.published, updatedReader.updated)
     updatedTimestamp = updatedReader.updated
   })
 
@@ -157,7 +157,7 @@ const test = async app => {
     await tap.notOk(updatedReader.preferences)
     await tap.notOk(updatedReader.profile)
     await tap.notOk(updatedReader.json)
-    await tap.notEqual(updatedReader.published, updatedReader.updated)
+    await tap.not(updatedReader.published, updatedReader.updated)
     updatedTimestamp = updatedReader.updated
   })
 
@@ -170,8 +170,8 @@ const test = async app => {
     await tap.equal(updatedReader.profile.favoriteColor, 'black')
     await tap.notOk(updatedReader.preferences)
     await tap.notOk(updatedReader.json)
-    await tap.notEqual(updatedReader.published, updatedReader.updated)
-    await tap.notEqual(updatedReader.updated, updatedTimestamp)
+    await tap.not(updatedReader.published, updatedReader.updated)
+    await tap.not(updatedReader.updated, updatedTimestamp)
   })
 
   await tap.test('update Reader profile to null', async () => {
@@ -183,8 +183,8 @@ const test = async app => {
     await tap.notOk(updatedReader.profile)
     await tap.notOk(updatedReader.preferences)
     await tap.notOk(updatedReader.json)
-    await tap.notEqual(updatedReader.published, updatedReader.updated)
-    await tap.notEqual(updatedReader.updated, updatedTimestamp)
+    await tap.not(updatedReader.published, updatedReader.updated)
+    await tap.not(updatedReader.updated, updatedTimestamp)
   })
 
   await tap.test('soft delete reader', async () => {

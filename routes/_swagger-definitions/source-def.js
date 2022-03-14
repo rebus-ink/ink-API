@@ -208,16 +208,17 @@
  *       - name
  *       - readerId
  *       - published
- * 
+ *
  *   source-input:
  *     allOf:
  *       - $ref: '#/definitions/source-basic'
+ *     properties:
  *       tags:
  *         type: array
  *         items:
  *           $ref: '#/definitions/tag'
  *         description: tags assigned to this source
- * 
+ *
  *   source-return:
  *     allOf:
  *       - $ref: '#/definitions/source-basic'
@@ -241,32 +242,6 @@
  *         type: string
  *         format: timestamp
  *         readOnly: true
- *
- *   sourceInNotebook:
- *     allOf:
- *       - $ref: '#/definitions/source-input'
- *     properties:
- *       id:
- *         type: string
- *         format: url
- *         readOnly: true
- *       readerId:
- *         type: string
- *         format: url
- *         readOnly: true
- *       published:
- *         type: string
- *         format: timestamp
- *         readOnly: true
- *       updated:
- *         type: string
- *         format: timestamp
- *         readOnly: true
- *     required:
- *       - id
- *       - name
- *       - readerId
- *       - published
  *
  *   source:
  *     allOf:

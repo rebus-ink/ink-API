@@ -24,8 +24,8 @@ class NoteContext extends BaseModel {
         json: { type: ['object', 'null'] },
         readerId: { type: 'string' },
         notebookId: { type: ['string', 'null'] },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' }
       },
       required: ['type', 'readerId']
     }
@@ -63,7 +63,7 @@ class NoteContext extends BaseModel {
     }
   }
 
-  static async applyFilters (query /*: any */, filters /*: any */) {
+  static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.notebook) {
       query = query.where('notebookId', '=', urlToId(filters.notebook))
     }

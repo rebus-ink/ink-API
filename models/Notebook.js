@@ -32,8 +32,8 @@ class Notebook extends BaseModel {
         status: { type: 'number' }, // should have a default value?
         settings: { type: ['object', 'null'] },
         readerId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' }
       },
       required: ['name', 'readerId', 'status']
     }
@@ -204,7 +204,7 @@ class Notebook extends BaseModel {
     }
   }
 
-  static async applyFilters (query /*: any */, filters /*: any */) {
+  static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.search) {
       if (filters.name !== false && filters.description !== false) {
         query = query.where(nestedQuery => {

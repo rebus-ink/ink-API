@@ -30,8 +30,8 @@ class OutlineData extends BaseModel {
         previous: { type: ['string', 'null'] },
         next: { type: ['string', 'null'] },
         readerId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' },
-        updated: { type: 'string', format: 'date-time' }
+        published: { type: 'string' },
+        updated: { type: 'string' }
       },
       additionalProperties: true,
       required: ['noteId', 'readerId']

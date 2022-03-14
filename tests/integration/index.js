@@ -147,16 +147,7 @@ const allTests = async () => {
 
   const test = process.env.npm_config_test
 
-  if (!test || test === 'auth') {
-    try {
-      await forbiddedTests(app)
-      await unauthorizedTests(app)
-      await collaborationAuthTests(app)
-    } catch (err) {
-      console.log('authentication integration test error: ', err)
-      throw err
-    }
-  }
+
 
   if (!test || test === 'library') {
     try {
@@ -179,6 +170,17 @@ const allTests = async () => {
       await libraryLastReadTests(app)
     } catch (err) {
       console.log('library integration test error: ', err)
+      throw err
+    }
+  }
+
+  if (!test || test === 'auth') {
+    try {
+      await forbiddedTests(app)
+      await unauthorizedTests(app)
+      await collaborationAuthTests(app)
+    } catch (err) {
+      console.log('authentication integration test error: ', err)
       throw err
     }
   }

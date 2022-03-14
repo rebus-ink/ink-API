@@ -11,11 +11,11 @@ type NotebookSourceType = {
 */
 
 class Notebook_Source extends BaseModel {
-  static get tableName () {
+  static get tableName () /*:string */ {
     return 'notebook_source'
   }
 
-  static get idColumn () {
+  static get idColumn () /*:Array<string> */ {
     return ['notebookId', 'sourceId']
   }
 

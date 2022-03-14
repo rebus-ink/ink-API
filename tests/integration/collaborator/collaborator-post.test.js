@@ -119,7 +119,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create Collaborator: readerId: is a required property'
+        "Validation Error on Create Collaborator: readerId: must have required property 'readerId'"
       )
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.readerId[0].keyword, 'required')
@@ -191,7 +191,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create Collaborator: permission: is a required property'
+        "Validation Error on Create Collaborator: permission: must have required property 'permission'"
       )
       await tap.type(error.details.validation, 'object')
       await tap.equal(
@@ -266,7 +266,7 @@ const test = async app => {
       await tap.equal(error.error, 'Bad Request')
       await tap.equal(
         error.message,
-        'Validation Error on Create Collaborator: permission: should be object'
+        'Validation Error on Create Collaborator: permission: must be object'
       )
       await tap.type(error.details.validation, 'object')
       await tap.equal(error.details.validation.permission[0].keyword, 'type')

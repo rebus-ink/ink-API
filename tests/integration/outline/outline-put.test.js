@@ -37,7 +37,7 @@ const test = async app => {
     await tap.equal(body.name, 'something')
     await tap.equal(body.description, 'description!')
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
   })
 
   await tap.test('Update name and description to null', async () => {
@@ -55,7 +55,7 @@ const test = async app => {
     await tap.notOk(body.name)
     await tap.notOk(body.description)
     await tap.ok(body.published)
-    await tap.notEqual(body.updated, body.published)
+    await tap.not(body.updated, body.published)
   })
 
   await tap.test(

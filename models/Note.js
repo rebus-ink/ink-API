@@ -43,7 +43,7 @@ class Note extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        readerId: { type: 'string ' },
+        readerId: { type: 'string' },
         canonical: { type: ['string', 'null'] },
         stylesheet: { type: ['object', 'null'] },
         target: { type: ['object', 'null'] },
@@ -53,9 +53,9 @@ class Note extends BaseModel {
         json: { type: ['object', 'null'] },
         contextId: { type: ['string', 'null'] },
         original: { type: ['string', 'null'] },
-        updated: { type: 'string', format: 'date-time' },
-        published: { type: 'string', format: 'date-time' },
-        deleted: { type: 'string', format: 'date-time' }
+        updated: { type: 'string' },
+        published: { type: 'string' },
+        deleted: { type: 'string' }
       },
       required: ['readerId']
     }
@@ -176,7 +176,8 @@ class Note extends BaseModel {
     reader /*: any */,
     notebookId /*: string */,
     note /*: any */
-  ) {
+  ) /*:any */{
+    // $FlowFixMe
     const createdNote = await this.createNote(reader, note, true)
     if (createdNote) {
       try {
@@ -573,7 +574,7 @@ class Note extends BaseModel {
     user /*: string */,
     search /*: string */,
     options /*: any */
-  ) {
+  ) /*:any */ {
     search = search.toLowerCase()
 
     const query = Note.query()
@@ -597,7 +598,7 @@ class Note extends BaseModel {
     user /*: string */,
     search /*: string */,
     options /*: any */
-  ) {
+  ) /*:any */ {
     search = search.toLowerCase()
     let limit = options && options.limit ? options.limit : 50
     let page = options && options.page ? options.page : 1

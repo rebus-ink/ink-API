@@ -705,7 +705,7 @@ const test = async app => {
     await tap.equal(error.error, 'Bad Request')
     await tap.equal(
       error.message,
-      'Validation Error on Patch Source: name: should be string'
+      'Validation Error on Patch Source: name: must be string'
     )
     await tap.equal(error.details.requestUrl, `/sources/${sourceId}`)
     await tap.type(error.details.requestBody, 'object')

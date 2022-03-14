@@ -41,13 +41,13 @@ class Attribution extends BaseModel {
       properties: {
         id: { type: 'string' },
         role: { type: 'string' },
-        name: { type: 'string ' },
+        name: { type: 'string' },
         normalizedName: { type: 'string' },
         type: { type: 'string' },
         readerId: { type: 'string' },
         isContributor: { type: 'boolean' },
         sourceId: { type: 'string' },
-        published: { type: 'string', format: 'date-time' }
+        published: { type: 'string' }
       },
       required: ['role', 'name', 'normalizedName', 'readerId', 'sourceId']
     }
@@ -103,7 +103,7 @@ class Attribution extends BaseModel {
     attribution /*: any */,
     sourceId /*: string */,
     readerId /*: string */
-  ) {
+  ) /*: any */ {
     if (!_.isString(attribution) && !_.isObject(attribution)) {
       throw new Error(
         `${role} attribution validation error: attribution should be either an attribution object or a string`
@@ -154,7 +154,10 @@ class Attribution extends BaseModel {
         })
       }
     })
-    await Attribution.query(Attribution.knex()).insert(attributions)
+
+    if (attributions.length) {
+      await Attribution.query().insert(attributions)
+    }
     return returnedAttributions
   }
 
@@ -202,7 +205,7 @@ class Attribution extends BaseModel {
       .del()
   }
 
-  $beforeUpdate (queryOptions /*: any */, context /*: any */) {
+  $beforeUpdate (queryOptions /*: any */, context /*: any */) /*:any */ {
     const parent = super.$beforeUpdate(queryOptions, context)
     let doc = this
     return Promise.resolve(parent).then(function () {

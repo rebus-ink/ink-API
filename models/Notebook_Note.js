@@ -12,11 +12,11 @@ type NotebookNoteType = {
 */
 
 class Notebook_Note extends BaseModel {
-  static get tableName () {
+  static get tableName () /*:string */ {
     return 'notebook_note'
   }
 
-  static get idColumn () {
+  static get idColumn () /*:any */ {
     return ['notebookId', 'noteId']
   }
 
