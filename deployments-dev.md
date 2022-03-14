@@ -1,3 +1,6 @@
+March 14, 2022
+* updated node and all npm packages
+
 Feb 22, 2022
 
 * removed canvas
