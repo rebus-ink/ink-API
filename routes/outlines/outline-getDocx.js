@@ -15,7 +15,7 @@ module.exports = app => {
 
   /**
    * @swagger
-   * /outlines/{id}:
+   * /outlines/{id}/docx:
    *   get:
    *     tags:
    *       - outlines
