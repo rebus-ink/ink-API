@@ -45,7 +45,6 @@ const tagDeleteRoute = require('./routes/tags/tag-delete') // DELETE /tags/:id
 const readerLibraryRoute = require('./routes/sources/library-get') // GET /library
 
 // Notes
-const exportNotesRoute = require('./routes/notes/notes-docx') // POST /notes/docx
 const readerNotesRoute = require('./routes/notes/readerNotes-get') // GET /notes
 const getNoteRoute = require('./routes/notes/note-get') // GET /notes/:id
 const notePutTagRoute = require('./routes/notes/note-put-tag') // PUT /notes/:noteId/tags/:tagId
@@ -275,7 +274,6 @@ tagPutRoute(app)
 tagDeleteRoute(app)
 readerGetRoute(app)
 readerLibraryRoute(app)
-exportNotesRoute(app)
 readerNotesRoute(app)
 getNoteRoute(app)
 notePutTagRoute(app)

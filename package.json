@@ -57,6 +57,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "helmet": "^5.0.2",
+    "html-to-docx": "github:rebus-ink/html-to-docx",
     "iso-639-1": "^2.1.13",
     "knex": "^1.0.3",
     "lodash": "^4.17.21",
