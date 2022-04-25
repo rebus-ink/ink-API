@@ -7,7 +7,7 @@ const {
   ExternalHyperlink
 } = require('docx')
 const _ = require('lodash')
-const { htmlToDocxObject } = require('../utils/htmlForDocx')
+const { htmlToDocxObject } = require('html-to-docx')
 
 const sampleOutline = {
   id: 'https://reader-api.test/noteContexts/qXHmtzDveXqGpvKxRbofTf-c39b1e4829',
