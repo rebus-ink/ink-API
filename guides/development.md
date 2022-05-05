@@ -77,3 +77,13 @@ The server uses environment variables for configuration. The environment variabl
 | `POSTGRE_USER`     | the user name to use for the connection                                                                                            |
 | `POSTGRE_PASSWORD` | the password                                                                                                                       |
 | `SQLITE_DB`        | filename of the SQLite database to store data if `POSTGRE_INSTANCE` is not set. Defaults to `./dev.sqlite3`.                       |
+
+## Versioning
+
+The project uses semantic versioning
+Major.Minor.Patch
+Major: major or breaking changes to the frontend interface
+Minor: New features and added functionality
+Patch: Small changes to features and bug fixes
+
+Version number was set to 1.0.0 on May 5, 2022

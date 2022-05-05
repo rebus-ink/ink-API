@@ -1,3 +1,5 @@
+1.0.0 May 5, 2022
+
 March 14, 2022
 * updated node and all npm packages
 
