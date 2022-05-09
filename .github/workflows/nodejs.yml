@@ -51,8 +51,9 @@ jobs:
       env: {
         GOOGLE_CLOUD_PROJECT: thematic-cider-139815
       }
-    - name: npm lint
+    - name: install
       run: npm install
+    - name: npm lint
       run: npm run lint
       env:
         CI: true 
