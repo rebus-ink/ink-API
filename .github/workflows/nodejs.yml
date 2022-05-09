@@ -1,6 +1,9 @@
 name: Node CI
 
-on: [push, pull_request]
+on: 
+  workflow_dispatch:
+    push: 
+      branches: [dev]
 
 jobs:
   install:
@@ -8,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [16.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -38,7 +41,7 @@ jobs:
         - 5432:5432
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [16.x]
 
     steps:
     - uses: actions/checkout@v1
