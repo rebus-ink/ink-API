@@ -1,32 +1,29 @@
-name: Node CI
+name: Tests and Lint
 
 on: 
-  workflow_dispatch:
-    push: 
-      branches: [dev]
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
 
 jobs:
   install:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
-
+        node-version: [12.x, 14.x, 16.x]
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
       env: {
         GOOGLE_CLOUD_PROJECT: thematic-cider-139815
       }
     - name: npm install
-      run: |
-        npm install
-      env:
-        CI: true
+      run: npm install
+
   tests:
     runs-on: ubuntu-latest
     needs: [install]
@@ -41,25 +38,23 @@ jobs:
         - 5432:5432
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [12.x, 14.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
       env: {
         GOOGLE_CLOUD_PROJECT: thematic-cider-139815
       }
     - name: npm lint
-      run: |
-        npm run lint
+      run: npm run lint
       env:
         CI: true 
     - name: npm test
-      run: |
-        npm run test
+      run: npm run test
       env:
         CI: true
     
