@@ -52,7 +52,7 @@ jobs:
         GOOGLE_CLOUD_PROJECT: thematic-cider-139815
       }
     - name: npm lint
-      run: npm run lint
+      run: npm run eslint ./
       env:
         CI: true 
     - name: npm test
