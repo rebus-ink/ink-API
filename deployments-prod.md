@@ -1,3 +1,5 @@
+1.0.0 May 5, 2022
+
 Deployment Nov 18, 2021
 
 * fixed bug in pagination where it was counting the number of note bodies instead of the number of notes
