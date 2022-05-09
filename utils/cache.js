@@ -12,6 +12,7 @@ let tagsCacheUpdate = () => undefined
 let notebooksCacheUpdate = () => undefined
 let notebooksCacheGet = async () => Promise.resolve()
 let quitCache = () => undefined
+let connectClient = () => undefined
 
 if (process.env.REDIS_PASSWORD) {
 
