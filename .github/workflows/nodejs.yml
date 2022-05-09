@@ -57,9 +57,9 @@ jobs:
         npm run lint
       env:
         CI: true 
-    - name: npm test-integration
+    - name: npm test
       run: |
-        npm run test-integration
+        npm run test
       env:
         CI: true
     
