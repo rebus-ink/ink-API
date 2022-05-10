@@ -30,11 +30,14 @@ module.exports = function (app) {
         if (source.json) {
           storageId = source.json.storageId
         }
-        fileDeleteQueue.add({
-          readerId: urlToId(source.readerId),
-          storageId,
-          bucket: process.env.GOOGLE_STORAGE_BUCKET
-        })
+        if (fileDeleteQueue) {
+          fileDeleteQueue.add({
+            readerId: urlToId(source.readerId),
+            storageId,
+            bucket: process.env.GOOGLE_STORAGE_BUCKET
+          })
+        }
+
       })
 
       await Source.query()
