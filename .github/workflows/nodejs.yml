@@ -63,4 +63,10 @@ jobs:
       run: npm run test
       env:
         CI: true
+        POSTGRES_USER: ink
+        POSTGRES_INSTANCE: 127.0.0.1
+        POSTGRES_HOST: postgres
+        POSTGRES_DB: ink
+        POSTGRES_PASSWORD: ink
+        POSTGRES_PORT: 5432
     
