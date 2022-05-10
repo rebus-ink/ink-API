@@ -69,3 +69,9 @@ jobs:
         POSTGRE_PASSWORD: ink
         POSTGRE_INSTANCE: 127.0.0.1
     
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: kriasoft/check-version@v1
+        with: { path: "api" }
