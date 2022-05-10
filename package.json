@@ -1,6 +1,6 @@
 {
   "name": "hobb-api",
-  "version": "0.0.1",
+  "version": "1.1.0",
   "description": "Hobb API Server for Rebus Reader",
   "main": "index.js",
   "engines": {
