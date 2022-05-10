@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot --no-coverage-report --timeout=400 tests/integration/index.js",
-    "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
+    "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --no-coverage tests/google-integration/index.js",
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/models/index.js",
     "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/unit/*.test.js",
     "test": "npm run test-integration && npm run test-models && npm run test-unit",
