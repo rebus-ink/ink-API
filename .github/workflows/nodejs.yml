@@ -33,9 +33,10 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_INSTANCE: localhost
-          POSTGRES_DB: github-actiont-tests
+          POSTGRES_USER: ink
+          POSTGRES_INSTANCE: 127.0.0.1
+          POSTGRES_DB: ink
+          POSTGRES_PASSWORD: ink
         ports:
         - 5432:5432
     strategy:
