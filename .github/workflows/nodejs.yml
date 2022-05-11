@@ -123,3 +123,17 @@ jobs:
         with:
           audit_level: critical
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  changelog:
+    name: Check Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Changelog check
+        uses: Zomzog/changelog-checker@v1.2.0
+        with:
+          fileName: deployments-dev.md 
+          checkNotification: Simple
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
