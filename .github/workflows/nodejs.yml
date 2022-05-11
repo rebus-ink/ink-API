@@ -7,24 +7,6 @@ on:
     branches: [dev, main]
 
 jobs:
-  install:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
-    steps:
-    - uses: actions/checkout@v3
-      with: 
-        ssh-key: ${{ secrets.SSH_KEY }}
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-      env: {
-        GOOGLE_CLOUD_PROJECT: thematic-cider-139815
-      }
-    - name: npm install
-      run: npm ci
 
   tests:
     runs-on: ubuntu-latest
