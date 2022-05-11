@@ -1,4 +1,4 @@
-name: Tests and Lint
+name: CI
 
 on: 
   push:
@@ -25,6 +25,23 @@ jobs:
       }
     - name: npm install
       run: npm ci
+
+  linting:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm lint
+      run: npm run lint
+      env:
+        CI: true 
 
   tests:
     runs-on: ubuntu-latest
@@ -55,10 +72,6 @@ jobs:
       }
     - name: install
       run: npm install
-    - name: npm lint
-      run: npm run lint
-      env:
-        CI: true 
     - name: npm test
       run: npm run test
       env:
