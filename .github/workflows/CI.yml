@@ -84,6 +84,29 @@ jobs:
         POSTGRE_PASSWORD: ink
         POSTGRE_INSTANCE: 127.0.0.1
     
+<<<<<<< HEAD
+=======
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: pkg
+        uses: kriasoft/check-version@v1
+        with:
+          format: "{name}_v{version}+build.{pr_number}.zip"
+
+      - run: |
+          echo "name: ${{ steps.pkg.outputs.name }}"
+          echo "version: ${{ steps.pkg.outputs.version }}"
+          echo "release: ${{ steps.pkg.outputs.release }}"
+        #
+        # Prints:
+        #   name: api
+        #   version: 0.1.3
+        #   release: api_v0.1.3+build.549.zip
+ 
+>>>>>>> 3d51d3b (vulnerabilities)
   check-branch:
     runs-on: ubuntu-latest
     steps:
@@ -103,3 +126,20 @@ jobs:
         with:
           audit_level: critical
           github_token: ${{ secrets.GITHUB_TOKEN }}
+<<<<<<< HEAD
+=======
+
+  changelog:
+    name: Check Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Changelog check
+        uses: Zomzog/changelog-checker@v1.2.0
+        with:
+          fileName: deployments-dev.md 
+          checkNotification: Simple
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+>>>>>>> 3d51d3b (vulnerabilities)
