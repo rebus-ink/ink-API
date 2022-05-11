@@ -98,11 +98,14 @@ jobs:
           exclude: dev
 
   dependency-review:
+    name: npm audit
     runs-on: ubuntu-latest
     steps:
-      - name: 'Install Dependency'
-        run: npm install
-      - name: 'Checkout Repository'
-        uses: actions/checkout@v3
-      - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v1
+      - uses: actions/checkout@v2
+      - name: install dependencies
+        run: npm ci
+      - uses: oke-py/npm-audit-action@v2
+        with:
+          audit_level: moderate
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dedupe_issues: true
