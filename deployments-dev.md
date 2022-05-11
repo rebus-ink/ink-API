@@ -1,3 +1,6 @@
+1.1.0
+* continuous integration with github actions
+
 1.0.0 May 5, 2022
 
 March 14, 2022
