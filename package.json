@@ -1,6 +1,6 @@
 {
   "name": "hobb-api",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "Hobb API Server for Rebus Reader",
   "main": "index.js",
   "engines": {
@@ -11,7 +11,7 @@
     "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-check-coverage tests/models/index.js",
     "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-check-coverage tests/unit/*.test.js",
     "test": "npm run test-integration && npm run test-models && npm run test-unit",
-    "start": "node index.js",
+    "start": "node ./index.js",
     "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
     "lint": "eslint .",
     "flow": "flow",

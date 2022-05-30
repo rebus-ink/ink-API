@@ -24,14 +24,6 @@ jobs:
         #   name: api
         #   version: 0.1.3
         #   release: api_v0.1.3+build.549.zip
- 
-  check-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: Vankka/pr-target-branch-action@v2
-        with:
-          target: main
-          exclude: dev
 
   changelog:
     name: Check Changelog
