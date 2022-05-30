@@ -1,20 +1,19 @@
 {
   "name": "hobb-api",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Hobb API Server for Rebus Reader",
   "main": "index.js",
   "engines": {
     "node": "^16.0.0"
   },
   "scripts": {
-    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot --no-coverage-report --timeout=400 tests/integration/index.js",
-    "test-google": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -c -R classic --cov tests/google-integration/index.js",
-    "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/models/index.js",
-    "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-coverage tests/unit/*.test.js",
+    "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot --no-coverage-report --no-check-coverage --timeout=400 tests/integration/index.js",
+    "test-models": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-check-coverage tests/models/index.js",
+    "test-unit": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap -R classic --no-check-coverage tests/unit/*.test.js",
     "test": "npm run test-integration && npm run test-models && npm run test-unit",
-    "start": "node index.js",
+    "start": "node ./index.js",
     "dev-server": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=http://localhost:8080 nodemon dev.js",
-    "lint": "eslint . && npm run flow-check",
+    "lint": "eslint .",
     "flow": "flow",
     "flow-check": "npm run flow check",
     "doc": "swagger-jsdoc -d swaggerDef.js -o doc.json && node_modules/.bin/api2html -o docs/index.html -l javascript--nodejs doc.json"
@@ -22,6 +21,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RebusFoundation/reader-api.git"
+  },
+  "tap": {
+    "check-coverage": false
   },
   "author": "Rebus Foundation",
   "license": "AGPL-3.0-or-later",
@@ -32,10 +34,9 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.1",
     "@commitlint/config-conventional": "^16.2.1",
-    "api2html": "^0.4.0",
+    "api2html": "^0.3.5",
     "eslint": "^8.10.0",
     "flow-bin": "^0.173.0",
-    "flow-coverage-report": "^0.8.0",
     "husky": "^7.0.4",
     "jsonwebtoken": "^8.5.1",
     "knex-cleaner": "^1.3.1",
@@ -57,7 +58,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "helmet": "^5.0.2",
-    "html-to-docx": "github:rebus-ink/html-to-docx",
+    "html-to-docx": "git+https://github.com/rebus-ink/html-to-docx.git",
     "iso-639-1": "^2.1.13",
     "knex": "^1.0.3",
     "lodash": "^4.17.21",

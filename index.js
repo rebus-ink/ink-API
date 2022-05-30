@@ -1,5 +1,4 @@
-const express = require('express')
-const app = express()
+const {app, start} = require("./server")
 const morgan = require('morgan')
 const URL = require('url').URL
 
@@ -13,13 +12,7 @@ app.use(
   })
 )
 
-const prefix = new URL(process.env.DOMAIN).pathname
+app.initialize(true).then(() => {
+  start(8080)
+})
 
-app.use(prefix, require('./server.js').app)
-require('./server.js')
-  .app.initialize(true)
-  .catch(error => {
-    console.error(error)
-    throw error
-  })
-app.listen(8080, () => console.log('Listening'))

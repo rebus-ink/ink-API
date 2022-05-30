@@ -388,12 +388,14 @@ class Note extends BaseModel {
 
     // update other notes mentioned in the outline data
     let notesToUpdate = notes.map(note => {
+      let returnValue;
       if (note.previous && !_.find(notes, { shortId: note.previous })) {
-        return { id: note.previous, changes: { next: note.shortId } }
-      }
-      if (note.next && !_.find(notes, { shortId: note.next })) {
-        return { id: note.next, changes: { previous: note.shortId } }
-      }
+        returnValue = { id: note.previous, changes: { next: note.shortId } }
+      }else if (note.next && !_.find(notes, { shortId: note.next })) {
+        returnValue = { id: note.next, changes: { previous: note.shortId } }
+      } 
+      return returnValue;
+      
     })
     notesToUpdate = _.omitBy(notesToUpdate, _.isNil)
     for (const i in notesToUpdate) {
