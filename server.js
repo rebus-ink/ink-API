@@ -217,8 +217,7 @@ app.initialize = async skip_migrate => {
     await setupKnex(skip_migrate)
     app.initialized = true
   }
-// TODO: 
-//  await cache.connectClient()
+  await cache.connectClient()
   return app.initialized
 }
 

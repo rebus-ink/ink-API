@@ -178,7 +178,7 @@ class Note extends BaseModel {
     note /*: any */
   ) /*:any */{
     // $FlowFixMe
-    const createdNote = await this.createNote(reader, note, true)
+    const createdNote = await this.createNote(reader, note, {allowId: true})
     if (createdNote) {
       try {
         // $FlowFixMe
@@ -205,11 +205,45 @@ class Note extends BaseModel {
       })
   }
 
+  static async checkDuplicates(reader, note) {
+      // TODO: I don't like that NoteBody does not have a 
+      // readerId.
+      let body
+      if (_.isArray(note.body)) {
+        body = note.body[0]
+      } else {
+        body = note.body
+      }
+
+        let potentialDuplicates = await NoteBody.query()
+          .whereNull('deleted')
+          .where('noteId', 'ilike', `${urlToId(reader.id)}%`)
+          .where('content', '=', body.content)
+          .where('motivation', '=', body.motivation)
+        potentialDuplicates = potentialDuplicates.map(duplicate => urlToId(duplicate.noteId))
+
+      if (potentialDuplicates.length) {
+        potentialDuplicates = _.uniq(potentialDuplicates)
+        const potentialDuplicateNotes = await Note.query()
+          .whereIn('id', potentialDuplicates)
+          .where('readerId', '=', urlToId(reader.id))
+          .whereNull('contextId')
+          .whereNull('deleted')
+          .whereNull('target')
+          .whereNull('original')
+
+        return !!potentialDuplicateNotes.length
+      } else {
+        return false;
+      }
+  }
+
   static async createNote (
     reader /*: any */,
     note /*: any */,
-    allowId /*: boolean */
+    options = {} /*: any */
   ) /*: Promise<NoteType|Error> */ {
+    let allowId = options.allowId
     let props = await Note._formatIncomingNote(note, allowId)
     if (
       allowId &&
@@ -322,7 +356,7 @@ class Note extends BaseModel {
     const newNote = await Note.createNote(
       originalNote.reader,
       _.omit(originalNote, ['published', 'updated', 'id']),
-      true
+      {allowId: true}
     )
 
     // copy tag relations

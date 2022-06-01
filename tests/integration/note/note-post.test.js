@@ -274,6 +274,68 @@ const test = async app => {
     await tap.equal(note.tags.length, 1)
   })
 
+  // ----------------------------- SKIP DUPLICATES -----------------------
+
+  await tap.test('Create Note with single body - skip duplicates', async () => {
+    const res = await request(app)
+      .post('/notes?skipDuplicates=true')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note',
+            motivation: 'test'
+          }
+        })
+      )
+    await tap.equal(res.status, 204)
+
+  })
+
+  await tap.test('Create Note with two bodies - skip duplicates', async () => {
+    const res = await request(app)
+      .post('/notes?skipDuplicates=true')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: [
+            {
+              content: 'this is the content of the note',
+              motivation: 'test'
+            },
+            {
+              motivation: 'test'
+            }
+          ],
+          json: { property1: 'value1' }
+        })
+      )
+    await tap.equal(res.status, 204)
+
+  })
+
+  await tap.test('skip duplicate with unique note', async () => {
+    const res = await request(app)
+      .post('/notes?skipDuplicates=true')
+      .set('Host', 'reader-api.test')
+      .set('Authorization', `Bearer ${token}`)
+      .type('application/ld+json')
+      .send(
+        JSON.stringify({
+          body: {
+            content: 'this is the content of the note and it is brand new',
+            motivation: 'test'
+          }
+        })
+      )
+    await tap.equal(res.status, 201)
+
+  })
+
   // ------------------------------ WITH NOTEBOOKS -----------------------
 
   const notebook1 = await createNotebook(app, token, { name: 'notebook1' })
@@ -500,7 +562,7 @@ const test = async app => {
       .set('Host', 'reader-api.test')
       .set('Authorization', `Bearer ${token}`)
       .type('application/ld+json')
-    await tap.equal(res.body.totalItems, 11)
+    await tap.equal(res.body.totalItems, 12)
   })
 
   await tap.test('Try to create a Note with an invalid json', async () => {
@@ -602,7 +664,7 @@ const test = async app => {
         .set('Host', 'reader-api.test')
         .set('Authorization', `Bearer ${token}`)
         .type('application/ld+json')
-      await tap.equal(res.body.totalItems, 11)
+      await tap.equal(res.body.totalItems, 12)
     }
   )
 
