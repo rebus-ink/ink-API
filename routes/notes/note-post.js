@@ -29,6 +29,13 @@ module.exports = function (app) {
    *     description: Create a note
    *     security:
    *       - Bearer: []
+   *     parameters:
+   *       - in: query
+   *         name: skipDuplicates
+   *         schema:
+   *           type: boolean
+   *           default: false
+   *         description: an option to skip creating a note if it already exists
    *     requestBody:
    *       content:
    *         application/json:
@@ -73,6 +80,15 @@ module.exports = function (app) {
           )
         }
 
+        let hasDuplicate
+        if (req.query.skipDuplicates) {
+          hasDuplicate = await Note.checkDuplicates(reader, body)
+          if (hasDuplicate) {
+            res.status(204).end()
+          }
+        }
+
+        if (!hasDuplicate) {
         let createdNote
         try {
           createdNote = await Note.createNote(reader, body)
@@ -167,9 +183,11 @@ module.exports = function (app) {
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', createdNote.id)
         res.status(201).end(JSON.stringify(createdNote.toJSON()))
+      }
       })
       .catch(err => {
         next(err)
       })
+    
   })
 }
