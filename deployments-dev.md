@@ -1,3 +1,5 @@
+June 1, 2022
+* post /notes with skipDuplicates query
 
 May 11, 2022
 
