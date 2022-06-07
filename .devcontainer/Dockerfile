@@ -1,0 +1,12 @@
+ARG NODE_VERSION=16.15.1
+ARG OS_VERSION=bullseye
+
+ARG BUILDER_IMAGE="node:${NODE_VERSION}-${OS_VERSION}"
+
+FROM ${BUILDER_IMAGE}
+
+WORKDIR /app
+
+RUN npm install -g npm@8.11.0
+
+CMD ["/bin/bash"]

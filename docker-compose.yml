@@ -1,68 +1,38 @@
 version: '3.8'
 
 services:
-  # These are the configurations for our Node app
-  # When Docker Compose starts this container it will automatically
-  # use the Dockerfile in the directory to configure it
-  app: 
-    build: .
-    command: npm run start
-    volumes:
-      - .:/app/
-      - /app/node_modules
-    depends_on:
-      # Our app does not work without our database
-      # so this ensures our database is loaded first
-      - postgres
-      - redis
+  api:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: ink-api
+    env_file: .env
     ports:
       - "8080:8080"
-    env_file:
-      - ./.env
-    # environment:
-    #   - NODE_ENV=test
-    #   - REDIS_PORT=5432
-    #   - POSTGRE_DB='ink_test'
-    #   - POSTGRE_USER='ink'
-    #   - POSTGRE_PASSWORD='ink'
-    #   - POSTGRE_INSTANCE='postgres'
-    # secrets: 
-    #   - secret_or_key
-    #   - redis_host
-    #   - redis_password
-
+    tty: true
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    depends_on:
+      - postgres
 
   # This is the configuration for our PostgreSQL database container
   # Note the `postgres` name is important, in out Node app when we refer
-  # to  `host: "postgres"` that value is mapped on the network to the 
+  # to  `host: "postgres"` that value is mapped on the network to the
   # address of this container.
   postgres:
-    image: postgres:14.1-alpine
-    restart: always
+    image: postgres:9.6-alpine
     environment:
-      # You can set the value of environment variables
-      # in your docker-compose.yml file
-      # Our Node app will use these to connect
-      # to the database
-      - POSTGRES_USER=ink
-      - POSTGRES_PASSWORD=ink
-      - POSTGRES_DB=ink_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ink_test
+      PGDATA: /pgdata
     ports:
       # Standard port for PostgreSQL databases
       - "5432:5432"
-    expose:
-      - "5432"
-
-  redis:
-    image: redis:7.0-alpine
-    hostname: redis
-    restart: always
-    ports: 
-      - '6379:6379'
     volumes:
-      - cache:/data
+      - postgres-data:/pgdata
+
 volumes:
-  cache:
-    driver: local
-
-
+  node_modules:
+  postgres-data:
