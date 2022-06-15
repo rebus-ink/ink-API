@@ -4,7 +4,8 @@
   "description": "Hobb API Server for Rebus Reader",
   "main": "index.js",
   "engines": {
-    "node": "^16.0.0"
+    "node": "^16.0.0",
+    "npm": "^8.11.0"
   },
   "scripts": {
     "test-integration": "cross-env SECRETORKEY=kick-opossum-snowiness ISSUER=auth.reader-api.test DOMAIN=https://reader-api.test NODE_ENV=test tap --reporter=dot --no-coverage-report --no-check-coverage --timeout=400 tests/integration/index.js",

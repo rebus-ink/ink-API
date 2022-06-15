@@ -1,3 +1,6 @@
+June 7, 2022
+* docker environment
+
 June 1, 2022
 * post /notes with skipDuplicates query
 
