@@ -84,22 +84,24 @@ jobs:
         POSTGRE_PASSWORD: ink
         POSTGRE_INSTANCE: 127.0.0.1
     
-  check-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: Vankka/pr-target-branch-action@v2
-        with:
-          target: main
-          exclude: dev
+        #
+        # Prints:
+        #   name: api
+        #   version: 0.1.3
+        #   release: api_v0.1.3+build.549.zip
 
-  dependency-review:
-    name: npm audit
+
+  changelog:
+    name: Check Changelog
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: install dependencies
-        run: npm ci
-      - uses: oke-py/npm-audit-action@v2
+      - uses: actions/checkout@v1
+      - name: Changelog check
+        uses: Zomzog/changelog-checker@v1.2.0
         with:
+          fileName: deployments-dev.md 
+          checkNotification: Simple
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           audit_level: critical
           github_token: ${{ secrets.GITHUB_TOKEN }}
