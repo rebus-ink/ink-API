@@ -52,11 +52,7 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          POSTGRES_USER: ink
-          POSTGRES_INSTANCE: 127.0.0.1
-          POSTGRES_DB: ci_test
-          POSTGRES_PASSWORD: ink
-          POSTGRES_PORT: 5432
+          DATABASE_URL: postgres://ink:ink@127.0.0.1:5432/ci_test
         ports:
         - 5432:5432
     strategy:
@@ -79,11 +75,8 @@ jobs:
       env:
         CI: true
         NODE_ENV: test
-        POSTGRE_DB: ci_test
-        POSTGRE_USER: ink
-        POSTGRE_PASSWORD: ink
-        POSTGRE_INSTANCE: 127.0.0.1
-    
+        DATABASE_URL: postgres://ink:ink@127.0.0.1:5432/ci_test
+
   check-branch:
     runs-on: ubuntu-latest
     steps:
