@@ -63,20 +63,16 @@ commit to convert the code into Standard style.
 The server uses environment variables for configuration. The environment variables can be set in a
 .env file
 
-| Var                | Description                                                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `AUDIENCE`         | the expected audience for [JWT](https://jwt.io) tokens.                                                                            |
-| `DEPLOY_STAGE`     | deployment stage. One of `production`, `staging`, or `development`.                                                                |
-| `DEV_PASSWORD`     | a basic auth password used when in development or staging. Username is `admin`.                                                    |
-| `DOMAIN`           | domain name of the server. If the server is hit with HTTP, redirects to https: plus this domain.                                   |
-| `ISSUER`           | expected issuer for JWT tokens.                                                                                                    |
-| `NODE_ENV`         | environment variable used by [express](https://expressjs.com/). Can be `production` or `development`.                              |
-| `SECRETORKEY`      | expected shared secret for [JWT](https://jwt.io) tokens.                                                                           |
-| `POSTGRE_INSTANCE` | the db server. Set it to 'localhost' for a local dev. If this variable is not set, the models will be stored in a SQLite database. |
-| `POSTGRE_DB`       | the name of the database.                                                                                                          |
-| `POSTGRE_USER`     | the user name to use for the connection                                                                                            |
-| `POSTGRE_PASSWORD` | the password                                                                                                                       |
-| `SQLITE_DB`        | filename of the SQLite database to store data if `POSTGRE_INSTANCE` is not set. Defaults to `./dev.sqlite3`.                       |
+|      Var       |                                              Description                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------- |
+| `AUDIENCE`     | the expected audience for [JWT](https://jwt.io) tokens.                                               |
+| `DEPLOY_STAGE` | deployment stage. One of `production`, `staging`, or `development`.                                   |
+| `DEV_PASSWORD` | a basic auth password used when in development or staging. Username is `admin`.                       |
+| `DOMAIN`       | domain name of the server. If the server is hit with HTTP, redirects to https: plus this domain.      |
+| `ISSUER`       | expected issuer for JWT tokens.                                                                       |
+| `NODE_ENV`     | environment variable used by [express](https://expressjs.com/). Can be `production` or `development`. |
+| `SECRETORKEY`  | expected shared secret for [JWT](https://jwt.io) tokens.                                              |
+| `DATABASE_URL` | e.g `postgres://user:pass@localhost:5432/dbname`                                                      |
 
 ## Versioning
 
