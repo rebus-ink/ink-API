@@ -1,3 +1,6 @@
+June 29, 2022
+* add database CA certificate configuration
+
 June 28, 2022
 * add a database connection string
 
