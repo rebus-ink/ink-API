@@ -4,12 +4,7 @@ require('dotenv').config()
 const path = require('path')
 module.exports = {
   client: 'pg',
-  connection: {
-    host: process.env.POSTGRE_INSTANCE,
-    database: process.env.POSTGRE_DB,
-    user: process.env.POSTGRE_USER,
-    password: process.env.POSTGRE_PASSWORD
-  },
+  connection: process.env.DATABASE_URL,
   pool: {
     min: 2,
     max: 10
