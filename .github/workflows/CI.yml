@@ -1,6 +1,6 @@
 name: CI
 
-on: 
+on:
   push:
     branches: [dev, main]
   pull_request:
@@ -14,7 +14,7 @@ jobs:
         node-version: [14.x]
     steps:
     - uses: actions/checkout@v3
-      with: 
+      with:
         ssh-key: ${{ secrets.SSH_KEY }}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -43,7 +43,7 @@ jobs:
     - name: npm lint
       run: npm run lint
       env:
-        CI: true 
+        CI: true
 
   tests:
     runs-on: ubuntu-latest
@@ -52,7 +52,11 @@ jobs:
       postgres:
         image: postgres:10.8
         env:
-          DATABASE_URL: postgres://ink:ink@127.0.0.1:5432/ci_test
+          POSTGRES_USER: ink
+          POSTGRES_INSTANCE: 127.0.0.1
+          POSTGRES_DB: ci_test
+          POSTGRES_PASSWORD: ink
+          POSTGRES_PORT: 5432
         ports:
         - 5432:5432
     strategy:

@@ -1,3 +1,6 @@
+June 28, 2022
+* add a database connection string
+
 June 7, 2022
 * docker environment
 

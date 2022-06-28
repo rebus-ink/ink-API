@@ -30,9 +30,6 @@ require('dotenv').config()
 const allTests = async () => {
   await app.initialize(true)
   await app.knex.migrate.rollback()
-  if (process.env.POSTGRE_DB === 'travis_ci_test') {
-    await app.knex.migrate.latest()
-  }
 
   await sourceTests(app)
   // await attributionTests(app) // skipped for now. need to fix create attribution tests
