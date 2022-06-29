@@ -2,9 +2,21 @@
 require('dotenv').config()
 
 const path = require('path')
+
+const connection = {
+  connectionString: process.env.DATABASE_URL
+}
+
+if (process.env.DATABASE_CA_CERT) {
+  connection.ssl = {
+    rejectUnauthorized: true,
+    ca: process.env.DATABASE_CA_CERT
+  }
+}
+
 module.exports = {
   client: 'pg',
-  connection: process.env.DATABASE_URL,
+  connection: connection,
   pool: {
     min: 2,
     max: 10
