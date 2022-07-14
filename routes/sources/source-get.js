@@ -13,7 +13,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - sources
-   *     description: Get a single source by id
+   *     description: Get a single Source by id
    *     parameters:
    *       - in: path
    *         name: sourceId

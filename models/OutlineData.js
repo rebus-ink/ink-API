@@ -38,6 +38,8 @@ class OutlineData extends BaseModel {
     }
   }
 
+  // ----------------------- CREATE ---------------
+
   static async create (
     readerId /*: string */,
     object /*: any */
@@ -68,6 +70,8 @@ class OutlineData extends BaseModel {
     // catch duplicate error
   }
 
+  // -------------------------- UPDATE -----------------
+
   static async partialUpdate (
     noteId /*: string */,
     changes /*: any */
@@ -97,6 +101,8 @@ class OutlineData extends BaseModel {
     // create new one
     await OutlineData.create(readerId, object)
   }
+
+  // -------------------------- DELETE --------------
 
   static async delete (noteId /*: string */) /*: Promise<void> */ {
     if (!noteId) throw new Error('no noteId')

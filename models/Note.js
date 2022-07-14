@@ -48,8 +48,7 @@ class Note extends BaseModel {
         stylesheet: { type: ['object', 'null'] },
         target: { type: ['object', 'null'] },
         sourceId: { type: ['string', 'null'] },
-        document: { type: ['string', 'null'] },
-        body: { type: 'object' },
+        document: { type: ['string', 'null'] }, // this points to the actual file/chapter that the note is associated with.
         json: { type: ['object', 'null'] },
         contextId: { type: ['string', 'null'] },
         original: { type: ['string', 'null'] },
@@ -152,6 +151,155 @@ class Note extends BaseModel {
     }
   }
 
+  // ------------------------ GET --------------------
+
+  static async byId (id /*: string */) /*: Promise<any> */ {
+    const note = await Note.query()
+      .findById(id)
+      .withGraphFetched(
+        `[reader, 
+          outlineData, 
+          tags(notDeleted), 
+          body, 
+          relationsFrom.toNote(notDeleted).body, 
+          relationsTo.fromNote(notDeleted).body, 
+          notebooks(notDeleted).collaborators, 
+          source(notDeleted, selectSource).attributions,
+          context(notDeleted).notebook.collaborators
+        ]`
+      )
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        },
+        selectSource (builder) {
+          builder.select('id', 'name', 'type', 'metadata', 'citation')
+        }
+      })
+      .whereNull('deleted')
+
+    if (!note) return undefined
+
+    if (note.outlineData) {
+      note.previous = note.outlineData.previous
+      note.next = note.outlineData.next
+      note.parentId = note.outlineData.parentId
+    }
+
+    if (note.relationsFrom || note.relationsTo) {
+      note.relations = _.concat(note.relationsFrom, note.relationsTo)
+      note.relationsFrom = null
+      note.relationsTo = null
+    }
+    note.sourceId = null
+    return note
+  }
+
+  static async byIds (ids /*: Array<string> */) /*: Promise<any> */ {
+    const notes = await Note.query()
+      .findByIds(ids)
+      .whereNull('deleted')
+
+    if (!notes) return undefined
+
+    return notes
+  }
+
+  // --------------------- DELETE ---------------------
+
+  static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
+    // Delete all Note_Tag associated with the note
+    await Note_Tag.deleteNoteTagsOfNote(id)
+    await Notebook_Note.deleteNotebooksOfNote(id)
+    await NoteBody.softDeleteBodiesOfNote(id)
+
+    return await Note.query()
+      .patchAndFetchById(id, { deleted: new Date().toISOString() })
+      .whereNull('deleted')
+  }
+
+  static async hardDelete (noteId /*: any */) {
+    await Note.query()
+      .delete()
+      .where({
+        id: urlToId(noteId)
+      })
+  }
+
+  // ---------------------- UPDATE ------------------
+
+  static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
+    // replace undefined to null for properties that can be deleted by the user
+    const propsCanBeDeleted = [
+      'canonical',
+      'stylesheet',
+      'target',
+      'previous',
+      'document',
+      'next',
+      'parentId',
+      'sourceId',
+      'contextId',
+      'json'
+    ]
+    propsCanBeDeleted.forEach(prop => {
+      if (note[prop] === undefined) {
+        note[prop] = null
+      }
+    })
+    let modifications = await Note._formatIncomingNote(note, false)
+
+    await NoteBody.deleteBodiesOfNote(urlToId(note.id) || note.shortId)
+    if (!note.body) {
+      throw new Error(
+        'Note Update Validation Error: body is a required property'
+      )
+    }
+    let updatedNote = await Note.query()
+      .updateAndFetchById(urlToId(note.id), modifications)
+      .whereNull('deleted')
+
+    // if note not found:
+    if (!updatedNote) return null
+
+    // create NoteBody
+    if (note.body) {
+      if (_.isArray(note.body)) {
+        for (const body of note.body) {
+          await NoteBody.createNoteBody(
+            body,
+            urlToId(updatedNote.id),
+            note.readerId
+          )
+        }
+        updatedNote.body = note.body
+      } else {
+        await NoteBody.createNoteBody(
+          note.body,
+          urlToId(updatedNote.id),
+          note.readerId
+        )
+        updatedNote.body = [note.body]
+      }
+    }
+
+    // outline data
+    if (note.parentId || note.previous || note.next) {
+      await OutlineData.update(urlToId(note.readerId), {
+        noteId: urlToId(note.id),
+        parentId: urlToId(note.parentId),
+        previous: urlToId(note.previous),
+        next: urlToId(note.next)
+      })
+      updatedNote.parentId = urlToId(note.parentId)
+      updatedNote.previous = urlToId(note.previous)
+      updatedNote.next = urlToId(note.next)
+    }
+    return updatedNote
+  }
+
+  // ----------------------- CREATE -----------------
+
   static async _formatIncomingNote (
     note /*: NoteType */,
     allowId /*: boolean */
@@ -195,14 +343,6 @@ class Note extends BaseModel {
     }
 
     return createdNote
-  }
-
-  static async hardDelete (noteId /*: any */) {
-    await Note.query()
-      .delete()
-      .where({
-        id: urlToId(noteId)
-      })
   }
 
   static async checkDuplicates(reader, note) {
@@ -328,6 +468,8 @@ class Note extends BaseModel {
     return createdNote
   }
 
+  // --------------- NOTECONTEXTS / OUTLINES ----------
+
   static async copyToContext (
     noteId /*: string */,
     contextId /*: string */,
@@ -439,139 +581,7 @@ class Note extends BaseModel {
 
     return notesCreated
   }
-
-  static async byId (id /*: string */) /*: Promise<any> */ {
-    const note = await Note.query()
-      .findById(id)
-      .withGraphFetched(
-        `[reader, 
-          outlineData, 
-          tags(notDeleted), 
-          body, 
-          relationsFrom.toNote(notDeleted).body, 
-          relationsTo.fromNote(notDeleted).body, 
-          notebooks(notDeleted).collaborators, 
-          source(notDeleted, selectSource).attributions,
-          context(notDeleted).notebook.collaborators
-        ]`
-      )
-      .modifiers({
-        notDeleted (builder) {
-          builder.whereNull('deleted')
-        },
-        selectSource (builder) {
-          builder.select('id', 'name', 'type', 'metadata', 'citation')
-        }
-      })
-      .whereNull('deleted')
-
-    if (!note) return undefined
-
-    if (note.outlineData) {
-      note.previous = note.outlineData.previous
-      note.next = note.outlineData.next
-      note.parentId = note.outlineData.parentId
-    }
-
-    if (note.relationsFrom || note.relationsTo) {
-      note.relations = _.concat(note.relationsFrom, note.relationsTo)
-      note.relationsFrom = null
-      note.relationsTo = null
-    }
-    note.sourceId = null
-    return note
-  }
-
-  static async byIds (ids /*: Array<string> */) /*: Promise<any> */ {
-    const notes = await Note.query()
-      .findByIds(ids)
-      .whereNull('deleted')
-
-    if (!notes) return undefined
-
-    return notes
-  }
-
-  static async delete (id /*: string */) /*: Promise<NoteType|null> */ {
-    // Delete all Note_Tag associated with the note
-    await Note_Tag.deleteNoteTagsOfNote(id)
-    await Notebook_Note.deleteNotebooksOfNote(id)
-    await NoteBody.softDeleteBodiesOfNote(id)
-
-    return await Note.query()
-      .patchAndFetchById(id, { deleted: new Date().toISOString() })
-      .whereNull('deleted')
-  }
-
-  static async update (note /*: any */) /*: Promise<NoteType|null|Error> */ {
-    // replace undefined to null for properties that can be deleted by the user
-    const propsCanBeDeleted = [
-      'canonical',
-      'stylesheet',
-      'target',
-      'previous',
-      'document',
-      'next',
-      'parentId',
-      'sourceId',
-      'contextId',
-      'json'
-    ]
-    propsCanBeDeleted.forEach(prop => {
-      if (note[prop] === undefined) {
-        note[prop] = null
-      }
-    })
-    let modifications = await Note._formatIncomingNote(note, false)
-
-    await NoteBody.deleteBodiesOfNote(urlToId(note.id) || note.shortId)
-    if (!note.body) {
-      throw new Error(
-        'Note Update Validation Error: body is a required property'
-      )
-    }
-    let updatedNote = await Note.query()
-      .updateAndFetchById(urlToId(note.id), modifications)
-      .whereNull('deleted')
-
-    // if note not found:
-    if (!updatedNote) return null
-
-    // create NoteBody
-    if (note.body) {
-      if (_.isArray(note.body)) {
-        for (const body of note.body) {
-          await NoteBody.createNoteBody(
-            body,
-            urlToId(updatedNote.id),
-            note.readerId
-          )
-        }
-        updatedNote.body = note.body
-      } else {
-        await NoteBody.createNoteBody(
-          note.body,
-          urlToId(updatedNote.id),
-          note.readerId
-        )
-        updatedNote.body = [note.body]
-      }
-    }
-
-    // outline data
-    if (note.parentId || note.previous || note.next) {
-      await OutlineData.update(urlToId(note.readerId), {
-        noteId: urlToId(note.id),
-        parentId: urlToId(note.parentId),
-        previous: urlToId(note.previous),
-        next: urlToId(note.next)
-      })
-      updatedNote.parentId = urlToId(note.parentId)
-      updatedNote.previous = urlToId(note.previous)
-      updatedNote.next = urlToId(note.next)
-    }
-    return updatedNote
-  }
+  // ------------------ SEARCH --------------------
 
   static async applyFilters (
     query /*: any */,
@@ -664,6 +674,8 @@ class Note extends BaseModel {
 
     return await query
   }
+
+  // -----------------------------------------------
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)

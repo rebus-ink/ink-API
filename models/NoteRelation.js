@@ -51,6 +51,8 @@ class NoteRelation extends BaseModel {
     }
   }
 
+  // ----------------------- CREATE ---------------
+
   static async createNoteRelation (
     object /*: any */,
     readerId /*: string */
@@ -81,6 +83,8 @@ class NoteRelation extends BaseModel {
     }
     return createdNoteRel
   }
+
+  // ------------------- UPDATE --------------------
 
   static async updateNoteRelation (object /*: any */) /*: Promise<any> */ {
     const relationId = object.id
@@ -114,12 +118,16 @@ class NoteRelation extends BaseModel {
     return updatedRel
   }
 
+  // -------------------------- DELETE ----------------
+
   static async delete (id /*: string */) /*: Promise<any> */ {
     return await NoteRelation.query(NoteRelation.knex()).patchAndFetchById(id, {
       deleted: new Date().toISOString()
     })
   }
 
+  // ------------------------ GET --------------------
+  
   static async getRelationsForNote (
     noteId /*: string */
   ) /*: Promise<Array<any>> */ {

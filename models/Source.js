@@ -156,7 +156,7 @@ class Source extends BaseModel {
         license: { type: ['string', 'null'] },
         numberOfPages: { type: ['integer', 'null'] },
         wordCount: { type: ['integer', 'null'] },
-        status: { type: ['integer', 'null'] },
+        status: { type: ['integer', 'null'] }, // not currently used
         encodingFormat: { type: ['string', 'null'] },
         readingOrder: { type: ['object', 'null'] },
         resources: { type: ['object', 'null'] },
@@ -234,6 +234,8 @@ class Source extends BaseModel {
       }
     }
   }
+
+  // ---------------------- CREATE --------------------
 
   static _isValidLink (link /*: any */) /*: boolean */ {
     if (_.isObject(link) && !link.url) {
@@ -573,6 +575,8 @@ class Source extends BaseModel {
     return createdSource
   }
 
+  // ------------------- DELETE -----------------
+
   static async hardDelete (sourceId /*: ?string */) {
     sourceId = urlToId(sourceId)
     await Source.query()
@@ -581,6 +585,34 @@ class Source extends BaseModel {
         id: sourceId
       })
   }
+
+  static async delete (id /*: string */) /*: Promise<number|null> */ {
+    // Delete Source_Tag associated with source
+    await Source_Tag.deleteSourceTagsOfSource(id)
+
+    const date = new Date().toISOString()
+    return await Source.query()
+      .patchAndFetchById(id, { deleted: date })
+      .whereNull('deleted')
+  }
+
+  static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
+    const time = new Date().toISOString()
+    return await Note.query()
+      .patch({ deleted: time })
+      .where('sourceId', '=', id)
+  }
+
+  // keep the source for references to Notes assigned with that source
+  // but it will no longer show up in any source library
+  static async toReference (id /*: string */) /*: Promise<any> */ {
+    const date = new Date().toISOString()
+    return await Source.query().patchAndFetchById(id, {
+      referenced: date
+    })
+  }
+
+  // ---------------------- GET --------------------
 
   static async byId (id /*: string */) /*: Promise<SourceType|null> */ {
     const source = await Source.query()
@@ -619,29 +651,181 @@ class Source extends BaseModel {
     return !!source
   }
 
-  static async delete (id /*: string */) /*: Promise<number|null> */ {
-    // Delete Source_Tag associated with source
-    await Source_Tag.deleteSourceTagsOfSource(id)
+  // ------------------------ SEARCH -----------------
 
-    const date = new Date().toISOString()
-    return await Source.query()
-      .patchAndFetchById(id, { deleted: date })
-      .whereNull('deleted')
-  }
+  static async applyFilters (
+    query /*: any */,
+    filters /*: any */,
+    search /*: string */
+  ) {
+    query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
+    query.leftJoin(
+      'notebook_source',
+      'notebook_source.sourceId',
+      '=',
+      'Source.id'
+    )
+    query.leftJoin('Notebook', 'notebook_source.notebookId', '=', 'Notebook.id')
+    // filters (AND)
+    let firstFilterUsed = false
+    if (filters.types) {
+      query.whereIn('Source.type', filters.types)
+      firstFilterUsed = true
+    }
 
-  static async deleteNotes (id /*: string */) /*: Promise<number|null> */ {
-    const time = new Date().toISOString()
-    return await Note.query()
-      .patch({ deleted: time })
-      .where('sourceId', '=', id)
-  }
+    if (filters.notebook) {
+      if (firstFilterUsed) query.andWhere('Notebook.id', '=', filters.notebook)
+      else query.where('Notebook.id', '=', filters.notebook)
+    }
 
-  static async toReference (id /*: string */) /*: Promise<any> */ {
-    const date = new Date().toISOString()
-    return await Source.query().patchAndFetchById(id, {
-      referenced: date
+    // properties (OR)
+
+    // the annoying thing is, the first query has to be .where and the rest .orWhere
+    // so we need to figure out which one is the first. fun.
+
+    query.andWhere(nestedQuery => {
+      let firstUsed = false
+
+      if (filters.name) {
+        if (firstUsed) {
+          nestedQuery.where('Source.name', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.andWhere('Source.name', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
+      }
+
+      if (filters.attributions) {
+        if (firstUsed) {
+          nestedQuery.orWhere(
+            'Attribution.normalizedName',
+            'ilike',
+            `%${search}%`
+          )
+        } else {
+          nestedQuery.where(
+            'Attribution.normalizedName',
+            'ilike',
+            `%${search}%`
+          )
+          firstUsed = true
+        }
+      }
+
+      if (filters.description) {
+        if (firstUsed) {
+          nestedQuery.orWhere('Source.description', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.where('Source.description', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
+      }
+
+      if (filters.abstract) {
+        if (firstUsed) {
+          nestedQuery.orWhere('Source.abstract', 'ilike', `%${search}%`)
+        } else {
+          nestedQuery.where('Source.abstract', 'ilike', `%${search}%`)
+          firstUsed = true
+        }
+      }
+
+      if (filters.keywords) {
+        if (firstUsed) {
+          nestedQuery.orWhereJsonSupersetOf('Source.metadata:keywords', [
+            search
+          ])
+        } else {
+          nestedQuery.whereJsonSupersetOf('Source.metadata:keywords', [search])
+          firstUsed = true
+        }
+      }
     })
   }
+
+  static async searchCount (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) /*:any */ {
+    // set defaults
+    let filters = {
+      name: true,
+      description: true,
+      abstract: true,
+      attributions: true,
+      keywords: true
+    }
+
+    if (options) {
+      filters = Object.assign(filters, options)
+    }
+
+    const query = Source.query()
+      .select('Source.id')
+      .from('Source')
+      .where('Source.readerId', '=', urlToId(user))
+      .whereNull('Source.deleted')
+      .distinct('Source.id')
+
+    this.applyFilters(query, filters, search)
+
+    let result = await query
+    return result.length
+  }
+
+  static async search (
+    user /*: string */,
+    search /*: string */,
+    options /*: any */
+  ) /*:any */ {
+    search = search.toLowerCase()
+    let limit = options && options.limit ? options.limit : 50
+    let page = options && options.page ? options.page : 1
+    let offset = page * limit - limit
+
+    // set defaults
+    let filters = {
+      name: true,
+      description: true,
+      abstract: true,
+      attributions: true,
+      keywords: true
+    }
+
+    if (options) {
+      filters = Object.assign(filters, options)
+    }
+
+    const query = Source.query()
+      .select(
+        'Source.id',
+        'Source.name',
+        'Source.description',
+        'Source.abstract',
+        'Source.metadata',
+        'Source.type',
+        'Source.updated'
+      )
+      .withGraphFetched('[attributions(notDeleted), tags(notDeleted)]')
+      .modifiers({
+        notDeleted (builder) {
+          builder.whereNull('deleted')
+        }
+      })
+      .where('Source.readerId', '=', urlToId(user))
+      .whereNull('Source.deleted')
+      .distinct('Source.id')
+      .limit(limit)
+      .offset(offset)
+      .orderBy('Source.updated', 'desc')
+
+    this.applyFilters(query, filters, search)
+
+    return await query
+  }
+
+  // ------------------ BATCH UPDATE -------------------
 
   static async batchUpdate (body /*: any */) /*: Promise<any> */ {
     let modification = {}
@@ -1041,6 +1225,8 @@ class Source extends BaseModel {
     return result
   }
 
+  // ------------------------- UPDATE ------------------
+
   static async update (
     source /*: any */,
     body /*: any */
@@ -1104,177 +1290,7 @@ class Source extends BaseModel {
     return updatedSource
   }
 
-  static async applyFilters (
-    query /*: any */,
-    filters /*: any */,
-    search /*: string */
-  ) {
-    query.leftJoin('Attribution', 'Attribution.sourceId', '=', 'Source.id')
-    query.leftJoin(
-      'notebook_source',
-      'notebook_source.sourceId',
-      '=',
-      'Source.id'
-    )
-    query.leftJoin('Notebook', 'notebook_source.notebookId', '=', 'Notebook.id')
-    // filters (AND)
-    let firstFilterUsed = false
-    if (filters.types) {
-      query.whereIn('Source.type', filters.types)
-      firstFilterUsed = true
-    }
 
-    if (filters.notebook) {
-      if (firstFilterUsed) query.andWhere('Notebook.id', '=', filters.notebook)
-      else query.where('Notebook.id', '=', filters.notebook)
-    }
-
-    // properties (OR)
-
-    // the annoying thing is, the first query has to be .where and the rest .orWhere
-    // so we need to figure out which one is the first. fun.
-
-    query.andWhere(nestedQuery => {
-      let firstUsed = false
-
-      if (filters.name) {
-        if (firstUsed) {
-          nestedQuery.where('Source.name', 'ilike', `%${search}%`)
-        } else {
-          nestedQuery.andWhere('Source.name', 'ilike', `%${search}%`)
-          firstUsed = true
-        }
-      }
-
-      if (filters.attributions) {
-        if (firstUsed) {
-          nestedQuery.orWhere(
-            'Attribution.normalizedName',
-            'ilike',
-            `%${search}%`
-          )
-        } else {
-          nestedQuery.where(
-            'Attribution.normalizedName',
-            'ilike',
-            `%${search}%`
-          )
-          firstUsed = true
-        }
-      }
-
-      if (filters.description) {
-        if (firstUsed) {
-          nestedQuery.orWhere('Source.description', 'ilike', `%${search}%`)
-        } else {
-          nestedQuery.where('Source.description', 'ilike', `%${search}%`)
-          firstUsed = true
-        }
-      }
-
-      if (filters.abstract) {
-        if (firstUsed) {
-          nestedQuery.orWhere('Source.abstract', 'ilike', `%${search}%`)
-        } else {
-          nestedQuery.where('Source.abstract', 'ilike', `%${search}%`)
-          firstUsed = true
-        }
-      }
-
-      if (filters.keywords) {
-        if (firstUsed) {
-          nestedQuery.orWhereJsonSupersetOf('Source.metadata:keywords', [
-            search
-          ])
-        } else {
-          nestedQuery.whereJsonSupersetOf('Source.metadata:keywords', [search])
-          firstUsed = true
-        }
-      }
-    })
-  }
-
-  static async searchCount (
-    user /*: string */,
-    search /*: string */,
-    options /*: any */
-  ) /*:any */ {
-    // set defaults
-    let filters = {
-      name: true,
-      description: true,
-      abstract: true,
-      attributions: true,
-      keywords: true
-    }
-
-    if (options) {
-      filters = Object.assign(filters, options)
-    }
-
-    const query = Source.query()
-      .select('Source.id')
-      .from('Source')
-      .where('Source.readerId', '=', urlToId(user))
-      .whereNull('Source.deleted')
-      .distinct('Source.id')
-
-    this.applyFilters(query, filters, search)
-
-    let result = await query
-    return result.length
-  }
-
-  static async search (
-    user /*: string */,
-    search /*: string */,
-    options /*: any */
-  ) /*:any */ {
-    search = search.toLowerCase()
-    let limit = options && options.limit ? options.limit : 50
-    let page = options && options.page ? options.page : 1
-    let offset = page * limit - limit
-
-    // set defaults
-    let filters = {
-      name: true,
-      description: true,
-      abstract: true,
-      attributions: true,
-      keywords: true
-    }
-
-    if (options) {
-      filters = Object.assign(filters, options)
-    }
-
-    const query = Source.query()
-      .select(
-        'Source.id',
-        'Source.name',
-        'Source.description',
-        'Source.abstract',
-        'Source.metadata',
-        'Source.type',
-        'Source.updated'
-      )
-      .withGraphFetched('[attributions(notDeleted), tags(notDeleted)]')
-      .modifiers({
-        notDeleted (builder) {
-          builder.whereNull('deleted')
-        }
-      })
-      .where('Source.readerId', '=', urlToId(user))
-      .whereNull('Source.deleted')
-      .distinct('Source.id')
-      .limit(limit)
-      .offset(offset)
-      .orderBy('Source.updated', 'desc')
-
-    this.applyFilters(query, filters, search)
-
-    return await query
-  }
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)

@@ -21,7 +21,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - outlines
-   *     description: Add a Note to a NoteContext
+   *     description: Add a Note to an Outline
    *     parameters:
    *       - in: path
    *         name: id
@@ -33,6 +33,12 @@ module.exports = function (app) {
    *         schema:
    *           type: string
    *         description: id of the note to be copied. When source is used, no body is needed.
+   *       - in: query
+   *         name: source
+   *         schema:
+   *           type: string
+   *         description: id of the existing Note to be copied into the Outline. 
+   *           When this parameter is used, no body is needed with the query.
    *     security:
    *       - Bearer: []
    *     requestBody:

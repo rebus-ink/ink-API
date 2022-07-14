@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - outlines
-   *     description: Update a outline
+   *     description: Update an Outline
    *     security:
    *       - Bearer: []
    *     requestBody:

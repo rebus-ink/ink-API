@@ -29,7 +29,7 @@ module.exports = function (app) {
    *   patch:
    *     tags:
    *       - sources
-   *     description: Apply the same update to multiple sources
+   *     description: Apply the same update to multiple Sources
    *     parameters:
    *       - in: path
    *         name: sourceId
@@ -46,7 +46,7 @@ module.exports = function (app) {
    *       description: body should only include fields to be updated
    *     responses:
    *       204:
-   *         description: Successfully updated Sources
+   *         description: Successfully updated all Sources
    *       207:
    *         description: Multiple status. This is returned if at least one of the changes returned an error
    *         content:

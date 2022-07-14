@@ -134,6 +134,7 @@ class Library {
     }
   }
 
+  // This is just to get the total number of items in the Source library
   static async getLibraryCount (readerId, filters) {
     let builder = Source.query(Source.knex())
       .select('Source.id')

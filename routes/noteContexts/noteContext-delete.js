@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { NoteContext } = require('../../models/NoteContext')
 const { checkOwnership } = require('../../utils/utils')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -72,14 +71,7 @@ module.exports = function (app) {
             })
           )
         }
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'deleteNoteContext',
-            readerId: urlToId(req.params.id)
-          })
-        }
-
+        
         res.setHeader('Content-Type', 'application/ld+json')
         res.status(204).end()
       })

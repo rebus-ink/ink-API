@@ -15,7 +15,8 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - notebook-note
-   *     description: Remove assignment of Note to Notebook
+   *     description: Remove assignment of Note to Notebook. 
+   *       This does not delete the note but removes it from the notebook.
    *     parameters:
    *       - in: path
    *         name: noteId

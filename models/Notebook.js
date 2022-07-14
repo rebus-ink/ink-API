@@ -118,6 +118,8 @@ class Notebook extends BaseModel {
     }
   }
 
+  // --------------------- CREATE -------------------
+
   static _validateNotebook (notebook /*: any */) /*: any */ {
     if (notebook.status && !statusMap[notebook.status]) {
       throw new Error(
@@ -203,6 +205,8 @@ class Notebook extends BaseModel {
       return createdNotebooks
     }
   }
+
+  // ---------------------- GET ---------------------
 
   static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.search) {
@@ -324,6 +328,8 @@ class Notebook extends BaseModel {
     return result.length
   }
 
+  // ----------------------- UPDATE ---------------
+
   static async update (object /*: any */) /*: Promise<any> */ {
     const props = this._formatNotebook(object, null)
     props.readerId = object.readerId
@@ -332,6 +338,8 @@ class Notebook extends BaseModel {
       .updateAndFetchById(object.id, props)
       .whereNull('deleted')
   }
+
+  // ------------------------ DELETE ---------------
 
   static async delete (id /*: string */) /*: Promise<any> */ {
     id = urlToId(id)
@@ -344,6 +352,8 @@ class Notebook extends BaseModel {
       .whereNull('deleted')
       .andWhere('id', '=', id)
   }
+
+  // -----------------------------------------------
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)

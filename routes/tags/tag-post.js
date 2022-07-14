@@ -12,7 +12,6 @@ const {
   tagsCacheUpdate,
   notebooksCacheUpdate
 } = require('../../utils/cache')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -88,20 +87,6 @@ module.exports = function (app) {
                 requestBody: req.body
               })
             )
-          }
-        }
-
-        if (metricsQueue) {
-          if (createdTag.type === 'stack') {
-            await metricsQueue.add({
-              type: 'createStack',
-              readerId: createdTag.readerId
-            })
-          } else {
-            await metricsQueue.add({
-              type: 'createTag',
-              readerId: createdTag.readerId
-            })
           }
         }
 

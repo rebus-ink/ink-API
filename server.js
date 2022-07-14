@@ -226,12 +226,12 @@ app.terminate = async () => {
     throw new Error('App not initialized; cannot terminate')
   }
   app.initialized = false
-  if (metricsQueue) {
-    await metricsQueue.clean(0)
-    await metricsQueue.clean(0, 'failed')
-    await metricsQueue.empty()
-    metricsQueue.close()
-  }
+  // if (metricsQueue) {
+  //   await metricsQueue.clean(0)
+  //   await metricsQueue.clean(0, 'failed')
+  //   await metricsQueue.empty()
+  //   metricsQueue.close()
+  // }
   if (fileDeleteQueue) {
     await fileDeleteQueue.clean(0)
     await fileDeleteQueue.clean(0, 'failed')
@@ -317,7 +317,7 @@ notebookPutTagRoute(app)
 notebookDeleteTagRoute(app)
 notebookPostSourceRoute(app)
 hardDeleteRoute(app)
-metricsGetRoute(app)
+//metricsGetRoute(app)
 metadataGetRoute(app)
 searchRoute(app)
 

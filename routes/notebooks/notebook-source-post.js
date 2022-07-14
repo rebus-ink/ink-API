@@ -19,7 +19,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - notebook-source
-   *     description: Create a source and assign it to a Notebook
+   *     description: Create a new Source and assign it to a Notebook
    *     security:
    *       - Bearer: []
    *     parameters:

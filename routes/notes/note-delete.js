@@ -7,7 +7,6 @@ const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Note } = require('../../models/Note')
 const { notesCacheUpdate, notebooksCacheUpdate } = require('../../utils/cache')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -16,7 +15,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - notes
-   *     description: Delete a note by id
+   *     description: Delete a Note by id
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -71,13 +70,6 @@ module.exports = function (app) {
               }
             )
           )
-        }
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'deleteNote',
-            readerId: urlToId(req.params.noteId)
-          })
         }
 
         await notesCacheUpdate(reader.authId)

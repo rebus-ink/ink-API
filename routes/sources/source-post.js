@@ -12,7 +12,6 @@ const {
   tagsCacheUpdate,
   notebooksCacheUpdate
 } = require('../../utils/cache')
-const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Source_Tag } = require('../../models/Source_Tag')
 const { urlToId } = require('../../utils/utils')
@@ -142,13 +141,6 @@ module.exports = function (app) {
         const finishedSource = createdSource.toJSON()
         await libraryCacheUpdate(reader.authId)
         await notebooksCacheUpdate(reader.authId)
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'createSource',
-            readerId: finishedSource.readerId
-          })
-        }
 
         res.setHeader('Content-Type', 'application/ld+json')
         res.setHeader('Location', finishedSource.id)

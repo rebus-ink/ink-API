@@ -98,6 +98,7 @@ class Note_Tag extends Model {
     return await this.addMultipleTagsToNote(noteId, tags)
   }
 
+  // remove all Note_Tag objects for a Note
   static async deleteNoteTagsOfNote (
     noteId /*: string */
   ) /*: Promise<number|Error> */ {
@@ -108,6 +109,7 @@ class Note_Tag extends Model {
       .where({ noteId: urlToId(noteId) })
   }
 
+  // remove all Note_Tag objects for a Tag
   static async deleteNoteTagsOfTag (
     tagId /*: string */
   ) /*: Promise<number|Error> */ {
@@ -118,6 +120,7 @@ class Note_Tag extends Model {
       .where({ tagId: urlToId(tagId) })
   }
 
+  // used for Notes copied to NoteContexts
   static async copyTagsFromAnotherNote (
     originalNoteId /*: string */,
     newNoteId /*: string */

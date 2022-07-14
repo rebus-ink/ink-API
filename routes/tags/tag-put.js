@@ -21,7 +21,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - tags
-   *     description: Update properties of a tag
+   *     description: Update properties of a Tag
    *     parameters:
    *       - in: path
    *         name: tagId

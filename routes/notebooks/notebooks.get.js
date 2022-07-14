@@ -39,12 +39,12 @@ module.exports = function (app) {
    *         name: search
    *         schema:
    *           type: string
-   *         description: the string to search for in name and description of notebooks. Not case sensitive, accepts partial matches
+   *         description: the string to search for in name and description of Notebooks. Not case sensitive, accepts partial matches
    *       - in : query
    *         name: colour
    *         schema:
    *           type: string
-   *         description: colour found in the settings object
+   *         description: colour found in the settings object (Notebook.settings.colour: <string>)
    *       - in: query
    *         name: collaboration
    *         schema:

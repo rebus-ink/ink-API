@@ -20,7 +20,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - notes
-   *     description: Update a note
+   *     description: Update a Note
    *     parameters:
    *       - in: path
    *         name: noteId

@@ -14,7 +14,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - tags
-   *     description: Get a list of tags for a reader
+   *     description: Get a list of all Tags for a reader
    *     security:
    *       - Bearer: []
    *     produces:

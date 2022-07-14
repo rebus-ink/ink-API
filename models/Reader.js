@@ -93,6 +93,53 @@ class Reader extends BaseModel {
     }
   }
 
+  static get relationMappings () /*: any */ {
+    return {
+      sources: {
+        relation: Model.HasManyRelation,
+        modelClass: Source,
+        join: {
+          from: 'Reader.id',
+          to: 'Source.readerId'
+        }
+      },
+      readActivities: {
+        relation: Model.HasManyRelation,
+        modelClass: ReadActivity,
+        join: {
+          from: 'Reader.id',
+          to: 'readActivity.readerId'
+        }
+      },
+      replies: {
+        relation: Model.HasManyRelation,
+        modelClass: Note,
+        join: {
+          from: 'Reader.id',
+          to: 'Note.readerId'
+        }
+      },
+      attributions: {
+        relation: Model.HasManyRelation,
+        modelClass: Attribution,
+        join: {
+          from: 'Reader.id',
+          to: 'Attribution.readerId'
+        }
+      },
+      tags: {
+        relation: Model.HasManyRelation,
+        modelClass: Tag,
+        join: {
+          from: 'Reader.id',
+          to: 'Tag.readerId'
+        }
+      }
+    }
+  }
+
+  // -------------------------- GET -------------------
+
   static async byAuthId (authId /*: string */) /*: Promise<Reader> */ {
     const readers = await Reader.query(Reader.knex()).where(
       'authId',
@@ -128,6 +175,8 @@ class Reader extends BaseModel {
     return readers.length > 0 && !readers[0].deleted
   }
 
+  // ---------------------- CREATE ------------------
+
   static _validateReader (object) {
     // role
     if (object.role && roles.indexOf(object.role) === -1) {
@@ -160,7 +209,7 @@ class Reader extends BaseModel {
       .insert(props)
       .returning('*')
 
-    // create default Tags
+    // create default Tags for the Reader
     await Tag.createMultipleTags(newReader.id, [
       {
         name: 'important',
@@ -219,6 +268,8 @@ class Reader extends BaseModel {
     return newReader
   }
 
+  // ------------------------ UPDATE -----------------
+
   static async update (
     id /*: string */,
     object /*: any */
@@ -236,6 +287,8 @@ class Reader extends BaseModel {
     this._validateReader(modifications)
     return await Reader.query().updateAndFetchById(urlToId(id), modifications)
   }
+
+  // ------------------------ DELETE ------------------
 
   static async softDelete (id /*: string */) /*: Promise<number> */ {
     id = urlToId(id)
@@ -268,50 +321,7 @@ class Reader extends BaseModel {
     })
   }
 
-  static get relationMappings () /*: any */ {
-    return {
-      sources: {
-        relation: Model.HasManyRelation,
-        modelClass: Source,
-        join: {
-          from: 'Reader.id',
-          to: 'Source.readerId'
-        }
-      },
-      readActivities: {
-        relation: Model.HasManyRelation,
-        modelClass: ReadActivity,
-        join: {
-          from: 'Reader.id',
-          to: 'readActivity.readerId'
-        }
-      },
-      replies: {
-        relation: Model.HasManyRelation,
-        modelClass: Note,
-        join: {
-          from: 'Reader.id',
-          to: 'Note.readerId'
-        }
-      },
-      attributions: {
-        relation: Model.HasManyRelation,
-        modelClass: Attribution,
-        join: {
-          from: 'Reader.id',
-          to: 'Attribution.readerId'
-        }
-      },
-      tags: {
-        relation: Model.HasManyRelation,
-        modelClass: Tag,
-        join: {
-          from: 'Reader.id',
-          to: 'Tag.readerId'
-        }
-      }
-    }
-  }
+  // ----------------------------------------------
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)

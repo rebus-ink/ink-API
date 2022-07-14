@@ -1,14 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Library } = require('../models/library')
 const { Source } = require('../models/Source')
 const { Note } = require('../models/Note')
 const { Notebook } = require('../models/Notebook')
 const { Reader } = require('../models/Reader')
 
-const boom = require('@hapi/boom')
-const { urlToId } = require('../utils/utils')
 const _ = require('lodash')
 
 module.exports = app => {
@@ -18,7 +15,7 @@ module.exports = app => {
    *   post:
    *     tags:
    *       - search
-   *     description: send search option objects and get search results back
+   *     description: send search option objects and get search results back. This can search Notes, Sources and Notebooks.
    *     security:
    *       - Bearer: []
    *     produces:

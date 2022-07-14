@@ -13,7 +13,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - readers
-   *     description: Update reader
+   *     description: Update a Reader object
    *     parameters:
    *       - in: path
    *         name: id

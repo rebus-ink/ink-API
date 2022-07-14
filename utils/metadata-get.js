@@ -130,7 +130,6 @@ const getMetadata = async (title, apis) => {
     results.loc = loc
   }
 
-  // console.log(results)
   return results
 }
 

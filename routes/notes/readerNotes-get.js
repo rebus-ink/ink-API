@@ -14,7 +14,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - notes
-   *     description: Get a collection of Notes for a reader
+   *     description: Get a collection of Notes for a Reader
    *     parameters:
    *       - in: query
    *         name: limit
@@ -23,7 +23,7 @@ module.exports = app => {
    *           default: 10
    *           minimum: 10
    *           maximum: 100
-   *         description: the number of notes to return
+   *         description: the number of Notes to return
    *       - in: query
    *         name: page
    *         schema:
@@ -33,7 +33,7 @@ module.exports = app => {
    *         name: document
    *         schema:
    *           type: string
-   *         description: the document the note is associated with. When this filter is used, will not paginate. Will return all results.
+   *         description: the document (Source.document) the Note is associated with. When this filter is used, pagination is disabled. It will return all results.
    *       - in: query
    *         name: source
    *         schema:

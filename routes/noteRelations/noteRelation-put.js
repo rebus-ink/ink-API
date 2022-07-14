@@ -17,7 +17,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - noteRelations
-   *     description: Update a noteRelation
+   *     description: Update a NoteRelation
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -39,7 +39,7 @@ module.exports = function (app) {
    *       403:
    *         description: 'Access to reader {id} disallowed'
    *       404:
-   *         description: no Note or NoteRelation found with id passed to 'to', 'from', 'previous' or 'next'
+   *         description: NoteRelation found, or no Note found with id passed to 'to', 'from', 'previous' or 'next'
    */
   app.use('/', router)
   router.route('/noteRelations/:id').put(jwtAuth, function (req, res, next) {

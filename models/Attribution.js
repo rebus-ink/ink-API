@@ -40,10 +40,10 @@ class Attribution extends BaseModel {
       type: 'object',
       properties: {
         id: { type: 'string' },
-        role: { type: 'string' },
+        role: { type: 'string' }, // see the list of allowed attributionRoles above
         name: { type: 'string' },
-        normalizedName: { type: 'string' },
-        type: { type: 'string' },
+        normalizedName: { type: 'string' }, // Not entered by the user. Name, but without uppercase, punctuation, spaces. This will be generated to allow for easier searches
+        type: { type: 'string' }, // can be "Person" or "Organization"
         readerId: { type: 'string' },
         isContributor: { type: 'boolean' },
         sourceId: { type: 'string' },
@@ -52,6 +52,8 @@ class Attribution extends BaseModel {
       required: ['role', 'name', 'normalizedName', 'readerId', 'sourceId']
     }
   }
+
+  // -------------- CREATE -------------------
 
   static _formatAttribution (
     attribution /*: any */,
@@ -98,6 +100,7 @@ class Attribution extends BaseModel {
     return props
   }
 
+  // starting with attribution objects
   static async createSingleAttribution (
     role /*: string */,
     attribution /*: any */,
@@ -120,6 +123,7 @@ class Attribution extends BaseModel {
     )
   }
 
+  // no attribution objects. We extract attributions from the source object.
   static async createAttributionsForSource (
     source /*: any */,
     sourceId /*: string */,
@@ -170,6 +174,9 @@ class Attribution extends BaseModel {
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\']/g, '') // remove punctuation
   }
 
+  // -------------------- GET ---------------------
+
+  // despite the name of the function, this returns multiple attributions.
   static async getAttributionBySourceId (
     sourceId /*: string */
   ) /*: Promise<AttributionType> */ {
@@ -183,6 +190,9 @@ class Attribution extends BaseModel {
       sourceId
     )
   }
+
+  // -------------------- DELETE -------------------
+
   static async deleteAttribution (
     sourceId /*: Array<string> */,
     role /*: string */,
@@ -195,6 +205,7 @@ class Attribution extends BaseModel {
       .del()
   }
 
+  // delete all attributions of a source.
   static async deleteAttributionOfSource (
     sourceId /*: string */,
     role /*: string */
@@ -204,6 +215,8 @@ class Attribution extends BaseModel {
       .andWhere('sourceId', '=', sourceId)
       .del()
   }
+
+  // ---------------------------------------------
 
   $beforeUpdate (queryOptions /*: any */, context /*: any */) /*:any */ {
     const parent = super.$beforeUpdate(queryOptions, context)

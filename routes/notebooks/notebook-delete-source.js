@@ -18,7 +18,8 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - notebook-source
-   *     description: Remove assignment of Source to Notebook
+   *     description: Remove assignment of Source to Notebook.
+   *        This does not delete the source but removes it from the notebook.
    *     parameters:
    *       - in: path
    *         name: sourceId

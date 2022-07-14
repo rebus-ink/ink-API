@@ -1,3 +1,5 @@
+// NOT CURRENTLY USED
+
 const { urlToId } = require('./utils')
 const crypto = require('crypto')
 const Queue = require('bull')

@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { checkOwnership } = require('../../utils/utils')
 const { Collaborator } = require('../../models/Collaborator')
-const { metricsQueue } = require('../../utils/metrics')
 module.exports = function (app) {
   /**
    * @swagger
@@ -14,7 +13,9 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - collaborators
-   *     description: Delete a collaborator by id
+   *     description: Delete a collaborator from a notebook by id. 
+   *       This does not delete the user, only removes them from the list of collaborators
+   *       for the notebook.
    *     parameters:
    *       - in: path
    *         name: collaboratorId
@@ -74,13 +75,6 @@ module.exports = function (app) {
                 }
               )
             )
-          }
-
-          if (metricsQueue) {
-            await metricsQueue.add({
-              type: 'deleteCollaborator',
-              readerId: urlToId(reader.id)
-            })
           }
 
           res.status(204).end()
