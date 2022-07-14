@@ -19,7 +19,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - outlines
-   *     description: GET /outlines/:id/docx
+   *     description: Get a docx version of an Outline, for exporting.
    *     parameters:
    *       - in: path
    *         name: id

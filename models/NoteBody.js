@@ -39,7 +39,7 @@ class NoteBody extends BaseModel {
         id: { type: 'string' },
         noteId: { type: 'string' },
         content: { type: ['string', 'null'] },
-        formattedContent: { type: ['string', 'null'] },
+        formattedContent: { type: ['string', 'null'] }, // stored content without html tags for easier searching
         language: { type: ['string', 'null'] },
         motivation: { type: 'string' },
         readerId: { type: 'string' },
@@ -49,6 +49,8 @@ class NoteBody extends BaseModel {
       required: ['noteId', 'motivation', 'readerId']
     }
   }
+
+  // --------------- CREATE ------------------------
 
   static async createMultipleNoteBodies (
     noteBodies /*: any */,
@@ -94,6 +96,8 @@ class NoteBody extends BaseModel {
   ) /*: Promise<void> */ {
     return await NoteBody.createMultipleNoteBodies([noteBody], noteId, readerId)
   }
+
+  // ------------- DELETE ---------------------
 
   static async deleteBodiesOfNote (noteId /*: string */) /*: Promise<number> */ {
     return await NoteBody.query(NoteBody.knex())

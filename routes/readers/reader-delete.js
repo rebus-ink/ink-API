@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { urlToId } = require('../../utils/utils')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -13,7 +12,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - readers
-   *     description: Update reader
+   *     description: Delete a Reader
    *     parameters:
    *       - in: path
    *         name: id
@@ -60,13 +59,6 @@ module.exports = function (app) {
       }
 
       await Reader.softDelete(req.params.id)
-
-      if (metricsQueue) {
-        await metricsQueue.add({
-          type: 'deleteReader',
-          readerId: urlToId(req.params.id)
-        })
-      }
 
       res.setHeader('Content-Type', 'application/ld+json')
       res.status(204)

@@ -20,18 +20,21 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - noteContexts
-   *     description: Add a Note to a NoteContext
+   *     description: Add a Note to a NoteContext. This can either receive
+   *        a note body, or it can copy an existing Note (see 'source' query parameter)
    *     parameters:
    *       - in: path
    *         name: id
    *         schema:
    *           type: string
    *         required: true
+   *         description: The id of the noteContext
    *       - in: query
    *         name: source
    *         schema:
    *           type: string
-   *         description: id of the note to be copied. When source is used, no body is needed.
+   *         description: id of the existing Note to be copied into the NoteContext. 
+   *           When this parameter is used, no body is needed with the query.
    *     security:
    *       - Bearer: []
    *     requestBody:

@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - notebook-tag
-   *     description: Assign a Tag to a Notebook
+   *     description: Assign an existing Tag to a Notebook
    *     parameters:
    *       - in: path
    *         name: notebookId

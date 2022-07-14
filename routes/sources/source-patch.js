@@ -24,7 +24,7 @@ module.exports = function (app) {
    *   patch:
    *     tags:
    *       - sources
-   *     description: Update fields in a source
+   *     description: Update fields in a Source
    *     parameters:
    *       - in: path
    *         name: sourceId

@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
 const { NoteContext } = require('../../models/NoteContext')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -84,12 +83,6 @@ module.exports = function (app) {
               })
             )
           }
-        }
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'createOutline',
-            readerId: createdOutline.readerId
-          })
         }
 
         res.setHeader('Content-Type', 'application/ld+json')

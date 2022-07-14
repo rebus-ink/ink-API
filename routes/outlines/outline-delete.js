@@ -14,7 +14,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - outlines
-   *     description: Delete an outline
+   *     description: Delete an Outline
    *     security:
    *       - Bearer: []
    *     requestBody:

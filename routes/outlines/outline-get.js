@@ -16,7 +16,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - outlines
-   *     description: GET /outlines/:id
+   *     description: Get an Outline by its shortId.
    *     parameters:
    *       - in: path
    *         name: id

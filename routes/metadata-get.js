@@ -1,8 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const { Datastore } = require('@google-cloud/datastore')
-const datastore = new Datastore()
-const metricsQuery = datastore.createQuery('ink-metrics', 'metric')
 const _ = require('lodash')
 const { getMetadata } = require('../utils/metadata-get')
 

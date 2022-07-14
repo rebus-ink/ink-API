@@ -45,6 +45,8 @@ class Tag extends BaseModel {
     }
   }
 
+  // -------------------------- CREATE ------------------
+
   static async createTag (
     readerId /*: string */,
     tag /*: {type: string, name: string, type: string, json?: {}, readerId?: string, notebookId?:string} */
@@ -93,6 +95,8 @@ class Tag extends BaseModel {
     }
   }
 
+  // ------------------------ DELETE ---------------
+
   async delete () /*: Promise<number> */ {
     const tagId = this.id
     // Delete all Source_Tags associated with this tag
@@ -103,6 +107,8 @@ class Tag extends BaseModel {
 
     return await Tag.query().deleteById(urlToId(tagId))
   }
+
+  // -------------------------- UPDATE -----------------
 
   async update (object /*: any */) /*: Promise<TagType|null> */ {
     const modifications = _.pick(object, [
@@ -120,6 +126,8 @@ class Tag extends BaseModel {
     return await Tag.query().updateAndFetchById(urlToId(this.id), modifications)
   }
 
+  // ------------------------ GET ----------------------
+
   static async byReaderId (
     readerId /*: string */
   ) /*: Promise<Array<TagType>> */ {
@@ -129,6 +137,8 @@ class Tag extends BaseModel {
   static async byId (id /*: string */) /*: Promise<TagType> */ {
     return await Tag.query().findById(id)
   }
+
+  // ----------------------------------------------------
 
   $beforeInsert (queryOptions /*: any */, context /*: any */) /*: any */ {
     const parent = super.$beforeInsert(queryOptions, context)

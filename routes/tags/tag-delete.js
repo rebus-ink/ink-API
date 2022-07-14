@@ -11,7 +11,6 @@ const {
   notebooksCacheUpdate
 } = require('../../utils/cache')
 const { checkOwnership } = require('../../utils/utils')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -77,13 +76,6 @@ module.exports = function (app) {
               requestUrl: req.originalUrl
             })
           )
-        }
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'deleteTag',
-            readerId: urlToId(req.params.noteId)
-          })
         }
 
         await libraryCacheUpdate(reader.authId)

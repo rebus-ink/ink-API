@@ -15,7 +15,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - noteContexts
-   *     description: GET /noteContexts/:id
+   *     description: get NoteContext by id. 
    *     parameters:
    *       - in: path
    *         name: id

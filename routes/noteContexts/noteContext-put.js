@@ -16,7 +16,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - noteContexts
-   *     description: Update a noteContext
+   *     description: Update a NoteContext
    *     security:
    *       - Bearer: []
    *     requestBody:

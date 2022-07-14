@@ -7,7 +7,6 @@ const { Note } = require('../../models/Note')
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { metricsQueue } = require('../../utils/metrics')
 const { Tag } = require('../../models/Tag')
 const { Note_Tag } = require('../../models/Note_Tag')
 const { urlToId } = require('../../utils/utils')
@@ -26,7 +25,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - notes
-   *     description: Create a note
+   *     description: Create a Note
    *     security:
    *       - Bearer: []
    *     parameters:
@@ -35,7 +34,9 @@ module.exports = function (app) {
    *         schema:
    *           type: boolean
    *           default: false
-   *         description: an option to skip creating a note if it already exists
+   *         description: an option to skip creating a Note if it already exists.
+   *           This is used in the frontend for note imports to allow for syncing with an existing list of notes.
+   *           A duplicate is a note with the same body content and motivation.
    *     requestBody:
    *       content:
    *         application/json:
@@ -168,13 +169,6 @@ module.exports = function (app) {
               urlToId(createdNote.id)
             )
           }
-        }
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'createNote',
-            readerId: createdNote.readerId
-          })
         }
 
         await notesCacheUpdate(reader.authId)

@@ -11,7 +11,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - readers
-   *     description: GET /whoami
+   *     description: Get a Reader based on the authentication token.
    *     security:
    *       - Bearer: []
    *     produces:

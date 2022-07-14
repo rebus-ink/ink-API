@@ -14,7 +14,7 @@ module.exports = function (app) {
    *   get:
    *     tags:
    *       - noteContexts
-   *     description: Get a list of NoteContexts for a reader
+   *     description: Get a list of NoteContexts for a Reader
    *     security:
    *       - Bearer: []
    *     produces:
@@ -24,10 +24,10 @@ module.exports = function (app) {
    *         name: notebook
    *         schema:
    *           type: string
-   *         description: shortId of the notebook to filter by
+   *         description: shortId of the Notebook to filter by
    *     responses:
    *       200:
-   *         description: An array of noteContexts for the reader (based on the validation token)
+   *         description: An array of NoteContexts for the reader (based on the validation token)
    *         content:
    *           application/json:
    *             schema:

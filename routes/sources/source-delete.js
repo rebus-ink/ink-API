@@ -10,7 +10,6 @@ const {
   libraryCacheUpdate,
   notebooksCacheUpdate
 } = require('../../utils/cache')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -19,7 +18,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - sources
-   *     description: Delete a source by id
+   *     description: Delete a Source by id
    *     parameters:
    *       - in: path
    *         name: sourceId
@@ -30,7 +29,7 @@ module.exports = function (app) {
    *         name: reference
    *         schema:
    *           type: boolean
-   *         description: flag a source that you want to keep as a reference for notes. The source will no longer be in the library.
+   *         description: flag a Source that you want to keep as a reference for Notes that belong to that Source. The source will no longer be in the library.
    *     security:
    *       - Bearer: []
    *     responses:
@@ -86,13 +85,6 @@ module.exports = function (app) {
               requestUrl: req.originalUrl
             })
           )
-        }
-
-        if (metricsQueue) {
-          await metricsQueue.add({
-            type: 'deleteSource',
-            readerId: urlToId(req.params.sourceId)
-          })
         }
 
         await libraryCacheUpdate(reader.authId)

@@ -17,7 +17,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - sources
-   *     description: GET a collection of sources and tags for a reader
+   *     description: GET a collection of Sources and Tags for a reader
    *     parameters:
    *       - in: query
    *         name: limit
@@ -26,7 +26,7 @@ module.exports = app => {
    *           default: 10
    *           minimum: 10
    *           maximum: 100
-   *         description: the number of library items to return
+   *         description: the number of Source items to return in the library
    *       - in: query
    *         name: page
    *         schema:

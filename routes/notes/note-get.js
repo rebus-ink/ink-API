@@ -22,7 +22,7 @@ module.exports = app => {
    *         schema:
    *           type: string
    *         required: true
-   *         description: the short id of the note
+   *         description: the short id of the Note
    *     security:
    *       - Bearer: []
    *     produces:

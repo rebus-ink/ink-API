@@ -15,7 +15,8 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - tag-note
-   *     description: Remove assignment of a Tag to a Note
+   *     description: Remove assignment of a Tag to a Note. This does not delete
+   *       either the Tag or the Note.
    *     parameters:
    *       - in: path
    *         name: noteId
@@ -35,9 +36,9 @@ module.exports = function (app) {
    *       401:
    *         description: 'No Authentication'
    *       404:
-   *         description: note, tag or note-tag relation not found
+   *         description: Note, Tag or Note_Tag relation not found
    *       403:
-   *         description: 'Access to tag or note disallowed'
+   *         description: 'Access to Tag or Note disallowed'
    */
   app.use('/', router)
   router

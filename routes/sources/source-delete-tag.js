@@ -18,7 +18,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - tag-source
-   *     description: Remove assignment of Tag to a Source
+   *     description: Remove assignment of Tag to a Source. This does not delete either the Tag or the Source.
    *     parameters:
    *       - in: path
    *         name: sourceId

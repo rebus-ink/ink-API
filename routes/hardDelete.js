@@ -1,3 +1,5 @@
+// This was meant to be called by a serverless function. It is not currently used.
+
 const express = require('express')
 const router = express.Router()
 const { Source } = require('../models/Source')

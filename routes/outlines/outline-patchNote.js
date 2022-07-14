@@ -16,7 +16,7 @@ module.exports = function (app) {
    *   patch:
    *     tags:
    *       - outlines
-   *     description: Update a Note that is in an outline
+   *     description: Update a Note that is in an Outline, including updating position information.
    *     parameters:
    *       - in: path
    *         name: id

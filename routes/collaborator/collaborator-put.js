@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   put:
    *     tags:
    *       - collaborators
-   *     description: Update a collaborator
+   *     description: Update a collaborator for a notebook
    *     parameters:
    *       - in: path
    *         name: notebookId

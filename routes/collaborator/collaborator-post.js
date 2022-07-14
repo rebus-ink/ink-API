@@ -6,7 +6,6 @@ const jwtAuth = passport.authenticate('jwt', { session: false })
 const boom = require('@hapi/boom')
 const _ = require('lodash')
 const { ValidationError } = require('objection')
-const { metricsQueue } = require('../../utils/metrics')
 const { Collaborator } = require('../../models/Collaborator')
 const { checkOwnership } = require('../../utils/utils')
 
@@ -17,7 +16,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - collaborators
-   *     description: Create a Collaborator
+   *     description: Create a Collaborator for a notebook
    *     security:
    *       - Bearer: []
    *     parameters:
@@ -105,13 +104,6 @@ module.exports = function (app) {
                 })
               )
             }
-          }
-
-          if (metricsQueue) {
-            await metricsQueue.add({
-              type: 'createCollaborator',
-              readerId: createdCollaborator.readerId
-            })
           }
 
           res.setHeader('Content-Type', 'application/ld+json')

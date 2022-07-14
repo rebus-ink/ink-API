@@ -15,7 +15,7 @@ module.exports = app => {
    *   get:
    *     tags:
    *       - notebooks
-   *     description: GET /notebooks/:id
+   *     description: Get a notebook object, including a list of notes and noteRelations
    *     parameters:
    *       - in: path
    *         name: id
@@ -29,7 +29,8 @@ module.exports = app => {
    *       - application/json
    *     responses:
    *       200:
-   *         description: A Notebook Object with a list of notes and noteRelations
+   *         description: A Notebook Object with a list of notes, tags,
+   *           noteContexts, collaborators and sources
    *         content:
    *           application/json:
    *             schema:

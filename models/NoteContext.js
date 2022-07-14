@@ -63,6 +63,8 @@ class NoteContext extends BaseModel {
     }
   }
 
+  // ------------------------- GET --------------------
+
   static async applyFilters (query /*: any */, filters /*: any */) /*:any */ {
     if (filters.notebook) {
       query = query.where('notebookId', '=', urlToId(filters.notebook))
@@ -88,22 +90,6 @@ class NoteContext extends BaseModel {
     this.applyFilters(query, filters)
 
     return await query
-  }
-
-  static async createNoteContext (
-    object /*: any */,
-    readerId /*: string */
-  ) /*: Promise<any> */ {
-    const props = _.pick(object, [
-      'type',
-      'name',
-      'description',
-      'json',
-      'notebookId'
-    ])
-    props.readerId = readerId
-    props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
-    return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
   }
 
   static async byId (id /*: string */) /*: Promise<any> */ {
@@ -146,6 +132,26 @@ class NoteContext extends BaseModel {
     } else return true
   }
 
+  // ----------------------- CREATE -----------------
+
+  static async createNoteContext (
+    object /*: any */,
+    readerId /*: string */
+  ) /*: Promise<any> */ {
+    const props = _.pick(object, [
+      'type',
+      'name',
+      'description',
+      'json',
+      'notebookId'
+    ])
+    props.readerId = readerId
+    props.id = `${urlToId(readerId)}-${crypto.randomBytes(5).toString('hex')}`
+    return await NoteContext.query(NoteContext.knex()).insertAndFetch(props)
+  }
+
+  // ---------------- UPDATE ---------------------
+
   static async update (object /*: any */) /*: Promise<any> */ {
     const props = _.pick(object, [
       'readerId',
@@ -162,9 +168,13 @@ class NoteContext extends BaseModel {
     )
   }
 
+  // ------------------- DELETE ------------------
+
   static async delete (id /*: string */) /*: Promise<any> */ {
     return await NoteContext.query().deleteById(id)
   }
+
+  // --------------------------------------------
 
   $formatJson (json /*: any */) /*: any */ {
     json = super.$formatJson(json)

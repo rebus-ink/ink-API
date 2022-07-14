@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - noteRelations
-   *     description: Delete a noteRelation
+   *     description: Delete a NoteRelation
    *     security:
    *       - Bearer: []
    *     requestBody:

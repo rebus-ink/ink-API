@@ -4,7 +4,6 @@ const passport = require('passport')
 const { Reader } = require('../../models/Reader')
 const boom = require('@hapi/boom')
 const { ValidationError } = require('objection')
-const { metricsQueue } = require('../../utils/metrics')
 
 module.exports = function (app) {
   /**
@@ -13,7 +12,7 @@ module.exports = function (app) {
    *   post:
    *     tags:
    *       - readers
-   *     description: Create reader
+   *     description: Create a Reader
    *     security:
    *       - Bearer: []
    *     requestBody:
@@ -70,13 +69,6 @@ module.exports = function (app) {
             })
           )
         }
-      }
-
-      if (metricsQueue) {
-        await metricsQueue.add({
-          type: 'createReader',
-          readerId: createdReader.id
-        })
       }
 
       res.setHeader('Content-Type', 'application/ld+json')

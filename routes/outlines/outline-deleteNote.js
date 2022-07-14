@@ -15,7 +15,7 @@ module.exports = function (app) {
    *   delete:
    *     tags:
    *       - outlines
-   *     description: Add a Note to a NoteContext
+   *     description: Remove a Note from an Outline
    *     parameters:
    *       - in: path
    *         name: id

@@ -31,6 +31,9 @@ testing.
 
 The documentation for the routes is available at https://rebusfoundation.github.io/reader-api.
 
+### Key Concepts
+The documentation for key concepts in the API is available here ./guides/development.md
+
 ## Contributing
 
 This project is still in the very early stages and is not yet ready for unsolicited contributions.
