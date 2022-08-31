@@ -3,7 +3,6 @@
 The Rebus Ink "Reader" server is an API for research workflow to support researchers to
 better manage and draw insights from their collected sources.
 
-[![Build Status](https://travis-ci.org/RebusFoundation/reader-api.svg?branch=master)](https://travis-ci.org/RebusFoundation/reader-api)
 
 ## Technology Stack
 
